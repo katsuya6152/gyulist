@@ -1,0 +1,41 @@
+# ---- OS/エディタ系 ----
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ---- ログ・デバッグ関係 ----
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log*
+
+# ---- Nodeモジュール ----
+node_modules/
+
+# ---- TypeScriptビルド / トランスパイル成果物 ----
+dist/
+out/
+coverage/
+
+# ---- Next.js 特有 ----
+.next/
+.vercel/
+*.log
+
+# Vercel/Next.jsで生成される可能性のあるファイル
+.next-on-pages/
+out/
+
+# ---- 環境変数ファイル ----
+.env
+.env.*
+!.env.development
+
+# ---- Drizzle (マイグレーションは除外しない) ----
+# drizzle/ フォルダ内の *.sql はコミットするのが一般的
+# ただし、ローカルSQLiteファイル (.db) を使う場合は ignore
+*.db
+
+# ---- Cloudflare Wrangler ----
+# (wrangler.toml はコミット推奨、APIキーやトークン類はGitHub Secrets管理)
+.wrangler/
