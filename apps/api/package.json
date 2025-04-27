@@ -3,12 +3,19 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "generate": "drizzle-kit generate",
+    "migrate:local": "wrangler d1 migrations apply gyulist --local",
+    "migrate:remote": "wrangler d1 migrations apply gyulist --remote",
+    "create-dummy-data:local": "npx wrangler d1 execute gyulist --local --file=./src/db/dummy/dummy_data.sql",
+    "create-dummy-data:remote": "wrangler d1 execute gyulist --remote --file=./src/db/dummy/dummy_data.sql"
   },
   "dependencies": {
+    "drizzle-orm": "^0.43.1",
     "hono": "^4.7.7"
   },
   "devDependencies": {
+    "drizzle-kit": "^0.31.0",
     "wrangler": "^4.4.0"
   }
 }
