@@ -48,6 +48,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@repo/api':
+        specifier: workspace:*
+        version: link:../api
       hono:
         specifier: ^4.7.8
         version: 4.7.8

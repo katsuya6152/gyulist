@@ -1,5 +1,5 @@
 {
-	"name": "api",
+	"name": "@repo/api",
 	"main": "index.js",
 	"type": "module",
 	"types": "./dist/index.d.ts",
