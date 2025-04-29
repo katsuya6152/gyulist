@@ -1,21 +1,24 @@
 {
-  "name": "gyulist",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "format": "biome format .",
-    "format:fix": "pnpm format --write .",
-    "lint": "biome check .",
-    "lint:fix": "pnpm lint --write",
-    "prepare": "pnpm simple-git-hooks"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@biomejs/biome": "1.9.4",
-    "simple-git-hooks": "^2.13.0"
-  }
+	"name": "gyulist",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"format": "biome format .",
+		"format:fix": "pnpm format --write .",
+		"lint": "biome check .",
+		"lint:fix": "pnpm lint --write",
+		"prepare": "pnpm simple-git-hooks"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"simple-git-hooks": "^2.13.0"
+	},
+	"simple-git-hooks": {
+		"pre-commit": "pnpm format && pnpm lint"
+	}
 }
