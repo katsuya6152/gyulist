@@ -1,6 +1,8 @@
 import { fetchUser } from "@/lib/fetchUser";
 import { notFound } from "next/navigation";
 
+export const runtime = "edge";
+
 type Props = {
 	params: Promise<{
 		id: string;
