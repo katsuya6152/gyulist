@@ -26,7 +26,7 @@ const routes = app
   .use(
     "*",
     cors({
-      origin: ["http://localhost:3000", "https://logyuu.pages.dev"],
+      origin: ["http://localhost:3000", "https://gyulist.pages.dev"],
       allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
       allowHeaders: ["Content-Type"],
       credentials: true,
