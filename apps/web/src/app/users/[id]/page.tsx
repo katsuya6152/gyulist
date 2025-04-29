@@ -1,0 +1,36 @@
+import { fetchUser } from "@/lib/fetchUser";
+import { notFound } from "next/navigation";
+
+type Props = {
+	params: Promise<{
+		id: string;
+	}>;
+};
+
+export default async function UserPage({ params }: Props) {
+	const { id } = await params;
+
+	let userList: Awaited<ReturnType<typeof fetchUser>>;
+
+	try {
+		userList = await fetchUser(id);
+	} catch (e) {
+		console.error(e);
+		notFound();
+	}
+
+	if (!userList.length) {
+		notFound();
+	}
+
+	const user = userList[0];
+
+	return (
+		<div className="p-6">
+			<h1 className="text-xl font-bold">User Detail</h1>
+			<p>ID: {user.id}</p>
+			<p>Name: {user.userName}</p>
+			<p>Email: {user.email}</p>
+		</div>
+	);
+}

@@ -1,6 +1,10 @@
 {
   "name": "api",
+  "main": "index.js",
+  "type": "module",
+  "types": "./dist/index.d.ts",
   "scripts": {
+    "build": "tsup ./src/index.ts --dts --format esm",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
@@ -11,11 +15,16 @@
     "create-dummy-data:remote": "wrangler d1 execute gyulist --remote --file=./src/db/dummy/dummy_data.sql"
   },
   "dependencies": {
+    "@hono/zod-validator": "^0.5.0",
     "drizzle-orm": "^0.43.1",
-    "hono": "^4.7.7"
+    "hono": "^4.7.7",
+    "zod": "^3.24.3"
   },
   "devDependencies": {
     "drizzle-kit": "^0.31.0",
+    "esbuild": "^0.25.3",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3",
     "wrangler": "^4.4.0"
   }
 }

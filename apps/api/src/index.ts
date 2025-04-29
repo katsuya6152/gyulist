@@ -1,27 +1,69 @@
-import { Hono } from 'hono';
-import { type AnyD1Database, drizzle } from "drizzle-orm/d1";
-import { users } from './db/schema';
-import { eq } from "drizzle-orm";
+import { Hono } from 'hono'
+import { type AnyD1Database, drizzle } from 'drizzle-orm/d1'
+import { users } from './db/schema'
+import { eq } from 'drizzle-orm'
+import { z } from 'zod'
+import { zValidator } from '@hono/zod-validator'
+import { hc } from "hono/client";
+import { cors } from "hono/cors";
 
 type Bindings = {
-  DB: AnyD1Database;
+  DB: AnyD1Database
+}
+
+const app = new Hono<{ Bindings: Bindings }>().basePath('/api')
+
+// --- スキーマ定義 ---
+
+// パスパラメータ(id)をバリデするためのZodスキーマ
+const UserIdParamSchema = z.object({
+  id: z.string().regex(/^\d+$/, { message: 'id must be a number string' })
+})
+
+// --- エンドポイント定義 ---
+
+const routes = app
+  .use(
+    "*",
+    cors({
+      origin: ["http://localhost:3000", "https://logyuu.pages.dev"],
+      allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      allowHeaders: ["Content-Type"],
+      credentials: true,
+    }),
+  )
+  .get('/', (c) => {
+    return c.text('Hello Hono!')
+  })
+
+  .get(
+    '/users/:id',
+    zValidator('param', UserIdParamSchema),
+    async (c) => {
+      try {
+        const db = drizzle(c.env.DB)
+        const { id } = c.req.valid('param')
+        const results = await db
+          .select()
+          .from(users)
+          .where(eq(users.id, Number.parseInt(id)))
+
+        return c.json(results)
+      } catch (e) {
+        console.error(e)
+        return c.json({ error: 'Internal Server Error' }, 500)
+      }
+    }
+  )
+
+export type AppType = typeof routes;
+
+type ClientType = typeof hc<AppType>;
+
+export const createClient = (
+  ...args: Parameters<ClientType>
+): ReturnType<ClientType> => {
+  return hc<AppType>(...args);
 };
-
-const app = new Hono<{ Bindings: Bindings }>().basePath("/api");
-
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
-})
-
-app.get("/users/:id", async (c) => {
-	try {
-		const db = drizzle(c.env.DB);
-    const { id } = c.req.param();
-		const results = await db.select().from(users).where(eq(users.id, Number.parseInt(id)));
-		return c.json(results);
-	} catch (e) {
-		return c.json({err:e},500);
-	}
-})
 
 export default app
