@@ -7,3 +7,57 @@ export async function findUserById(dbInstance: AnyD1Database, id: number) {
 	const results = await db.select().from(users).where(eq(users.id, id));
 	return results[0] || null;
 }
+
+export async function findUserByEmail(
+	dbInstance: AnyD1Database,
+	email: string,
+) {
+	const db = drizzle(dbInstance);
+	const results = await db.select().from(users).where(eq(users.email, email));
+	return results[0] || null;
+}
+
+export async function createUser(
+	dbInstance: AnyD1Database,
+	email: string,
+	verificationToken: string,
+) {
+	const db = drizzle(dbInstance);
+	await db.insert(users).values({
+		email,
+		passwordHash: "", // 仮のパスワードハッシュ
+		isVerified: false,
+		verificationToken,
+		createdAt: new Date().toISOString(),
+	});
+}
+
+export async function findUserByVerificationToken(
+	dbInstance: AnyD1Database,
+	token: string,
+) {
+	const db = drizzle(dbInstance);
+	const result = await db
+		.select()
+		.from(users)
+		.where(eq(users.verificationToken, token));
+	return result[0] || null;
+}
+
+export async function completeUserRegistration(
+	dbInstance: AnyD1Database,
+	token: string,
+	name: string,
+	passwordHash: string,
+) {
+	const db = drizzle(dbInstance);
+	await db
+		.update(users)
+		.set({
+			userName: name,
+			passwordHash: passwordHash,
+			isVerified: true,
+			verificationToken: null,
+		})
+		.where(eq(users.verificationToken, token));
+}

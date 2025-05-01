@@ -1,7 +1,7 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
-import type { Bindings } from "../config/app";
 import { getUserById } from "../services/userService";
+import type { Bindings } from "../types";
 import { UserIdParamSchema } from "../validators/usersValidator";
 
 const app = new Hono<{ Bindings: Bindings }>().get(
