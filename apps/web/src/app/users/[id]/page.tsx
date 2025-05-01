@@ -21,11 +21,11 @@ export default async function UserPage({ params }: Props) {
 		notFound();
 	}
 
-	if (!userList.length) {
+	if (!userList) {
 		notFound();
 	}
 
-	const user = userList[0];
+	const user = userList;
 
 	return (
 		<div className="p-6">
