@@ -6,9 +6,10 @@
 	// "compatibility_flags": [
 	//   "nodejs_compat"
 	// ],
-	// "vars": {
-	//   "MY_VAR": "my-variable"
-	// },
+	"vars": {
+		"APP_URL": "http://localhost:3000",
+		"ENVIRONMENT": "development"
+	},
 	// "kv_namespaces": [
 	//   {
 	//     "binding": "MY_KV_NAMESPACE",

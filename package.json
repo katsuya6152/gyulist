@@ -4,7 +4,8 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
+		"web": "pnpm -F web",
+		"api": "pnpm -F api",
 		"format": "biome format .",
 		"format:fix": "pnpm format --write .",
 		"lint": "biome check .",
