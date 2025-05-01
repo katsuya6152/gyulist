@@ -1,12 +1,8 @@
 import { zValidator } from "@hono/zod-validator";
-import type { AnyD1Database } from "drizzle-orm/d1";
 import { Hono } from "hono";
+import type { Bindings } from "../config/app";
 import { getUserById } from "../services/userService";
 import { UserIdParamSchema } from "../validators/usersValidator";
-
-type Bindings = {
-	DB: AnyD1Database;
-};
 
 const app = new Hono<{ Bindings: Bindings }>().get(
 	"/:id",
