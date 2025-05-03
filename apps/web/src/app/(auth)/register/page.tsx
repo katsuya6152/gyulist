@@ -3,7 +3,7 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import { register } from "./actions";
 
 const initialState = {
@@ -12,7 +12,7 @@ const initialState = {
 };
 
 export default function RegisterPage() {
-	const [state, formAction] = useFormState(register, initialState);
+	const [state, formAction] = useActionState(register, initialState);
 
 	return (
 		<div className="max-w-md mx-auto mt-10 p-4 border rounded-lg">
