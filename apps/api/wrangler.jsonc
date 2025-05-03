@@ -10,6 +10,14 @@
 		"APP_URL": "http://localhost:3000",
 		"ENVIRONMENT": "development"
 	},
+	"env": {
+		"production": {
+			"vars": {
+				"APP_URL": "https://gyulist.pages.dev",
+				"ENVIRONMENT": "production"
+			}
+		}
+	},
 	// "kv_namespaces": [
 	//   {
 	//     "binding": "MY_KV_NAMESPACE",

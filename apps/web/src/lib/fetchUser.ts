@@ -12,7 +12,7 @@ type User = {
 };
 
 export async function fetchUser(id: string): Promise<User> {
-	const res = await client.users[":id"].$get({ param: { id } });
+	const res = await client.api.v1.users[":id"].$get({ param: { id } });
 	if (!res.ok) {
 		throw new Error("Failed to fetch user");
 	}
