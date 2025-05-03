@@ -8,6 +8,7 @@ export const users = sqliteTable("users", {
 	passwordHash: text("passwordHash").notNull(),
 	isVerified: integer("is_verified", { mode: "boolean" }).default(false),
 	verificationToken: text("verification_token"),
+	lastLoginAt: text("last_login_at"),
 	createdAt: text().default(sql`(CURRENT_TIMESTAMP)`),
 	updatedAt: text().default(sql`(CURRENT_TIMESTAMP)`),
 });

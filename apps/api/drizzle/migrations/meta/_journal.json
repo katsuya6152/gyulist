@@ -15,6 +15,13 @@
 			"when": 1746077961699,
 			"tag": "0001_furry_bloodstorm",
 			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "6",
+			"when": 1746266790870,
+			"tag": "0002_damp_betty_ross",
+			"breakpoints": true
 		}
 	]
 }
