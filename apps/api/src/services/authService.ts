@@ -1,4 +1,5 @@
 import type { AnyD1Database } from "drizzle-orm/d1";
+import { signToken, verifyPassword } from "../lib/auth";
 import { sendVerificationEmail } from "../lib/mailer";
 import { generateToken, hashPassword } from "../lib/token";
 import {
@@ -6,10 +7,14 @@ import {
 	createUser,
 	findUserByEmail,
 	findUserByVerificationToken,
+	updateLastLoginAt,
 } from "../repositories/userRepository";
 import type { Bindings } from "../types";
-import type { CompleteInput, RegisterInput } from "../validators/authValidator";
-
+import type {
+	CompleteInput,
+	LoginInput,
+	RegisterInput,
+} from "../validators/authValidator";
 export async function register(
 	env: Bindings,
 	dbInstance: AnyD1Database,
@@ -75,4 +80,34 @@ export async function completeRegistration(
 		success: true,
 		message: "本登録が完了しました。ログインしてください。",
 	};
+}
+
+export async function login(
+	dbInstance: AnyD1Database,
+	jwtSecret: string,
+	input: LoginInput,
+) {
+	const user = await findUserByEmail(dbInstance, input.email);
+
+	if (!user) {
+		return {
+			success: false,
+			message: "メールアドレスまたはパスワードが正しくありません",
+		};
+	}
+
+	const valid = await verifyPassword(input.password, user.passwordHash);
+	if (!valid) {
+		return {
+			success: false,
+			message: "メールアドレスまたはパスワードが正しくありません",
+		};
+	}
+
+	// ログイン成功時に lastLoginAt を更新
+	await updateLastLoginAt(dbInstance, user.id);
+
+	const token = await signToken({ userId: user.id }, jwtSecret);
+
+	return { success: true, token };
 }
