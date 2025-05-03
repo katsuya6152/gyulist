@@ -2,11 +2,12 @@ import { client } from "@/lib/rpc";
 import { notFound, redirect } from "next/navigation";
 
 type Props = {
-	searchParams: { token?: string };
+	searchParams: Promise<{ token?: string }>;
 };
 
 export default async function VerifyPage({ searchParams }: Props) {
-	const token = searchParams.token;
+	const params = await searchParams;
+	const token = typeof params?.token === "string" ? params.token : undefined;
 
 	if (!token) {
 		notFound();
@@ -19,6 +20,5 @@ export default async function VerifyPage({ searchParams }: Props) {
 		return <div className="p-6 text-center">{data.message}</div>;
 	}
 
-	// 検証OKなら本登録ページにリダイレクト
 	redirect(`/complete-registration?token=${token}`);
 }
