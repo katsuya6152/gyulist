@@ -8,6 +8,7 @@ import users from "./users";
 // biome-ignore format:
 export const createRoutes = (app: Hono<{ Bindings: Bindings }>) => {
 	return app
+		.basePath("/api/v1")
 		.use("*", corsMiddleware)
 		.route("/", health)
 		.route("/users", users)

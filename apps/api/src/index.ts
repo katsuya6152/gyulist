@@ -1,10 +1,9 @@
 import { Hono } from "hono";
 import { hc } from "hono/client";
-import { BASE_PATH } from "./config/app";
 import { createRoutes } from "./routes";
 import type { Bindings } from "./types";
 
-const app = new Hono<{ Bindings: Bindings }>().basePath(BASE_PATH);
+const app = new Hono<{ Bindings: Bindings }>();
 
 const routes = createRoutes(app);
 
