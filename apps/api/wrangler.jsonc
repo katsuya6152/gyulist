@@ -8,7 +8,9 @@
 	// ],
 	"vars": {
 		"APP_URL": "http://localhost:3000",
-		"ENVIRONMENT": "development"
+		"ENVIRONMENT": "development",
+		// JWTトークンのシークレットキー(本番環境では環境変数から取得)
+		"JWT_SECRET": "secret"
 	},
 	"env": {
 		"production": {

@@ -61,3 +61,16 @@ export async function completeUserRegistration(
 		})
 		.where(eq(users.verificationToken, token));
 }
+
+export async function updateLastLoginAt(
+	dbInstance: AnyD1Database,
+	userId: number,
+) {
+	const db = drizzle(dbInstance);
+	await db
+		.update(users)
+		.set({
+			lastLoginAt: new Date().toISOString(),
+		})
+		.where(eq(users.id, userId));
+}

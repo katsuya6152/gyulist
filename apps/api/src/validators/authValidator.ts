@@ -16,3 +16,10 @@ export const CompleteSchema = z.object({
 	password: z.string().min(8),
 });
 export type CompleteInput = z.infer<typeof CompleteSchema>;
+
+export const LoginSchema = z.object({
+	email: z.string().email(),
+	password: z.string().min(8),
+});
+
+export type LoginInput = z.infer<typeof LoginSchema>;
