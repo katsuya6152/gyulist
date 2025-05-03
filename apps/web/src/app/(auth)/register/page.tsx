@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { useActionState } from "react";
 import { register } from "./actions";
 
+export const runtime = "edge";
+
 const initialState = {
 	success: false,
 	message: "",
