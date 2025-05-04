@@ -1,4 +1,4 @@
-import { fetchUser } from "@/lib/fetchUser";
+import { fetchUser } from "@/services/userService";
 import { notFound } from "next/navigation";
 
 export const runtime = "edge";

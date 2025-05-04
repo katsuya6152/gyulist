@@ -21,7 +21,6 @@
 		"paths": {
 			"@/*": ["./src/*"],
 			"@repo/api": ["../api/dist"]
-			// "api": ["../api/dist"]
 		},
 		"types": ["@cloudflare/workers-types/2023-07-01"]
 	},
