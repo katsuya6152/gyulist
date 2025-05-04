@@ -1,3 +1,5 @@
+export const runtime = "edge";
+
 export default function RegistrationCompletePage() {
 	return (
 		<div className="p-10 text-center">
