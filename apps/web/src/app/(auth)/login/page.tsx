@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { useActionState } from "react";
 import { type LoginActionResult, loginAction } from "./actions";
 
-// export const runtime = "edge";
+export const runtime = "edge";
 
 export default function LoginPage() {
 	const [state, formAction, isPending] = useActionState<
