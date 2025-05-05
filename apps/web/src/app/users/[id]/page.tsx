@@ -1,3 +1,4 @@
+import { LogoutButton } from "@/components/logout-button";
 import { fetchUser } from "@/services/userService";
 import { notFound } from "next/navigation";
 
@@ -29,10 +30,21 @@ export default async function UserPage({ params }: Props) {
 
 	return (
 		<div className="p-6">
-			<h1 className="text-xl font-bold">User Detail</h1>
-			<p>ID: {user.id}</p>
-			<p>Name: {user.userName}</p>
-			<p>Email: {user.email}</p>
+			<div className="flex justify-between items-center mb-6">
+				<h1 className="text-xl font-bold">User Detail</h1>
+				<LogoutButton />
+			</div>
+			<div className="bg-white rounded-lg shadow p-6">
+				<p className="mb-2">
+					<span className="font-semibold">ID:</span> {user.id}
+				</p>
+				<p className="mb-2">
+					<span className="font-semibold">Name:</span> {user.userName}
+				</p>
+				<p className="mb-2">
+					<span className="font-semibold">Email:</span> {user.email}
+				</p>
+			</div>
 		</div>
 	);
 }
