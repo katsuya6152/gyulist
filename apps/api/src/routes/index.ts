@@ -2,6 +2,7 @@ import type { Hono } from "hono";
 import { corsMiddleware } from "../middleware/cors";
 import type { Bindings } from "../types";
 import auth from "./auth";
+import cattle from "./cattle";
 import health from "./health";
 import users from "./users";
 
@@ -12,5 +13,6 @@ export const createRoutes = (app: Hono<{ Bindings: Bindings }>) => {
 		.use("*", corsMiddleware)
 		.route("/", health)
 		.route("/auth", auth)
-		.route("/users", users);
+		.route("/users", users)
+		.route("/cattle", cattle);
 };
