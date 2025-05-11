@@ -1,56 +1,8 @@
 import { LogoutButton } from "@/components/logout-button";
+import { Button } from "@/components/ui/button";
 import { fetchCattleList } from "@/services/cattleService";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-
-type Cattle = {
-	cattleId: number;
-	ownerUserId: number;
-	identificationNumber: number;
-	earTagNumber: number | null;
-	name: string | null;
-	growthStage:
-		| "CALF"
-		| "GROWING"
-		| "FATTENING"
-		| "FIRST_CALVED"
-		| "MULTI_PAROUS"
-		| null;
-	birthday: string | null;
-	age: number | null;
-	monthsOld: number | null;
-	daysOld: number | null;
-	gender: string | null;
-	weight: number | null;
-	score: number | null;
-	breed: string | null;
-	healthStatus: string | null;
-	producerName: string | null;
-	barn: string | null;
-	breedingValue: string | null;
-	notes: string | null;
-	createdAt: string | null;
-	updatedAt: string | null;
-};
-
-type CattleResponse = {
-	cattle: Cattle;
-	mother_info: {
-		motherInfoId: number;
-		cattleId: number;
-		motherCattleId: number;
-		motherName: string | null;
-		motherIdentificationNumber: string | null;
-		motherScore: number | null;
-	} | null;
-	bloodline: {
-		bloodlineId: number;
-		cattleId: number;
-		fatherCattleName: string | null;
-		motherFatherCattleName: string | null;
-		motherGrandFatherCattleName: string | null;
-		motherGreatGrandFatherCattleName: string | null;
-	} | null;
-};
 
 export default async function CattlePage() {
 	let cattleList: Awaited<ReturnType<typeof fetchCattleList>>;
@@ -71,6 +23,17 @@ export default async function CattlePage() {
 			<div className="flex justify-between items-center mb-6">
 				<h1 className="text-xl font-bold">牛の一覧</h1>
 				<LogoutButton />
+			</div>
+			<div className="flex items-center gap-1 mb-6">
+				<Button>
+					<Link href="/cattle/new">新規登録</Link>
+				</Button>
+				<Button>
+					<Link href="/cattle/1/edit">編集</Link>
+				</Button>
+				<Button>
+					<Link href="/cattle/1">詳細</Link>
+				</Button>
 			</div>
 			<div className="grid gap-4">
 				{cattleList.map((cattle) => (

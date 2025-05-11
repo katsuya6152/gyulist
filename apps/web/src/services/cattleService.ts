@@ -56,6 +56,7 @@ export async function fetchCattleList(): Promise<Cattle[]> {
 	const token = cookieStore.get("token")?.value;
 
 	if (!token) {
+		// TODO: ログイン画面にリダイレクト
 		throw new Error("認証トークンが見つかりません");
 	}
 
@@ -69,6 +70,7 @@ export async function fetchCattleList(): Promise<Cattle[]> {
 	);
 
 	if (!res.ok) {
+		// TODO: 認証エラーの場合はログイン画面にリダイレクト
 		throw new Error("Failed to fetch cattle list");
 	}
 	const data = await res.json();
