@@ -4,6 +4,8 @@ import { fetchCattleList } from "@/services/cattleService";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+export const runtime = "edge";
+
 export default async function CattlePage() {
 	let cattleList: Awaited<ReturnType<typeof fetchCattleList>>;
 
