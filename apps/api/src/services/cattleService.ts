@@ -35,7 +35,7 @@ export async function createNewCattle(
 		: null;
 
 	// データベース用のデータを作成
-	const cattleData: Cattle = {
+	const cattleData: CreateCattleInput = {
 		...data,
 		age,
 		monthsOld,
