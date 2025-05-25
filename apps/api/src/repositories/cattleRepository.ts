@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { type AnyD1Database, drizzle } from "drizzle-orm/d1";
-import { bloodline, cattle, motherInfo } from "../db/schema";
+import { cattle } from "../db/schema";
 
 export async function findCattleList(
 	dbInstance: AnyD1Database,
@@ -10,8 +10,6 @@ export async function findCattleList(
 	const results = await db
 		.select()
 		.from(cattle)
-		.leftJoin(motherInfo, eq(cattle.cattleId, motherInfo.cattleId))
-		.leftJoin(bloodline, eq(cattle.cattleId, bloodline.cattleId))
 		.where(eq(cattle.ownerUserId, userId));
 	return results || null;
 }
