@@ -1,9 +1,7 @@
-import { CattleDetailPresentation } from "./presentational";
+import { GetCattleDetail } from "@/services/cattleService";
+import CattleDetailPresentation from "./presentational";
 
-export const runtime = "edge";
-
-export default async function CattleDetailContainer() {
-	// TODO: GET /cattle/:id
-	// TODO: propsとしてcattleDetailを渡す
-	return <CattleDetailPresentation />;
+export default async function CattleDetailContainer({ id }: { id: string }) {
+	const cattle = await GetCattleDetail(id);
+	return <CattleDetailPresentation cattle={cattle} />;
 }

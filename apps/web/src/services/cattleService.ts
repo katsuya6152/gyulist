@@ -8,26 +8,64 @@ export type GetCattleListResType = InferResponseType<
 	200
 >;
 
-export async function GetCattleList(): Promise<GetCattleListResType> {
+export type GetCattleDetailResType = InferResponseType<
+	(typeof client.api.v1.cattle)[":id"]["$get"],
+	200
+>;
+
+async function getAuthToken() {
 	const cookieStore = await cookies();
 	const token = cookieStore.get("token")?.value;
 
 	if (!token) {
-		redirect("/login");
+		redirect("/not-found");
 	}
 
-	const res = await client.api.v1.cattle.$get(
-		{},
-		{
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		},
-	);
+	return token;
+}
+
+async function fetchWithAuth<T>(
+	fetchFn: (token: string) => Promise<Response>,
+): Promise<T> {
+	const token = await getAuthToken();
+	const res = await fetchFn(token);
 
 	if (!res.ok) {
-		redirect("/login");
+		if (res.status === 403) {
+			redirect("/not-found");
+		}
+		throw new Error(`API request failed: ${res.status} ${res.statusText}`);
 	}
-	const data = await res.json();
-	return data;
+
+	return res.json();
+}
+
+export async function GetCattleList(): Promise<GetCattleListResType> {
+	return fetchWithAuth<GetCattleListResType>((token) =>
+		client.api.v1.cattle.$get(
+			{},
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			},
+		),
+	);
+}
+
+export async function GetCattleDetail(
+	id: number | string,
+): Promise<GetCattleDetailResType> {
+	return fetchWithAuth<GetCattleDetailResType>((token) =>
+		client.api.v1.cattle[":id"].$get(
+			{
+				param: { id: id.toString() },
+			},
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			},
+		),
+	);
 }

@@ -32,10 +32,17 @@ const app = new Hono<{ Bindings: Bindings }>()
 	// 牛の詳細
 	.get("/:id", async (c) => {
 		const cattleId = Number.parseInt(c.req.param("id"));
+		const userId = c.get("jwtPayload").userId;
 		const cattle = await getCattleById(c.env.DB, cattleId);
+
 		if (!cattle) {
 			return c.json({ error: "Cattle not found" }, 404);
 		}
+
+		if (cattle.ownerUserId !== userId) {
+			return c.json({ error: "Unauthorized" }, 403);
+		}
+
 		return c.json(cattle);
 	})
 
