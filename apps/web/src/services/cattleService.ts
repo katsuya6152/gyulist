@@ -1,78 +1,71 @@
 import { client } from "@/lib/rpc";
+import type { InferResponseType } from "hono";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-export type Cattle = {
-	cattleId: number;
-	ownerUserId: number;
-	identificationNumber: number;
-	earTagNumber: number | null;
-	name: string | null;
-	growthStage:
-		| "CALF"
-		| "GROWING"
-		| "FATTENING"
-		| "FIRST_CALVED"
-		| "MULTI_PAROUS"
-		| null;
-	birthday: string | null;
-	age: number | null;
-	monthsOld: number | null;
-	daysOld: number | null;
-	gender: string | null;
-	weight: number | null;
-	score: number | null;
-	breed: string | null;
-	healthStatus: string | null;
-	producerName: string | null;
-	barn: string | null;
-	breedingValue: string | null;
-	notes: string | null;
-	createdAt: string | null;
-	updatedAt: string | null;
-};
+export type GetCattleListResType = InferResponseType<
+	typeof client.api.v1.cattle.$get,
+	200
+>;
 
-type CattleResponse = {
-	cattle: Cattle;
-	mother_info: {
-		motherInfoId: number;
-		cattleId: number;
-		motherCattleId: number;
-		motherName: string | null;
-		motherIdentificationNumber: string | null;
-		motherScore: number | null;
-	} | null;
-	bloodline: {
-		bloodlineId: number;
-		cattleId: number;
-		fatherCattleName: string | null;
-		motherFatherCattleName: string | null;
-		motherGrandFatherCattleName: string | null;
-		motherGreatGrandFatherCattleName: string | null;
-	} | null;
-};
+export type GetCattleDetailResType = InferResponseType<
+	(typeof client.api.v1.cattle)[":id"]["$get"],
+	200
+>;
 
-export async function fetchCattleList(): Promise<Cattle[]> {
+async function getAuthToken() {
 	const cookieStore = await cookies();
 	const token = cookieStore.get("token")?.value;
 
 	if (!token) {
-		// TODO: ログイン画面にリダイレクト
-		throw new Error("認証トークンが見つかりません");
+		redirect("/not-found");
 	}
 
-	const res = await client.api.v1.cattle.$get(
-		{},
-		{
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		},
-	);
+	return token;
+}
+
+async function fetchWithAuth<T>(
+	fetchFn: (token: string) => Promise<Response>,
+): Promise<T> {
+	const token = await getAuthToken();
+	const res = await fetchFn(token);
 
 	if (!res.ok) {
-		// TODO: 認証エラーの場合はログイン画面にリダイレクト
-		throw new Error("Failed to fetch cattle list");
+		if (res.status === 403) {
+			redirect("/not-found");
+		}
+		throw new Error(`API request failed: ${res.status} ${res.statusText}`);
 	}
-	const data = await res.json();
-	return data.map((item: CattleResponse) => item.cattle);
+
+	return res.json();
+}
+
+export async function GetCattleList(): Promise<GetCattleListResType> {
+	return fetchWithAuth<GetCattleListResType>((token) =>
+		client.api.v1.cattle.$get(
+			{},
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			},
+		),
+	);
+}
+
+export async function GetCattleDetail(
+	id: number | string,
+): Promise<GetCattleDetailResType> {
+	return fetchWithAuth<GetCattleDetailResType>((token) =>
+		client.api.v1.cattle[":id"].$get(
+			{
+				param: { id: id.toString() },
+			},
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			},
+		),
+	);
 }
