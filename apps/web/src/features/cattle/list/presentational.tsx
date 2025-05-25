@@ -1,11 +1,11 @@
 import { LogoutButton } from "@/components/logout-button";
 import { Button } from "@/components/ui/button";
-import type { Cattle } from "@/services/cattleService";
+import type { GetCattleListResType } from "@/services/cattleService";
 import Link from "next/link";
 
 export function CattleListPresentation({
 	cattleList,
-}: { cattleList: Cattle[] }) {
+}: { cattleList: GetCattleListResType }) {
 	return (
 		<div className="p-6">
 			<div className="flex justify-between items-center mb-6">
