@@ -19,14 +19,15 @@
 		"@node-rs/bcrypt": "^1.10.7",
 		"bcryptjs": "^3.0.2",
 		"drizzle-orm": "^0.43.1",
+		"drizzle-zod": "^0.8.2",
 		"hono": "^4.7.7",
-		"zod": "^3.24.3"
+		"zod": "^3.25.28"
 	},
 	"devDependencies": {
 		"drizzle-kit": "^0.31.0",
 		"esbuild": "^0.25.3",
 		"tsup": "^8.4.0",
 		"typescript": "^5.8.3",
-		"wrangler": "^4.4.0"
+		"wrangler": "^4.16.1"
 	}
 }
