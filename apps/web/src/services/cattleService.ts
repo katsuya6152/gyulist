@@ -1,38 +1,14 @@
 import { client } from "@/lib/rpc";
+import type { InferResponseType } from "hono";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export type Cattle = {
-	cattleId: number;
-	ownerUserId: number;
-	identificationNumber: number;
-	earTagNumber: number | null;
-	name: string | null;
-	growthStage:
-		| "CALF"
-		| "GROWING"
-		| "FATTENING"
-		| "FIRST_CALVED"
-		| "MULTI_PAROUS"
-		| null;
-	birthday: string | null;
-	age: number | null;
-	monthsOld: number | null;
-	daysOld: number | null;
-	gender: string | null;
-	weight: number | null;
-	score: number | null;
-	breed: string | null;
-	healthStatus: string | null;
-	producerName: string | null;
-	barn: string | null;
-	breedingValue: string | null;
-	notes: string | null;
-	createdAt: string | null;
-	updatedAt: string | null;
-};
+export type GetCattleListResType = InferResponseType<
+	typeof client.api.v1.cattle.$get,
+	200
+>;
 
-export async function fetchCattleList(): Promise<Cattle[]> {
+export async function GetCattleList(): Promise<GetCattleListResType> {
 	const cookieStore = await cookies();
 	const token = cookieStore.get("token")?.value;
 
@@ -53,5 +29,5 @@ export async function fetchCattleList(): Promise<Cattle[]> {
 		redirect("/login");
 	}
 	const data = await res.json();
-	return data.map((item: Cattle) => item);
+	return data;
 }
