@@ -10,9 +10,14 @@ export default function NotFound() {
 			<p className="text-gray-600 mb-8">
 				指定されたIDの牛の情報が存在しないか、アクセス権限がありません。
 			</p>
-			<Button asChild>
-				<Link href="/cattle">牛一覧に戻る</Link>
-			</Button>
+			<div className="flex justify-center gap-4">
+				<Button asChild>
+					<Link href="/">TOPに戻る</Link>
+				</Button>
+				<Button asChild>
+					<Link href="/cattle">牛一覧に戻る</Link>
+				</Button>
+			</div>
 		</div>
 	);
 }
