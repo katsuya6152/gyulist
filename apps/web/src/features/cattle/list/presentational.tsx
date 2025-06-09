@@ -25,6 +25,7 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
+import { getGrowthStage } from "@/lib/utils";
 import type { GetCattleListResType } from "@/services/cattleService";
 import { zodResolver } from "@hookform/resolvers/zod";
 import classNames from "classnames";
@@ -74,31 +75,6 @@ const filterOptions = [
 const FormSchema = z.object({
 	items: z.array(z.string()),
 });
-
-export const getGrowthStage = (
-	growthStage:
-		| "CALF"
-		| "GROWING"
-		| "FATTENING"
-		| "FIRST_CALVED"
-		| "MULTI_PAROUS"
-		| null,
-) => {
-	switch (growthStage) {
-		case "CALF":
-			return "仔牛";
-		case "GROWING":
-			return "育成牛";
-		case "FATTENING":
-			return "肥育牛";
-		case "FIRST_CALVED":
-			return "初産牛";
-		case "MULTI_PAROUS":
-			return "経産牛";
-		default:
-			return "不明";
-	}
-};
 
 export function CattleListPresentation({
 	cattleList,

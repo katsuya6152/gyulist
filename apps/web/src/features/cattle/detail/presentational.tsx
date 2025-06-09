@@ -1,5 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { GetCattleDetailResType } from "@/services/cattleService";
+import { BasicInfo } from "./components/basic-info";
+import { CattleDetailHeader } from "./components/hedear";
 
 type Props = {
 	cattle: GetCattleDetailResType;
@@ -7,62 +9,57 @@ type Props = {
 
 export default function CattleDetailPresentation({ cattle }: Props) {
 	return (
-		<div className="container mx-auto py-8">
-			<Card>
-				<CardHeader>
-					<CardTitle>牛の詳細情報</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
-						<div>
-							<dt className="text-sm font-medium text-gray-500">
-								個体識別番号
-							</dt>
-							<dd className="mt-1 text-lg">{cattle.identificationNumber}</dd>
-						</div>
-						<div>
-							<dt className="text-sm font-medium text-gray-500">名前</dt>
-							<dd className="mt-1 text-lg">{cattle.name || "未設定"}</dd>
-						</div>
-						<div>
-							<dt className="text-sm font-medium text-gray-500">品種</dt>
-							<dd className="mt-1 text-lg">{cattle.breed || "未設定"}</dd>
-						</div>
-						<div>
-							<dt className="text-sm font-medium text-gray-500">体重</dt>
-							<dd className="mt-1 text-lg">
-								{cattle.weight ? `${cattle.weight}kg` : "未設定"}
-							</dd>
-						</div>
-						<div>
-							<dt className="text-sm font-medium text-gray-500">健康状態</dt>
-							<dd className="mt-1 text-lg">
-								{cattle.healthStatus || "未設定"}
-							</dd>
-						</div>
-						<div>
-							<dt className="text-sm font-medium text-gray-500">メモ</dt>
-							<dd className="mt-1 text-lg">{cattle.notes || "未設定"}</dd>
-						</div>
-						<div>
-							<dt className="text-sm font-medium text-gray-500">登録日</dt>
-							<dd className="mt-1 text-lg">
-								{cattle.createdAt
-									? new Date(cattle.createdAt).toLocaleDateString("ja-JP")
-									: "未設定"}
-							</dd>
-						</div>
-						<div>
-							<dt className="text-sm font-medium text-gray-500">最終更新日</dt>
-							<dd className="mt-1 text-lg">
-								{cattle.updatedAt
-									? new Date(cattle.updatedAt).toLocaleDateString("ja-JP")
-									: "未設定"}
-							</dd>
-						</div>
-					</dl>
-				</CardContent>
-			</Card>
+		<div className="p-4">
+			{cattle ? (
+				<div className="mt-4 flex flex-col gap-4">
+					<CattleDetailHeader cattle={cattle} />
+
+					<Tabs defaultValue="basic" className="w-full">
+						<TabsList className="grid w-full grid-cols-4">
+							<TabsTrigger value="basic">基本情報</TabsTrigger>
+							<TabsTrigger value="bloodline">血統</TabsTrigger>
+							<TabsTrigger value="breeding">繁殖</TabsTrigger>
+							<TabsTrigger value="history">活動履歴</TabsTrigger>
+						</TabsList>
+
+						<TabsContent value="basic">
+							<BasicInfo cattle={cattle} />
+						</TabsContent>
+						<TabsContent value="bloodline">
+							Bloodline
+							<BasicInfo cattle={cattle} />
+							{/* <Bloodline cattle={cattle} /> */}
+						</TabsContent>
+						<TabsContent value="breeding">
+							Breeding
+							<BasicInfo cattle={cattle} />
+							{/* <Breeding
+								statusData={breedingStatus?.data}
+								summaryData={breedingSummary?.data}
+							/> */}
+						</TabsContent>
+						<TabsContent value="history">
+							History
+							<BasicInfo cattle={cattle} />
+							{/* <History eventData={events?.data} /> */}
+						</TabsContent>
+					</Tabs>
+
+					<div className="flex justify-center gap-2 text-xs text-gray-500">
+						<p>
+							登録日時:
+							{cattle.createdAt}
+						</p>
+						/
+						<p>
+							更新日時:
+							{cattle.updatedAt}
+						</p>
+					</div>
+				</div>
+			) : (
+				<p>読み込み中...</p>
+			)}
 		</div>
 	);
 }

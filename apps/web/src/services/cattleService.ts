@@ -69,3 +69,18 @@ export async function GetCattleDetail(
 		),
 	);
 }
+
+export async function DeleteCattle(id: number | string): Promise<void> {
+	return fetchWithAuth<void>((token) =>
+		client.api.v1.cattle[":id"].$delete(
+			{
+				param: { id: id.toString() },
+			},
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			},
+		),
+	);
+}
