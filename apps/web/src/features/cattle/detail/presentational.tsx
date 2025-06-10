@@ -1,12 +1,14 @@
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { GetCattleDetailResType } from "@/services/cattleService";
 import useEmblaCarousel from "embla-carousel-react";
 import { useCallback, useEffect, useState } from "react";
 import { BasicInfo } from "./components/basic-info";
+import { Bloodline } from "./components/bllodline";
+import { Breeding } from "./components/breeding";
 import { CattleDetailHeader } from "./components/hedear";
-
+import { History } from "./components/history";
 type Props = {
 	cattle: GetCattleDetailResType;
 };
@@ -67,37 +69,22 @@ export default function CattleDetailPresentation({ cattle }: Props) {
 						</TabsList>
 
 						<div className="overflow-hidden" ref={emblaRef}>
-							<div className="flex">
-								<div className="flex-[0_0_100%] min-w-0">
-									BasicInfo
+							<div className="flex gap-4">
+								<div className="flex-[0_0_calc(100%-1rem)] min-w-0">
 									<BasicInfo cattle={cattle} />
 								</div>
-								<div className="flex-[0_0_100%] min-w-0">
-									Bloodline
-									<BasicInfo cattle={cattle} />
-									{/* <Bloodline cattle={cattle} /> */}
+								<div className="flex-[0_0_calc(100%-1rem)] min-w-0">
+									<Bloodline cattle={cattle} />
 								</div>
-								<div className="flex-[0_0_100%] min-w-0">
-									Breeding
-									<BasicInfo cattle={cattle} />
-									{/* <Breeding
-										statusData={breedingStatus?.data}
-										summaryData={breedingSummary?.data}
-									/> */}
+								<div className="flex-[0_0_calc(100%-1rem)] min-w-0">
+									<Breeding cattle={cattle} />
 								</div>
-								<div className="flex-[0_0_100%] min-w-0">
-									History
-									<BasicInfo cattle={cattle} />
-									{/* <History eventData={events?.data} /> */}
+								<div className="flex-[0_0_calc(100%-1rem)] min-w-0">
+									<History cattle={cattle} />
 								</div>
 							</div>
 						</div>
 					</Tabs>
-
-					<div className="flex justify-center gap-2 text-xs text-gray-500">
-						<p>登録日時: {cattle.createdAt}</p>/
-						<p>更新日時: {cattle.updatedAt}</p>
-					</div>
 				</div>
 			) : (
 				<p>読み込み中...</p>
