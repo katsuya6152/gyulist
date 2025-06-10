@@ -70,16 +70,16 @@ export default function CattleDetailPresentation({ cattle }: Props) {
 
 						<div className="overflow-hidden" ref={emblaRef}>
 							<div className="flex gap-4">
-								<div className="flex-[0_0_calc(100%-1rem)] min-w-0">
+								<div className="flex-[0_0_calc(100%-1rem)] min-w-0 h-[calc(100vh-12rem)] overflow-y-auto">
 									<BasicInfo cattle={cattle} />
 								</div>
-								<div className="flex-[0_0_calc(100%-1rem)] min-w-0">
+								<div className="flex-[0_0_calc(100%-1rem)] min-w-0 h-[calc(100vh-12rem)] overflow-y-auto">
 									<Bloodline cattle={cattle} />
 								</div>
-								<div className="flex-[0_0_calc(100%-1rem)] min-w-0">
+								<div className="flex-[0_0_calc(100%-1rem)] min-w-0 h-[calc(100vh-12rem)] overflow-y-auto">
 									<Breeding cattle={cattle} />
 								</div>
-								<div className="flex-[0_0_calc(100%-1rem)] min-w-0">
+								<div className="flex-[0_0_calc(100%-1rem)] min-w-0 h-[calc(100vh-12rem)] overflow-y-auto">
 									<History cattle={cattle} />
 								</div>
 							</div>
