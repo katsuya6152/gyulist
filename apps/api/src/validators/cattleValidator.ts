@@ -1,27 +1,34 @@
-import {
-	createInsertSchema,
-	createSelectSchema,
-	createUpdateSchema,
-} from "drizzle-zod";
-import { cattle } from "../db/schema";
+import { z } from "zod";
+import type { cattle } from "../db/schema";
 
 // データベース用のスキーマ
-export const cattleSchema = createSelectSchema(cattle);
-
-// 新規作成用のスキーマ（年齢関連フィールドを除外）
-export const createCattleSchema = createInsertSchema(cattle, {
-	age: undefined,
-	monthsOld: undefined,
-	daysOld: undefined,
+export const cattleSchema = z.object({
+	cattleId: z.number(),
+	ownerUserId: z.number(),
+	identificationNumber: z.number(),
+	earTagNumber: z.number().nullable(),
+	name: z.string().nullable(),
+	gender: z.string().nullable(),
+	birthDate: z.string().nullable(),
+	growthStage: z
+		.enum(["CALF", "GROWING", "FATTENING", "FIRST_CALVED", "MULTI_PAROUS"])
+		.nullable(),
+	breed: z.string().nullable(),
+	notes: z.string().nullable(),
+	createdAt: z.string(),
+	updatedAt: z.string(),
 });
 
-// 更新用のスキーマ（年齢関連フィールドを除外）
-export const updateCattleSchema = createUpdateSchema(cattle, {
-	age: undefined,
-	monthsOld: undefined,
-	daysOld: undefined,
-}).partial();
+// 新規作成用のスキーマ
+export const createCattleSchema = cattleSchema.omit({
+	cattleId: true,
+	createdAt: true,
+	updatedAt: true,
+});
+
+// 更新用のスキーマ
+export const updateCattleSchema = createCattleSchema.partial();
 
 export type Cattle = typeof cattle.$inferSelect;
 export type CreateCattleInput = typeof cattle.$inferInsert;
-export type UpdateCattleInput = typeof updateCattleSchema._type;
+export type UpdateCattleInput = Partial<typeof cattle.$inferInsert>;
