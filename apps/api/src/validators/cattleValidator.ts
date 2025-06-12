@@ -32,3 +32,18 @@ export const updateCattleSchema = createCattleSchema.partial();
 export type Cattle = typeof cattle.$inferSelect;
 export type CreateCattleInput = typeof cattle.$inferInsert;
 export type UpdateCattleInput = Partial<typeof cattle.$inferInsert>;
+
+// 検索クエリ用のスキーマ
+export const searchCattleSchema = z.object({
+	cursor: z.string().optional(),
+	limit: z.number().min(1).max(100).default(20),
+	sort_by: z.enum(["id", "name", "days_old"]).default("id"),
+	sort_order: z.enum(["asc", "desc"]).default("desc"),
+	search: z.string().optional(),
+	growth_stage: z
+		.enum(["CALF", "GROWING", "FATTENING", "FIRST_CALVED", "MULTI_PAROUS"])
+		.optional(),
+	gender: z.enum(["オス", "メス"]).optional(),
+});
+
+export type SearchCattleQuery = z.infer<typeof searchCattleSchema>;
