@@ -5,12 +5,13 @@ import {
 	createNewCattle,
 	deleteCattleData,
 	getCattleById,
-	getCattleList,
+	searchCattleList,
 	updateCattleData,
 } from "../services/cattleService";
 import type { Bindings } from "../types";
 import {
 	createCattleSchema,
+	searchCattleSchema,
 	updateCattleSchema,
 } from "../validators/cattleValidator";
 
@@ -18,11 +19,12 @@ const app = new Hono<{ Bindings: Bindings }>()
 	.use("*", jwtMiddleware)
 
 	// 牛の一覧
-	.get("/", async (c) => {
+	.get("/", zValidator("query", searchCattleSchema), async (c) => {
 		const userId = c.get("jwtPayload").userId;
 		try {
-			const cattle = await getCattleList(c.env.DB, userId);
-			return c.json(cattle);
+			const query = c.req.valid("query");
+			const result = await searchCattleList(c.env.DB, userId, query);
+			return c.json(result);
 		} catch (e) {
 			console.error(e);
 			return c.json({ message: "Internal Server Error" }, 500);
