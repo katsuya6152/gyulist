@@ -48,6 +48,16 @@ jobs:
           pnpm lint
         # pnpm test
 
+      - name: Build API
+        if: needs.build-and-test.outputs.api_changed == 'true'
+        working-directory: apps/api
+        run: pnpm run build
+
+      - name: Build Web
+        if: needs.build-and-test.outputs.web_changed == 'true'
+        working-directory: apps/web
+        run: pnpm run build
+
   # 2. Workers (Hono API) のデプロイ
   deploy-api:
     runs-on: ubuntu-latest
