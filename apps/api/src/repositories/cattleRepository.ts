@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 import type { AnyD1Database } from "drizzle-orm/d1";
 import { drizzle } from "drizzle-orm/d1";
 import {
@@ -20,6 +20,81 @@ export async function findCattleList(db: AnyD1Database, ownerUserId: number) {
 		.select()
 		.from(cattle)
 		.where(eq(cattle.ownerUserId, ownerUserId));
+}
+
+export async function searchCattle(
+	db: AnyD1Database,
+	ownerUserId: number,
+	query: {
+		cursor?: { id: number; value: string | number };
+		limit: number;
+		sort_by: "id" | "name" | "days_old";
+		sort_order: "asc" | "desc";
+		search?: string;
+		growth_stage?: string[];
+		gender?: string[];
+	},
+) {
+	const dbInstance = drizzle(db);
+	const conditions = [eq(cattle.ownerUserId, ownerUserId)];
+
+	// 検索キーワード
+	if (query.search) {
+		conditions.push(
+			sql`(${cattle.name} LIKE ${`%${query.search}%`} OR CAST(${cattle.identificationNumber} AS TEXT) LIKE ${`%${query.search}%`} OR CAST(${cattle.earTagNumber} AS TEXT) LIKE ${`%${query.search}%`})`,
+		);
+	}
+
+	// 成長段階でフィルター
+	if (query.growth_stage && query.growth_stage.length > 0) {
+		const quotedStages = query.growth_stage
+			.map((stage) => `'${stage}'`)
+			.join(",");
+		conditions.push(sql`${cattle.growthStage} IN (${sql.raw(quotedStages)})`);
+	}
+
+	// 性別でフィルター
+	if (query.gender && query.gender.length > 0) {
+		const quotedGenders = query.gender.map((g) => `'${g}'`).join(",");
+		conditions.push(sql`${cattle.gender} IN (${sql.raw(quotedGenders)})`);
+	}
+
+	// カーソル条件の追加
+	if (query.cursor) {
+		const cursorCondition =
+			query.sort_order === "desc"
+				? sql`${getSortColumn(query.sort_by)} < ${query.cursor.value}`
+				: sql`${getSortColumn(query.sort_by)} > ${query.cursor.value}`;
+		conditions.push(cursorCondition);
+	}
+
+	// クエリの実行
+	const results = await dbInstance
+		.select()
+		.from(cattle)
+		.where(and(...conditions))
+		.orderBy(
+			query.sort_order === "desc"
+				? desc(getSortColumn(query.sort_by))
+				: asc(getSortColumn(query.sort_by)),
+		)
+		.limit(query.limit + 1);
+
+	return results;
+}
+
+// ソートカラムの取得
+function getSortColumn(sortBy: "id" | "name" | "days_old") {
+	switch (sortBy) {
+		case "id":
+			return cattle.cattleId;
+		case "name":
+			return cattle.name;
+		case "days_old":
+			return sql`CAST((julianday('now') - julianday(${cattle.birthday})) AS INTEGER)`;
+		default:
+			return cattle.cattleId;
+	}
 }
 
 export async function findCattleById(db: AnyD1Database, cattleId: number) {
