@@ -37,7 +37,7 @@ import {
 	Filter,
 	Search,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -63,33 +63,75 @@ const filterOptions = [
 		label: "経産牛",
 	},
 	{
-		id: "male",
+		id: "オス",
 		label: "オス",
 	},
 	{
-		id: "female",
+		id: "メス",
 		label: "メス",
 	},
 ] as const;
 
+const sortOptions = [
+	{ id: "name", label: "名前" },
+	{ id: "id", label: "ID" },
+	{ id: "days_old", label: "日齢" },
+] as const;
+
 const FormSchema = z.object({
-	items: z.array(z.string()),
+	growth_stage: z.array(z.string()),
+	gender: z.array(z.string()),
 });
 
 export function CattleListPresentation({
 	cattleList,
-}: { cattleList: GetCattleListResType }) {
+}: {
+	cattleList: GetCattleListResType["results"];
+}) {
 	const router = useRouter();
+	const searchParams = useSearchParams();
 
 	const form = useForm<z.infer<typeof FormSchema>>({
 		resolver: zodResolver(FormSchema),
 		defaultValues: {
-			items: [],
+			growth_stage: searchParams.get("growth_stage")?.split(",") || [],
+			gender: searchParams.get("gender")?.split(",") || [],
 		},
 	});
 
+	const handleSearch = (value: string) => {
+		const params = new URLSearchParams(searchParams.toString());
+		if (value) {
+			params.set("search", value);
+		} else {
+			params.delete("search");
+		}
+		router.push(`/cattle?${params.toString()}`);
+	};
+
+	const handleSort = (sortBy: string, sortOrder: string) => {
+		const params = new URLSearchParams(searchParams.toString());
+		params.set("sort_by", sortBy);
+		params.set("sort_order", sortOrder);
+		router.push(`/cattle?${params.toString()}`);
+	};
+
 	const onSubmit = (data: z.infer<typeof FormSchema>) => {
-		console.log("submit:", data);
+		const params = new URLSearchParams(searchParams.toString());
+
+		if (data.growth_stage.length > 0) {
+			params.set("growth_stage", data.growth_stage.join(","));
+		} else {
+			params.delete("growth_stage");
+		}
+
+		if (data.gender.length > 0) {
+			params.set("gender", data.gender.join(","));
+		} else {
+			params.delete("gender");
+		}
+
+		router.push(`/cattle?${params.toString()}`);
 	};
 
 	const handleItemClick = (cattleId: number) => {
@@ -105,6 +147,8 @@ export function CattleListPresentation({
 						type="search"
 						placeholder="検索..."
 						className="pl-10 mx-6 bg-gray-100 dark:bg-gray-800 border-none"
+						defaultValue={searchParams.get("search") || ""}
+						onChange={(e) => handleSearch(e.target.value)}
 					/>
 				</div>
 
@@ -125,31 +169,39 @@ export function CattleListPresentation({
 							</SheetHeader>
 
 							<div className="flex flex-col gap-4 p-4 pb-12">
-								<RadioGroup defaultValue="option-0">
-									<div className="flex items-center space-x-2">
-										<RadioGroupItem value="option-0" id="option-0" />
-										<Label htmlFor="option-0">全て表示</Label>
-									</div>
-									<div className="flex items-center space-x-2">
-										<RadioGroupItem value="option-1" id="option-1" />
-										<Label htmlFor="option-1">名前</Label>
-									</div>
-									<div className="flex items-center space-x-2">
-										<RadioGroupItem value="option-2" id="option-2" />
-										<Label htmlFor="option-2">ID</Label>
-									</div>
-									<div className="flex items-center space-x-2">
-										<RadioGroupItem value="option-3" id="option-3" />
-										<Label htmlFor="option-3">日齢</Label>
-									</div>
+								<RadioGroup
+									defaultValue={searchParams.get("sort_by") || "id"}
+									onValueChange={(value) =>
+										handleSort(value, searchParams.get("sort_order") || "desc")
+									}
+								>
+									{sortOptions.map((option) => (
+										<div
+											key={option.id}
+											className="flex items-center space-x-2"
+										>
+											<RadioGroupItem value={option.id} id={option.id} />
+											<Label htmlFor={option.id}>{option.label}</Label>
+										</div>
+									))}
 								</RadioGroup>
 
 								<div className="flex justify-center w-full gap-2">
-									<Button variant="outline">
+									<Button
+										variant="outline"
+										onClick={() =>
+											handleSort(searchParams.get("sort_by") || "id", "asc")
+										}
+									>
 										<ArrowDown01 />
 										昇順
 									</Button>
-									<Button variant="outline">
+									<Button
+										variant="outline"
+										onClick={() =>
+											handleSort(searchParams.get("sort_by") || "id", "desc")
+										}
+									>
 										<ArrowDown10 />
 										降順
 									</Button>
@@ -158,7 +210,7 @@ export function CattleListPresentation({
 
 							<SheetFooter>
 								<SheetClose asChild>
-									<Button type="submit">並び替える</Button>
+									<Button>閉じる</Button>
 								</SheetClose>
 							</SheetFooter>
 						</SheetContent>
@@ -186,51 +238,111 @@ export function CattleListPresentation({
 										onSubmit={form.handleSubmit(onSubmit)}
 										className="space-y-8"
 									>
-										<FormField
-											control={form.control}
-											name="items"
-											render={() => (
-												<FormItem>
-													{filterOptions.map((item) => (
-														<FormField
-															key={item.id}
-															control={form.control}
-															name="items"
-															render={({ field }) => {
-																return (
-																	<FormItem
-																		key={item.id}
-																		className="flex flex-row items-start space-x-3 space-y-0"
-																	>
-																		<FormControl>
-																			<Checkbox
-																				checked={field.value?.includes(item.id)}
-																				onCheckedChange={(checked) => {
-																					return checked
-																						? field.onChange([
-																								...field.value,
-																								item.id,
-																							])
-																						: field.onChange(
-																								field.value?.filter(
-																									(value) => value !== item.id,
-																								),
-																							);
-																				}}
-																			/>
-																		</FormControl>
-																		<FormLabel className="text-sm font-normal">
-																			{item.label}
-																		</FormLabel>
-																	</FormItem>
-																);
-															}}
-														/>
-													))}
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
+										<div className="space-y-4">
+											<h3 className="font-medium">成長段階</h3>
+											<FormField
+												control={form.control}
+												name="growth_stage"
+												render={() => (
+													<FormItem>
+														{filterOptions
+															.filter(
+																(item) => !["オス", "メス"].includes(item.id),
+															)
+															.map((item) => (
+																<FormField
+																	key={item.id}
+																	control={form.control}
+																	name="growth_stage"
+																	render={({ field }) => (
+																		<FormItem
+																			key={item.id}
+																			className="flex flex-row items-start space-x-3 space-y-0"
+																		>
+																			<FormControl>
+																				<Checkbox
+																					checked={field.value?.includes(
+																						item.id,
+																					)}
+																					onCheckedChange={(checked) => {
+																						return checked
+																							? field.onChange([
+																									...field.value,
+																									item.id,
+																								])
+																							: field.onChange(
+																									field.value?.filter(
+																										(value) =>
+																											value !== item.id,
+																									),
+																								);
+																					}}
+																				/>
+																			</FormControl>
+																			<FormLabel className="text-sm font-normal">
+																				{item.label}
+																			</FormLabel>
+																		</FormItem>
+																	)}
+																/>
+															))}
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+
+											<h3 className="font-medium">性別</h3>
+											<FormField
+												control={form.control}
+												name="gender"
+												render={() => (
+													<FormItem>
+														{filterOptions
+															.filter((item) =>
+																["オス", "メス"].includes(item.id),
+															)
+															.map((item) => (
+																<FormField
+																	key={item.id}
+																	control={form.control}
+																	name="gender"
+																	render={({ field }) => (
+																		<FormItem
+																			key={item.id}
+																			className="flex flex-row items-start space-x-3 space-y-0"
+																		>
+																			<FormControl>
+																				<Checkbox
+																					checked={field.value?.includes(
+																						item.id,
+																					)}
+																					onCheckedChange={(checked) => {
+																						return checked
+																							? field.onChange([
+																									...field.value,
+																									item.id,
+																								])
+																							: field.onChange(
+																									field.value?.filter(
+																										(value) =>
+																											value !== item.id,
+																									),
+																								);
+																					}}
+																				/>
+																			</FormControl>
+																			<FormLabel className="text-sm font-normal">
+																				{item.label}
+																			</FormLabel>
+																		</FormItem>
+																	)}
+																/>
+															))}
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+										</div>
 										<SheetClose asChild>
 											<Button type="submit">絞り込む</Button>
 										</SheetClose>

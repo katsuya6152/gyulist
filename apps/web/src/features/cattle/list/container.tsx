@@ -1,20 +1,29 @@
 import { GetCattleList } from "@/services/cattleService";
-import { notFound } from "next/navigation";
 import { CattleListPresentation } from "./presentational";
 
-export default async function CattleListContainer() {
-	let cattleList: Awaited<ReturnType<typeof GetCattleList>>;
+type Props = {
+	searchParams: {
+		cursor?: string;
+		limit?: string;
+		sort_by?: string;
+		sort_order?: string;
+		search?: string;
+		growth_stage?: string;
+		gender?: string;
+	};
+};
 
-	try {
-		cattleList = await GetCattleList();
-	} catch (e) {
-		console.error(e);
-		notFound();
-	}
-
-	if (!cattleList) {
-		notFound();
-	}
+export default async function CattleListContainer({ searchParams }: Props) {
+	const data = await GetCattleList({
+		cursor: searchParams.cursor,
+		limit: searchParams.limit,
+		sort_by: searchParams.sort_by,
+		sort_order: searchParams.sort_order,
+		search: searchParams.search,
+		growth_stage: searchParams.growth_stage,
+		gender: searchParams.gender,
+	});
+	const cattleList = data.results;
 
 	return <CattleListPresentation cattleList={cattleList} />;
 }
