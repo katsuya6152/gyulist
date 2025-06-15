@@ -49,7 +49,7 @@ jobs:
         # pnpm test
 
       - name: Build API
-        if: steps.filter.outputs.api == 'true'
+        if: steps.filter.outputs.api == 'true' || steps.filter.outputs.web == 'true'
         working-directory: apps/api
         run: pnpm run build
 
