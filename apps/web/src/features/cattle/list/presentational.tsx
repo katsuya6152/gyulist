@@ -73,8 +73,8 @@ const filterOptions = [
 ] as const;
 
 const sortOptions = [
-	{ id: "name", label: "名前" },
 	{ id: "id", label: "ID" },
+	{ id: "name", label: "名前" },
 	{ id: "days_old", label: "日齢" },
 ] as const;
 
