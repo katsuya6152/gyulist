@@ -13,6 +13,16 @@ export type GetCattleDetailResType = InferResponseType<
 	200
 >;
 
+export type CattleListQueryParams = {
+	cursor?: string;
+	limit?: string;
+	sort_by?: string;
+	sort_order?: string;
+	search?: string;
+	growth_stage?: string;
+	gender?: string;
+};
+
 async function getAuthToken() {
 	const cookieStore = await cookies();
 	const token = cookieStore.get("token")?.value;
@@ -40,10 +50,22 @@ async function fetchWithAuth<T>(
 	return res.json();
 }
 
-export async function GetCattleList(): Promise<GetCattleListResType> {
+export async function GetCattleList(
+	queryParams: CattleListQueryParams = {},
+): Promise<GetCattleListResType> {
 	return fetchWithAuth<GetCattleListResType>((token) =>
 		client.api.v1.cattle.$get(
-			{},
+			{
+				query: {
+					cursor: queryParams.cursor,
+					limit: queryParams.limit,
+					sort_by: queryParams.sort_by,
+					sort_order: queryParams.sort_order,
+					search: queryParams.search,
+					growth_stage: queryParams.growth_stage,
+					gender: queryParams.gender,
+				},
+			},
 			{
 				headers: {
 					Authorization: `Bearer ${token}`,
