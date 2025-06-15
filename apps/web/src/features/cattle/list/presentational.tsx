@@ -343,9 +343,29 @@ export function CattleListPresentation({
 												)}
 											/>
 										</div>
-										<SheetClose asChild>
-											<Button type="submit">絞り込む</Button>
-										</SheetClose>
+										<div className="flex gap-2">
+											<SheetClose asChild>
+												<Button type="submit">絞り込む</Button>
+											</SheetClose>
+											<Button
+												type="button"
+												variant="outline"
+												onClick={() => {
+													form.reset({
+														growth_stage: [],
+														gender: [],
+													});
+													const params = new URLSearchParams(
+														searchParams.toString(),
+													);
+													params.delete("growth_stage");
+													params.delete("gender");
+													router.push(`/cattle?${params.toString()}`);
+												}}
+											>
+												クリア
+											</Button>
+										</div>
 									</form>
 								</Form>
 							</div>
