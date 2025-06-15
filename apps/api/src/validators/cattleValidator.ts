@@ -41,9 +41,20 @@ export const searchCattleSchema = z.object({
 	sort_order: z.enum(["asc", "desc"]).default("desc"),
 	search: z.string().optional(),
 	growth_stage: z
-		.enum(["CALF", "GROWING", "FATTENING", "FIRST_CALVED", "MULTI_PAROUS"])
+		.string()
+		.transform((val) => val?.split(","))
+		.pipe(
+			z
+				.enum(["CALF", "GROWING", "FATTENING", "FIRST_CALVED", "MULTI_PAROUS"])
+				.array()
+				.optional(),
+		)
 		.optional(),
-	gender: z.enum(["オス", "メス"]).optional(),
+	gender: z
+		.string()
+		.transform((val) => val?.split(","))
+		.pipe(z.enum(["オス", "メス"]).array().optional())
+		.optional(),
 });
 
 export type SearchCattleQuery = z.infer<typeof searchCattleSchema>;
