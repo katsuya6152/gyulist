@@ -49,12 +49,12 @@ jobs:
         # pnpm test
 
       - name: Build API
-        if: needs.build-and-test.outputs.api_changed == 'true'
+        if: steps.filter.outputs.api == 'true'
         working-directory: apps/api
         run: pnpm run build
 
       - name: Build Web
-        if: needs.build-and-test.outputs.web_changed == 'true'
+        if: steps.filter.outputs.web == 'true'
         working-directory: apps/web
         run: pnpm run build
 
