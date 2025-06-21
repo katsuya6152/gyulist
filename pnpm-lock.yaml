@@ -57,6 +57,12 @@ importers:
 
   apps/web:
     dependencies:
+      '@conform-to/react':
+        specifier: ^1.7.2
+        version: 1.7.2(react@19.1.0)
+      '@conform-to/zod':
+        specifier: ^1.7.2
+        version: 1.7.2(zod@3.24.3)
       '@hookform/resolvers':
         specifier: ^5.1.0
         version: 5.1.0(react-hook-form@7.57.0(react@19.1.0))
@@ -345,6 +351,19 @@ packages:
 
   '@cloudflare/workers-types@4.20250429.0':
     resolution: {integrity: sha512-NoIo8fxVxwhzftxVVeE6bZYAQmQfgZq5VSP0GUmUW5CYq5L4mttzewm2vX5cfaRzMkFxb7Z8Q0YjSMm3Y+Dpsg==}
+
+  '@conform-to/dom@1.7.2':
+    resolution: {integrity: sha512-+zhsqywrug6HoP3DXxpybjPYm3kMJ29tk1DuLD/n3JRk8uzM9UpCeSb0DuQqmhRQ5yQRsBtN5yUMzkjCB7ypmA==}
+
+  '@conform-to/react@1.7.2':
+    resolution: {integrity: sha512-UV64uSOU9nKkYDN5WZAVW0vVWSiAA/UZUQyBj3vSE1DeTb8eIs54NfFAmCrYxLr04VUImodhxCWXKwiH7ut8Jw==}
+    peerDependencies:
+      react: '>=18'
+
+  '@conform-to/zod@1.7.2':
+    resolution: {integrity: sha512-8DSMIjKwjJGdWHWRb3IHBib01Qb2Pn0C3i9May9cZlMLjxWehi1Aug+jBbTDOmmtmEpDDYnbWMjyRdBUJKQx3Q==}
+    peerDependencies:
+      zod: ^3.21.0
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -4070,6 +4089,18 @@ snapshots:
     optional: true
 
   '@cloudflare/workers-types@4.20250429.0': {}
+
+  '@conform-to/dom@1.7.2': {}
+
+  '@conform-to/react@1.7.2(react@19.1.0)':
+    dependencies:
+      '@conform-to/dom': 1.7.2
+      react: 19.1.0
+
+  '@conform-to/zod@1.7.2(zod@3.24.3)':
+    dependencies:
+      '@conform-to/dom': 1.7.2
+      zod: 3.24.3
 
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
