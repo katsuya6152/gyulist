@@ -17,22 +17,70 @@ import type { GetCattleDetailResType } from "@/services/cattleService";
 import classNames from "classnames";
 import { Edit, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import { deleteCattleAction } from "../actions";
 
 type CattleDetailHeaderProps = {
 	cattle: GetCattleDetailResType;
-	// onDelete: () => void;
 };
 
-export function CattleDetailHeader({
-	cattle,
-	// onDelete,
-}: CattleDetailHeaderProps) {
+export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 	const router = useRouter();
+	const [isDeleting, setIsDeleting] = useState(false);
+	const [deleteError, setDeleteError] = useState<string | null>(null);
+
 	const handleEdit = () => {
 		router.push(`/cattle/${cattle.cattleId}/edit`);
 	};
-	const handleDelete = () => {
-		router.push(`/cattle/${cattle.cattleId}/edit`);
+
+	const handleDelete = async () => {
+		setIsDeleting(true);
+		setDeleteError(null);
+
+		try {
+			const result = await deleteCattleAction(cattle.cattleId.toString());
+
+			if (result.success) {
+				// 削除成功時のトースト表示
+				toast.success("牛の削除が完了しました", {
+					description: `${cattle.name}（個体識別番号: ${cattle.identificationNumber}）を削除しました`,
+					duration: 10000,
+					style: {
+						background: "#f0fdf4",
+						border: "1px solid #bbf7d0",
+						color: "#166534",
+					},
+				});
+
+				// 牛一覧ページにリダイレクト
+				router.push("/cattle");
+			} else {
+				setDeleteError(result.error || "削除に失敗しました");
+				toast.error("削除に失敗しました", {
+					description: result.error || "エラーが発生しました",
+					duration: 10000,
+					style: {
+						background: "#fef2f2",
+						border: "1px solid #fecaca",
+						color: "#dc2626",
+					},
+				});
+			}
+		} catch (error) {
+			setDeleteError("削除中にエラーが発生しました");
+			toast.error("削除中にエラーが発生しました", {
+				description: "予期しないエラーが発生しました",
+				duration: 10000,
+				style: {
+					background: "#fef2f2",
+					border: "1px solid #fecaca",
+					color: "#dc2626",
+				},
+			});
+		} finally {
+			setIsDeleting(false);
+		}
 	};
 
 	return (
@@ -88,15 +136,21 @@ export function CattleDetailHeader({
 							</DrawerDescription>
 						</DrawerHeader>
 						<DrawerFooter>
+							{deleteError && (
+								<p className="text-sm text-red-600 mb-2">{deleteError}</p>
+							)}
 							<Button
 								variant="destructive"
 								aria-label="削除"
 								onClick={handleDelete}
+								disabled={isDeleting}
 							>
-								削除
+								{isDeleting ? "削除中..." : "削除"}
 							</Button>
 							<DrawerClose asChild>
-								<Button variant="outline">キャンセル</Button>
+								<Button variant="outline" disabled={isDeleting}>
+									キャンセル
+								</Button>
 							</DrawerClose>
 						</DrawerFooter>
 					</DrawerContent>

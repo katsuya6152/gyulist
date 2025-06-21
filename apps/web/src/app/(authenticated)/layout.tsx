@@ -1,4 +1,5 @@
 import { FooterNav } from "@/components/footer-nav";
+import { Toaster } from "sonner";
 
 export default function AuthenticatedLayout({
 	children,
@@ -9,6 +10,7 @@ export default function AuthenticatedLayout({
 		<div className="min-h-screen pb-16">
 			{children}
 			<FooterNav />
+			<Toaster position="top-center" richColors closeButton duration={4000} />
 		</div>
 	);
 }
