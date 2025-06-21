@@ -53,12 +53,13 @@ const app = new Hono<{ Bindings: Bindings }>()
 		const data = c.req.valid("json");
 		const userId = c.get("jwtPayload").userId;
 
-		// ownerUserIdが一致することを確認
-		if (data.ownerUserId !== userId) {
-			return c.json({ error: "Unauthorized" }, 403);
-		}
+		// ownerUserIdをJWTペイロードから設定
+		const cattleData = {
+			...data,
+			ownerUserId: userId,
+		};
 
-		const result = await createNewCattle(c.env.DB, data);
+		const result = await createNewCattle(c.env.DB, cattleData);
 		return c.json(result, 201);
 	})
 
