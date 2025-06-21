@@ -6,13 +6,17 @@ export const cattleSchema = z.object({
 	cattleId: z.number(),
 	ownerUserId: z.number(),
 	identificationNumber: z.number(),
-	earTagNumber: z.number().nullable(),
-	name: z.string().nullable(),
-	gender: z.string().nullable(),
-	birthDate: z.string().nullable(),
-	growthStage: z
-		.enum(["CALF", "GROWING", "FATTENING", "FIRST_CALVED", "MULTI_PAROUS"])
-		.nullable(),
+	earTagNumber: z.number(),
+	name: z.string(),
+	gender: z.string(),
+	birthDate: z.string(),
+	growthStage: z.enum([
+		"CALF",
+		"GROWING",
+		"FATTENING",
+		"FIRST_CALVED",
+		"MULTI_PAROUS",
+	]),
 	breed: z.string().nullable(),
 	notes: z.string().nullable(),
 	createdAt: z.string(),
@@ -22,6 +26,7 @@ export const cattleSchema = z.object({
 // 新規作成用のスキーマ
 export const createCattleSchema = cattleSchema.omit({
 	cattleId: true,
+	ownerUserId: true,
 	createdAt: true,
 	updatedAt: true,
 });
