@@ -4,11 +4,15 @@ import { Button } from "@/components/ui/button";
 import { useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useActionState } from "react";
+import { useEffect } from "react";
+import { toast } from "sonner";
 import { createCattleAction } from "./actions";
 import { createCattleSchema } from "./schema";
 
 export function CattleNewPresentation() {
+	const router = useRouter();
 	const [lastResult, action, isPending] = useActionState(
 		createCattleAction,
 		null,
@@ -23,6 +27,36 @@ export function CattleNewPresentation() {
 		shouldValidate: "onBlur",
 		shouldRevalidate: "onInput",
 	});
+
+	// トースト通知の処理
+	useEffect(() => {
+		if (lastResult) {
+			if (lastResult.status === "success") {
+				// 成功時は牛一覧ページにリダイレクト
+				toast.success("牛の登録が完了しました", {
+					description: "新しい牛が正常に登録されました",
+					duration: 10000,
+					style: {
+						background: "#f0fdf4",
+						border: "1px solid #bbf7d0",
+						color: "#166534",
+					},
+				});
+				router.push("/cattle");
+			} else if (lastResult.status === "error") {
+				// エラーメッセージ
+				toast.error("登録に失敗しました", {
+					description: "入力内容を確認してください",
+					duration: 10000,
+					style: {
+						background: "#fef2f2",
+						border: "1px solid #fecaca",
+						color: "#dc2626",
+					},
+				});
+			}
+		}
+	}, [lastResult, router]);
 
 	return (
 		<div className="container mx-auto px-4 py-8">

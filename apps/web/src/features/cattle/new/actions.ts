@@ -55,11 +55,13 @@ export async function createCattleAction(
 				formErrors: [error || "牛の登録に失敗しました"],
 			});
 		}
+
+		// 成功時のレスポンス
+		return submission.reply();
 	} catch (error) {
 		console.error("Failed to create cattle:", error);
 		return submission.reply({
 			formErrors: ["牛の登録に失敗しました"],
 		});
 	}
-	redirect("/cattle");
 }
