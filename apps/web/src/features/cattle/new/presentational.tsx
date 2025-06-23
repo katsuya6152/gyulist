@@ -35,7 +35,6 @@ export function CattleNewPresentation() {
 				// 成功時は牛一覧ページにリダイレクト
 				toast.success("牛の登録が完了しました", {
 					description: "新しい牛が正常に登録されました",
-					duration: 10000,
 					style: {
 						background: "#f0fdf4",
 						border: "1px solid #bbf7d0",
@@ -47,7 +46,6 @@ export function CattleNewPresentation() {
 				// エラーメッセージ
 				toast.error("登録に失敗しました", {
 					description: "入力内容を確認してください",
-					duration: 10000,
 					style: {
 						background: "#fef2f2",
 						border: "1px solid #fecaca",

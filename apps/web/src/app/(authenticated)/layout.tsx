@@ -10,7 +10,7 @@ export default function AuthenticatedLayout({
 		<div className="min-h-screen pb-16">
 			{children}
 			<FooterNav />
-			<Toaster position="top-center" richColors closeButton duration={4000} />
+			<Toaster position="top-center" richColors closeButton duration={10000} />
 		</div>
 	);
 }
