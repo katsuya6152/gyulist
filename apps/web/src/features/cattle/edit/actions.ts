@@ -4,14 +4,14 @@ import { client } from "@/lib/rpc";
 import { parseWithZod } from "@conform-to/zod";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { createCattleSchema } from "./schema";
+import { updateCattleSchema } from "./schema";
 
-export async function createCattleAction(
+export async function updateCattleAction(
 	prevState: unknown,
 	formData: FormData,
 ) {
 	const submission = parseWithZod(formData, {
-		schema: createCattleSchema,
+		schema: updateCattleSchema,
 	});
 
 	if (submission.status !== "success") {
@@ -69,8 +69,17 @@ export async function createCattleAction(
 				: undefined,
 		};
 
-		const response = await client.api.v1.cattle.$post(
+		// 牛のIDを取得（URLから取得する必要があります）
+		const cattleId = formData.get("cattleId") as string;
+		if (!cattleId) {
+			return submission.reply({
+				formErrors: ["牛のIDが見つかりません"],
+			});
+		}
+
+		const response = await client.api.v1.cattle[":id"].$patch(
 			{
+				param: { id: cattleId },
 				json: apiData,
 			},
 			{
@@ -80,19 +89,19 @@ export async function createCattleAction(
 			},
 		);
 
-		if (response.status !== 201) {
+		if (response.status !== 200) {
 			const error = await response.text();
 			return submission.reply({
-				formErrors: [error || "牛の登録に失敗しました"],
+				formErrors: [error || "牛の更新に失敗しました"],
 			});
 		}
 
 		// 成功時のレスポンス
 		return submission.reply();
 	} catch (error) {
-		console.error("Failed to create cattle:", error);
+		console.error("Failed to update cattle:", error);
 		return submission.reply({
-			formErrors: ["牛の登録に失敗しました"],
+			formErrors: ["牛の更新に失敗しました"],
 		});
 	}
 }

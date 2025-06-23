@@ -6,13 +6,38 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState } from "react";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { createCattleAction } from "./actions";
 import { createCattleSchema } from "./schema";
 
+// 年齢表示用のユーティリティ関数（表示のみ）
+const calculateAgeDisplay = (birthday: string) => {
+	if (!birthday) return null;
+
+	const today = new Date();
+	const birthDate = new Date(birthday);
+	const diffTime = today.getTime() - birthDate.getTime();
+	const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+	const monthsOld = Math.floor(diffDays / 30);
+	const age = Math.floor(diffDays / 365);
+
+	return {
+		daysOld: diffDays,
+		monthsOld,
+		age,
+	};
+};
+
 export function CattleNewPresentation() {
 	const router = useRouter();
+	const formRef = useRef<HTMLFormElement>(null);
+	const [ageDisplay, setAgeDisplay] = useState<{
+		daysOld: number;
+		monthsOld: number;
+		age: number;
+	} | null>(null);
+
 	const [lastResult, action, isPending] = useActionState(
 		createCattleAction,
 		null,
@@ -27,6 +52,33 @@ export function CattleNewPresentation() {
 		shouldValidate: "onBlur",
 		shouldRevalidate: "onInput",
 	});
+
+	// 生年月日の変更を監視して年齢表示を更新
+	useEffect(() => {
+		const handleBirthdayChange = () => {
+			if (formRef.current) {
+				const formData = new FormData(formRef.current);
+				const birthday = formData.get("birthday") as string;
+				if (birthday) {
+					const ageInfo = calculateAgeDisplay(birthday);
+					setAgeDisplay(ageInfo);
+				} else {
+					setAgeDisplay(null);
+				}
+			}
+		};
+
+		const formElement = formRef.current;
+		if (formElement) {
+			formElement.addEventListener("change", handleBirthdayChange);
+			formElement.addEventListener("input", handleBirthdayChange);
+
+			return () => {
+				formElement.removeEventListener("change", handleBirthdayChange);
+				formElement.removeEventListener("input", handleBirthdayChange);
+			};
+		}
+	}, []);
 
 	// トースト通知の処理
 	useEffect(() => {
@@ -76,6 +128,7 @@ export function CattleNewPresentation() {
 			)}
 
 			<form
+				ref={formRef}
 				id={form.id}
 				onSubmit={form.onSubmit}
 				action={action}
@@ -179,23 +232,30 @@ export function CattleNewPresentation() {
 				</div>
 
 				<div>
-					<label htmlFor="birthDate" className="block text-sm font-medium mb-2">
+					<label htmlFor="birthday" className="block text-sm font-medium mb-2">
 						出生日<span className="text-red-500 ml-1">*</span>
 					</label>
 					<input
 						type="date"
-						key={fields.birthDate.key}
-						name={fields.birthDate.name}
-						defaultValue={fields.birthDate.initialValue}
+						key={fields.birthday.key}
+						name={fields.birthday.name}
+						defaultValue={fields.birthday.initialValue}
 						className={`w-full rounded-md border px-3 py-2 ${
-							fields.birthDate.errors
+							fields.birthday.errors
 								? "border-red-500 bg-red-50"
 								: "border-input bg-background"
 						}`}
 					/>
-					{fields.birthDate.errors && (
+					{fields.birthday.errors && (
 						<p className="text-sm text-red-600 mt-1">
-							{fields.birthDate.errors}
+							{fields.birthday.errors}
+						</p>
+					)}
+					{ageDisplay && (
+						<p className="text-sm text-gray-600 mt-1">
+							現在の日齢: {ageDisplay.daysOld}日
+							{` (${ageDisplay.monthsOld}ヶ月)`}
+							{` (${ageDisplay.age}歳)`}
 						</p>
 					)}
 				</div>
@@ -257,6 +317,143 @@ export function CattleNewPresentation() {
 						className="w-full rounded-md border border-input bg-background px-3 py-2 resize-none"
 						rows={4}
 					/>
+				</div>
+
+				{/* 血統情報セクション */}
+				<div className="border-t pt-6">
+					<h2 className="text-lg font-semibold mb-4">血統情報</h2>
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div>
+							<label
+								htmlFor="bloodline.fatherCattleName"
+								className="block text-sm font-medium mb-2"
+							>
+								父牛名
+							</label>
+							<input
+								type="text"
+								name="bloodline.fatherCattleName"
+								placeholder="父牛名を入力"
+								className="w-full rounded-md border border-input bg-background px-3 py-2"
+							/>
+						</div>
+
+						<div>
+							<label
+								htmlFor="bloodline.motherFatherCattleName"
+								className="block text-sm font-medium mb-2"
+							>
+								母の父牛名
+							</label>
+							<input
+								type="text"
+								name="bloodline.motherFatherCattleName"
+								placeholder="母の父牛名を入力"
+								className="w-full rounded-md border border-input bg-background px-3 py-2"
+							/>
+						</div>
+
+						<div>
+							<label
+								htmlFor="bloodline.motherGrandFatherCattleName"
+								className="block text-sm font-medium mb-2"
+							>
+								母の祖父牛名
+							</label>
+							<input
+								type="text"
+								name="bloodline.motherGrandFatherCattleName"
+								placeholder="母の祖父牛名を入力"
+								className="w-full rounded-md border border-input bg-background px-3 py-2"
+							/>
+						</div>
+
+						<div>
+							<label
+								htmlFor="bloodline.motherGreatGrandFatherCattleName"
+								className="block text-sm font-medium mb-2"
+							>
+								母の曾祖父牛名
+							</label>
+							<input
+								type="text"
+								name="bloodline.motherGreatGrandFatherCattleName"
+								placeholder="母の曾祖父牛名を入力"
+								className="w-full rounded-md border border-input bg-background px-3 py-2"
+							/>
+						</div>
+					</div>
+				</div>
+
+				{/* 繁殖情報セクション */}
+				<div className="border-t pt-6">
+					<h2 className="text-lg font-semibold mb-4">繁殖情報</h2>
+
+					{/* 繁殖状態 */}
+					<div className="mb-6">
+						<h3 className="text-md font-medium mb-3">繁殖状態</h3>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div>
+								<label
+									htmlFor="breedingStatus.expectedCalvingDate"
+									className="block text-sm font-medium mb-2"
+								>
+									分娩予定日
+								</label>
+								<input
+									type="date"
+									name="breedingStatus.expectedCalvingDate"
+									className="w-full rounded-md border border-input bg-background px-3 py-2"
+								/>
+							</div>
+
+							<div>
+								<label
+									htmlFor="breedingStatus.scheduledPregnancyCheckDate"
+									className="block text-sm font-medium mb-2"
+								>
+									妊娠鑑定予定日
+								</label>
+								<input
+									type="date"
+									name="breedingStatus.scheduledPregnancyCheckDate"
+									className="w-full rounded-md border border-input bg-background px-3 py-2"
+								/>
+							</div>
+
+							<div>
+								<label
+									htmlFor="breedingStatus.isDifficultBirth"
+									className="block text-sm font-medium mb-2"
+								>
+									前回出産の難産判定
+								</label>
+								<select
+									name="breedingStatus.isDifficultBirth"
+									className="w-full rounded-md border border-input bg-background px-3 py-2"
+								>
+									<option value="">選択してください</option>
+									<option value="false">安産</option>
+									<option value="true">難産</option>
+								</select>
+							</div>
+						</div>
+
+						<div className="mt-4">
+							<label
+								htmlFor="breedingStatus.breedingMemo"
+								className="block text-sm font-medium mb-2"
+							>
+								繁殖メモ
+							</label>
+							<textarea
+								name="breedingStatus.breedingMemo"
+								placeholder="繁殖に関するメモを入力"
+								className="w-full rounded-md border border-input bg-background px-3 py-2 resize-none"
+								rows={3}
+							/>
+						</div>
+					</div>
 				</div>
 
 				<div className="flex justify-end gap-4">
