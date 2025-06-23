@@ -45,7 +45,7 @@ export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 				// 削除成功時のトースト表示
 				toast.success("牛の削除が完了しました", {
 					description: `${cattle.name}（個体識別番号: ${cattle.identificationNumber}）を削除しました`,
-					duration: 10000,
+					// duration: 10000,
 					style: {
 						background: "#f0fdf4",
 						border: "1px solid #bbf7d0",
@@ -59,7 +59,6 @@ export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 				setDeleteError(result.error || "削除に失敗しました");
 				toast.error("削除に失敗しました", {
 					description: result.error || "エラーが発生しました",
-					duration: 10000,
 					style: {
 						background: "#fef2f2",
 						border: "1px solid #fecaca",
@@ -71,7 +70,6 @@ export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 			setDeleteError("削除中にエラーが発生しました");
 			toast.error("削除中にエラーが発生しました", {
 				description: "予期しないエラーが発生しました",
-				duration: 10000,
 				style: {
 					background: "#fef2f2",
 					border: "1px solid #fecaca",
