@@ -16,8 +16,8 @@ export const breedingStatusSchema = z.object({
 	isDifficultBirth: z.coerce.boolean().optional(),
 });
 
-// 新規作成用のスキーマ
-export const createCattleSchema = z.object({
+// 更新用のスキーマ
+export const updateCattleSchema = z.object({
 	identificationNumber: z.coerce.number().min(1, "個体識別番号は必須です"),
 	earTagNumber: z.coerce.number().min(1, "耳標番号は必須です"),
 	name: z.string().min(1, "名号は必須です"),

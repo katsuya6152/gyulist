@@ -106,3 +106,36 @@ export async function DeleteCattle(id: number | string): Promise<void> {
 		),
 	);
 }
+
+export async function UpdateCattle(
+	id: number | string,
+	data: {
+		identificationNumber: number;
+		earTagNumber: number;
+		name: string;
+		gender: string;
+		birthday: string;
+		growthStage:
+			| "CALF"
+			| "GROWING"
+			| "FATTENING"
+			| "FIRST_CALVED"
+			| "MULTI_PAROUS";
+		breed?: string | null;
+		notes?: string | null;
+	},
+): Promise<void> {
+	return fetchWithAuth<void>((token) =>
+		client.api.v1.cattle[":id"].$patch(
+			{
+				param: { id: id.toString() },
+				json: data,
+			},
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			},
+		),
+	);
+}
