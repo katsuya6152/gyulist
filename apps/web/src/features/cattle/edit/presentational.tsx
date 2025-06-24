@@ -44,6 +44,9 @@ export function CattleEditPresentation({
 		monthsOld: number;
 		age: number;
 	} | null>(null);
+	const [growthStage, setGrowthStage] = useState<string>(
+		cattle.growthStage || "",
+	);
 
 	const [lastResult, action, isPending] = useActionState(
 		(prevState: unknown, formData: FormData) => {
@@ -89,45 +92,32 @@ export function CattleEditPresentation({
 				isDifficultBirth:
 					cattle.breedingStatus?.isDifficultBirth?.toString() || "",
 			},
-			// 繁殖統計の初期値
-			// breedingSummary: {
-			// 	totalInseminationCount:
-			// 		cattle.breedingSummary?.totalInseminationCount?.toString() || "",
-			// 	averageDaysOpen:
-			// 		cattle.breedingSummary?.averageDaysOpen?.toString() || "",
-			// 	averagePregnancyPeriod:
-			// 		cattle.breedingSummary?.averagePregnancyPeriod?.toString() || "",
-			// 	averageCalvingInterval:
-			// 		cattle.breedingSummary?.averageCalvingInterval?.toString() || "",
-			// 	difficultBirthCount:
-			// 		cattle.breedingSummary?.difficultBirthCount?.toString() || "",
-			// 	pregnancyHeadCount:
-			// 		cattle.breedingSummary?.pregnancyHeadCount?.toString() || "",
-			// 	pregnancySuccessRate:
-			// 		cattle.breedingSummary?.pregnancySuccessRate?.toString() || "",
-			// },
 		},
 	});
 
-	// 生年月日の変更を監視して年齢表示を更新
+	// 生年月日と成長段階の変更を監視
 	useEffect(() => {
-		const handleBirthdayChange = () => {
+		const handleFormChange = () => {
 			if (formRef.current) {
 				const formData = new FormData(formRef.current);
 				const birthday = formData.get("birthday") as string;
+				const currentGrowthStage = formData.get("growthStage") as string;
+
 				if (birthday) {
 					const ageInfo = calculateAgeDisplay(birthday);
 					setAgeDisplay(ageInfo);
 				} else {
 					setAgeDisplay(null);
 				}
+
+				setGrowthStage(currentGrowthStage);
 			}
 		};
 
 		const formElement = formRef.current;
 		if (formElement) {
-			formElement.addEventListener("change", handleBirthdayChange);
-			formElement.addEventListener("input", handleBirthdayChange);
+			formElement.addEventListener("change", handleFormChange);
+			formElement.addEventListener("input", handleFormChange);
 
 			// 初期表示
 			if (cattle.birthday) {
@@ -136,8 +126,8 @@ export function CattleEditPresentation({
 			}
 
 			return () => {
-				formElement.removeEventListener("change", handleBirthdayChange);
-				formElement.removeEventListener("input", handleBirthdayChange);
+				formElement.removeEventListener("change", handleFormChange);
+				formElement.removeEventListener("input", handleFormChange);
 			};
 		}
 	}, [cattle.birthday]);
@@ -169,6 +159,11 @@ export function CattleEditPresentation({
 			}
 		}
 	}, [lastResult, router, cattle.cattleId]);
+
+	// 子牛以外の場合のみ繁殖情報を表示
+	const shouldShowBreedingInfo =
+		growthStage &&
+		(growthStage === "FIRST_CALVED" || growthStage === "MULTI_PAROUS");
 
 	return (
 		<div className="container mx-auto px-4 py-8">
@@ -455,86 +450,88 @@ export function CattleEditPresentation({
 					</div>
 				</div>
 
-				{/* 繁殖情報セクション */}
-				<div className="border-t pt-6">
-					<h2 className="text-lg font-semibold mb-4">繁殖情報</h2>
+				{/* 繁殖情報セクション - 子牛以外の場合のみ表示 */}
+				{shouldShowBreedingInfo && (
+					<div className="border-t pt-6">
+						<h2 className="text-lg font-semibold mb-4">繁殖情報</h2>
 
-					{/* 繁殖状態 */}
-					<div className="mb-6">
-						<h3 className="text-md font-medium mb-3">繁殖状態</h3>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<div>
+						{/* 繁殖状態 */}
+						<div className="mb-6">
+							<h3 className="text-md font-medium mb-3">繁殖状態</h3>
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div>
+									<label
+										htmlFor="breedingStatus.expectedCalvingDate"
+										className="block text-sm font-medium mb-2"
+									>
+										分娩予定日
+									</label>
+									<input
+										type="date"
+										name="breedingStatus.expectedCalvingDate"
+										defaultValue={
+											cattle.breedingStatus?.expectedCalvingDate || ""
+										}
+										className="w-full rounded-md border border-input bg-background px-3 py-2"
+									/>
+								</div>
+
+								<div>
+									<label
+										htmlFor="breedingStatus.scheduledPregnancyCheckDate"
+										className="block text-sm font-medium mb-2"
+									>
+										妊娠鑑定予定日
+									</label>
+									<input
+										type="date"
+										name="breedingStatus.scheduledPregnancyCheckDate"
+										defaultValue={
+											cattle.breedingStatus?.scheduledPregnancyCheckDate || ""
+										}
+										className="w-full rounded-md border border-input bg-background px-3 py-2"
+									/>
+								</div>
+
+								<div>
+									<label
+										htmlFor="breedingStatus.isDifficultBirth"
+										className="block text-sm font-medium mb-2"
+									>
+										前回出産の難産判定
+									</label>
+									<select
+										name="breedingStatus.isDifficultBirth"
+										defaultValue={
+											cattle.breedingStatus?.isDifficultBirth?.toString() || ""
+										}
+										className="w-full rounded-md border border-input bg-background px-3 py-2"
+									>
+										<option value="">選択してください</option>
+										<option value="false">安産</option>
+										<option value="true">難産</option>
+									</select>
+								</div>
+							</div>
+
+							<div className="mt-4">
 								<label
-									htmlFor="breedingStatus.expectedCalvingDate"
+									htmlFor="breedingStatus.breedingMemo"
 									className="block text-sm font-medium mb-2"
 								>
-									分娩予定日
+									繁殖メモ
 								</label>
-								<input
-									type="date"
-									name="breedingStatus.expectedCalvingDate"
-									defaultValue={
-										cattle.breedingStatus?.expectedCalvingDate || ""
-									}
-									className="w-full rounded-md border border-input bg-background px-3 py-2"
+								<textarea
+									name="breedingStatus.breedingMemo"
+									defaultValue={cattle.breedingStatus?.breedingMemo || ""}
+									placeholder="繁殖に関するメモを入力"
+									className="w-full rounded-md border border-input bg-background px-3 py-2 resize-none"
+									rows={3}
 								/>
 							</div>
-
-							<div>
-								<label
-									htmlFor="breedingStatus.scheduledPregnancyCheckDate"
-									className="block text-sm font-medium mb-2"
-								>
-									妊娠鑑定予定日
-								</label>
-								<input
-									type="date"
-									name="breedingStatus.scheduledPregnancyCheckDate"
-									defaultValue={
-										cattle.breedingStatus?.scheduledPregnancyCheckDate || ""
-									}
-									className="w-full rounded-md border border-input bg-background px-3 py-2"
-								/>
-							</div>
-
-							<div>
-								<label
-									htmlFor="breedingStatus.isDifficultBirth"
-									className="block text-sm font-medium mb-2"
-								>
-									前回出産の難産判定
-								</label>
-								<select
-									name="breedingStatus.isDifficultBirth"
-									defaultValue={
-										cattle.breedingStatus?.isDifficultBirth?.toString() || ""
-									}
-									className="w-full rounded-md border border-input bg-background px-3 py-2"
-								>
-									<option value="">選択してください</option>
-									<option value="false">安産</option>
-									<option value="true">難産</option>
-								</select>
-							</div>
-						</div>
-
-						<div className="mt-4">
-							<label
-								htmlFor="breedingStatus.breedingMemo"
-								className="block text-sm font-medium mb-2"
-							>
-								繁殖メモ
-							</label>
-							<textarea
-								name="breedingStatus.breedingMemo"
-								defaultValue={cattle.breedingStatus?.breedingMemo || ""}
-								placeholder="繁殖に関するメモを入力"
-								className="w-full rounded-md border border-input bg-background px-3 py-2 resize-none"
-								rows={3}
-							/>
 						</div>
 					</div>
-				</div>
+				)}
 
 				<div className="flex justify-end gap-4">
 					<Button type="button" variant="outline" asChild>
