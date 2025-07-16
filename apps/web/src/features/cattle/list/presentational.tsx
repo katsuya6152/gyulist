@@ -405,25 +405,30 @@ export function CattleListPresentation({
 									<Badge variant="default">
 										{getGrowthStage(cattle.growthStage)}
 									</Badge>
+									{cattle.healthStatus && (
+										<Badge
+											variant="outline"
+											className={classNames({
+												"border-blue-500 text-blue-500":
+													cattle.healthStatus === "健康",
+												"border-yellow-500 text-yellow-500":
+													cattle.healthStatus === "妊娠中",
+												"border-green-500 text-green-500":
+													cattle.healthStatus === "休息中",
+												"border-red-500 text-red-500":
+													cattle.healthStatus === "治療中",
+											})}
+										>
+											{cattle.healthStatus}
+										</Badge>
+									)}
 								</div>
 								<div className="flex items-center h-3 gap-2 text-xs">
 									<div>耳標番号：{cattle.earTagNumber}</div>
 									<Separator orientation="vertical" />
 									<div>日齢：{cattle.daysOld}</div>
 									<Separator orientation="vertical" />
-									<div>
-										ステータス：
-										<span
-											className={classNames("font-semibold", {
-												"text-blue-500": cattle.healthStatus === "健康",
-												"text-yellow-500": cattle.healthStatus === "妊娠中",
-												"text-green-500": cattle.healthStatus === "休息中",
-												"text-red-500": cattle.healthStatus === "治療中",
-											})}
-										>
-											{cattle.healthStatus}
-										</span>
-									</div>
+									<div>体重：{cattle.weight ? `${cattle.weight}kg` : "-"}</div>
 								</div>
 							</div>
 							<div className="flex items-center gap-1">
