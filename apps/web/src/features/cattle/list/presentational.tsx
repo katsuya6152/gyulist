@@ -426,17 +426,19 @@ export function CattleListPresentation({
 								<div className="flex items-center h-3 gap-2 text-xs">
 									<div>耳標番号：{cattle.earTagNumber}</div>
 									<Separator orientation="vertical" />
-									<div>日齢：{cattle.daysOld}</div>
+									<div>
+										日齢：{cattle.daysOld ? `${cattle.daysOld}日` : "-"}
+									</div>
 									<Separator orientation="vertical" />
 									<div>体重：{cattle.weight ? `${cattle.weight}kg` : "-"}</div>
 								</div>
 							</div>
-							<div className="flex items-center gap-1">
+							<div className="flex items-center gap-2">
 								<Button
 									type="button"
 									variant="outline"
 									size="icon"
-									className="text-green-600"
+									className="text-[#00C5CC]"
 									onClick={(e) => {
 										e.stopPropagation();
 										handleAddEvent(cattle.cattleId);

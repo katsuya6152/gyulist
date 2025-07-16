@@ -63,11 +63,11 @@ interface FooterItemProps {
 function FooterItem({ icon, label, href, isActive }: FooterItemProps) {
 	return (
 		<Link href={href} className="flex flex-col items-center">
-			<div className={`p-1 ${isActive ? "text-green-600" : "text-gray-600"}`}>
+			<div className={`p-1 ${isActive ? "text-[#00C5CC]" : "text-gray-600"}`}>
 				{icon}
 			</div>
 			<span
-				className={`text-xs ${isActive ? "text-green-600 font-medium" : "text-gray-600"}`}
+				className={`text-xs ${isActive ? "text-[#00C5CC] font-medium" : "text-gray-600"}`}
 			>
 				{label}
 			</span>
