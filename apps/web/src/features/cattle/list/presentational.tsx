@@ -33,6 +33,7 @@ import {
 	ArrowDown01,
 	ArrowDown10,
 	ArrowDownUp,
+	CalendarPlus,
 	ChevronRight,
 	Filter,
 	Search,
@@ -136,6 +137,10 @@ export function CattleListPresentation({
 
 	const handleItemClick = (cattleId: number) => {
 		router.push(`/cattle/${cattleId}`);
+	};
+
+	const handleAddEvent = (cattleId: number) => {
+		router.push(`/events/new/${cattleId}`);
 	};
 
 	return (
@@ -421,7 +426,21 @@ export function CattleListPresentation({
 									</div>
 								</div>
 							</div>
-							<ChevronRight />
+							<div className="flex items-center gap-1">
+								<Button
+									type="button"
+									variant="outline"
+									size="icon"
+									className="text-green-600"
+									onClick={(e) => {
+										e.stopPropagation();
+										handleAddEvent(cattle.cattleId);
+									}}
+								>
+									<CalendarPlus />
+								</Button>
+								<ChevronRight />
+							</div>
 						</div>
 						<Separator />
 					</div>
