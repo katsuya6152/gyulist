@@ -17,6 +17,32 @@ export type CreateEventInput = {
 	notes?: string;
 };
 
+export type SearchEventsQuery = {
+	cattleId?: number;
+	eventType?: string;
+	startDate?: string;
+	endDate?: string;
+	limit?: number;
+	cursor?: number;
+};
+
+// API response type for search events
+export type SearchEventsResType = {
+	results: Array<{
+		eventId: number;
+		cattleId: number;
+		eventType: string;
+		eventDatetime: string;
+		notes: string | null;
+		createdAt: string;
+		updatedAt: string;
+		cattleName: string;
+		cattleEarTagNumber: string;
+	}>;
+	nextCursor: number | null;
+	hasNext: boolean;
+};
+
 async function getAuthToken() {
 	const cookieStore = await cookies();
 	const token = cookieStore.get("token")?.value;
@@ -49,6 +75,30 @@ export async function CreateEvent(data: CreateEventInput): Promise<void> {
 		client.api.v1.events.$post(
 			{
 				json: data,
+			},
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			},
+		),
+	);
+}
+
+export async function SearchEvents(
+	query: SearchEventsQuery = {},
+): Promise<SearchEventsResType> {
+	return fetchWithAuth<SearchEventsResType>((token) =>
+		client.api.v1.events.$get(
+			{
+				query: {
+					cattleId: query.cattleId?.toString(),
+					eventType: query.eventType,
+					startDate: query.startDate,
+					endDate: query.endDate,
+					limit: query.limit?.toString() || "20",
+					cursor: query.cursor?.toString(),
+				},
 			},
 			{
 				headers: {

@@ -11,36 +11,36 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { useActionState } from "react";
+import { useRouter } from "next/navigation";
+import { startTransition, useActionState, useEffect } from "react";
 import { type LoginActionResult, loginAction } from "./actions";
 
 export const runtime = "edge";
 
 export default function LoginPage() {
+	const router = useRouter();
 	const [state, formAction, isPending] = useActionState<
 		LoginActionResult,
 		FormData
 	>(loginAction, { success: false, message: "" });
 
+	// 成功時のリダイレクト処理
+	useEffect(() => {
+		if (state?.success) {
+			router.push("/cattle");
+		}
+	}, [state, router]);
+
 	const handleDemoLogin = () => {
-		// TODO: デモログインの実装
-		const form = document.createElement("form");
-		form.style.display = "none";
+		// デモログイン用のFormDataを作成
+		const demoFormData = new FormData();
+		demoFormData.append("email", "test@test.co.jp");
+		demoFormData.append("password", "testtest");
 
-		const emailInput = document.createElement("input");
-		emailInput.name = "email";
-		emailInput.value = "demo@example.com";
-		form.appendChild(emailInput);
-
-		const passwordInput = document.createElement("input");
-		passwordInput.name = "password";
-		passwordInput.value = "password123";
-		form.appendChild(passwordInput);
-
-		document.body.appendChild(form);
-		form.action = "";
-		form.method = "post";
-		form.submit();
+		// startTransitionでラップしてログインアクションを呼び出し
+		startTransition(() => {
+			formAction(demoFormData);
+		});
 	};
 
 	return (
