@@ -54,7 +54,7 @@ export const breedingStatusSchema = z.object({
 	daysAfterInsemination: z.number().nullable(),
 	inseminationCount: z.number().nullable(),
 	breedingMemo: z.string().nullable(),
-	isDifficultBirth: z.number().nullable(),
+	isDifficultBirth: z.boolean().nullable(),
 	createdAt: z.string().optional(),
 	updatedAt: z.string().optional(),
 });
