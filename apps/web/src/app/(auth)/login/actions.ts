@@ -16,7 +16,9 @@ const loginSchema = z.object({
 		.min(6, "パスワードは6文字以上である必要があります。"),
 });
 
-export type LoginActionResult = { success: false; message: string } | never;
+export type LoginActionResult =
+	| { success: false; message: string }
+	| { success: true; message: string };
 
 export async function loginAction(
 	prevState: LoginActionResult | null,
@@ -56,20 +58,17 @@ export async function loginAction(
 		}
 
 		// Cookieを設定
-		(await cookies()).set("token", resData.token, {
+		const cookieStore = await cookies();
+		cookieStore.set("token", resData.token, {
 			httpOnly: true,
 			secure: process.env.NODE_ENV === "production",
 			sameSite: "lax",
 			path: "/",
 		});
 
-		// サーバーサイドでリダイレクト
-		redirect("/cattle");
+		// 成功を返す（クライアントサイドでリダイレクト）
+		return { success: true, message: "ログインに成功しました" };
 	} catch (error) {
-		// NEXT_REDIRECTエラーは無視
-		if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
-			throw error; // リダイレクトを継続
-		}
 		console.error("ログイン処理中にエラー:", error);
 		return {
 			success: false,
