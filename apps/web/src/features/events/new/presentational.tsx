@@ -209,7 +209,7 @@ export function EventNewPresentation({ cattle }: EventNewPresentationProps) {
 				</div>
 
 				{/* ボタン */}
-				<div className="flex gap-4 pt-6">
+				<div className="flex gap-4">
 					<Button type="submit" disabled={isPending} className="flex-1">
 						{isPending ? "登録中..." : "イベントを登録"}
 					</Button>
