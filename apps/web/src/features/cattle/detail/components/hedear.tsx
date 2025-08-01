@@ -15,7 +15,7 @@ import {
 import { getGrowthStage } from "@/lib/utils";
 import type { GetCattleDetailResType } from "@/services/cattleService";
 import classNames from "classnames";
-import { Edit, Trash2 } from "lucide-react";
+import { CalendarPlus, Edit, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -29,6 +29,10 @@ export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 	const router = useRouter();
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [deleteError, setDeleteError] = useState<string | null>(null);
+
+	const handleAddEvent = () => {
+		router.push(`/events/new/${cattle.cattleId}`);
+	};
 
 	const handleEdit = () => {
 		router.push(`/cattle/${cattle.cattleId}/edit`);
@@ -103,8 +107,19 @@ export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 				<p className="text-xs">耳標番号：{cattle.earTagNumber}</p>
 			</div>
 
-			{/* 右側: 編集・削除ボタン */}
+			{/* 右側: イベント登録・編集・削除ボタン */}
 			<div className="flex items-center space-x-2">
+				{/* イベント登録ボタン */}
+				<Button
+					variant="outline"
+					size="icon"
+					aria-label="イベント登録"
+					className="text-[#00C5CC]"
+					onClick={handleAddEvent}
+				>
+					<CalendarPlus className="h-4 w-4" />
+				</Button>
+
 				{/* 編集ボタン */}
 				<Button
 					variant="outline"
