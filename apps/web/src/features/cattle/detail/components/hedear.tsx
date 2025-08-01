@@ -89,8 +89,8 @@ export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 		<div className="flex justify-between">
 			{/* 左側: 個体情報 */}
 			<div className="flex flex-col gap-1">
+				<p className="font-black mr-2">{cattle.name}</p>
 				<div className="flex items-center gap-1">
-					<p className="font-black mr-2">{cattle.name}</p>
 					<Badge variant="outline">
 						<span
 							className={classNames("font-semibold", {
