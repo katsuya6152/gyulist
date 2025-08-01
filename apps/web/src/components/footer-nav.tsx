@@ -1,14 +1,34 @@
 "use client";
 
-import { Calendar, List, Plus, Settings } from "lucide-react";
+import { ArrowLeft, Calendar, List, Plus, Settings } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export function FooterNav() {
 	const pathname = usePathname();
+	const router = useRouter();
+
+	const handleGoBack = () => {
+		router.back();
+	};
+
 	return (
 		<div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2 z-50">
-			<div className="grid grid-cols-4 items-center">
+			<div className="grid items-center grid-cols-5">
+				{/* 戻るボタン（個体詳細画面のみ） */}
+				<div className="flex justify-center">
+					<button
+						type="button"
+						onClick={handleGoBack}
+						className="flex flex-col items-center"
+					>
+						<div className="p-1 text-gray-600">
+							<ArrowLeft className="h-6 w-6" />
+						</div>
+						<span className="text-xs text-gray-600">戻る</span>
+					</button>
+				</div>
+
 				{/* 1. 予定 */}
 				<div className="flex justify-center">
 					<FooterItem
