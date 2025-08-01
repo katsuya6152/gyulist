@@ -340,5 +340,18 @@ export async function updateBreedingSummary(
 
 export async function deleteCattle(db: AnyD1Database, cattleId: number) {
 	const dbInstance = drizzle(db);
+
+	// 関連するすべてのテーブルのレコードを先に削除
+	await dbInstance.delete(events).where(eq(events.cattleId, cattleId));
+	await dbInstance.delete(bloodline).where(eq(bloodline.cattleId, cattleId));
+	await dbInstance
+		.delete(breedingStatus)
+		.where(eq(breedingStatus.cattleId, cattleId));
+	await dbInstance
+		.delete(breedingSummary)
+		.where(eq(breedingSummary.cattleId, cattleId));
+	await dbInstance.delete(motherInfo).where(eq(motherInfo.cattleId, cattleId));
+
+	// 牛のレコードを削除
 	await dbInstance.delete(cattle).where(eq(cattle.cattleId, cattleId));
 }
