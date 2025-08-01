@@ -64,7 +64,7 @@ export async function updateCattleAction(
 						daysAfterInsemination: null,
 						inseminationCount: null,
 						breedingMemo: data.breedingStatus.breedingMemo || null,
-						isDifficultBirth: data.breedingStatus.isDifficultBirth ? 1 : 0,
+						isDifficultBirth: data.breedingStatus.isDifficultBirth ?? null,
 					}
 				: undefined,
 		};
