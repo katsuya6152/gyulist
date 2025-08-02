@@ -1,17 +1,22 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import type { SearchEventsResType } from "@/services/eventService";
-import { format } from "date-fns";
+import { addDays, format } from "date-fns";
 import { ja } from "date-fns/locale";
 import { Calendar, Clock } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import type { DateFilter } from "./actions";
 
 type Event = SearchEventsResType["results"][0];
 
 interface SchedulePresentationProps {
 	events: Event[];
+	currentFilter: DateFilter;
+	error?: string;
 }
 
 // イベントタイプの日本語マッピング
@@ -36,7 +41,41 @@ const eventTypeColors: Record<string, string> = {
 	OTHER: "bg-gray-100 text-gray-800 border-gray-300",
 };
 
-export function SchedulePresentation({ events }: SchedulePresentationProps) {
+export function SchedulePresentation({
+	events,
+	currentFilter,
+	error,
+}: SchedulePresentationProps) {
+	const router = useRouter();
+	const searchParams = useSearchParams();
+
+	// フィルターボタンの定義
+	const filterButtons = [
+		{ key: "today" as const, label: "今日", getDate: () => new Date() },
+		{
+			key: "tomorrow" as const,
+			label: "明日",
+			getDate: () => addDays(new Date(), 1),
+		},
+		{
+			key: "dayAfterTomorrow" as const,
+			label: "明後日",
+			getDate: () => addDays(new Date(), 2),
+		},
+		{ key: "all" as const, label: "全て", getDate: () => null },
+	];
+
+	// フィルターボタンのクリックハンドラー
+	const handleFilterClick = (filter: DateFilter) => {
+		const params = new URLSearchParams(searchParams);
+		if (filter === "all") {
+			params.delete("filter");
+		} else {
+			params.set("filter", filter);
+		}
+		router.push(`/schedule?${params.toString()}`);
+	};
+
 	// イベントを日付順（新しい順）にソート
 	const sortedEvents = [...events].sort((a, b) => {
 		return (
@@ -62,6 +101,11 @@ export function SchedulePresentation({ events }: SchedulePresentationProps) {
 		}
 	};
 
+	// フィルター用の日付フォーマット
+	const formatFilterDate = (date: Date) => {
+		return format(date, "MM/dd", { locale: ja });
+	};
+
 	return (
 		<div className="container mx-auto px-4 py-8">
 			<div className="mb-6">
@@ -74,13 +118,54 @@ export function SchedulePresentation({ events }: SchedulePresentationProps) {
 				</p>
 			</div>
 
+			{/* エラー表示 */}
+			{error && (
+				<div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+					<p className="text-sm text-red-600">{error}</p>
+				</div>
+			)}
+
+			{/* 日付フィルターボタン */}
+			<div className="mb-6">
+				<div className="grid grid-cols-4 gap-2">
+					{filterButtons.map((button) => {
+						const date = button.getDate();
+
+						return (
+							<Button
+								key={button.key}
+								variant={currentFilter === button.key ? "default" : "outline"}
+								onClick={() => handleFilterClick(button.key)}
+								className="h-auto py-3 px-2 flex flex-col items-center gap-1"
+							>
+								<span className="text-xs font-medium">{button.label}</span>
+								{date && (
+									<span className="text-xs opacity-75">
+										{formatFilterDate(date)}
+									</span>
+								)}
+							</Button>
+						);
+					})}
+				</div>
+				{currentFilter !== "all" && (
+					<p className="text-xs text-gray-500 mt-2">
+						{sortedEvents.length}件のイベントが見つかりました
+					</p>
+				)}
+			</div>
+
 			<div className="space-y-4">
 				{sortedEvents.length === 0 ? (
 					<Card>
 						<CardContent className="py-8">
 							<div className="text-center text-gray-500">
 								<Calendar className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-								<p>イベントが登録されていません</p>
+								<p>
+									{currentFilter === "all"
+										? "イベントが登録されていません"
+										: "該当する日付のイベントがありません"}
+								</p>
 							</div>
 						</CardContent>
 					</Card>
