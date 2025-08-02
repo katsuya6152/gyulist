@@ -34,7 +34,7 @@ export function FooterNav() {
 					<FooterItem
 						icon={<Calendar className="h-6 w-6" />}
 						label="予定"
-						href="/schedule"
+						href="/schedule?filter=today"
 						isActive={pathname === "/schedule"}
 					/>
 				</div>
