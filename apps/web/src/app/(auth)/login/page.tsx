@@ -27,7 +27,7 @@ export default function LoginPage() {
 	// 成功時のリダイレクト処理
 	useEffect(() => {
 		if (state?.success) {
-			router.push("/cattle");
+			router.push("/schedule?filter=today");
 		}
 	}, [state, router]);
 

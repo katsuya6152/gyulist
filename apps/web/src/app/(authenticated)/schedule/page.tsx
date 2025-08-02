@@ -1,7 +1,11 @@
-import { ScheduleContainer } from "@/features/schedule/container";
+import ScheduleContainer from "@/features/schedule/container";
 
 export const runtime = "edge";
 
-export default function SchedulePage() {
-	return <ScheduleContainer />;
+type Props = {
+	searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export default function SchedulePage({ searchParams }: Props) {
+	return <ScheduleContainer searchParams={searchParams} />;
 }
