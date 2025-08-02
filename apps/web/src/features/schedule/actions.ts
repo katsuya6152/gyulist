@@ -4,9 +4,17 @@ import { SearchEvents } from "@/services/eventService";
 import type { SearchEventsQuery } from "@/services/eventService";
 import { addDays, endOfDay, startOfDay } from "date-fns";
 
-export type DateFilter = "all" | "today" | "tomorrow" | "dayAfterTomorrow";
+export type DateFilter =
+	| "all"
+	| "today"
+	| "tomorrow"
+	| "dayAfterTomorrow"
+	| "custom";
 
-export async function getFilteredEvents(filter: DateFilter = "all") {
+export async function getFilteredEvents(
+	filter: DateFilter = "all",
+	customDate?: string,
+) {
 	try {
 		let searchParams: SearchEventsQuery = { limit: 50 };
 
@@ -23,6 +31,12 @@ export async function getFilteredEvents(filter: DateFilter = "all") {
 					break;
 				case "dayAfterTomorrow":
 					targetDate = addDays(today, 2);
+					break;
+				case "custom":
+					if (!customDate) {
+						throw new Error("カスタム日付が指定されていません");
+					}
+					targetDate = new Date(customDate);
 					break;
 				default:
 					targetDate = today;
@@ -44,6 +58,7 @@ export async function getFilteredEvents(filter: DateFilter = "all") {
 			success: true,
 			events: eventsData.results,
 			filter,
+			customDate,
 		};
 	} catch (error) {
 		console.error("Failed to fetch filtered events:", error);
@@ -51,6 +66,7 @@ export async function getFilteredEvents(filter: DateFilter = "all") {
 			success: false,
 			events: [],
 			filter,
+			customDate,
 			error: "イベントの取得に失敗しました",
 		};
 	}
