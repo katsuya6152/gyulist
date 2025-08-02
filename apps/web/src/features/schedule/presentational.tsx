@@ -1,14 +1,23 @@
 "use client";
 
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import type { SearchEventsResType } from "@/services/eventService";
 import { addDays, format } from "date-fns";
 import { ja } from "date-fns/locale";
-import { Calendar, Clock } from "lucide-react";
+import { Calendar, Clock, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 import type { DateFilter } from "./actions";
 
 type Event = SearchEventsResType["results"][0];
@@ -16,6 +25,7 @@ type Event = SearchEventsResType["results"][0];
 interface SchedulePresentationProps {
 	events: Event[];
 	currentFilter: DateFilter;
+	customDate?: string;
 	error?: string;
 }
 
@@ -44,10 +54,12 @@ const eventTypeColors: Record<string, string> = {
 export function SchedulePresentation({
 	events,
 	currentFilter,
+	customDate,
 	error,
 }: SchedulePresentationProps) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
+	const [selectedDate, setSelectedDate] = useState(customDate || "");
 
 	// フィルターボタンの定義
 	const filterButtons = [
@@ -70,10 +82,33 @@ export function SchedulePresentation({
 		const params = new URLSearchParams(searchParams);
 		if (filter === "all") {
 			params.delete("filter");
+			params.delete("date");
 		} else {
 			params.set("filter", filter);
+			params.delete("date");
 		}
 		router.push(`/schedule?${params.toString()}`);
+	};
+
+	// 日付選択のハンドラー（即座に検索しない）
+	const handleDateChange = (newDate: string) => {
+		setSelectedDate(newDate);
+	};
+
+	// 検索ボタンのクリックハンドラー
+	const handleSearchClick = () => {
+		if (!selectedDate) return;
+
+		const params = new URLSearchParams(searchParams);
+		params.set("filter", "custom");
+		params.set("date", selectedDate);
+		router.push(`/schedule?${params.toString()}`);
+	};
+
+	// クリアボタンのハンドラー
+	const handleClearDate = () => {
+		setSelectedDate("");
+		handleFilterClick("all");
 	};
 
 	// イベントを日付順（新しい順）にソート
@@ -113,9 +148,6 @@ export function SchedulePresentation({
 					<Calendar className="h-6 w-6" />
 					予定
 				</h1>
-				<p className="text-sm text-gray-500 mt-1">
-					イベントの履歴を日付の新しい順に表示しています
-				</p>
 			</div>
 
 			{/* エラー表示 */}
@@ -148,12 +180,91 @@ export function SchedulePresentation({
 						);
 					})}
 				</div>
-				{currentFilter !== "all" && (
+				{currentFilter !== "all" && currentFilter !== "custom" && (
 					<p className="text-xs text-gray-500 mt-2">
 						{sortedEvents.length}件のイベントが見つかりました
 					</p>
 				)}
 			</div>
+
+			{/* 日付選択アコーディオン（全てフィルター選択時のみ表示） */}
+			{currentFilter === "all" && (
+				<div className="mb-6">
+					<Accordion type="single" collapsible className="w-full">
+						<AccordionItem
+							value="date-picker"
+							className="border border-gray-200 rounded-lg border-b-0 last:border-b"
+						>
+							<AccordionTrigger className="px-4 py-3 hover:no-underline">
+								<div className="flex items-center gap-2">
+									<Calendar className="h-4 w-4" />
+									<span className="text-sm font-medium">
+										特定の日付のイベントを表示
+									</span>
+								</div>
+							</AccordionTrigger>
+							<AccordionContent className="px-4 pb-4">
+								<div className="space-y-3">
+									<Label
+										htmlFor="date-picker"
+										className="text-sm text-gray-600"
+									>
+										日付を選択してください
+									</Label>
+									<div className="flex gap-2 items-end">
+										<div className="flex-1">
+											<Input
+												id="date-picker"
+												type="date"
+												value={selectedDate}
+												onChange={(e) => handleDateChange(e.target.value)}
+												className="w-full max-w-xs"
+											/>
+										</div>
+										<Button
+											onClick={handleSearchClick}
+											disabled={!selectedDate}
+											className="flex items-center gap-2"
+										>
+											<Search className="h-4 w-4" />
+											検索
+										</Button>
+										{selectedDate && (
+											<Button variant="outline" onClick={handleClearDate}>
+												クリア
+											</Button>
+										)}
+									</div>
+									<p className="text-xs text-gray-500">
+										日付を選択して「検索」ボタンをクリックすると、その日のイベントが表示されます
+									</p>
+								</div>
+							</AccordionContent>
+						</AccordionItem>
+					</Accordion>
+				</div>
+			)}
+
+			{/* カスタム日付選択時の表示 */}
+			{currentFilter === "custom" && customDate && (
+				<div className="mb-6">
+					<div className="flex items-center gap-2 text-sm text-gray-600">
+						<Calendar className="h-4 w-4" />
+						<span>選択日: {formatEventDate(customDate)}</span>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => handleFilterClick("all")}
+							className="ml-2"
+						>
+							クリア
+						</Button>
+					</div>
+					<p className="text-xs text-gray-500 mt-2">
+						{sortedEvents.length}件のイベントが見つかりました
+					</p>
+				</div>
+			)}
 
 			<div className="space-y-4">
 				{sortedEvents.length === 0 ? (
