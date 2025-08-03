@@ -23,7 +23,7 @@ export async function updateCattleAction(
 		const token = cookieStore.get("token")?.value;
 
 		if (!token) {
-			redirect("/not-found");
+			redirect("/login");
 		}
 
 		const data = submission.value;
@@ -89,7 +89,13 @@ export async function updateCattleAction(
 			},
 		);
 
-		if (response.status !== 200) {
+		if (!response.ok) {
+			if (
+				(response.status as number) === 401 ||
+				(response.status as number) === 403
+			) {
+				redirect("/login");
+			}
 			const error = await response.text();
 			return submission.reply({
 				formErrors: [error || "牛の更新に失敗しました"],
