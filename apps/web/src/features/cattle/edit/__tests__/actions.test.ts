@@ -62,14 +62,10 @@ describe("updateCattleAction", () => {
 		const { cookies } = await import("next/headers");
 
 		// Mock successful response
-		const mockResponse = {
+		// @ts-expect-error
+		vi.mocked(client.api.v1.cattle[":id"].$patch).mockResolvedValue({
 			ok: true,
-			status: 200,
-		};
-		// @ts-ignore
-		vi.mocked(client.api.v1.cattle[":id"].$patch).mockResolvedValue(
-			mockResponse,
-		);
+		});
 
 		// Mock cookies
 		const mockCookieStore = {
@@ -129,14 +125,10 @@ describe("updateCattleAction", () => {
 		const { client } = await import("@/lib/rpc");
 		const { cookies } = await import("next/headers");
 
-		const mockResponse = {
+		// @ts-expect-error
+		vi.mocked(client.api.v1.cattle[":id"].$patch).mockResolvedValue({
 			ok: true,
-			status: 200,
-		};
-		// @ts-ignore
-		vi.mocked(client.api.v1.cattle[":id"].$patch).mockResolvedValue(
-			mockResponse,
-		);
+		});
 
 		const mockCookieStore = {
 			get: vi.fn().mockReturnValue({ value: "valid-token" }),
@@ -257,15 +249,24 @@ describe("updateCattleAction", () => {
 		const { cookies } = await import("next/headers");
 		const { redirect } = await import("next/navigation");
 
-		const mockResponse = {
+		// @ts-expect-error
+		vi.mocked(client.api.v1.cattle[":id"].$patch).mockResolvedValue({
 			ok: false,
 			status: 401,
+			body: null,
+			bodyUsed: false,
+			statusText: "Unauthorized",
+			headers: new Headers(),
+			url: "",
+			redirected: false,
+			type: "basic" as ResponseType,
+			clone: vi.fn(),
+			arrayBuffer: vi.fn(),
+			blob: vi.fn(),
+			formData: vi.fn(),
+			json: vi.fn(),
 			text: vi.fn().mockResolvedValue("Unauthorized"),
-		};
-		// @ts-ignore
-		vi.mocked(client.api.v1.cattle[":id"].$patch).mockResolvedValue(
-			mockResponse,
-		);
+		});
 
 		const mockCookieStore = {
 			get: vi.fn().mockReturnValue({ value: "invalid-token" }),
@@ -284,15 +285,24 @@ describe("updateCattleAction", () => {
 		const { cookies } = await import("next/headers");
 		const { redirect } = await import("next/navigation");
 
-		const mockResponse = {
+		// @ts-expect-error
+		vi.mocked(client.api.v1.cattle[":id"].$patch).mockResolvedValue({
 			ok: false,
 			status: 403,
+			body: null,
+			bodyUsed: false,
+			statusText: "Forbidden",
+			headers: new Headers(),
+			url: "",
+			redirected: false,
+			type: "basic" as ResponseType,
+			clone: vi.fn(),
+			arrayBuffer: vi.fn(),
+			blob: vi.fn(),
+			formData: vi.fn(),
+			json: vi.fn(),
 			text: vi.fn().mockResolvedValue("Forbidden"),
-		};
-		// @ts-ignore
-		vi.mocked(client.api.v1.cattle[":id"].$patch).mockResolvedValue(
-			mockResponse,
-		);
+		});
 
 		const mockCookieStore = {
 			get: vi.fn().mockReturnValue({ value: "valid-token" }),
@@ -310,15 +320,24 @@ describe("updateCattleAction", () => {
 		const { client } = await import("@/lib/rpc");
 		const { cookies } = await import("next/headers");
 
-		const mockResponse = {
+		// @ts-expect-error
+		vi.mocked(client.api.v1.cattle[":id"].$patch).mockResolvedValue({
 			ok: false,
 			status: 400,
+			body: null,
+			bodyUsed: false,
+			statusText: "Bad Request",
+			headers: new Headers(),
+			url: "",
+			redirected: false,
+			type: "basic" as ResponseType,
+			clone: vi.fn(),
+			arrayBuffer: vi.fn(),
+			blob: vi.fn(),
+			formData: vi.fn(),
+			json: vi.fn(),
 			text: vi.fn().mockResolvedValue("Bad Request"),
-		};
-		// @ts-ignore
-		vi.mocked(client.api.v1.cattle[":id"].$patch).mockResolvedValue(
-			mockResponse,
-		);
+		});
 
 		const mockCookieStore = {
 			get: vi.fn().mockReturnValue({ value: "valid-token" }),
@@ -370,7 +389,7 @@ describe("updateCattleAction", () => {
 		const { client } = await import("@/lib/rpc");
 		const { cookies } = await import("next/headers");
 
-		// @ts-ignore
+		// @ts-expect-error
 		vi.mocked(client.api.v1.cattle[":id"].$patch).mockResolvedValue({
 			ok: true,
 		});

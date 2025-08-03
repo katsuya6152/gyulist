@@ -1,5 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { GetCattleDetailResType } from "@/services/cattleService";
+import { format, parseISO } from "date-fns";
+import { ja } from "date-fns/locale";
 import { CalendarIcon, Scissors, Syringe, TruckIcon } from "lucide-react";
 
 type EventType =
@@ -54,8 +56,8 @@ export function History({ cattle }: { cattle: GetCattleDetailResType }) {
 			.filter((event): event is Event => event !== null)
 			.sort(
 				(a, b) =>
-					new Date(b.eventDatetime).getTime() -
-					new Date(a.eventDatetime).getTime(),
+					parseISO(b.eventDatetime).getTime() -
+					parseISO(a.eventDatetime).getTime(),
 			);
 
 	const sortedEventsArray = sortedEvents(cattle.events ?? []);
@@ -80,7 +82,9 @@ export function History({ cattle }: { cattle: GetCattleDetailResType }) {
 					</CardHeader>
 					<CardContent>
 						<p className="text-sm font-medium text-gray-600 mb-1">
-							{new Date(event.eventDatetime).toLocaleString("ja-JP")}
+							{format(parseISO(event.eventDatetime), "yyyy年MM月dd日 HH:mm", {
+								locale: ja,
+							})}
 						</p>
 						<p className="text-sm text-gray-700">{event.notes}</p>
 					</CardContent>

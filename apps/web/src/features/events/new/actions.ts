@@ -2,6 +2,7 @@
 
 import { CreateEvent } from "@/services/eventService";
 import { parseWithZod } from "@conform-to/zod";
+import { format, parseISO } from "date-fns";
 import { redirect } from "next/navigation";
 import { createEventSchema } from "./schema";
 
@@ -21,8 +22,8 @@ export async function createEventAction(
 		const { cattleId, eventType, eventDate, eventTime, notes } =
 			submission.value;
 
-		// 日付と時刻を結合してISO形式に変換
-		const eventDatetime = new Date(`${eventDate}T${eventTime}`).toISOString();
+		// 日付と時刻を結合してISO形式に変換（タイムゾーンを考慮）
+		const eventDatetime = parseISO(`${eventDate}T${eventTime}`).toISOString();
 
 		await CreateEvent({
 			cattleId,

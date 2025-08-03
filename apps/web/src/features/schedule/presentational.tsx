@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import type { SearchEventsResType } from "@/services/eventService";
-import { addDays, format } from "date-fns";
+import { addDays, format, parseISO } from "date-fns";
 import { ja } from "date-fns/locale";
 import { Calendar, Clock, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -114,13 +114,14 @@ export function SchedulePresentation({
 	// イベントを日付順（新しい順）にソート
 	const sortedEvents = [...events].sort((a, b) => {
 		return (
-			new Date(b.eventDatetime).getTime() - new Date(a.eventDatetime).getTime()
+			parseISO(b.eventDatetime).getTime() - parseISO(a.eventDatetime).getTime()
 		);
 	});
 
 	const formatEventDate = (dateString: string) => {
 		try {
-			const date = new Date(dateString);
+			// UTCタイムスタンプを正しく処理するため、parseISO を使用
+			const date = parseISO(dateString);
 			return format(date, "yyyy年MM月dd日", { locale: ja });
 		} catch {
 			return dateString;
@@ -129,7 +130,8 @@ export function SchedulePresentation({
 
 	const formatEventTime = (dateString: string) => {
 		try {
-			const date = new Date(dateString);
+			// UTCタイムスタンプを正しく処理するため、parseISO を使用
+			const date = parseISO(dateString);
 			return format(date, "HH:mm", { locale: ja });
 		} catch {
 			return "";
@@ -284,6 +286,7 @@ export function SchedulePresentation({
 					sortedEvents.map((event) => (
 						<Card
 							key={event.eventId}
+							data-testid="event-item"
 							className="hover:shadow-md transition-shadow"
 						>
 							<CardHeader>
