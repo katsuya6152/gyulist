@@ -1,31 +1,12 @@
 import { SearchEvents } from "@/services/eventService";
 import type { SearchEventsQuery } from "@/services/eventService";
-import { addDays, endOfDay, startOfDay } from "date-fns";
+import { endOfDay, startOfDay } from "date-fns";
 import { SchedulePresentation } from "./presentational";
+import { type DateFilter, getTargetDate } from "./utils";
 
 type Props = {
 	searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
-
-type DateFilter = "all" | "today" | "tomorrow" | "dayAfterTomorrow" | "custom";
-
-// 日付フィルターに基づいてtargetDateを取得
-function getTargetDate(filter: DateFilter, customDate?: string): Date | null {
-	const today = new Date();
-
-	switch (filter) {
-		case "today":
-			return today;
-		case "tomorrow":
-			return addDays(today, 1);
-		case "dayAfterTomorrow":
-			return addDays(today, 2);
-		case "custom":
-			return customDate ? new Date(customDate) : null;
-		default:
-			return null;
-	}
-}
 
 export default async function ScheduleContainer({ searchParams }: Props) {
 	const params = await searchParams;
