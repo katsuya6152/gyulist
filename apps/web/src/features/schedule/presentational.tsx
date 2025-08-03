@@ -18,9 +18,9 @@ import { ja } from "date-fns/locale";
 import { Calendar, Clock, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import type { DateFilter } from "./actions";
 
 type Event = SearchEventsResType["results"][0];
+type DateFilter = "all" | "today" | "tomorrow" | "dayAfterTomorrow" | "custom";
 
 interface SchedulePresentationProps {
 	events: Event[];
