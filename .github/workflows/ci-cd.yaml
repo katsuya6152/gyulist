@@ -42,11 +42,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Lint / Test
+      - name: Format & Lint
         run: |
           pnpm format
           pnpm lint
-        # pnpm test
+
+      # --- APIのテスト ---
+      - name: Run API Tests
+        if: steps.filter.outputs.api == 'true'
+        working-directory: apps/api
+        run: pnpm test:coverage
 
       - name: Build API
         if: steps.filter.outputs.api == 'true' || steps.filter.outputs.web == 'true'
