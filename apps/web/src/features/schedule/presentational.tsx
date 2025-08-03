@@ -284,6 +284,7 @@ export function SchedulePresentation({
 					sortedEvents.map((event) => (
 						<Card
 							key={event.eventId}
+							data-testid="event-item"
 							className="hover:shadow-md transition-shadow"
 						>
 							<CardHeader>
