@@ -48,7 +48,7 @@ async function getAuthToken() {
 	const token = cookieStore.get("token")?.value;
 
 	if (!token) {
-		redirect("/not-found");
+		redirect("/login");
 	}
 
 	return token;
@@ -61,8 +61,8 @@ async function fetchWithAuth<T>(
 	const res = await fetchFn(token);
 
 	if (!res.ok) {
-		if (res.status === 403) {
-			redirect("/not-found");
+		if (res.status === 401 || res.status === 403) {
+			redirect("/login");
 		}
 		throw new Error(`API request failed: ${res.status} ${res.statusText}`);
 	}

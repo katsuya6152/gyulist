@@ -10,7 +10,7 @@ export async function deleteCattleAction(cattleId: string) {
 		const token = cookieStore.get("token")?.value;
 
 		if (!token) {
-			redirect("/not-found");
+			redirect("/login");
 		}
 
 		const response = await client.api.v1.cattle[":id"].$delete(
@@ -26,7 +26,13 @@ export async function deleteCattleAction(cattleId: string) {
 			},
 		);
 
-		if (response.status !== 200) {
+		if (!response.ok) {
+			if (
+				(response.status as number) === 401 ||
+				(response.status as number) === 403
+			) {
+				redirect("/login");
+			}
 			const error = await response.text();
 			return {
 				success: false,
