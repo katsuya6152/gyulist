@@ -9,6 +9,13 @@ export default defineConfig({
 		globals: true,
 		environment: "jsdom",
 		setupFiles: ["./src/test/setup.ts"],
+		exclude: [
+			"**/node_modules/**",
+			"**/dist/**",
+			"**/.{idea,git,cache,output,temp}/**",
+			"**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*",
+			"**/e2e/**", // e2eテストを除外
+		],
 		coverage: {
 			provider: "v8",
 			reporter: ["text", "html"],
@@ -21,6 +28,7 @@ export default defineConfig({
 				"src/app/**/*",
 				"src/components/ui/**/*",
 				"src/lib/**/*",
+				"e2e/**/*", // e2eテストをカバレッジからも除外
 			],
 			include: ["src/features/**/*"],
 		},
