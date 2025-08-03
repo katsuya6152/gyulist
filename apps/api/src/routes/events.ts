@@ -50,14 +50,11 @@ const app = new Hono<{ Bindings: Bindings }>()
 			console.error(e);
 			const message =
 				e instanceof Error ? e.message : "内部サーバーエラーが発生しました";
-			if (
-				message.includes("見つからない") ||
-				message.includes("アクセス権限")
-			) {
-				return c.json(
-					{ message },
-					message.includes("見つからない") ? 404 : 403,
-				);
+			if (message.includes("見つからない")) {
+				return c.json({ message }, 404);
+			}
+			if (message.includes("アクセス権限")) {
+				return c.json({ message }, 403);
 			}
 			return c.json({ message }, 500);
 		}
@@ -79,14 +76,11 @@ const app = new Hono<{ Bindings: Bindings }>()
 			console.error(e);
 			const message =
 				e instanceof Error ? e.message : "内部サーバーエラーが発生しました";
-			if (
-				message.includes("見つからない") ||
-				message.includes("アクセス権限")
-			) {
-				return c.json(
-					{ message },
-					message.includes("見つからない") ? 404 : 403,
-				);
+			if (message.includes("見つからない")) {
+				return c.json({ message }, 404);
+			}
+			if (message.includes("アクセス権限")) {
+				return c.json({ message }, 403);
 			}
 			return c.json({ message }, 500);
 		}
@@ -104,14 +98,11 @@ const app = new Hono<{ Bindings: Bindings }>()
 			console.error(e);
 			const message =
 				e instanceof Error ? e.message : "内部サーバーエラーが発生しました";
-			if (
-				message.includes("見つからない") ||
-				message.includes("アクセス権限")
-			) {
-				return c.json(
-					{ message },
-					message.includes("見つからない") ? 404 : 403,
-				);
+			if (message.includes("見つからない")) {
+				return c.json({ message }, 404);
+			}
+			if (message.includes("アクセス権限")) {
+				return c.json({ message }, 403);
 			}
 			return c.json({ message }, 500);
 		}
@@ -134,14 +125,11 @@ const app = new Hono<{ Bindings: Bindings }>()
 			console.error(e);
 			const message =
 				e instanceof Error ? e.message : "内部サーバーエラーが発生しました";
-			if (
-				message.includes("見つからない") ||
-				message.includes("アクセス権限")
-			) {
-				return c.json(
-					{ message },
-					message.includes("見つからない") ? 404 : 403,
-				);
+			if (message.includes("見つからない")) {
+				return c.json({ message }, 404);
+			}
+			if (message.includes("アクセス権限")) {
+				return c.json({ message }, 403);
 			}
 			return c.json({ message }, 500);
 		}
@@ -163,14 +151,11 @@ const app = new Hono<{ Bindings: Bindings }>()
 			console.error(e);
 			const message =
 				e instanceof Error ? e.message : "内部サーバーエラーが発生しました";
-			if (
-				message.includes("見つからない") ||
-				message.includes("アクセス権限")
-			) {
-				return c.json(
-					{ message },
-					message.includes("見つからない") ? 404 : 403,
-				);
+			if (message.includes("見つからない")) {
+				return c.json({ message }, 404);
+			}
+			if (message.includes("アクセス権限")) {
+				return c.json({ message }, 403);
 			}
 			return c.json({ message }, 500);
 		}
