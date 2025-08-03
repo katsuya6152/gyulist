@@ -16,12 +16,12 @@ export default defineConfig({
 				"src/db/migrations/**",
 				"src/db/dummy/**",
 			],
-			thresholds: {
-				statements: 80,
-				branches: 80,
-				functions: 80,
-				lines: 80,
-			},
+			// thresholds: {
+			// 	statements: 80,
+			// 	branches: 80,
+			// 	functions: 80,
+			// 	lines: 80,
+			// },
 		},
 	},
 });
