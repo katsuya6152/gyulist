@@ -9,11 +9,13 @@ import { Bloodline } from "./components/bllodline";
 import { Breeding } from "./components/breeding";
 import { CattleDetailHeader } from "./components/hedear";
 import { History } from "./components/history";
+
 type Props = {
-	cattle: GetCattleDetailResType;
+	cattle: GetCattleDetailResType | undefined;
+	error?: string;
 };
 
-export default function CattleDetailPresentation({ cattle }: Props) {
+export default function CattleDetailPresentation({ cattle, error }: Props) {
 	const [selectedTab, setSelectedTab] = useState("basic");
 	const [emblaRef, emblaApi] = useEmblaCarousel({
 		align: "start",
@@ -45,6 +47,10 @@ export default function CattleDetailPresentation({ cattle }: Props) {
 		},
 		[emblaApi],
 	);
+
+	if (error) {
+		return <div className="p-4">{error}</div>;
+	}
 
 	return (
 		<div className="p-4">

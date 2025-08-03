@@ -1,5 +1,5 @@
 import { GetCattleDetail } from "@/services/cattleService";
-import { CattleEditPresentation } from "./presentational";
+import CattleEditPresentation from "./presentational";
 
 interface CattleEditContainerProps {
 	id: string;
