@@ -1,9 +1,31 @@
-import { getFilteredEvents } from "./actions";
+import { SearchEvents } from "@/services/eventService";
+import type { SearchEventsQuery } from "@/services/eventService";
+import { addDays, endOfDay, startOfDay } from "date-fns";
 import { SchedulePresentation } from "./presentational";
 
 type Props = {
 	searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
+
+type DateFilter = "all" | "today" | "tomorrow" | "dayAfterTomorrow" | "custom";
+
+// 日付フィルターに基づいてtargetDateを取得
+function getTargetDate(filter: DateFilter, customDate?: string): Date | null {
+	const today = new Date();
+
+	switch (filter) {
+		case "today":
+			return today;
+		case "tomorrow":
+			return addDays(today, 1);
+		case "dayAfterTomorrow":
+			return addDays(today, 2);
+		case "custom":
+			return customDate ? new Date(customDate) : null;
+		default:
+			return null;
+	}
+}
 
 export default async function ScheduleContainer({ searchParams }: Props) {
 	const params = await searchParams;
@@ -13,7 +35,7 @@ export default async function ScheduleContainer({ searchParams }: Props) {
 	const customDate = Array.isArray(params.date) ? params.date[0] : params.date;
 
 	// フィルターの型安全性を確保
-	const validFilter =
+	const validFilter: DateFilter =
 		filter === "today" ||
 		filter === "tomorrow" ||
 		filter === "dayAfterTomorrow" ||
@@ -22,14 +44,39 @@ export default async function ScheduleContainer({ searchParams }: Props) {
 			? filter
 			: "all";
 
-	const result = await getFilteredEvents(validFilter, customDate);
+	// SearchEventsQuery を構築
+	const searchQuery: SearchEventsQuery = {
+		limit: 50,
+	};
 
-	return (
-		<SchedulePresentation
-			events={result.events}
-			currentFilter={result.filter}
-			customDate={result.customDate}
-			error={result.success ? undefined : result.error}
-		/>
-	);
+	const targetDate = getTargetDate(validFilter, customDate);
+	if (targetDate) {
+		searchQuery.startDate = startOfDay(targetDate).toISOString();
+		searchQuery.endDate = endOfDay(targetDate).toISOString();
+	}
+
+	try {
+		// eventService.ts の SearchEvents を使用
+		const eventsData = await SearchEvents(searchQuery);
+
+		return (
+			<SchedulePresentation
+				events={eventsData.results || []}
+				currentFilter={validFilter}
+				customDate={customDate}
+				error={undefined}
+			/>
+		);
+	} catch (error) {
+		console.error("Failed to fetch events:", error);
+
+		return (
+			<SchedulePresentation
+				events={[]}
+				currentFilter={validFilter}
+				customDate={customDate}
+				error="イベントの取得に失敗しました"
+			/>
+		);
+	}
 }
