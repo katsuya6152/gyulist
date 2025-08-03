@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import authRoutes from "../../routes/auth";
 import * as authService from "../../services/authService";
 import type { Bindings } from "../../types";
-import { mockUser } from "../mocks/database";
 
 // Mock the service module
 vi.mock("../../services/authService");
