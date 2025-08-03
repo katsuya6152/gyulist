@@ -29,7 +29,15 @@ const calculateAgeDisplay = (birthday: string) => {
 	};
 };
 
-export function CattleNewPresentation() {
+interface CattleNewPresentationProps {
+	error?: string;
+}
+
+export function CattleNewPresentation({ error }: CattleNewPresentationProps) {
+	if (error) {
+		return <div className="p-4">{error}</div>;
+	}
+
 	const router = useRouter();
 	const formRef = useRef<HTMLFormElement>(null);
 	const [ageDisplay, setAgeDisplay] = useState<{
@@ -153,6 +161,7 @@ export function CattleNewPresentation() {
 						個体識別番号<span className="text-red-500 ml-1">*</span>
 					</label>
 					<input
+						id="identificationNumber"
 						type="text"
 						key={fields.identificationNumber.key}
 						name={fields.identificationNumber.name}
@@ -179,6 +188,7 @@ export function CattleNewPresentation() {
 						耳標番号<span className="text-red-500 ml-1">*</span>
 					</label>
 					<input
+						id="earTagNumber"
 						type="text"
 						key={fields.earTagNumber.key}
 						name={fields.earTagNumber.name}
@@ -202,6 +212,7 @@ export function CattleNewPresentation() {
 						名号<span className="text-red-500 ml-1">*</span>
 					</label>
 					<input
+						id="name"
 						type="text"
 						key={fields.name.key}
 						name={fields.name.name}
@@ -223,6 +234,7 @@ export function CattleNewPresentation() {
 						性別<span className="text-red-500 ml-1">*</span>
 					</label>
 					<select
+						id="gender"
 						key={fields.gender.key}
 						name={fields.gender.name}
 						defaultValue={fields.gender.initialValue}
@@ -246,6 +258,7 @@ export function CattleNewPresentation() {
 						出生日<span className="text-red-500 ml-1">*</span>
 					</label>
 					<input
+						id="birthday"
 						type="date"
 						key={fields.birthday.key}
 						name={fields.birthday.name}
@@ -278,6 +291,7 @@ export function CattleNewPresentation() {
 						成長段階<span className="text-red-500 ml-1">*</span>
 					</label>
 					<select
+						id="growthStage"
 						key={fields.growthStage.key}
 						name={fields.growthStage.name}
 						defaultValue={fields.growthStage.initialValue}
@@ -306,6 +320,7 @@ export function CattleNewPresentation() {
 						品種
 					</label>
 					<input
+						id="breed"
 						type="text"
 						key={fields.breed.key}
 						name={fields.breed.name}
@@ -320,6 +335,7 @@ export function CattleNewPresentation() {
 						備考
 					</label>
 					<textarea
+						id="notes"
 						key={fields.notes.key}
 						name={fields.notes.name}
 						defaultValue={fields.notes.initialValue}
@@ -341,6 +357,7 @@ export function CattleNewPresentation() {
 								父牛名
 							</label>
 							<input
+								id="bloodline.fatherCattleName"
 								type="text"
 								name="bloodline.fatherCattleName"
 								placeholder="父牛名を入力"
@@ -356,6 +373,7 @@ export function CattleNewPresentation() {
 								母の父牛名
 							</label>
 							<input
+								id="bloodline.motherFatherCattleName"
 								type="text"
 								name="bloodline.motherFatherCattleName"
 								placeholder="母の父牛名を入力"
@@ -371,6 +389,7 @@ export function CattleNewPresentation() {
 								母の祖父牛名
 							</label>
 							<input
+								id="bloodline.motherGrandFatherCattleName"
 								type="text"
 								name="bloodline.motherGrandFatherCattleName"
 								placeholder="母の祖父牛名を入力"
@@ -386,6 +405,7 @@ export function CattleNewPresentation() {
 								母の曾祖父牛名
 							</label>
 							<input
+								id="bloodline.motherGreatGrandFatherCattleName"
 								type="text"
 								name="bloodline.motherGreatGrandFatherCattleName"
 								placeholder="母の曾祖父牛名を入力"
@@ -412,6 +432,7 @@ export function CattleNewPresentation() {
 										分娩予定日
 									</label>
 									<input
+										id="breedingStatus.expectedCalvingDate"
 										type="date"
 										name="breedingStatus.expectedCalvingDate"
 										className="w-full rounded-md border border-input bg-background px-3 py-2"
@@ -426,6 +447,7 @@ export function CattleNewPresentation() {
 										妊娠鑑定予定日
 									</label>
 									<input
+										id="breedingStatus.scheduledPregnancyCheckDate"
 										type="date"
 										name="breedingStatus.scheduledPregnancyCheckDate"
 										className="w-full rounded-md border border-input bg-background px-3 py-2"
@@ -440,6 +462,7 @@ export function CattleNewPresentation() {
 										前回出産の難産判定
 									</label>
 									<select
+										id="breedingStatus.isDifficultBirth"
 										name="breedingStatus.isDifficultBirth"
 										className="w-full rounded-md border border-input bg-background px-3 py-2"
 									>
@@ -458,6 +481,7 @@ export function CattleNewPresentation() {
 									繁殖メモ
 								</label>
 								<textarea
+									id="breedingStatus.breedingMemo"
 									name="breedingStatus.breedingMemo"
 									placeholder="繁殖に関するメモを入力"
 									className="w-full rounded-md border border-input bg-background px-3 py-2 resize-none"

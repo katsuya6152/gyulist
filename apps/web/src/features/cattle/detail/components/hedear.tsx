@@ -154,7 +154,7 @@ export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 							)}
 							<Button
 								variant="destructive"
-								aria-label="削除"
+								aria-label={isDeleting ? "削除中..." : "削除"}
 								onClick={handleDelete}
 								disabled={isDeleting}
 							>
