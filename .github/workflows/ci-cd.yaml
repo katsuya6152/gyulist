@@ -53,6 +53,12 @@ jobs:
         working-directory: apps/api
         run: pnpm test:coverage
 
+      # --- Webのテスト ---
+      - name: Run Web Tests
+        if: steps.filter.outputs.web == 'true'
+        working-directory: apps/web
+        run: pnpm test:coverage
+
       - name: Build API
         if: steps.filter.outputs.api == 'true' || steps.filter.outputs.web == 'true'
         working-directory: apps/api

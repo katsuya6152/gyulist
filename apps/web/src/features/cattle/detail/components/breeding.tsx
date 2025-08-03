@@ -75,37 +75,57 @@ export function Breeding({ cattle }: { cattle: GetCattleDetailResType }) {
 						<div className="flex justify-between items-center">
 							<span className="text-sm text-gray-500">累計種付回数:</span>
 							<span>
-								{cattle.breedingSummary.totalInseminationCount ?? "-"}回
+								{cattle.breedingSummary.totalInseminationCount !== null
+									? `${cattle.breedingSummary.totalInseminationCount}回`
+									: "-回"}
 							</span>
 						</div>
 						<div className="flex justify-between items-center">
 							<span className="text-sm text-gray-500">平均空胎日数:</span>
-							<span>{cattle.breedingSummary.averageDaysOpen ?? "-"}日</span>
+							<span>
+								{cattle.breedingSummary.averageDaysOpen !== null
+									? `${cattle.breedingSummary.averageDaysOpen}日`
+									: "-日"}
+							</span>
 						</div>
 						<div className="flex justify-between items-center">
 							<span className="text-sm text-gray-500">平均妊娠期間:</span>
 							<span>
-								{cattle.breedingSummary.averagePregnancyPeriod ?? "-"}日
+								{cattle.breedingSummary.averagePregnancyPeriod !== null
+									? `${cattle.breedingSummary.averagePregnancyPeriod}日`
+									: "-日"}
 							</span>
 						</div>
 						<div className="flex justify-between items-center">
 							<span className="text-sm text-gray-500">平均分娩間隔:</span>
 							<span>
-								{cattle.breedingSummary.averageCalvingInterval ?? "-"}日
+								{cattle.breedingSummary.averageCalvingInterval !== null
+									? `${cattle.breedingSummary.averageCalvingInterval}日`
+									: "-日"}
 							</span>
 						</div>
 						<div className="flex justify-between items-center">
 							<span className="text-sm text-gray-500">難産回数:</span>
-							<span>{cattle.breedingSummary.difficultBirthCount ?? "-"}回</span>
+							<span>
+								{cattle.breedingSummary.difficultBirthCount !== null
+									? `${cattle.breedingSummary.difficultBirthCount}回`
+									: "-回"}
+							</span>
 						</div>
 						<div className="flex justify-between items-center">
 							<span className="text-sm text-gray-500">受胎頭数:</span>
-							<span>{cattle.breedingSummary.pregnancyHeadCount ?? "-"}頭</span>
+							<span>
+								{cattle.breedingSummary.pregnancyHeadCount !== null
+									? `${cattle.breedingSummary.pregnancyHeadCount}頭`
+									: "-頭"}
+							</span>
 						</div>
 						<div className="flex justify-between items-center">
 							<span className="text-sm text-gray-500">受胎率:</span>
 							<span>
-								{cattle.breedingSummary.pregnancySuccessRate ?? "-"}％
+								{cattle.breedingSummary.pregnancySuccessRate !== null
+									? `${cattle.breedingSummary.pregnancySuccessRate}％`
+									: "-％"}
 							</span>
 						</div>
 					</CardContent>
