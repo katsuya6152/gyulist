@@ -24,6 +24,7 @@ import type {
 } from "@/services/eventService";
 import { addDays, format, parseISO } from "date-fns";
 import { ja } from "date-fns/locale";
+import useEmblaCarousel from "embla-carousel-react";
 import {
 	Calendar,
 	CalendarPlus,
@@ -231,6 +232,18 @@ export function SchedulePresentation({
 	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+	// URL同期中フラグを追加
+	const [isUrlSyncing, setIsUrlSyncing] = useState(false);
+
+	// Embla Carousel設定
+	const [emblaRef, emblaApi] = useEmblaCarousel({
+		align: "start",
+		skipSnaps: false,
+	});
+	const [selectedSlide, setSelectedSlide] = useState(
+		currentFilter !== "custom" ? currentFilter : "today",
+	);
+
 	// ダイアログ状態を完全にリセットする関数
 	const resetDialogStates = useCallback(() => {
 		setIsEditDialogOpen(false);
@@ -273,6 +286,134 @@ export function SchedulePresentation({
 		[],
 	);
 
+	// 各フィルターに対応するイベントデータを準備
+	const filterEventData = useMemo(() => {
+		const today = new Date();
+		const tomorrow = addDays(today, 1);
+		const dayAfterTomorrow = addDays(today, 2);
+
+		const filterByDate = (targetDate: Date) => {
+			return events
+				.filter((event) => {
+					const eventDate = new Date(event.eventDatetime);
+					return (
+						eventDate.getFullYear() === targetDate.getFullYear() &&
+						eventDate.getMonth() === targetDate.getMonth() &&
+						eventDate.getDate() === targetDate.getDate()
+					);
+				})
+				.sort(
+					(a, b) =>
+						new Date(b.eventDatetime).getTime() -
+						new Date(a.eventDatetime).getTime(),
+				);
+		};
+
+		return {
+			today: filterByDate(today),
+			tomorrow: filterByDate(tomorrow),
+			dayAfterTomorrow: filterByDate(dayAfterTomorrow),
+			all: [...events].sort(
+				(a, b) =>
+					new Date(b.eventDatetime).getTime() -
+					new Date(a.eventDatetime).getTime(),
+			),
+		};
+	}, [events]);
+
+	// スライドの選択状態を更新（URL同期を追加）
+	const onSlideSelect = useCallback(() => {
+		// カスタムフィルター時またはURL同期中はイベントを無視
+		if (!emblaApi || isUrlSyncing || currentFilter === "custom") return;
+
+		const selectedIndex = emblaApi.selectedScrollSnap();
+		const slideKey = filterButtons[selectedIndex]?.key;
+		if (slideKey && slideKey !== currentFilter) {
+			setSelectedSlide(slideKey);
+
+			// URL同期フラグを設定
+			setIsUrlSyncing(true);
+
+			// URLを更新（ユーザーがスワイプした場合）
+			const params = new URLSearchParams(searchParams);
+			if (slideKey === "all") {
+				params.delete("filter");
+				params.delete("date");
+			} else {
+				params.set("filter", slideKey);
+				params.delete("date");
+			}
+			router.push(`/schedule?${params.toString()}`);
+
+			// URL更新後にフラグをリセット
+			setTimeout(() => {
+				setIsUrlSyncing(false);
+			}, 100);
+		}
+	}, [
+		emblaApi,
+		filterButtons,
+		currentFilter,
+		searchParams,
+		router,
+		isUrlSyncing,
+	]);
+
+	// emblaApiのイベントリスナーを設定
+	useEffect(() => {
+		if (!emblaApi) return;
+
+		// カスタムフィルター時はイベントリスナーを設定しない
+		if (currentFilter === "custom") return;
+
+		// 初期化時の自動選択：currentFilterが"all"の場合のみ自動選択を防ぐ
+		// （"all"以外の場合は正常にカルーセルを初期化する必要がある）
+		if (currentFilter !== "all") {
+			onSlideSelect();
+		}
+		emblaApi.on("select", onSlideSelect);
+		return () => {
+			emblaApi.off("select", onSlideSelect);
+		};
+	}, [emblaApi, onSlideSelect, currentFilter]);
+
+	// フィルターボタンクリック時にスライドを移動
+	const scrollToSlide = useCallback(
+		(filterKey: DateFilter) => {
+			if (!emblaApi || filterKey === "custom") return;
+
+			// URL同期中フラグを設定してスライドイベントを抑制
+			setIsUrlSyncing(true);
+
+			const targetIndex = filterButtons.findIndex(
+				(button) => button.key === filterKey,
+			);
+			if (targetIndex !== -1) {
+				emblaApi.scrollTo(targetIndex);
+			}
+
+			// 少し遅延してフラグをリセット
+			setTimeout(() => {
+				setIsUrlSyncing(false);
+			}, 100);
+		},
+		[emblaApi, filterButtons],
+	);
+
+	// URLパラメータが変更されたときにスライドを同期
+	useEffect(() => {
+		if (currentFilter !== "custom") {
+			// 通常のフィルターの場合はスライドを同期
+			scrollToSlide(currentFilter);
+			setSelectedSlide(currentFilter);
+			// フラグは scrollToSlide 内でリセットされる
+		} else {
+			// カスタムフィルターの場合はスライド操作を行わず、フラグのみ管理
+			setSelectedSlide("all"); // allスライドに固定表示（UI上の表示のみ）
+			// URL同期フラグは handleSearchClick でタイムアウト設定済み
+		}
+	}, [currentFilter, scrollToSlide]);
+
 	// ソートされたイベントをメモ化
 	const sortedEvents = useMemo(() => {
 		return [...events].sort(
@@ -288,6 +429,13 @@ export function SchedulePresentation({
 			// ダイアログが開いている場合は閉じる
 			resetDialogStates();
 
+			// URL同期フラグを設定
+			setIsUrlSyncing(true);
+
+			// スライドを移動
+			scrollToSlide(filter);
+
+			// URLを更新
 			const params = new URLSearchParams(searchParams);
 			if (filter === "all") {
 				params.delete("filter");
@@ -298,7 +446,7 @@ export function SchedulePresentation({
 			}
 			router.push(`/schedule?${params.toString()}`);
 		},
-		[searchParams, router, resetDialogStates],
+		[searchParams, router, resetDialogStates, scrollToSlide],
 	);
 
 	// 日付選択のハンドラー（即座に検索しない）
@@ -313,10 +461,18 @@ export function SchedulePresentation({
 		// ダイアログが開いている場合は閉じる
 		resetDialogStates();
 
+		// URL同期フラグを設定
+		setIsUrlSyncing(true);
+
 		const params = new URLSearchParams(searchParams);
 		params.set("filter", "custom");
 		params.set("date", selectedDate);
 		router.push(`/schedule?${params.toString()}`);
+
+		// フラグをリセット（カスタムフィルター時は長めに設定）
+		setTimeout(() => {
+			setIsUrlSyncing(false);
+		}, 300);
 	}, [selectedDate, searchParams, router, resetDialogStates]);
 
 	// 日付クリアのハンドラー
@@ -325,10 +481,18 @@ export function SchedulePresentation({
 		// ダイアログが開いている場合は閉じる
 		resetDialogStates();
 
+		// URL同期フラグを設定
+		setIsUrlSyncing(true);
+
 		const params = new URLSearchParams(searchParams);
 		params.delete("filter");
 		params.delete("date");
 		router.push(`/schedule?${params.toString()}`);
+
+		// フラグをリセット
+		setTimeout(() => {
+			setIsUrlSyncing(false);
+		}, 300);
 	}, [searchParams, router, resetDialogStates]);
 
 	// イベント編集ハンドラー
@@ -487,12 +651,14 @@ export function SchedulePresentation({
 						);
 					})}
 				</fieldset>
-				{currentFilter !== "all" && currentFilter !== "custom" && (
+				{currentFilter !== "custom" && (
 					<output
 						className="text-xs text-gray-500 mt-2 block"
 						aria-live="polite"
 					>
-						{sortedEvents.length}件のイベントが見つかりました
+						{currentFilter === "all"
+							? `${sortedEvents.length}件のイベントが見つかりました`
+							: `${filterEventData[currentFilter as keyof typeof filterEventData]?.length || 0}件のイベントが見つかりました`}
 					</output>
 				)}
 			</div>
@@ -576,21 +742,59 @@ export function SchedulePresentation({
 				</div>
 			)}
 
-			{/* イベント一覧 */}
-			<div className="space-y-4">
-				{sortedEvents.length === 0 ? (
-					<EmptyState currentFilter={currentFilter} />
-				) : (
-					sortedEvents.map((event) => (
-						<EventCard
-							key={event.eventId}
-							event={event}
-							onEdit={handleEditEvent}
-							onDelete={handleDeleteEvent}
-						/>
-					))
-				)}
-			</div>
+			{/* イベント一覧 - カスタム日付の場合は通常表示、それ以外はスライド対応 */}
+			{currentFilter === "custom" ? (
+				<div className="space-y-4">
+					{sortedEvents.length === 0 ? (
+						<EmptyState currentFilter={currentFilter} />
+					) : (
+						sortedEvents.map((event) => (
+							<EventCard
+								key={event.eventId}
+								event={event}
+								onEdit={handleEditEvent}
+								onDelete={handleDeleteEvent}
+							/>
+						))
+					)}
+				</div>
+			) : (
+				<>
+					{/* スライド対応イベント一覧 */}
+					<div className="overflow-hidden" ref={emblaRef}>
+						<div className="flex">
+							{filterButtons.map((button) => {
+								const filterEvents =
+									filterEventData[button.key as keyof typeof filterEventData];
+								const isCurrentSlide = selectedSlide === button.key;
+
+								return (
+									<div key={button.key} className="flex-[0_0_100%] min-w-0">
+										<div className="space-y-4 px-1">
+											{/* 現在のスライドのみイベントを表示 */}
+											{isCurrentSlide &&
+												(filterEvents.length === 0 ? (
+													<EmptyState
+														currentFilter={button.key as DateFilter}
+													/>
+												) : (
+													filterEvents.map((event) => (
+														<EventCard
+															key={event.eventId}
+															event={event}
+															onEdit={handleEditEvent}
+															onDelete={handleDeleteEvent}
+														/>
+													))
+												))}
+										</div>
+									</div>
+								);
+							})}
+						</div>
+					</div>
+				</>
+			)}
 		</div>
 	);
 }

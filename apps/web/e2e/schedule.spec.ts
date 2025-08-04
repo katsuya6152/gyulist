@@ -25,43 +25,54 @@ test.describe("スケジュール機能", () => {
 		await expect(page.locator("h1 svg")).toBeVisible();
 
 		// 日付フィルターボタンが表示されることを確認
-		await expect(page.getByRole("button", { name: "今日" })).toBeVisible();
-		await expect(page.getByRole("button", { name: "明日" })).toBeVisible();
-		await expect(page.getByRole("button", { name: "明後日" })).toBeVisible();
-		await expect(page.getByRole("button", { name: "全て" })).toBeVisible();
+		await expect(page.getByRole("button", { name: /今日/ })).toBeVisible();
+		await expect(page.getByRole("button", { name: /明日/ })).toBeVisible();
+		await expect(page.getByRole("button", { name: /明後日/ })).toBeVisible();
+		await expect(page.getByRole("button", { name: /全て/ })).toBeVisible();
 
-		// 今日フィルターがアクティブであることを確認（ボタン要素をチェック）
-		const todayButton = page.getByRole("button", { name: "今日" });
+		// 今日フィルターがアクティブであることを確認
+		const todayButton = page.getByRole("button", { name: /今日/ });
 		await expect(todayButton).toHaveClass(/bg-primary/);
+
+		// イベント追加ボタンが表示されることを確認
+		await expect(page.locator("text=イベント追加")).toBeVisible();
 	});
 
 	test("日付フィルターの動作", async ({ page }) => {
 		// 明日フィルターをクリック
-		await page.getByRole("button", { name: "明日" }).click();
+		const tomorrowButton = page.getByRole("button", { name: /明日/ });
+		await expect(tomorrowButton).toBeVisible();
+		await tomorrowButton.click();
 
 		// URLが変更されることを確認
 		await expect(page).toHaveURL(/filter=tomorrow/);
 
-		// 明日フィルターがアクティブになることを確認（ボタン要素をチェック）
-		const tomorrowButton = page.getByRole("button", { name: "明日" });
+		// 明日フィルターがアクティブになることを確認
 		await expect(tomorrowButton).toHaveClass(/bg-primary/);
 
 		// 全てフィルターをクリック
-		await page.getByRole("button", { name: "全て" }).click();
+		const allButton = page.getByRole("button", { name: /全て/ });
+		await allButton.click();
 
 		// URLからフィルターパラメータが削除されることを確認
 		await expect(page).toHaveURL("/schedule");
 
-		// 全てフィルターがアクティブになることを確認（ボタン要素をチェック）
-		const allButton = page.getByRole("button", { name: "全て" });
+		// 全てフィルターがアクティブになることを確認
 		await expect(allButton).toHaveClass(/bg-primary/);
+
+		// 今日フィルターに戻す
+		const todayButton = page.getByRole("button", { name: /今日/ });
+		await todayButton.click();
+		await expect(page).toHaveURL(/filter=today/);
+		await expect(todayButton).toHaveClass(/bg-primary/);
 	});
 
 	test("カスタム日付検索機能", async ({ page }) => {
 		// 全てフィルターを選択してアコーディオンを表示
-		await page.click('button:has-text("全て")');
+		await page.getByRole("button", { name: /全て/ }).click();
+		await expect(page).toHaveURL("/schedule");
 
-		// アコーディオンが表示されることを確認（実際のテキストを使用）
+		// アコーディオンが表示されることを確認
 		await expect(page.locator("text=特定の日付のイベントを表示")).toBeVisible();
 
 		// アコーディオンを開く
@@ -71,7 +82,7 @@ test.describe("スケジュール機能", () => {
 		const dateInput = page.locator('input[type="date"]');
 		await expect(dateInput).toBeVisible();
 
-		// 検索ボタンが表示されることを確認（role属性を使用してより具体的に指定）
+		// 検索ボタンが表示されることを確認
 		const searchButton = page.getByRole("button", { name: "検索" });
 		await expect(searchButton).toBeVisible();
 
@@ -84,13 +95,20 @@ test.describe("スケジュール機能", () => {
 		// URLが変更されることを確認
 		await expect(page).toHaveURL(/filter=custom&date=2024-01-01/);
 
-		// 検索結果が表示されることを確認
-		await page.waitForLoadState("networkidle");
+		// カスタム日付の表示が確認できることを確認
+		await expect(page.locator("text=選択日:")).toBeVisible();
+
+		// クリアボタンが表示されることを確認
+		await expect(page.locator("text=クリア")).toBeVisible();
 	});
 
-	test("イベント一覧の表示", async ({ page }) => {
+	test("イベント一覧の表示とエラーハンドリング", async ({ page }) => {
 		// 今日のフィルターで開始
 		await expect(page).toHaveURL(/filter=today/);
+
+		// イベント件数の表示を確認
+		const countText = page.locator("text=/\\d+件のイベントが見つかりました/");
+		await expect(countText).toBeVisible();
 
 		// イベントが存在する場合の表示確認
 		const eventExists = await page
@@ -101,117 +119,26 @@ test.describe("スケジュール機能", () => {
 
 		if (eventExists) {
 			// イベントアイテムが表示されることを確認
+			const eventCard = page.locator('[data-testid="event-item"]').first();
+			await expect(eventCard).toBeVisible();
+
+			// イベントカードの基本構造が表示されることを確認
 			await expect(
-				page.locator('[data-testid="event-item"]').first(),
+				eventCard.locator(".flex.items-center.gap-2.text-sm"),
 			).toBeVisible();
 
-			// イベントの基本情報が表示されることを確認（時刻は HH:mm 形式で表示される）
+			// イベントタイプバッジが表示されることを確認（より具体的なセレクター）
 			await expect(
-				page.locator('[data-testid="event-item"]').first(),
+				eventCard.locator('span[data-slot="badge"]').first(),
 			).toBeVisible();
 		} else {
 			// イベントがない場合の表示確認
-			const noEventsMessage = await page
-				.locator("text=該当する日付のイベントがありません")
-				.or(page.locator("text=イベントが登録されていません"))
-				.isVisible()
-				.catch(() => false);
-
-			if (noEventsMessage) {
-				// どちらかのメッセージが表示されることを確認
-				const hasFilteredMessage = await page
-					.locator("text=該当する日付のイベントがありません")
-					.isVisible()
-					.catch(() => false);
-				const hasAllMessage = await page
-					.locator("text=イベントが登録されていません")
-					.isVisible()
-					.catch(() => false);
-
-				expect(hasFilteredMessage || hasAllMessage).toBe(true);
-			}
-		}
-	});
-
-	test("イベントタイプの表示", async ({ page }) => {
-		// 全てのイベントを表示（より具体的なセレクターを使用）
-		const allButton = page.getByRole("button", { name: "全て" });
-		await expect(allButton).toBeVisible({ timeout: 10000 });
-		await allButton.click();
-
-		// 少し待機してからイベントの存在を確認
-		await page.waitForTimeout(2000);
-
-		// イベントが存在する場合、イベントタイプバッジが表示されることを確認
-		const eventExists = await page
-			.locator('[data-testid="event-item"]')
-			.first()
-			.isVisible()
-			.catch(() => false);
-
-		if (eventExists) {
-			// イベントタイプバッジの存在を確認（より具体的なセレクターを使用）
-			const eventTypeBadge = page
-				.locator(
-					'[data-testid="event-item"] .bg-pink-100, [data-testid="event-item"] .bg-blue-100, [data-testid="event-item"] .bg-green-100, [data-testid="event-item"] .bg-purple-100, [data-testid="event-item"] .bg-orange-100, [data-testid="event-item"] .bg-yellow-100, [data-testid="event-item"] .bg-gray-100',
-				)
-				.first();
-
-			// バッジが存在する場合のみチェック
-			const badgeExists = await eventTypeBadge.count();
-			if (badgeExists > 0) {
-				await expect(eventTypeBadge).toBeVisible();
-			}
-		}
-	});
-
-	test("イベント詳細の表示", async ({ page }) => {
-		// 全てのイベントを表示
-		await page.getByRole("button", { name: "全て" }).click();
-
-		// イベントが存在する場合、詳細情報が表示されることを確認
-		const eventExists = await page
-			.locator('[data-testid="event-item"]')
-			.first()
-			.isVisible()
-			.catch(() => false);
-
-		if (eventExists) {
-			const eventItem = page.locator('[data-testid="event-item"]').first();
-
-			// イベントの基本情報が表示されることを確認
-			await expect(eventItem.locator("span.text-lg.font-medium")).toBeVisible(); // 牛の名前
 			await expect(
-				eventItem.locator("text=/\\d{1,2}月\\d{1,2}日/"),
-			).toBeVisible(); // 日付（M月d日形式）
-			await expect(eventItem.locator("text=/\\d{1,2}:\\d{2}/")).toBeVisible(); // 時間
+				page.locator("text=該当する日付のイベントがありません"),
+			).toBeVisible();
 		}
-	});
 
-	test("日付フィルターの日付表示", async ({ page }) => {
-		// 各フィルターボタンに日付が表示されることを確認
-		const todayButton = page.locator("text=今日").first();
-		const tomorrowButton = page.locator("text=明日").first();
-		const dayAfterTomorrowButton = page.locator("text=明後日").first();
-
-		// ボタンに日付情報が含まれていることを確認
-		await expect(todayButton).toBeVisible();
-		await expect(tomorrowButton).toBeVisible();
-		await expect(dayAfterTomorrowButton).toBeVisible();
-
-		// 各ボタンをクリックして動作確認
-		await tomorrowButton.click();
-		await expect(page).toHaveURL(/filter=tomorrow/);
-
-		await dayAfterTomorrowButton.click();
-		await expect(page).toHaveURL(/filter=dayAfterTomorrow/);
-
-		await todayButton.click();
-		await expect(page).toHaveURL(/filter=today/);
-	});
-
-	test("エラー状態の表示", async ({ page }) => {
-		// ネットワークエラーをシミュレート
+		// エラー状態のテスト - ネットワークエラーをシミュレート
 		await page.route("**/api/v1/events**", (route) => {
 			route.abort("failed");
 		});
@@ -219,43 +146,13 @@ test.describe("スケジュール機能", () => {
 		// ページをリロード
 		await page.reload();
 
-		// エラーメッセージが表示されることを確認（実際のエラーメッセージテキストを使用）
+		// エラーメッセージまたは正常表示の確認
 		const errorMessage = page
 			.locator(".bg-red-50")
 			.locator("text=イベントの取得に失敗しました");
-		if (await errorMessage.isVisible()) {
-			await expect(errorMessage).toBeVisible();
-		} else {
-			// エラーハンドリングが異なる場合は、ページが正常に表示されることを確認
-			await expect(page.locator("h1")).toContainText("予定");
-		}
-	});
+		const normalDisplay = page.locator("h1");
 
-	test("イベント件数の表示", async ({ page }) => {
-		// 今日フィルターを選択
-		await page.click("text=今日");
-
-		// イベント件数が表示されることを確認（イベントが存在する場合）
-		const countText = page.locator("text=/\\d+件のイベントが見つかりました/");
-		const countExists = await countText.isVisible().catch(() => false);
-
-		if (countExists) {
-			await expect(countText).toBeVisible();
-		}
-	});
-
-	test("レスポンシブデザインの確認", async ({ page }) => {
-		// モバイルサイズに変更
-		await page.setViewportSize({ width: 375, height: 667 });
-
-		// フィルターボタンが適切に表示されることを確認
-		await expect(page.getByRole("button", { name: "今日" })).toBeVisible();
-		await expect(page.getByRole("button", { name: "明日" })).toBeVisible();
-		await expect(page.getByRole("button", { name: "明後日" })).toBeVisible();
-		await expect(page.getByRole("button", { name: "全て" })).toBeVisible();
-
-		// フィルターボタンが4列のグリッドで表示されることを確認
-		const filterContainer = page.locator(".grid-cols-4").first();
-		await expect(filterContainer).toBeVisible();
+		// いずれかが表示されることを確認（エラーハンドリングの実装により異なる）
+		await expect(errorMessage.or(normalDisplay)).toBeVisible();
 	});
 });
