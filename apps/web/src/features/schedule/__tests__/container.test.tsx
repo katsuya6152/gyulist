@@ -75,14 +75,10 @@ describe("ScheduleContainer", () => {
 
 		expect(screen.getByTestId("current-filter")).toHaveTextContent("today");
 
-		// Check that SearchEvents was called with date parameters (don't check exact timezone-dependent values)
-		expect(mockSearchEvents).toHaveBeenCalledWith(
-			expect.objectContaining({
-				limit: 50,
-				startDate: expect.stringMatching(/2024-01-1[45]T\d{2}:00:00\.000Z/),
-				endDate: expect.stringMatching(/2024-01-1[45]T\d{2}:59:59\.999Z/),
-			}),
-		);
+		// Check that SearchEvents was called without date parameters (client-side filtering)
+		expect(mockSearchEvents).toHaveBeenCalledWith({
+			limit: 50,
+		});
 	});
 
 	it('should handle "tomorrow" filter correctly', async () => {
@@ -92,14 +88,10 @@ describe("ScheduleContainer", () => {
 
 		expect(screen.getByTestId("current-filter")).toHaveTextContent("tomorrow");
 
-		// Check that SearchEvents was called with date parameters (don't check exact timezone-dependent values)
-		expect(mockSearchEvents).toHaveBeenCalledWith(
-			expect.objectContaining({
-				limit: 50,
-				startDate: expect.stringMatching(/2024-01-1[56]T\d{2}:00:00\.000Z/),
-				endDate: expect.stringMatching(/2024-01-1[56]T\d{2}:59:59\.999Z/),
-			}),
-		);
+		// Check that SearchEvents was called without date parameters (client-side filtering)
+		expect(mockSearchEvents).toHaveBeenCalledWith({
+			limit: 50,
+		});
 	});
 
 	it('should handle "dayAfterTomorrow" filter correctly', async () => {
@@ -111,14 +103,10 @@ describe("ScheduleContainer", () => {
 			"dayAfterTomorrow",
 		);
 
-		// Check that SearchEvents was called with date parameters (don't check exact timezone-dependent values)
-		expect(mockSearchEvents).toHaveBeenCalledWith(
-			expect.objectContaining({
-				limit: 50,
-				startDate: expect.stringMatching(/2024-01-1[67]T\d{2}:00:00\.000Z/),
-				endDate: expect.stringMatching(/2024-01-1[67]T\d{2}:59:59\.999Z/),
-			}),
-		);
+		// Check that SearchEvents was called without date parameters (client-side filtering)
+		expect(mockSearchEvents).toHaveBeenCalledWith({
+			limit: 50,
+		});
 	});
 
 	it("should handle custom date filter correctly", async () => {
