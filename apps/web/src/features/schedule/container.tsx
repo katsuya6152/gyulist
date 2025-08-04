@@ -51,12 +51,26 @@ export default async function ScheduleContainer({ searchParams }: Props) {
 	} catch (error) {
 		console.error("Failed to fetch events:", error);
 
+		// エラーの種類に応じて適切なメッセージを表示
+		let errorMessage = "イベントの取得に失敗しました";
+
+		if (error instanceof Error) {
+			if (error.message.includes("401") || error.message.includes("403")) {
+				errorMessage = "認証が必要です。ログインしてください。";
+			} else if (error.message.includes("Network")) {
+				errorMessage = "ネットワーク接続を確認してください。";
+			} else if (error.message.includes("timeout")) {
+				errorMessage =
+					"リクエストがタイムアウトしました。しばらく経ってから再試行してください。";
+			}
+		}
+
 		return (
 			<SchedulePresentation
 				events={[]}
 				currentFilter={validFilter}
 				customDate={customDate}
-				error="イベントの取得に失敗しました"
+				error={errorMessage}
 			/>
 		);
 	}
