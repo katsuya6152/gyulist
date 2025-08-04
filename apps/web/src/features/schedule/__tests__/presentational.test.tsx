@@ -63,8 +63,9 @@ describe("SchedulePresentation", () => {
 		render(<SchedulePresentation events={mockEvents} currentFilter="all" />);
 
 		// Use more flexible text matching since the dates might be split across elements
-		expect(screen.getByText(/2024年01月15日/)).toBeInTheDocument();
-		expect(screen.getByText(/2024年01月14日/)).toBeInTheDocument();
+		// formatEventDate returns "M月d日 (E)" format, e.g., "1月15日 (月)"
+		expect(screen.getByText(/1月15日/)).toBeInTheDocument();
+		expect(screen.getByText(/1月14日/)).toBeInTheDocument();
 
 		// Time might not be visible in the collapsed accordion state, so just check that events are rendered
 		expect(screen.getByText("テスト牛1")).toBeInTheDocument();
@@ -173,9 +174,9 @@ describe("SchedulePresentation", () => {
 			/>,
 		);
 
-		const dates = screen.getAllByText(/2024年01月\d{2}日/);
-		expect(dates[0]).toHaveTextContent("2024年01月16日"); // newer date first
-		expect(dates[1]).toHaveTextContent("2024年01月13日");
+		const dates = screen.getAllByText(/1月\d{1,2}日/);
+		expect(dates[0]).toHaveTextContent(/1月16日/); // newer date first
+		expect(dates[1]).toHaveTextContent(/1月13日/);
 	});
 
 	it("should display custom date when provided", () => {
@@ -187,7 +188,7 @@ describe("SchedulePresentation", () => {
 			/>,
 		);
 
-		expect(screen.getByText("選択日: 2024年01月20日")).toBeInTheDocument();
+		expect(screen.getByText(/選択日: 1月20日/)).toBeInTheDocument();
 	});
 
 	it("should handle event type colors correctly", () => {
