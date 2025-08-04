@@ -30,11 +30,13 @@ export default async function ScheduleContainer({ searchParams }: Props) {
 		limit: 50,
 	};
 
-	const targetDate = getTargetDate(validFilter, customDate);
-	if (targetDate) {
+	// カスタム日付の場合のみ日付フィルタリングを適用
+	if (validFilter === "custom" && customDate) {
+		const targetDate = new Date(customDate);
 		searchQuery.startDate = startOfDay(targetDate).toISOString();
 		searchQuery.endDate = endOfDay(targetDate).toISOString();
 	}
+	// それ以外の場合は全てのイベントを取得し、プレゼンテーション層でフィルタリング
 
 	try {
 		// eventService.ts の SearchEvents を使用
