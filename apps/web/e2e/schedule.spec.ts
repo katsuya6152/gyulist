@@ -35,7 +35,9 @@ test.describe("スケジュール機能", () => {
 		await expect(todayButton).toHaveClass(/bg-primary/);
 
 		// イベント追加ボタンが表示されることを確認
-		await expect(page.locator("text=イベント追加")).toBeVisible();
+		await expect(
+			page.getByRole("link", { name: "イベント追加", exact: true }),
+		).toBeVisible();
 	});
 
 	test("日付フィルターの動作", async ({ page }) => {
