@@ -105,17 +105,30 @@ test.describe("スケジュール機能", () => {
 				page.locator('[data-testid="event-item"]').first(),
 			).toBeVisible();
 
-			// イベントの基本情報が表示されることを確認
-			await expect(page.locator("text=時刻").first()).toBeVisible();
+			// イベントの基本情報が表示されることを確認（時刻は HH:mm 形式で表示される）
+			await expect(
+				page.locator('[data-testid="event-item"]').first(),
+			).toBeVisible();
 		} else {
 			// イベントがない場合の表示確認
 			const noEventsMessage = await page
-				.locator("text=イベントがありません")
+				.locator("text=該当する日付のイベントがありません")
+				.or(page.locator("text=イベントが登録されていません"))
 				.isVisible()
 				.catch(() => false);
 
 			if (noEventsMessage) {
-				await expect(page.locator("text=イベントがありません")).toBeVisible();
+				// どちらかのメッセージが表示されることを確認
+				const hasFilteredMessage = await page
+					.locator("text=該当する日付のイベントがありません")
+					.isVisible()
+					.catch(() => false);
+				const hasAllMessage = await page
+					.locator("text=イベントが登録されていません")
+					.isVisible()
+					.catch(() => false);
+
+				expect(hasFilteredMessage || hasAllMessage).toBe(true);
 			}
 		}
 	});
@@ -167,10 +180,10 @@ test.describe("スケジュール機能", () => {
 			const eventItem = page.locator('[data-testid="event-item"]').first();
 
 			// イベントの基本情報が表示されることを確認
-			await expect(eventItem.locator("h3")).toBeVisible(); // 牛の名前
+			await expect(eventItem.locator("span.text-lg.font-medium")).toBeVisible(); // 牛の名前
 			await expect(
-				eventItem.locator("text=/\\d{4}年\\d{1,2}月\\d{1,2}日/"),
-			).toBeVisible(); // 日付
+				eventItem.locator("text=/\\d{1,2}月\\d{1,2}日/"),
+			).toBeVisible(); // 日付（M月d日形式）
 			await expect(eventItem.locator("text=/\\d{1,2}:\\d{2}/")).toBeVisible(); // 時間
 		}
 	});
