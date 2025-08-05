@@ -14,6 +14,12 @@ vi.mock("next/navigation", () => ({
 	useSearchParams: () => mockSearchParams,
 }));
 
+// Mock scrollIntoView for JSDOM
+Object.defineProperty(Element.prototype, "scrollIntoView", {
+	value: vi.fn(),
+	writable: true,
+});
+
 describe("CattleListPresentation", () => {
 	const mockCattleList = [
 		{
@@ -157,9 +163,17 @@ describe("CattleListPresentation", () => {
 		// 絞り込みボタンをクリック
 		await user.click(screen.getByRole("button", { name: /絞り込み/ }));
 
-		// フィルター項目を選択
-		await user.click(screen.getByRole("checkbox", { name: "仔牛" }));
-		await user.click(screen.getByRole("checkbox", { name: "オス" }));
+		// 成長段階のドロップダウンを開く
+		await user.click(screen.getByRole("button", { name: "成長段階を選択" }));
+
+		// 仔牛を選択（Command内のオプション）
+		await user.click(screen.getByRole("option", { name: "仔牛" }));
+
+		// 性別のドロップダウンを開く
+		await user.click(screen.getByRole("button", { name: "性別を選択" }));
+
+		// オスを選択（Command内のオプション）
+		await user.click(screen.getByRole("option", { name: "オス" }));
 
 		// 絞り込みを適用
 		await user.click(screen.getByRole("button", { name: "絞り込む" }));
