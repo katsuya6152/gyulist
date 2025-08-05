@@ -2,17 +2,22 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
-	Form,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from "@/components/ui/form";
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from "@/components/ui/command";
+import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -34,11 +39,15 @@ import {
 	ArrowDown10,
 	ArrowDownUp,
 	CalendarPlus,
+	Check,
 	ChevronRight,
+	ChevronsUpDown,
 	Filter,
 	Search,
+	X,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -91,6 +100,8 @@ export function CattleListPresentation({
 }) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
+	const [growthStageOpen, setGrowthStageOpen] = useState(false);
+	const [genderOpen, setGenderOpen] = useState(false);
 
 	const form = useForm<z.infer<typeof FormSchema>>({
 		resolver: zodResolver(FormSchema),
@@ -143,6 +154,67 @@ export function CattleListPresentation({
 		router.push(`/events/new/${cattleId}`);
 	};
 
+	const addGrowthStage = (stage: string) => {
+		const currentValues = form.getValues("growth_stage");
+		if (!currentValues.includes(stage)) {
+			form.setValue("growth_stage", [...currentValues, stage]);
+		}
+	};
+
+	const removeGrowthStage = (stage: string) => {
+		const currentValues = form.getValues("growth_stage");
+		form.setValue(
+			"growth_stage",
+			currentValues.filter((s) => s !== stage),
+		);
+	};
+
+	const addGender = (gender: string) => {
+		const currentValues = form.getValues("gender");
+		if (!currentValues.includes(gender)) {
+			form.setValue("gender", [...currentValues, gender]);
+		}
+	};
+
+	const removeGender = (gender: string) => {
+		const currentValues = form.getValues("gender");
+		form.setValue(
+			"gender",
+			currentValues.filter((g) => g !== gender),
+		);
+	};
+
+	const clearAllFilters = () => {
+		form.reset({
+			growth_stage: [],
+			gender: [],
+		});
+		const params = new URLSearchParams(searchParams.toString());
+		params.delete("growth_stage");
+		params.delete("gender");
+		router.push(`/cattle?${params.toString()}`);
+	};
+
+	const getSelectedGrowthStages = () => {
+		const selected = form.watch("growth_stage");
+		if (selected.length === 0) return "成長段階を選択";
+		if (selected.length === 1) {
+			const option = filterOptions.find((opt) => opt.id === selected[0]);
+			return option?.label || selected[0];
+		}
+		return `${selected.length}個選択中`;
+	};
+
+	const getSelectedGenders = () => {
+		const selected = form.watch("gender");
+		if (selected.length === 0) return "性別を選択";
+		if (selected.length === 1) {
+			const option = filterOptions.find((opt) => opt.id === selected[0]);
+			return option?.label || selected[0];
+		}
+		return `${selected.length}個選択中`;
+	};
+
 	return (
 		<div className="flex flex-col items-center">
 			<div className="w-full py-6">
@@ -183,17 +255,44 @@ export function CattleListPresentation({
 									{sortOptions.map((option) => (
 										<div
 											key={option.id}
-											className="flex items-center space-x-2"
+											className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors w-full text-left"
+											onClick={() =>
+												handleSort(
+													option.id,
+													searchParams.get("sort_order") || "desc",
+												)
+											}
+											onKeyDown={(e) => {
+												if (e.key === "Enter" || e.key === " ") {
+													e.preventDefault();
+													handleSort(
+														option.id,
+														searchParams.get("sort_order") || "desc",
+													);
+												}
+											}}
+											aria-label={`${option.label}で並び替え`}
 										>
 											<RadioGroupItem value={option.id} id={option.id} />
-											<Label htmlFor={option.id}>{option.label}</Label>
+											<Label
+												htmlFor={option.id}
+												className="flex-1 cursor-pointer text-base"
+											>
+												{option.label}
+											</Label>
 										</div>
 									))}
 								</RadioGroup>
 
+								<Separator />
 								<div className="flex justify-center w-full gap-2">
 									<Button
-										variant="outline"
+										variant={
+											searchParams.get("sort_order") === "asc"
+												? "default"
+												: "outline"
+										}
+										className="flex-1 text-base"
 										onClick={() =>
 											handleSort(searchParams.get("sort_by") || "id", "asc")
 										}
@@ -202,7 +301,12 @@ export function CattleListPresentation({
 										昇順
 									</Button>
 									<Button
-										variant="outline"
+										variant={
+											searchParams.get("sort_order") === "desc"
+												? "default"
+												: "outline"
+										}
+										className="flex-1 text-base"
 										onClick={() =>
 											handleSort(searchParams.get("sort_by") || "id", "desc")
 										}
@@ -241,132 +345,197 @@ export function CattleListPresentation({
 								<Form {...form}>
 									<form
 										onSubmit={form.handleSubmit(onSubmit)}
-										className="space-y-8"
+										className="space-y-6"
 									>
 										<div className="space-y-4">
-											<h3 className="font-medium">成長段階</h3>
-											<FormField
-												control={form.control}
-												name="growth_stage"
-												render={() => (
-													<FormItem>
-														{filterOptions
-															.filter(
-																(item) => !["オス", "メス"].includes(item.id),
-															)
-															.map((item) => (
-																<FormField
-																	key={item.id}
-																	control={form.control}
-																	name="growth_stage"
-																	render={({ field }) => (
-																		<FormItem
-																			key={item.id}
-																			className="flex flex-row items-start space-x-3 space-y-0"
-																		>
-																			<FormControl>
-																				<Checkbox
-																					checked={field.value?.includes(
-																						item.id,
-																					)}
-																					onCheckedChange={(checked) => {
-																						return checked
-																							? field.onChange([
-																									...field.value,
-																									item.id,
-																								])
-																							: field.onChange(
-																									field.value?.filter(
-																										(value) =>
-																											value !== item.id,
-																									),
-																								);
+											<div className="space-y-3">
+												<h3 className="font-medium text-lg">成長段階</h3>
+												<Popover
+													open={growthStageOpen}
+													onOpenChange={setGrowthStageOpen}
+												>
+													<PopoverTrigger asChild>
+														<Button
+															variant="outline"
+															aria-expanded={growthStageOpen}
+															className="w-full justify-between"
+														>
+															{getSelectedGrowthStages()}
+															<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+														</Button>
+													</PopoverTrigger>
+													<PopoverContent className="w-full p-0">
+														<Command>
+															<CommandInput placeholder="成長段階を検索..." />
+															<CommandList>
+																<CommandEmpty>
+																	該当する成長段階が見つかりません。
+																</CommandEmpty>
+																<CommandGroup>
+																	{filterOptions
+																		.filter(
+																			(item) =>
+																				!["オス", "メス"].includes(item.id),
+																		)
+																		.map((item) => {
+																			const isSelected = form
+																				.watch("growth_stage")
+																				.includes(item.id);
+																			return (
+																				<CommandItem
+																					key={item.id}
+																					value={item.id}
+																					onSelect={() => {
+																						if (isSelected) {
+																							removeGrowthStage(item.id);
+																						} else {
+																							addGrowthStage(item.id);
+																						}
 																					}}
-																				/>
-																			</FormControl>
-																			<FormLabel className="text-sm font-normal">
-																				{item.label}
-																			</FormLabel>
-																		</FormItem>
-																	)}
-																/>
-															))}
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
+																				>
+																					<Check
+																						className={classNames(
+																							"mr-2 h-4 w-4",
+																							isSelected
+																								? "opacity-100"
+																								: "opacity-0",
+																						)}
+																					/>
+																					{item.label}
+																				</CommandItem>
+																			);
+																		})}
+																</CommandGroup>
+															</CommandList>
+														</Command>
+													</PopoverContent>
+												</Popover>
 
-											<h3 className="font-medium">性別</h3>
-											<FormField
-												control={form.control}
-												name="gender"
-												render={() => (
-													<FormItem>
-														{filterOptions
-															.filter((item) =>
-																["オス", "メス"].includes(item.id),
-															)
-															.map((item) => (
-																<FormField
-																	key={item.id}
-																	control={form.control}
-																	name="gender"
-																	render={({ field }) => (
-																		<FormItem
-																			key={item.id}
-																			className="flex flex-row items-start space-x-3 space-y-0"
-																		>
-																			<FormControl>
-																				<Checkbox
-																					checked={field.value?.includes(
-																						item.id,
-																					)}
-																					onCheckedChange={(checked) => {
-																						return checked
-																							? field.onChange([
-																									...field.value,
-																									item.id,
-																								])
-																							: field.onChange(
-																									field.value?.filter(
-																										(value) =>
-																											value !== item.id,
-																									),
-																								);
-																					}}
-																				/>
-																			</FormControl>
-																			<FormLabel className="text-sm font-normal">
-																				{item.label}
-																			</FormLabel>
-																		</FormItem>
-																	)}
-																/>
-															))}
-														<FormMessage />
-													</FormItem>
+												{form.watch("growth_stage").length > 0 && (
+													<div className="flex flex-wrap gap-2">
+														{form.watch("growth_stage").map((stage) => {
+															const option = filterOptions.find(
+																(opt) => opt.id === stage,
+															);
+															return (
+																<Badge
+																	key={stage}
+																	variant="secondary"
+																	className="text-sm"
+																>
+																	{option?.label}
+																	<button
+																		type="button"
+																		onClick={() => removeGrowthStage(stage)}
+																		className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
+																	>
+																		<X className="h-3 w-3" />
+																	</button>
+																</Badge>
+															);
+														})}
+													</div>
 												)}
-											/>
+											</div>
+
+											<div className="space-y-3">
+												<h3 className="font-medium text-lg">性別</h3>
+												<Popover open={genderOpen} onOpenChange={setGenderOpen}>
+													<PopoverTrigger asChild>
+														<Button
+															variant="outline"
+															aria-expanded={genderOpen}
+															className="w-full justify-between"
+														>
+															{getSelectedGenders()}
+															<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+														</Button>
+													</PopoverTrigger>
+													<PopoverContent className="w-full p-0">
+														<Command>
+															<CommandInput placeholder="性別を検索..." />
+															<CommandList>
+																<CommandEmpty>
+																	該当する性別が見つかりません。
+																</CommandEmpty>
+																<CommandGroup>
+																	{filterOptions
+																		.filter((item) =>
+																			["オス", "メス"].includes(item.id),
+																		)
+																		.map((item) => {
+																			const isSelected = form
+																				.watch("gender")
+																				.includes(item.id);
+																			return (
+																				<CommandItem
+																					key={item.id}
+																					value={item.id}
+																					onSelect={() => {
+																						if (isSelected) {
+																							removeGender(item.id);
+																						} else {
+																							addGender(item.id);
+																						}
+																					}}
+																				>
+																					<Check
+																						className={classNames(
+																							"mr-2 h-4 w-4",
+																							isSelected
+																								? "opacity-100"
+																								: "opacity-0",
+																						)}
+																					/>
+																					{item.label}
+																				</CommandItem>
+																			);
+																		})}
+																</CommandGroup>
+															</CommandList>
+														</Command>
+													</PopoverContent>
+												</Popover>
+
+												{form.watch("gender").length > 0 && (
+													<div className="flex flex-wrap gap-2">
+														{form.watch("gender").map((gender) => {
+															const option = filterOptions.find(
+																(opt) => opt.id === gender,
+															);
+															return (
+																<Badge
+																	key={gender}
+																	variant="secondary"
+																	className="text-sm"
+																>
+																	{option?.label}
+																	<button
+																		type="button"
+																		onClick={() => removeGender(gender)}
+																		className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
+																	>
+																		<X className="h-3 w-3" />
+																	</button>
+																</Badge>
+															);
+														})}
+													</div>
+												)}
+											</div>
 										</div>
+
 										<div className="flex gap-2">
 											<SheetClose asChild>
-												<Button type="submit">絞り込む</Button>
+												<Button type="submit" className="flex-1 h-12 text-base">
+													絞り込む
+												</Button>
 											</SheetClose>
 											<Button
 												type="button"
 												variant="outline"
-												onClick={() => {
-													form.reset({
-														growth_stage: [],
-														gender: [],
-													});
-													const params = new URLSearchParams(
-														searchParams.toString(),
-													);
-													params.delete("growth_stage");
-													params.delete("gender");
-													router.push(`/cattle?${params.toString()}`);
-												}}
+												className="flex-1 h-12 text-base"
+												onClick={clearAllFilters}
 											>
 												クリア
 											</Button>
