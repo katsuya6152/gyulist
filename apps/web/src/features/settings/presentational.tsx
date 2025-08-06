@@ -1,6 +1,5 @@
 "use client";
 
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -69,7 +68,6 @@ export function SettingsPresentation() {
 						アカウント設定とアプリケーションの設定を管理します
 					</p>
 				</div>
-				<ThemeToggle />
 			</div>
 
 			<div className="space-y-6">
