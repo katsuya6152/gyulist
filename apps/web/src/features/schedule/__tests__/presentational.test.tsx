@@ -97,10 +97,10 @@ describe("SchedulePresentation", () => {
 		const allButton = screen.getByText("全て");
 
 		// Today button should have primary styling (active)
-		expect(todayButton.closest("button")).toHaveClass("bg-primary");
+		expect(todayButton.closest("button")).toHaveClass("bg-gradient-primary");
 		// All button should have outline styling (inactive)
 		expect(allButton.closest("button")).toHaveClass("border");
-		expect(allButton.closest("button")).not.toHaveClass("bg-primary");
+		expect(allButton.closest("button")).not.toHaveClass("bg-gradient-primary");
 	});
 
 	it("should skip custom date input test for now", () => {

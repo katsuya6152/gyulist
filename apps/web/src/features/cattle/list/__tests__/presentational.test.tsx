@@ -131,7 +131,11 @@ describe("CattleListPresentation", () => {
 		const searchInput = screen.getByPlaceholderText("検索...");
 		await user.type(searchInput, "特別");
 
-		// 最後のイベントのみを確認
+		// 検索ボタンをクリック
+		const searchButton = screen.getByRole("button", { name: "検索" });
+		await user.click(searchButton);
+
+		// 検索が実行されることを確認
 		expect(mockPush).toHaveBeenLastCalledWith(
 			"/cattle?search=%E7%89%B9%E5%88%A5",
 		);
