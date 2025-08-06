@@ -607,7 +607,7 @@ export function CattleListPresentation({
 									type="button"
 									variant="outline"
 									size="icon"
-									className="text-[#00C5CC]"
+									className="text-primary"
 									onClick={(e) => {
 										e.stopPropagation();
 										handleAddEvent(cattle.cattleId);

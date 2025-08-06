@@ -13,19 +13,19 @@ export function FooterNav() {
 	};
 
 	return (
-		<div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2 z-50">
+		<div className="fixed bottom-0 left-0 right-0 bg-sidebar border-t border-sidebar-border px-2 py-2 z-50">
 			<div className="grid items-center grid-cols-5">
-				{/* 戻るボタン（個体詳細画面のみ） */}
+				{/* 戻るボタン */}
 				<div className="flex justify-center">
 					<button
 						type="button"
 						onClick={handleGoBack}
 						className="flex flex-col items-center"
 					>
-						<div className="p-1 text-gray-600">
+						<div className="p-1">
 							<ArrowLeft className="h-6 w-6" />
 						</div>
-						<span className="text-xs text-gray-600">戻る</span>
+						<span className="text-xs">戻る</span>
 					</button>
 				</div>
 
@@ -83,12 +83,8 @@ interface FooterItemProps {
 function FooterItem({ icon, label, href, isActive }: FooterItemProps) {
 	return (
 		<Link href={href} className="flex flex-col items-center">
-			<div className={`p-1 ${isActive ? "text-[#00C5CC]" : "text-gray-600"}`}>
-				{icon}
-			</div>
-			<span
-				className={`text-xs ${isActive ? "text-[#00C5CC] font-medium" : "text-gray-600"}`}
-			>
+			<div className={`p-1 ${isActive && "text-primary"}`}>{icon}</div>
+			<span className={`text-xs ${isActive && "text-primary font-medium"}`}>
 				{label}
 			</span>
 		</Link>

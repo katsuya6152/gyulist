@@ -320,7 +320,7 @@ const CattleEditPresentation = ({
 						</p>
 					)}
 					{ageDisplay && (
-						<p className="text-sm text-gray-600 mt-1">
+						<p className="text-sm text-info mt-1">
 							現在の日齢: {ageDisplay.daysOld}日
 							{` (${ageDisplay.monthsOld}ヶ月)`}
 							{` (${ageDisplay.age}歳)`}

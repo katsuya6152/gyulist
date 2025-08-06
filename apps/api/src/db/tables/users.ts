@@ -9,6 +9,7 @@ export const users = sqliteTable("users", {
 	isVerified: integer("is_verified", { mode: "boolean" }).default(false),
 	verificationToken: text("verification_token"),
 	lastLoginAt: text("last_login_at"),
+	theme: text("theme").default("light"), // テーマ設定: "light", "dark", "system"
 	createdAt: text().default(sql`(CURRENT_TIMESTAMP)`),
 	updatedAt: text().default(sql`(CURRENT_TIMESTAMP)`),
 });

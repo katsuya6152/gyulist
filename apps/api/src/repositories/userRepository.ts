@@ -74,3 +74,18 @@ export async function updateLastLoginAt(
 		})
 		.where(eq(users.id, userId));
 }
+
+export async function updateUserTheme(
+	dbInstance: AnyD1Database,
+	userId: number,
+	theme: string,
+) {
+	const db = drizzle(dbInstance);
+	await db
+		.update(users)
+		.set({
+			theme,
+			updatedAt: new Date().toISOString(),
+		})
+		.where(eq(users.id, userId));
+}

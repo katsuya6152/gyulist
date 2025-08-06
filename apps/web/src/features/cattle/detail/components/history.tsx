@@ -86,7 +86,7 @@ export function History({ cattle }: { cattle: GetCattleDetailResType }) {
 								locale: ja,
 							})}
 						</p>
-						<p className="text-sm text-gray-700">{event.notes}</p>
+						<p className="text-sm">{event.notes}</p>
 					</CardContent>
 				</Card>
 			))}
