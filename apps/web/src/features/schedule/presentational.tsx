@@ -188,7 +188,7 @@ const EventCard = memo(
 								</span>
 							)}
 						</div>
-						<div className="flex items-center gap-2 text-sm text-gray-600">
+						<div className="flex items-center gap-2 text-sm">
 							<Calendar className="h-4 w-4" />
 							{formatEventDate(event.eventDatetime)}
 							<Clock className="h-4 w-4 ml-2" />
@@ -200,7 +200,7 @@ const EventCard = memo(
 					<>
 						<Separator />
 						<CardContent>
-							<div className="text-sm text-gray-700">
+							<div className="text-sm">
 								<span className="font-medium">メモ:</span>
 								<p className="mt-1 whitespace-pre-wrap">{event.notes}</p>
 							</div>
@@ -226,7 +226,7 @@ const EmptyState = memo(({ currentFilter }: { currentFilter: DateFilter }) => (
 						: "該当する日付のイベントがありません"}
 				</h3>
 				<Button asChild variant="outline" size="sm">
-					<Link href="/cattle" className="text-[#00C5CC]">
+					<Link href="/cattle" className="text-primary">
 						<CalendarPlus className="h-4 w-4 mr-1" />
 						牛を選択してイベント追加
 					</Link>
@@ -517,7 +517,7 @@ export function SchedulePresentation({
 					予定
 				</h1>
 				<Button asChild variant="outline" size="sm">
-					<Link href="/cattle" className="text-[#00C5CC]">
+					<Link href="/cattle" className="text-primary">
 						<CalendarPlus className="h-4 w-4 mr-1" />
 						イベント追加
 					</Link>
@@ -585,10 +585,7 @@ export function SchedulePresentation({
 							</AccordionTrigger>
 							<AccordionContent className="px-4 pb-4">
 								<div className="space-y-3">
-									<Label
-										htmlFor="date-picker"
-										className="text-sm text-gray-600"
-									>
+									<Label htmlFor="date-picker" className="text-sm">
 										日付を選択してください
 									</Label>
 									<div className="flex gap-2 items-end flex-wrap">
@@ -628,7 +625,7 @@ export function SchedulePresentation({
 			{/* カスタム日付選択時の表示 */}
 			{currentFilter === "custom" && customDate && (
 				<div className="mb-6">
-					<div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
+					<div className="flex items-center gap-2 text-sm flex-wrap">
 						<Calendar className="h-4 w-4" />
 						<span>選択日: {formatEventDate(customDate)}</span>
 						<Button

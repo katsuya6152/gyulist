@@ -3,8 +3,14 @@ import type { InferResponseType } from "hono";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export type GetUserResType = InferResponseType<
-	(typeof client.api.v1.users)[":id"]["$get"],
+export type Theme = "light" | "dark" | "system";
+
+export type UpdateThemeInput = {
+	theme: Theme;
+};
+
+export type UpdateThemeResType = InferResponseType<
+	(typeof client.api.v1.users)[":id"]["theme"]["$patch"],
 	200
 >;
 
@@ -35,11 +41,15 @@ async function fetchWithAuth<T>(
 	return res.json();
 }
 
-export async function getUserById(userId: number): Promise<GetUserResType> {
-	return fetchWithAuth<GetUserResType>((token) =>
-		client.api.v1.users[":id"].$get(
+export async function updateTheme(
+	userId: number,
+	theme: Theme,
+): Promise<UpdateThemeResType> {
+	return fetchWithAuth<UpdateThemeResType>((token) =>
+		client.api.v1.users[":id"].theme.$patch(
 			{
 				param: { id: userId.toString() },
+				json: { theme },
 			},
 			{
 				headers: {
