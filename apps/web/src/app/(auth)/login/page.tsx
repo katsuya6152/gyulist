@@ -20,9 +20,9 @@ export const runtime = "edge";
 export default function LoginPage() {
 	const router = useRouter();
 	const [state, formAction, isPending] = useActionState<
-		LoginActionResult,
+		LoginActionResult | null,
 		FormData
-	>(loginAction, { success: false, message: "" });
+	>(loginAction, null);
 
 	// 成功時のリダイレクト処理
 	useEffect(() => {
@@ -90,7 +90,7 @@ export default function LoginPage() {
 										className="transition-all duration-200 focus:shadow-md"
 									/>
 								</div>
-								{state && !state.success && (
+								{state && !state.success && state.message && (
 									<div className="text-red-500 text-xs text-center animate-fade-in bg-red-50 p-3 rounded-md border border-red-200">
 										{state.message}
 									</div>
