@@ -17,7 +17,8 @@
 		"production": {
 			"vars": {
 				"APP_URL": "https://gyulist.pages.dev",
-				"ENVIRONMENT": "production"
+				"ENVIRONMENT": "production",
+				"JWT_SECRET": "secret"
 				// 本番環境の機密情報は wrangler secret put で設定:
 				// wrangler secret put GOOGLE_CLIENT_ID
 				// wrangler secret put GOOGLE_CLIENT_SECRET
