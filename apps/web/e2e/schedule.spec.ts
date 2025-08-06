@@ -32,7 +32,7 @@ test.describe("スケジュール機能", () => {
 
 		// 今日フィルターがアクティブであることを確認
 		const todayButton = page.getByRole("button", { name: /今日/ });
-		await expect(todayButton).toHaveClass(/bg-primary/);
+		await expect(todayButton).toHaveClass(/bg-gradient-primary/);
 
 		// イベント追加ボタンが表示されることを確認
 		await expect(
@@ -50,7 +50,7 @@ test.describe("スケジュール機能", () => {
 		await expect(page).toHaveURL(/filter=tomorrow/);
 
 		// 明日フィルターがアクティブになることを確認
-		await expect(tomorrowButton).toHaveClass(/bg-primary/);
+		await expect(tomorrowButton).toHaveClass(/bg-gradient-primary/);
 
 		// 全てフィルターをクリック
 		const allButton = page.getByRole("button", { name: /全て/ });
@@ -60,13 +60,13 @@ test.describe("スケジュール機能", () => {
 		await expect(page).toHaveURL("/schedule");
 
 		// 全てフィルターがアクティブになることを確認
-		await expect(allButton).toHaveClass(/bg-primary/);
+		await expect(allButton).toHaveClass(/bg-gradient-primary/);
 
 		// 今日フィルターに戻す
 		const todayButton = page.getByRole("button", { name: /今日/ });
 		await todayButton.click();
 		await expect(page).toHaveURL(/filter=today/);
-		await expect(todayButton).toHaveClass(/bg-primary/);
+		await expect(todayButton).toHaveClass(/bg-gradient-primary/);
 	});
 
 	test("カスタム日付検索機能", async ({ page }) => {
