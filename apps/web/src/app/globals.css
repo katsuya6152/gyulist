@@ -50,70 +50,120 @@
 
 :root {
 	--radius: 0.625rem;
-	--background: oklch(0.99 0.005 85);
-	--foreground: oklch(0.15 0.01 30);
-	--card: oklch(0.98 0.005 85);
-	--card-foreground: oklch(0.15 0.01 30);
-	--popover: oklch(0.97 0.005 85);
-	--popover-foreground: oklch(0.18 0.01 30);
-	--primary: oklch(0.55 0.14 35.0); /* #BA5B34 に相当 */
-	--primary-foreground: oklch(0.99 0.005 85);
-	--secondary: oklch(0.9 0.015 85);
-	--secondary-foreground: oklch(0.25 0.01 20);
-	--muted: oklch(0.88 0.01 85);
-	--muted-foreground: oklch(0.45 0.01 30);
+
+	/* ウォームトーンの背景色 */
+	--background: oklch(0.97 0.008 45); /* 温かみのあるクリーム */
+	--foreground: oklch(0.12 0.015 25); /* 深いウォームブラウン */
+	--card: oklch(0.99 0.005 50); /* カードはより明るいクリーム */
+	--card-foreground: oklch(0.12 0.015 25);
+	--popover: oklch(0.98 0.006 48);
+	--popover-foreground: oklch(0.15 0.012 30);
+
+	/* アクセントカラー */
+	--primary: oklch(0.55 0.14 35.0); /* #BA5B34 */
+	--primary-foreground: oklch(0.99 0.005 50);
+	--secondary: oklch(0.92 0.012 55); /* ウォームなセカンダリ */
+	--secondary-foreground: oklch(0.12 0.015 25);
+	--muted: oklch(0.89 0.01 50); /* 温かみのあるミュート */
+	--muted-foreground: oklch(0.42 0.018 30);
 	--accent: oklch(0.7 0.12 95); /* #A8B57A */
-	--accent-foreground: oklch(0.18 0.01 30);
+	--accent-foreground: oklch(0.15 0.012 30);
+
+	/* システムカラー */
 	--destructive: oklch(0.58 0.22 25);
 	--success: oklch(0.65 0.21 145);
 	--warning: oklch(0.55 0.18 15.294);
 	--info: oklch(0.63 0.15 210);
-	--brand: oklch(0.55 0.14 35.0); /* 同じく #BA5B34 */
-	--brand-foreground: oklch(0.99 0.005 85);
-	--border: oklch(0.84 0.015 85);
-	--input: oklch(0.84 0.015 85);
+	--brand: oklch(0.55 0.14 35.0);
+	--brand-foreground: oklch(0.99 0.005 50);
+
+	/* ボーダーとインプット */
+	--border: oklch(0.85 0.012 45); /* ウォームなボーダー */
+	--input: oklch(0.85 0.012 45);
 	--ring: oklch(0.55 0.14 35.0);
-	--sidebar: oklch(0.95 0.015 85);
-	--sidebar-foreground: oklch(0.2 0.01 0);
+
+	/* サイドバー */
+	--sidebar: oklch(0.94 0.008 48);
+	--sidebar-foreground: oklch(0.18 0.015 25);
 	--sidebar-primary: oklch(0.55 0.14 35.0);
-	--sidebar-primary-foreground: oklch(0.99 0.005 85);
-	--sidebar-accent: oklch(0.9 0.015 85);
-	--sidebar-accent-foreground: oklch(0.25 0.01 20);
-	--sidebar-border: oklch(0.84 0.015 85);
+	--sidebar-primary-foreground: oklch(0.99 0.005 50);
+	--sidebar-accent: oklch(0.92 0.012 55);
+	--sidebar-accent-foreground: oklch(0.18 0.015 25);
+	--sidebar-border: oklch(0.85 0.012 45);
+
+	/* ウォームトーン用グラデーション */
+	--gradient-primary-start: oklch(0.58 0.16 35.0);
+	--gradient-primary-end: oklch(0.52 0.12 35.0);
+	--gradient-accent-start: oklch(0.72 0.14 95);
+	--gradient-accent-end: oklch(0.68 0.1 95);
+	--gradient-card-start: oklch(0.99 0.005 50);
+	--gradient-card-end: oklch(0.95 0.01 45);
+	--gradient-success-start: oklch(0.68 0.23 145);
+	--gradient-success-end: oklch(0.62 0.19 145);
+
+	/* ウォームトーン用ガラス風エフェクト */
+	--glass-bg: rgba(255, 248, 240, 0.85); /* 温かみのあるガラス */
+	--glass-border: rgba(186, 91, 52, 0.15); /* プライマリカラーベース */
+	--glass-shadow: 0 8px 32px rgba(139, 69, 19, 0.12); /* ウォームなシャドウ */
 }
 
 .dark {
 	--radius: 0.625rem;
-	--background: oklch(0.25 0.04 35); /* ダークブラウン */
-	--foreground: oklch(0.96 0.015 85);
-	--card: oklch(0.3 0.04 35);
-	--card-foreground: oklch(0.96 0.015 85);
-	--popover: oklch(0.3 0.04 35);
-	--popover-foreground: oklch(0.96 0.015 85);
+
+	/* ウォームダークテーマ背景色 */
+	--background: oklch(0.15 0.025 35); /* 深いウォームブラウン */
+	--foreground: oklch(0.92 0.008 55); /* 温かみのあるクリーム色テキスト */
+	--card: oklch(0.18 0.028 38); /* カードは少し明るいブラウン */
+	--card-foreground: oklch(0.92 0.008 55);
+	--popover: oklch(0.17 0.026 36);
+	--popover-foreground: oklch(0.92 0.008 55);
+
+	/* アクセントカラー */
 	--primary: oklch(0.55 0.14 35.0); /* #BA5B34 */
-	--primary-foreground: oklch(0.25 0.04 35);
-	--secondary: oklch(0.35 0.03 35);
-	--secondary-foreground: oklch(0.96 0.015 85);
-	--muted: oklch(0.35 0.03 35);
-	--muted-foreground: oklch(0.7 0.02 85);
+	--primary-foreground: oklch(0.15 0.025 35);
+	--secondary: oklch(0.22 0.02 40); /* ウォームなダークセカンダリ */
+	--secondary-foreground: oklch(0.92 0.008 55);
+	--muted: oklch(0.2 0.018 38); /* 温かみのあるダークミュート */
+	--muted-foreground: oklch(0.68 0.012 50);
 	--accent: oklch(0.7 0.12 95); /* #A8B57A */
-	--accent-foreground: oklch(0.25 0.04 35);
+	--accent-foreground: oklch(0.15 0.025 35);
+
+	/* システムカラー */
 	--destructive: oklch(0.704 0.191 22.216);
 	--success: oklch(0.5 0.23 145);
 	--warning: oklch(0.55 0.18 15.294);
 	--info: oklch(0.67 0.17 200);
 	--brand: oklch(0.55 0.14 35.0);
-	--brand-foreground: oklch(0.25 0.04 35);
-	--border: oklch(0.4 0.03 35);
-	--input: oklch(0.4 0.03 35);
+	--brand-foreground: oklch(0.15 0.025 35);
+
+	/* ボーダーとインプット */
+	--border: oklch(0.28 0.022 42); /* ウォームなダークボーダー */
+	--input: oklch(0.28 0.022 42);
 	--ring: oklch(0.55 0.14 35.0);
-	--sidebar: oklch(0.3 0.03 35);
-	--sidebar-foreground: oklch(0.96 0.015 85);
+
+	/* サイドバー */
+	--sidebar: oklch(0.17 0.026 36);
+	--sidebar-foreground: oklch(0.92 0.008 55);
 	--sidebar-primary: oklch(0.55 0.14 35.0);
-	--sidebar-primary-foreground: oklch(0.25 0.04 35);
-	--sidebar-accent: oklch(0.35 0.03 35);
-	--sidebar-accent-foreground: oklch(0.96 0.015 85);
-	--sidebar-border: oklch(0.4 0.03 35);
+	--sidebar-primary-foreground: oklch(0.15 0.025 35);
+	--sidebar-accent: oklch(0.22 0.02 40);
+	--sidebar-accent-foreground: oklch(0.92 0.008 55);
+	--sidebar-border: oklch(0.28 0.022 42);
+
+	/* ダークウォームトーン用グラデーション */
+	--gradient-primary-start: oklch(0.58 0.16 35.0);
+	--gradient-primary-end: oklch(0.52 0.12 35.0);
+	--gradient-accent-start: oklch(0.72 0.14 95);
+	--gradient-accent-end: oklch(0.68 0.1 95);
+	--gradient-card-start: oklch(0.19 0.03 38);
+	--gradient-card-end: oklch(0.16 0.024 36);
+	--gradient-success-start: oklch(0.52 0.25 145);
+	--gradient-success-end: oklch(0.48 0.21 145);
+
+	/* ダークウォームトーン用ガラス風エフェクト */
+	--glass-bg: rgba(45, 30, 20, 0.85); /* 深いウォームブラウンガラス */
+	--glass-border: rgba(186, 91, 52, 0.2); /* プライマリカラーベース */
+	--glass-shadow: 0 8px 32px rgba(20, 10, 5, 0.4); /* 深いウォームシャドウ */
 }
 
 @layer base {
@@ -122,5 +172,433 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+	}
+}
+
+/* カスタムアニメーションクラス */
+@layer utilities {
+	/* フェードイン系アニメーション */
+	.animate-fade-in {
+		animation: fadeIn 0.3s ease-out;
+	}
+
+	.animate-fade-in-up {
+		animation: fadeInUp 0.4s ease-out;
+	}
+
+	.animate-fade-in-down {
+		animation: fadeInDown 0.3s ease-out;
+	}
+
+	/* スケール系アニメーション */
+	.animate-scale-in {
+		animation: scaleIn 0.2s ease-out;
+	}
+
+	.animate-bounce-in {
+		animation: bounceIn 0.4s ease-out;
+	}
+
+	/* ホバー系アニメーション */
+	.hover-lift {
+		transition: transform 0.2s ease, box-shadow 0.2s ease;
+	}
+
+	.hover-lift:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+	}
+
+	.dark .hover-lift:hover {
+		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+	}
+
+	/* ボタンタップフィードバック */
+	.tap-feedback {
+		transition: transform 0.1s ease;
+		transform-origin: center;
+	}
+
+	.tap-feedback:active {
+		transform: scale(0.98);
+	}
+
+	/* グラデーション背景 */
+	.bg-gradient-primary {
+		background: linear-gradient(
+			135deg,
+			var(--gradient-primary-start) 0%,
+			var(--gradient-primary-end) 100%
+		);
+	}
+
+	.bg-gradient-accent {
+		background: linear-gradient(
+			135deg,
+			var(--gradient-accent-start) 0%,
+			var(--gradient-accent-end) 100%
+		);
+	}
+
+	.bg-gradient-card {
+		background: linear-gradient(
+			135deg,
+			var(--gradient-card-start) 0%,
+			var(--gradient-card-end) 100%
+		);
+	}
+
+	.bg-gradient-success {
+		background: linear-gradient(
+			135deg,
+			var(--gradient-success-start) 0%,
+			var(--gradient-success-end) 100%
+		);
+	}
+
+	/* ホバー時のグラデーション変化 */
+	.hover-gradient-shift {
+		transition: background 0.3s ease;
+	}
+
+	.hover-gradient-shift:hover {
+		background-position: right center;
+		background-size: 200% auto;
+	}
+
+	/* ガラス風エフェクト */
+	.glass-effect {
+		background: var(--glass-bg);
+		backdrop-filter: blur(20px);
+		-webkit-backdrop-filter: blur(20px);
+		border: 1px solid var(--glass-border);
+		box-shadow: var(--glass-shadow);
+	}
+
+	.glass-effect-strong {
+		background: var(--glass-bg);
+		backdrop-filter: blur(24px) saturate(180%);
+		-webkit-backdrop-filter: blur(24px) saturate(180%);
+		border: 1px solid var(--glass-border);
+		box-shadow: var(--glass-shadow);
+	}
+
+	/* フッター用スライドアニメーション */
+	.footer-slide-up {
+		animation: footerSlideUp 0.3s ease-out;
+	}
+
+	.footer-slide-down {
+		animation: footerSlideDown 0.3s ease-out;
+	}
+
+	.footer-hidden {
+		transform: translateY(100%);
+	}
+
+	.footer-visible {
+		transform: translateY(0);
+	}
+
+	/* 上に戻るボタン用のアニメーション */
+	.scroll-to-top-button {
+		position: fixed;
+		bottom: 16px;
+		right: 16px;
+		z-index: 40;
+		width: 48px;
+		height: 48px;
+		border-radius: 50%;
+		background: var(--gradient-primary-start);
+		background: linear-gradient(
+			135deg,
+			var(--gradient-primary-start) 0%,
+			var(--gradient-primary-end) 100%
+		);
+		color: var(--primary-foreground);
+		border: none;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+		transition: all 0.3s ease;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.scroll-to-top-button:hover {
+		transform: translateY(-2px) scale(1.05);
+		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+	}
+
+	.scroll-to-top-button:active {
+		transform: translateY(-1px) scale(1.02);
+	}
+
+	.scroll-to-top-visible {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+		pointer-events: auto;
+	}
+
+	.scroll-to-top-hidden {
+		opacity: 0;
+		transform: translateY(20px) scale(0.8);
+		pointer-events: none;
+	}
+
+	.scroll-to-top-enter {
+		animation: scrollToTopEnter 0.4s ease-out;
+	}
+
+	.scroll-to-top-exit {
+		animation: scrollToTopExit 0.3s ease-in;
+	}
+
+	/* ダークテーマでの調整 */
+	.dark .scroll-to-top-button {
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+	}
+
+	.dark .scroll-to-top-button:hover {
+		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+	}
+
+	/* ページ遷移アニメーション */
+	.page-transition-enter {
+		animation: pageEnter 0.4s ease-out;
+	}
+
+	.page-transition-exit {
+		animation: pageExit 0.3s ease-in;
+	}
+
+	.page-slide-left-enter {
+		animation: pageSlideLeftEnter 0.4s ease-out;
+	}
+
+	.page-slide-right-enter {
+		animation: pageSlideRightEnter 0.4s ease-out;
+	}
+
+	.page-slide-up-enter {
+		animation: pageSlideUpEnter 0.4s ease-out;
+	}
+
+	.page-slide-down-enter {
+		animation: pageSlideDownEnter 0.4s ease-out;
+	}
+
+	/* ページ遷移用の共通スタイル */
+	.page-wrapper {
+		will-change: transform, opacity;
+	}
+
+	/* ページ遷移アニメーション - CSS-only版 */
+	.page-wrapper {
+		will-change: transform, opacity;
+		animation: pageEnterSimple 0.3s ease-out;
+	}
+
+	/* モーション設定を尊重 */
+	@media (prefers-reduced-motion: reduce) {
+		.page-wrapper {
+			animation: none;
+		}
+	}
+
+	/* 段階的なアニメーション強化（オプション） */
+	.page-wrapper.enhanced {
+		animation: pageEnterEnhanced 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+}
+
+/* キーフレーム定義 */
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes fadeInDown {
+	from {
+		opacity: 0;
+		transform: translateY(-20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes scaleIn {
+	from {
+		opacity: 0;
+		transform: scale(0.9);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@keyframes bounceIn {
+	0% {
+		opacity: 0;
+		transform: scale(0.3);
+	}
+	50% {
+		opacity: 1;
+		transform: scale(1.05);
+	}
+	70% {
+		transform: scale(0.98);
+	}
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@keyframes footerSlideUp {
+	from {
+		transform: translateY(0);
+	}
+	to {
+		transform: translateY(100%);
+	}
+}
+
+@keyframes footerSlideDown {
+	from {
+		transform: translateY(100%);
+	}
+	to {
+		transform: translateY(0);
+	}
+}
+
+/* ページ遷移キーフレーム */
+@keyframes pageEnter {
+	from {
+		opacity: 0;
+		transform: translateY(20px) scale(0.98);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+@keyframes pageExit {
+	from {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+	to {
+		opacity: 0;
+		transform: translateY(-10px) scale(0.99);
+	}
+}
+
+@keyframes pageSlideLeftEnter {
+	from {
+		opacity: 0;
+		transform: translateX(30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+@keyframes pageSlideRightEnter {
+	from {
+		opacity: 0;
+		transform: translateX(-30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+@keyframes pageSlideUpEnter {
+	from {
+		opacity: 0;
+		transform: translateY(30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes pageSlideDownEnter {
+	from {
+		opacity: 0;
+		transform: translateY(-30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes scrollToTopEnter {
+	from {
+		opacity: 0;
+		transform: translateY(20px) scale(0.8);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+@keyframes scrollToTopExit {
+	from {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+	to {
+		opacity: 0;
+		transform: translateY(-10px) scale(0.99);
+	}
+}
+
+/* CSS-only ページアニメーション用キーフレーム */
+@keyframes pageEnterSimple {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes pageEnterEnhanced {
+	from {
+		opacity: 0;
+		transform: translateY(12px) scale(0.98);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
 	}
 }

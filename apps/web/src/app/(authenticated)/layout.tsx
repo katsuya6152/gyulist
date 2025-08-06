@@ -1,4 +1,5 @@
 import { FooterNav } from "@/components/footer-nav";
+import { ScrollToTop } from "@/components/scroll-to-top";
 import { verifyAndGetUserId } from "@/lib/jwt";
 import { ThemeProvider } from "@/lib/theme-provider";
 import { getUserById } from "@/services/userService";
@@ -43,9 +44,12 @@ export default async function AuthenticatedLayout({
 
 	return (
 		<ThemeProvider defaultTheme={userTheme as "light" | "dark" | "system"}>
-			<div className="min-h-screen pb-16">
-				{children}
+			<div className="min-h-screen pb-20 scroll-smooth">
+				<main className="relative z-0 page-wrapper animate-fade-in bg-background">
+					{children}
+				</main>
 				<FooterNav />
+				<ScrollToTop threshold={200} duration={500} />
 				<Toaster
 					position="top-center"
 					richColors

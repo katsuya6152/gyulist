@@ -102,6 +102,9 @@ export function CattleListPresentation({
 	const searchParams = useSearchParams();
 	const [growthStageOpen, setGrowthStageOpen] = useState(false);
 	const [genderOpen, setGenderOpen] = useState(false);
+	const [searchValue, setSearchValue] = useState(
+		searchParams.get("search") || "",
+	);
 
 	const form = useForm<z.infer<typeof FormSchema>>({
 		resolver: zodResolver(FormSchema),
@@ -113,11 +116,34 @@ export function CattleListPresentation({
 
 	const handleSearch = (value: string) => {
 		const params = new URLSearchParams(searchParams.toString());
-		if (value) {
-			params.set("search", value);
+		if (value.trim()) {
+			params.set("search", value.trim());
 		} else {
 			params.delete("search");
 		}
+		router.push(`/cattle?${params.toString()}`);
+	};
+
+	const handleSearchSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		handleSearch(searchValue);
+	};
+
+	const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setSearchValue(e.target.value);
+	};
+
+	const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		if (e.key === "Enter") {
+			e.preventDefault();
+			handleSearch(searchValue);
+		}
+	};
+
+	const clearSearch = () => {
+		setSearchValue("");
+		const params = new URLSearchParams(searchParams.toString());
+		params.delete("search");
 		router.push(`/cattle?${params.toString()}`);
 	};
 
@@ -217,19 +243,44 @@ export function CattleListPresentation({
 
 	return (
 		<div className="flex flex-col items-center">
-			<div className="w-full py-6">
-				<div className="relative flex w-full">
-					<Search className="absolute left-9 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+			<div className="w-full pt-6">
+				<form
+					onSubmit={handleSearchSubmit}
+					className="relative flex w-full mb-2"
+				>
+					<Search className="absolute left-9 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
 					<Input
 						type="search"
 						placeholder="検索..."
-						className="pl-10 mx-6 bg-gray-100 dark:bg-gray-800 border-none"
-						defaultValue={searchParams.get("search") || ""}
-						onChange={(e) => handleSearch(e.target.value)}
+						className="pl-10 ml-6 mr-32 bg-muted border-none transition-all duration-200 focus:shadow-md"
+						value={searchValue}
+						onChange={handleSearchInputChange}
+						onKeyDown={handleSearchKeyDown}
 					/>
-				</div>
+					{searchValue && (
+						<Button
+							type="button"
+							variant="ghost"
+							size="sm"
+							onClick={clearSearch}
+							className="absolute right-20 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+						>
+							<X className="h-4 w-4" />
+						</Button>
+					)}
+					<Button
+						type="submit"
+						size="sm"
+						className="absolute right-8 top-1/2 transform -translate-y-1/2 h-8 px-3 bg-gradient-primary hover:shadow-lg transition-all duration-200 tap-feedback"
+					>
+						<Search className="h-4 w-4 mr-1" />
+						検索
+					</Button>
+				</form>
 
-				<div className="flex items-center justify-center h-5 mt-4">
+				<Separator />
+
+				<div className="flex items-center justify-center h-5 my-4">
 					<Sheet>
 						<SheetTrigger asChild>
 							<Button variant="ghost" className="">
@@ -550,49 +601,91 @@ export function CattleListPresentation({
 
 			<Separator />
 
+			{/* 検索結果の表示 */}
+			{searchParams.get("search") && (
+				<div className="w-full px-6 py-3 bg-muted/30 animate-fade-in">
+					<div className="flex items-center justify-between">
+						<p className="text-sm text-muted-foreground">
+							「
+							<span className="font-medium text-foreground">
+								{searchParams.get("search")}
+							</span>
+							」の検索結果
+						</p>
+						<Button
+							variant="ghost"
+							size="sm"
+							onClick={clearSearch}
+							className="h-7 px-2 text-xs hover:bg-muted/50"
+						>
+							<X className="h-3 w-3 mr-1" />
+							検索をクリア
+						</Button>
+					</div>
+				</div>
+			)}
+
 			<div className="grid gap-4 w-full">
-				{cattleList.map((cattle) => (
-					<div key={cattle.cattleId}>
+				{cattleList.map((cattle, index) => (
+					<div
+						key={cattle.cattleId}
+						className="animate-fade-in-up hover-lift"
+						style={{ animationDelay: `${index * 0.05}s` }}
+					>
 						<div
-							className="w-full flex items-center justify-between p-3"
+							className="w-full flex items-center justify-between p-3 transition-all duration-200 hover:bg-muted/50 rounded-lg cursor-pointer tap-feedback"
 							onClick={() => handleItemClick(cattle.cattleId)}
 							onKeyDown={() => handleItemClick(cattle.cattleId)}
 						>
 							<div className="flex flex-col gap-4">
 								<div className="flex gap-2">
-									<p className="font-bold">{cattle.name}</p>
-									<Badge variant="outline">
+									<p className="font-bold transition-colors duration-200">
+										{cattle.name}
+									</p>
+									<Badge
+										variant="outline"
+										className="transition-all duration-200 hover:shadow-sm"
+									>
 										<span
-											className={classNames("font-semibold", {
-												"text-blue-500": cattle.gender === "オス",
-												"text-red-500": cattle.gender === "メス",
-											})}
+											className={classNames(
+												"font-semibold transition-colors duration-200",
+												{
+													"text-blue-500": cattle.gender === "オス",
+													"text-red-500": cattle.gender === "メス",
+												},
+											)}
 										>
 											{cattle.gender}
 										</span>
 									</Badge>
-									<Badge variant="default">
+									<Badge
+										variant="default"
+										className="transition-all duration-200 hover:shadow-sm"
+									>
 										{getGrowthStage(cattle.growthStage)}
 									</Badge>
 									{cattle.healthStatus && (
 										<Badge
 											variant="outline"
-											className={classNames({
-												"border-blue-500 text-blue-500":
-													cattle.healthStatus === "健康",
-												"border-yellow-500 text-yellow-500":
-													cattle.healthStatus === "妊娠中",
-												"border-green-500 text-green-500":
-													cattle.healthStatus === "休息中",
-												"border-red-500 text-red-500":
-													cattle.healthStatus === "治療中",
-											})}
+											className={classNames(
+												"transition-all duration-200 hover:shadow-sm",
+												{
+													"border-blue-500 text-blue-500":
+														cattle.healthStatus === "健康",
+													"border-yellow-500 text-yellow-500":
+														cattle.healthStatus === "妊娠中",
+													"border-green-500 text-green-500":
+														cattle.healthStatus === "休息中",
+													"border-red-500 text-red-500":
+														cattle.healthStatus === "治療中",
+												},
+											)}
 										>
 											{cattle.healthStatus}
 										</Badge>
 									)}
 								</div>
-								<div className="flex items-center h-3 gap-2 text-xs">
+								<div className="flex items-center h-3 gap-2 text-xs text-muted-foreground">
 									<div>耳標番号：{cattle.earTagNumber}</div>
 									<Separator orientation="vertical" />
 									<div>
@@ -607,18 +700,18 @@ export function CattleListPresentation({
 									type="button"
 									variant="outline"
 									size="icon"
-									className="text-primary"
+									className="text-primary tap-feedback hover:scale-110 transition-all duration-200"
 									onClick={(e) => {
 										e.stopPropagation();
 										handleAddEvent(cattle.cattleId);
 									}}
 								>
-									<CalendarPlus />
+									<CalendarPlus className="transition-transform duration-200" />
 								</Button>
-								<ChevronRight />
+								<ChevronRight className="transition-transform duration-200 hover:translate-x-1" />
 							</div>
 						</div>
-						<Separator />
+						<Separator className="opacity-50" />
 					</div>
 				))}
 			</div>
