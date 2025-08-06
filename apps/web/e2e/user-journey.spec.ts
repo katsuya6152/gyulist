@@ -31,7 +31,7 @@ test.describe("ユーザージャーニー", () => {
 		// 4. スケジュールページの確認
 		await expect(page.locator("h1")).toContainText("予定");
 		await expect(page.getByRole("button", { name: /今日/ })).toHaveClass(
-			/bg-primary/,
+			/bg-gradient-primary/,
 		);
 
 		// 5. 牛の一覧ページに移動
@@ -74,7 +74,7 @@ test.describe("ユーザージャーニー", () => {
 		// 2. 今日の予定を確認
 		await expect(page.locator("h1")).toContainText("予定");
 		await expect(page.getByRole("button", { name: /今日/ })).toHaveClass(
-			/bg-primary/,
+			/bg-gradient-primary/,
 		);
 
 		// イベント件数の確認
@@ -85,13 +85,13 @@ test.describe("ユーザージャーニー", () => {
 		const tomorrowButton = page.getByRole("button", { name: /明日/ });
 		await tomorrowButton.click();
 		await expect(page).toHaveURL(/filter=tomorrow/);
-		await expect(tomorrowButton).toHaveClass(/bg-primary/);
+		await expect(tomorrowButton).toHaveClass(/bg-gradient-primary/);
 
 		// 4. 全ての予定を確認
 		const allButton = page.getByRole("button", { name: /全て/ });
 		await allButton.click();
 		await expect(page).toHaveURL("/schedule");
-		await expect(allButton).toHaveClass(/bg-primary/);
+		await expect(allButton).toHaveClass(/bg-gradient-primary/);
 
 		// 5. カスタム日付検索を使用
 		await expect(page.locator("text=特定の日付のイベントを表示")).toBeVisible();
@@ -101,8 +101,8 @@ test.describe("ユーザージャーニー", () => {
 		await expect(dateInput).toBeVisible();
 		await dateInput.fill("2024-02-01");
 
-		const searchButton = page.getByRole("button", { name: "検索" });
-		await searchButton.click();
+		const scheduleSearchButton = page.getByRole("button", { name: "検索" });
+		await scheduleSearchButton.click();
 		await expect(page).toHaveURL(/filter=custom&date=2024-02-01/);
 
 		// 6. 牛の管理ページで検索
@@ -110,13 +110,28 @@ test.describe("ユーザージャーニー", () => {
 		await page.waitForURL("/cattle");
 
 		const searchInput = page.locator('input[placeholder="検索..."]');
+		// 牛一覧ページの検索フォーム内の検索ボタンを指定
+		const cattleSearchButton = page
+			.locator('form button[type="submit"]')
+			.first();
+
 		await searchInput.fill("たろう");
-		await page.waitForTimeout(1000);
+		await cattleSearchButton.click();
+
 		await expect(page).toHaveURL(/search=/);
 
 		// 検索をクリア
-		await searchInput.clear();
-		await page.waitForTimeout(1000);
+		const clearSearchButton = page.locator('button:has-text("検索をクリア")');
+		const hasClearSearchButton = await clearSearchButton
+			.isVisible()
+			.catch(() => false);
+
+		if (hasClearSearchButton) {
+			await clearSearchButton.click();
+		} else {
+			await searchInput.clear();
+			await cattleSearchButton.click();
+		}
 	});
 
 	test("モバイル基本操作フロー", async ({ page }) => {

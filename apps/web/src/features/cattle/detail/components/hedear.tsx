@@ -114,7 +114,7 @@ export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 					variant="outline"
 					size="icon"
 					aria-label="イベント登録"
-					className="text-[#00C5CC]"
+					className="text-primary"
 					onClick={handleAddEvent}
 				>
 					<CalendarPlus className="h-4 w-4" />

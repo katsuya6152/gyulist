@@ -143,25 +143,37 @@ const EventCard = memo(
 			<Card
 				key={event.eventId}
 				data-testid="event-item"
-				className="hover:shadow-md transition-shadow relative"
+				className="hover:shadow-lg transition-all duration-200 relative hover-lift"
 			>
 				{/* アクションメニュー */}
 				<div className="absolute top-2 right-2">
 					<DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
 						<DropdownMenuTrigger asChild>
-							<Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-								<MoreHorizontal className="h-4 w-4" />
+							<Button
+								variant="ghost"
+								size="sm"
+								className="h-8 w-8 p-0 tap-feedback hover:scale-110 transition-all duration-200"
+							>
+								<MoreHorizontal className="h-4 w-4 transition-transform duration-200" />
 								<span className="sr-only">メニューを開く</span>
 							</Button>
 						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end" side="bottom" sideOffset={5}>
-							<DropdownMenuItem onClick={handleEdit}>
+						<DropdownMenuContent
+							align="end"
+							side="bottom"
+							sideOffset={5}
+							className="animate-scale-in"
+						>
+							<DropdownMenuItem
+								onClick={handleEdit}
+								className="transition-colors duration-200"
+							>
 								<Edit className="h-4 w-4 mr-2" />
 								編集
 							</DropdownMenuItem>
 							<DropdownMenuItem
 								onClick={handleDelete}
-								className="text-red-600 focus:text-red-600"
+								className="text-red-600 focus:text-red-600 transition-colors duration-200"
 							>
 								<Trash className="h-4 w-4 mr-2" />
 								削除
@@ -175,23 +187,25 @@ const EventCard = memo(
 						<div className="flex items-center gap-3 flex-wrap">
 							<Badge
 								variant="outline"
-								className={
+								className={`transition-all duration-200 hover:shadow-sm ${
 									eventTypeColors[event.eventType] || eventTypeColors.OTHER
-								}
+								}`}
 							>
 								{eventTypeLabels[event.eventType] || event.eventType}
 							</Badge>
-							<span className="text-lg font-medium">{event.cattleName}</span>
+							<span className="text-lg font-medium transition-colors duration-200">
+								{event.cattleName}
+							</span>
 							{event.cattleEarTagNumber && (
-								<span className="text-sm text-gray-500">
+								<span className="text-sm text-gray-500 transition-colors duration-200">
 									({event.cattleEarTagNumber})
 								</span>
 							)}
 						</div>
-						<div className="flex items-center gap-2 text-sm text-gray-600">
-							<Calendar className="h-4 w-4" />
+						<div className="flex items-center gap-2 text-sm text-muted-foreground">
+							<Calendar className="h-4 w-4 transition-transform duration-200" />
 							{formatEventDate(event.eventDatetime)}
-							<Clock className="h-4 w-4 ml-2" />
+							<Clock className="h-4 w-4 ml-2 transition-transform duration-200" />
 							{formatEventTime(event.eventDatetime)}
 						</div>
 					</CardTitle>
@@ -200,7 +214,7 @@ const EventCard = memo(
 					<>
 						<Separator />
 						<CardContent>
-							<div className="text-sm text-gray-700">
+							<div className="text-sm">
 								<span className="font-medium">メモ:</span>
 								<p className="mt-1 whitespace-pre-wrap">{event.notes}</p>
 							</div>
@@ -226,7 +240,7 @@ const EmptyState = memo(({ currentFilter }: { currentFilter: DateFilter }) => (
 						: "該当する日付のイベントがありません"}
 				</h3>
 				<Button asChild variant="outline" size="sm">
-					<Link href="/cattle" className="text-[#00C5CC]">
+					<Link href="/cattle" className="text-primary">
 						<CalendarPlus className="h-4 w-4 mr-1" />
 						牛を選択してイベント追加
 					</Link>
@@ -517,7 +531,7 @@ export function SchedulePresentation({
 					予定
 				</h1>
 				<Button asChild variant="outline" size="sm">
-					<Link href="/cattle" className="text-[#00C5CC]">
+					<Link href="/cattle" className="text-primary">
 						<CalendarPlus className="h-4 w-4 mr-1" />
 						イベント追加
 					</Link>
@@ -532,10 +546,10 @@ export function SchedulePresentation({
 			)}
 
 			{/* 日付フィルターボタン */}
-			<div className="mb-6">
+			<div className="mb-6 animate-fade-in-up">
 				<fieldset className="grid grid-cols-4 gap-2 border-0 p-0 m-0">
 					<legend className="sr-only">日付フィルター</legend>
-					{FILTER_BUTTONS.map((button) => {
+					{FILTER_BUTTONS.map((button, index) => {
 						const date = button.getDate();
 
 						return (
@@ -543,7 +557,8 @@ export function SchedulePresentation({
 								key={button.key}
 								variant={currentFilter === button.key ? "default" : "outline"}
 								onClick={() => handleFilterClick(button.key)}
-								className="h-auto py-3 px-2 flex flex-col items-center gap-1"
+								className="h-auto py-3 px-2 flex flex-col items-center gap-1 tap-feedback hover:scale-105 transition-all duration-200 animate-fade-in"
+								style={{ animationDelay: `${index * 0.1}s` }}
 								aria-pressed={currentFilter === button.key}
 								aria-label={`${button.label}のイベントを表示${date ? ` (${formatFilterDate(date)})` : ""}`}
 							>
@@ -559,7 +574,7 @@ export function SchedulePresentation({
 				</fieldset>
 				{currentFilter !== "custom" && (
 					<output
-						className="text-xs text-gray-500 mt-2 block"
+						className="text-xs text-gray-500 mt-2 block animate-fade-in"
 						aria-live="polite"
 					>
 						{`${currentEvents.length}件のイベントが見つかりました`}
@@ -585,10 +600,7 @@ export function SchedulePresentation({
 							</AccordionTrigger>
 							<AccordionContent className="px-4 pb-4">
 								<div className="space-y-3">
-									<Label
-										htmlFor="date-picker"
-										className="text-sm text-gray-600"
-									>
+									<Label htmlFor="date-picker" className="text-sm">
 										日付を選択してください
 									</Label>
 									<div className="flex gap-2 items-end flex-wrap">
@@ -628,7 +640,7 @@ export function SchedulePresentation({
 			{/* カスタム日付選択時の表示 */}
 			{currentFilter === "custom" && customDate && (
 				<div className="mb-6">
-					<div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
+					<div className="flex items-center gap-2 text-sm flex-wrap">
 						<Calendar className="h-4 w-4" />
 						<span>選択日: {formatEventDate(customDate)}</span>
 						<Button
@@ -652,13 +664,18 @@ export function SchedulePresentation({
 					{currentEvents.length === 0 ? (
 						<EmptyState currentFilter={currentFilter} />
 					) : (
-						currentEvents.map((event) => (
-							<EventCard
+						currentEvents.map((event, index) => (
+							<div
 								key={event.eventId}
-								event={event}
-								onEdit={handleEditEvent}
-								onDelete={handleDeleteEvent}
-							/>
+								className="animate-fade-in-up"
+								style={{ animationDelay: `${index * 0.1}s` }}
+							>
+								<EventCard
+									event={event}
+									onEdit={handleEditEvent}
+									onDelete={handleDeleteEvent}
+								/>
+							</div>
 						))
 					)}
 				</div>
@@ -682,13 +699,18 @@ export function SchedulePresentation({
 														currentFilter={button.key as DateFilter}
 													/>
 												) : (
-													filterEvents.map((event) => (
-														<EventCard
+													filterEvents.map((event, index) => (
+														<div
 															key={event.eventId}
-															event={event}
-															onEdit={handleEditEvent}
-															onDelete={handleDeleteEvent}
-														/>
+															className="animate-fade-in-up"
+															style={{ animationDelay: `${index * 0.1}s` }}
+														>
+															<EventCard
+																event={event}
+																onEdit={handleEditEvent}
+																onDelete={handleDeleteEvent}
+															/>
+														</div>
 													))
 												))}
 										</div>

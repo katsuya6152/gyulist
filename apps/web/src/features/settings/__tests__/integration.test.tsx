@@ -78,6 +78,14 @@ describe("Settings Integration", () => {
 		expect(
 			screen.getByText("アプリケーションの動作に関する設定"),
 		).toBeInTheDocument();
-		expect(screen.getByText("設定項目は今後追加予定です")).toBeInTheDocument();
+
+		// テーマ設定の確認
+		expect(screen.getByText("テーマ")).toBeInTheDocument();
+		expect(
+			screen.getByText("アプリケーションの見た目をカスタマイズします"),
+		).toBeInTheDocument();
+		expect(screen.getByText("ライトモード")).toBeInTheDocument();
+		expect(screen.getByText("ダークモード")).toBeInTheDocument();
+		expect(screen.getByText("システム設定に従う")).toBeInTheDocument();
 	});
 });

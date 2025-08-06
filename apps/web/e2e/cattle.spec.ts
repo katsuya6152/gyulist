@@ -52,8 +52,10 @@ test.describe("牛の管理機能", () => {
 		// 検索文字を入力
 		await searchInput.fill("たろう");
 
-		// 少し待ってからURLを確認（URLエンコーディングを考慮）
-		await page.waitForTimeout(1000);
+		// 検索フォーム内の検索ボタンをクリック（より具体的なセレクター）
+		const searchButton = page.locator('form button[type="submit"]').first();
+		await expect(searchButton).toBeVisible();
+		await searchButton.click();
 
 		// URLに検索パラメータが含まれることを確認（エンコードされた形式）
 		await expect(page).toHaveURL(/search=/);
@@ -62,9 +64,19 @@ test.describe("牛の管理機能", () => {
 		const cattleItems = page.locator(".grid.gap-4 > div");
 		await expect(cattleItems.first()).toBeVisible({ timeout: 5000 });
 
-		// 検索をクリア
-		await searchInput.clear();
-		await page.waitForTimeout(1000);
+		// 検索をクリア（「検索をクリア」ボタンを優先的に使用）
+		const clearSearchButton = page.locator('button:has-text("検索をクリア")');
+		const hasClearSearchButton = await clearSearchButton
+			.isVisible()
+			.catch(() => false);
+
+		if (hasClearSearchButton) {
+			await clearSearchButton.click();
+		} else {
+			// フォールバック: 入力フィールドをクリアして再検索
+			await searchInput.clear();
+			await searchButton.click();
+		}
 
 		// 全ての牛が再表示されることを確認
 		await expect(cattleItems.first()).toBeVisible();

@@ -44,11 +44,15 @@ export default function LoginPage() {
 	};
 
 	return (
-		<div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-			<div className="w-full max-w-sm">
+		<div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10 bg-gradient-to-br from-background to-muted/30 animate-fade-in">
+			<div className="w-full max-w-sm animate-fade-in-up">
 				<div className={cn("flex flex-col gap-6")}>
-					<Card>
-						<CardHeader>
+					<Card
+						variant="gradient"
+						animation="scale"
+						className="shadow-xl hover:shadow-2xl"
+					>
+						<CardHeader className="text-center">
 							<CardTitle className="text-2xl">ログイン</CardTitle>
 							<CardDescription>
 								登録したメールアドレスとパスワードを入力してください。
@@ -64,6 +68,7 @@ export default function LoginPage() {
 										name="email"
 										placeholder="m@example.com"
 										required
+										className="transition-all duration-200 focus:shadow-md"
 									/>
 								</div>
 								<div className="grid gap-2">
@@ -82,14 +87,20 @@ export default function LoginPage() {
 										name="password"
 										placeholder="6文字以上のパスワード"
 										required
+										className="transition-all duration-200 focus:shadow-md"
 									/>
 								</div>
 								{state && !state.success && (
-									<div className="text-red-500 text-xs text-center">
+									<div className="text-red-500 text-xs text-center animate-fade-in bg-red-50 p-3 rounded-md border border-red-200">
 										{state.message}
 									</div>
 								)}
-								<Button type="submit" className="w-full" disabled={isPending}>
+								<Button
+									type="submit"
+									className="w-full"
+									disabled={isPending}
+									variant="default"
+								>
 									{isPending ? "送信中..." : "ログイン"}
 								</Button>
 								<Button variant="outline" className="w-full" disabled>
@@ -97,7 +108,10 @@ export default function LoginPage() {
 								</Button>
 								<div className="mt-4 text-center text-sm">
 									会員登録がお済みでない方は
-									<a href="/register" className="underline underline-offset-4">
+									<a
+										href="/register"
+										className="underline underline-offset-4 hover:text-primary transition-colors duration-200"
+									>
 										こちら
 									</a>
 								</div>
@@ -105,8 +119,9 @@ export default function LoginPage() {
 								<Button
 									type="button"
 									onClick={handleDemoLogin}
-									className="w-full bg-green-500 font-bold mt-2"
+									className="w-full font-bold mt-2"
 									disabled={isPending}
+									variant="success"
 								>
 									体験用アカウントでログイン
 								</Button>
