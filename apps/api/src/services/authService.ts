@@ -96,6 +96,15 @@ export async function login(
 		};
 	}
 
+	// OAuth users don't have passwords
+	if (!user.passwordHash) {
+		return {
+			success: false,
+			message:
+				"メールアドレスまたはパスワードもしくはログイン方法が正しくありません",
+		};
+	}
+
 	const valid = await verifyPassword(input.password, user.passwordHash);
 	if (!valid) {
 		return {

@@ -3,7 +3,7 @@ CREATE TABLE `__new_users` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`userName` text DEFAULT '仮登録ユーザー',
 	`email` text NOT NULL,
-	`passwordHash` text NOT NULL,
+	`passwordHash` text,
 	`is_verified` integer DEFAULT false,
 	`verification_token` text,
 	`createdAt` text DEFAULT (CURRENT_TIMESTAMP),

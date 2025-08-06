@@ -1,20 +1,22 @@
 import type { Hono } from "hono";
 import { corsMiddleware } from "../middleware/cors";
 import type { Bindings } from "../types";
-import auth from "./auth";
-import cattle from "./cattle";
-import events from "./events";
-import health from "./health";
-import users from "./users";
+import authRoutes from "./auth";
+import cattleRoutes from "./cattle";
+import eventsRoutes from "./events";
+import healthRoutes from "./health";
+import oauthRoutes from "./oauth";
+import usersRoutes from "./users";
 
 // biome-ignore format:
 export const createRoutes = (app: Hono<{ Bindings: Bindings }>) => {
 	return app
 		.basePath("/api/v1")
 		.use("*", corsMiddleware)
-		.route("/", health)
-		.route("/auth", auth)
-		.route("/users", users)
-		.route("/cattle", cattle)
-		.route("/events", events);
+		.route("/", healthRoutes)
+		.route("/auth", authRoutes)
+		.route("/oauth", oauthRoutes)
+		.route("/users", usersRoutes)
+		.route("/cattle", cattleRoutes)
+		.route("/events", eventsRoutes);
 };

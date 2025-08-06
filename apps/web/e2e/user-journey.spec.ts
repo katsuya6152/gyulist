@@ -24,7 +24,9 @@ test.describe("ユーザージャーニー", () => {
 		await expect(page.locator('[class*="text-2xl"]')).toContainText("ログイン");
 
 		// 3. デモログインを実行
-		await page.click("text=体験用アカウントでログイン");
+		const demoLoginButton = page.getByTestId("demo-login-button");
+		await expect(demoLoginButton).toBeVisible();
+		await demoLoginButton.click();
 		await page.waitForLoadState("networkidle", { timeout: 30000 });
 		await page.waitForURL("/schedule?filter=today", { timeout: 15000 });
 
@@ -67,7 +69,9 @@ test.describe("ユーザージャーニー", () => {
 	test("日常的な使用フロー", async ({ page }) => {
 		// 1. デモログインで開始
 		await page.goto("/login");
-		await page.click("text=体験用アカウントでログイン");
+		const demoLoginButton = page.getByTestId("demo-login-button");
+		await expect(demoLoginButton).toBeVisible();
+		await demoLoginButton.click();
 		await page.waitForLoadState("networkidle", { timeout: 30000 });
 		await page.waitForURL("/schedule?filter=today", { timeout: 15000 });
 
@@ -140,7 +144,9 @@ test.describe("ユーザージャーニー", () => {
 
 		// 1. デモログインで開始
 		await page.goto("/login");
-		await page.click("text=体験用アカウントでログイン");
+		const demoLoginButton = page.getByTestId("demo-login-button");
+		await expect(demoLoginButton).toBeVisible();
+		await demoLoginButton.click();
 		await page.waitForLoadState("networkidle", { timeout: 30000 });
 		await page.waitForURL("/schedule?filter=today", { timeout: 15000 });
 
