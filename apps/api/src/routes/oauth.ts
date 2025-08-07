@@ -29,7 +29,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 			setCookie(c, "google_oauth_state", state, {
 				httpOnly: true,
 				secure: isProduction,
-				sameSite: "Lax",
+				sameSite: isProduction ? "None" : "Lax",
 				maxAge: 600,
 				path: "/",
 			});
@@ -37,7 +37,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 			setCookie(c, "google_oauth_code_verifier", codeVerifier, {
 				httpOnly: true,
 				secure: isProduction,
-				sameSite: "Lax",
+				sameSite: isProduction ? "None" : "Lax",
 				maxAge: 600,
 				path: "/",
 			});
