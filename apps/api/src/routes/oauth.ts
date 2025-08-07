@@ -225,25 +225,15 @@ const app = new Hono<{ Bindings: Bindings }>()
 			const signature = btoa(`oauth-session-${sessionToken}`); // 簡易署名
 			const jwtToken = `${header}.${payload}.${signature}`;
 
-			// JWTトークンをCookieに設定
-			setCookie(c, "token", jwtToken, {
-				httpOnly: true,
-				secure: isProduction,
-				sameSite: "Lax",
-				expires: session.expiresAt,
-				path: "/",
-				domain: isProduction ? "gyulist.com" : undefined,
-			});
-
 			// OAuth用クッキーをクリア
 			deleteCookie(c, "google_oauth_state", { path: "/" });
 			deleteCookie(c, "google_oauth_code_verifier", { path: "/" });
 
-			// フロントエンドにリダイレクト
+			// フロントエンドにトークンをURLパラメータで渡してリダイレクト
 			const frontendUrl = isProduction
 				? "https://gyulist.com"
 				: "http://localhost:3000";
-			const redirectUrl = `${frontendUrl}/schedule?filter=today`;
+			const redirectUrl = `${frontendUrl}/auth/callback?token=${encodeURIComponent(jwtToken)}`;
 
 			return c.redirect(redirectUrl);
 		} catch (error) {
