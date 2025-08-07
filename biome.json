@@ -7,7 +7,14 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": [".next", "dist", ".wrangler", ".vercel", "coverage"]
+		"ignore": [
+			".next",
+			"dist",
+			".wrangler",
+			".vercel",
+			"coverage",
+			"playwright-report"
+		]
 	},
 	"formatter": {
 		"enabled": true,

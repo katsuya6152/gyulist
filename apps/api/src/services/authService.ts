@@ -96,7 +96,15 @@ export async function login(
 		};
 	}
 
-	// OAuth users don't have passwords
+	// OAuth users have dummy password hashes starting with "oauth_dummy_"
+	if (user.passwordHash?.startsWith("oauth_dummy_")) {
+		return {
+			success: false,
+			message: "このアカウントはGoogleログインでご利用ください",
+		};
+	}
+
+	// Legacy check for null password hash (if any still exist)
 	if (!user.passwordHash) {
 		return {
 			success: false,
