@@ -209,11 +209,12 @@ const app = new Hono<{ Bindings: Bindings }>()
 
 			// JWTトークンをCookieに設定
 			setCookie(c, "token", jwtToken, {
-				httpOnly: false, // フロントエンドからアクセス可能にする
+				httpOnly: true,
 				secure: isProduction,
-				sameSite: isProduction ? "None" : "Lax",
+				sameSite: "Lax",
 				expires: session.expiresAt,
 				path: "/",
+				domain: isProduction ? "gyulist.com" : undefined,
 			});
 
 			// OAuth用クッキーをクリア
@@ -221,10 +222,9 @@ const app = new Hono<{ Bindings: Bindings }>()
 			deleteCookie(c, "google_oauth_code_verifier", { path: "/" });
 
 			// フロントエンドにリダイレクト
-			const frontendUrl =
-				c.env.ENVIRONMENT === "production"
-					? "https://gyulist.pages.dev"
-					: "http://localhost:3000";
+			const frontendUrl = isProduction
+				? "https://gyulist.com"
+				: "http://localhost:3000";
 			const redirectUrl = `${frontendUrl}/schedule?filter=today`;
 
 			return c.redirect(redirectUrl);
