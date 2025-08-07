@@ -211,10 +211,9 @@ const app = new Hono<{ Bindings: Bindings }>()
 			setCookie(c, "token", jwtToken, {
 				httpOnly: false, // フロントエンドからアクセス可能にする
 				secure: isProduction,
-				sameSite: "Lax",
+				sameSite: isProduction ? "None" : "Lax",
 				expires: session.expiresAt,
 				path: "/",
-				domain: isProduction ? ".pages.dev" : "localhost",
 			});
 
 			// OAuth用クッキーをクリア
