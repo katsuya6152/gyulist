@@ -23,3 +23,15 @@ export async function signToken(
 		secret,
 	);
 }
+
+/**
+ * OAuthユーザー用のダミーパスワードハッシュを生成
+ * 実際のパスワードではないことを明確にするためのプレフィックス付き
+ */
+export function generateOAuthDummyPasswordHash(): string {
+	const randomBytes = crypto.getRandomValues(new Uint8Array(32));
+	const randomString = Array.from(randomBytes, (byte) =>
+		byte.toString(16).padStart(2, "0"),
+	).join("");
+	return `oauth_dummy_${randomString}`;
+}

@@ -4,6 +4,7 @@ import { drizzle } from "drizzle-orm/d1";
 import { Hono } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { users } from "../db/schema";
+import { generateOAuthDummyPasswordHash } from "../lib/auth";
 import { type GoogleUser, createGoogleOAuth } from "../lib/oauth";
 import { createSession, generateSessionToken } from "../lib/session";
 import type { Bindings } from "../types";
@@ -174,7 +175,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 					.values({
 						userName: googleUser.name,
 						email: googleUser.email,
-						passwordHash: null, // OAuth ユーザーはパスワードハッシュなし
+						passwordHash: generateOAuthDummyPasswordHash(), // OAuth ユーザーはダミーハッシュを設定
 						googleId: googleUser.id,
 						oauthProvider: "google",
 						avatarUrl: googleUser.picture,
