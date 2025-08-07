@@ -15,6 +15,7 @@ export default defineConfig({
 				"**/*.d.ts",
 				"src/db/migrations/**",
 				"src/db/dummy/**",
+				".wrangler/**",
 			],
 			// thresholds: {
 			// 	statements: 80,

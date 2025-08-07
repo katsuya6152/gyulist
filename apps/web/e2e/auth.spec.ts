@@ -15,10 +15,11 @@ test.describe("認証機能", () => {
 		await page.goto("/login");
 
 		// デモログインボタンが表示されることを確認
-		await expect(page.locator("text=体験用アカウントでログイン")).toBeVisible();
+		const demoLoginButton = page.getByTestId("demo-login-button");
+		await expect(demoLoginButton).toBeVisible();
 
 		// デモログインボタンをクリック
-		await page.click("text=体験用アカウントでログイン");
+		await demoLoginButton.click();
 
 		// ログイン処理の完了を待つ
 		await page.waitForLoadState("networkidle", { timeout: 30000 });
@@ -45,13 +46,15 @@ test.describe("認証機能", () => {
 		await expect(page.locator('input[name="email"]')).toBeVisible();
 		await expect(page.locator('input[name="password"]')).toBeVisible();
 		await expect(page.locator('button[type="submit"]')).toBeVisible();
-		await expect(page.locator("text=体験用アカウントでログイン")).toBeVisible();
+		await expect(page.getByTestId("demo-login-button")).toBeVisible();
 	});
 
 	test("ログアウトフロー", async ({ page }) => {
 		// まずデモログインを実行
 		await page.goto("/login");
-		await page.click("text=体験用アカウントでログイン");
+		const demoLoginButton = page.getByTestId("demo-login-button");
+		await expect(demoLoginButton).toBeVisible();
+		await demoLoginButton.click();
 		await page.waitForLoadState("networkidle", { timeout: 30000 });
 		await page.waitForURL("/schedule?filter=today", { timeout: 15000 });
 

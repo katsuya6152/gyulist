@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test.describe("スケジュール機能", () => {
 	test.beforeEach(async ({ page }) => {
-		// 各テスト前にログイン状態にする
+		// 各テスト前にログアウト状態にする
 		await page.goto("/");
 		await page.evaluate(() => {
 			localStorage.clear();
@@ -12,7 +12,9 @@ test.describe("スケジュール機能", () => {
 
 		// デモログイン
 		await page.goto("/login");
-		await page.click("text=体験用アカウントでログイン");
+		const demoLoginButton = page.getByTestId("demo-login-button");
+		await expect(demoLoginButton).toBeVisible();
+		await demoLoginButton.click();
 		await page.waitForLoadState("networkidle", { timeout: 30000 });
 		await page.waitForURL("/schedule?filter=today", { timeout: 15000 });
 	});
