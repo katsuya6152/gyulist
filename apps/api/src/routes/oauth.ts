@@ -61,9 +61,27 @@ const app = new Hono<{ Bindings: Bindings }>()
 		const code = url.searchParams.get("code");
 		const state = url.searchParams.get("state");
 
+		console.log("=== OAuth Callback Debug ===");
+		console.log("URL:", c.req.url);
+		console.log("Code present:", !!code);
+		console.log("State present:", !!state);
+		console.log("State value:", state);
+
 		// Honoの組み込みCookie取得を使用
 		const storedState = getCookie(c, "google_oauth_state");
 		const storedCodeVerifier = getCookie(c, "google_oauth_code_verifier");
+
+		console.log("Stored state present:", !!storedState);
+		console.log("Stored code verifier present:", !!storedCodeVerifier);
+		console.log("Stored state value:", storedState);
+		console.log(
+			"All cookies:",
+			Object.fromEntries(
+				Object.entries(c.req.header()).filter(
+					([key]) => key.toLowerCase() === "cookie",
+				),
+			),
+		);
 
 		if (!code || !state || !storedState || !storedCodeVerifier) {
 			console.error("Missing required parameters:", {
