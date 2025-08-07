@@ -1,9 +1,9 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 
-export default function AuthCallbackPage() {
+function AuthCallbackContent() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 
@@ -37,5 +37,22 @@ export default function AuthCallbackPage() {
 				<p>ログイン処理中...</p>
 			</div>
 		</div>
+	);
+}
+
+export default function AuthCallbackPage() {
+	return (
+		<Suspense
+			fallback={
+				<div className="flex min-h-screen items-center justify-center">
+					<div className="text-center">
+						<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4" />
+						<p>読み込み中...</p>
+					</div>
+				</div>
+			}
+		>
+			<AuthCallbackContent />
+		</Suspense>
 	);
 }
