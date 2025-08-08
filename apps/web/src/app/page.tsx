@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 export default function Home() {
 	const [email, setEmail] = useState("");
 	const [isStickyVisible, setStickyVisible] = useState(false);
-	const [announceOpen, setAnnounceOpen] = useState(true);
+	// const [announceOpen, setAnnounceOpen] = useState(true);
 
 	useEffect(() => {
 		// 構造化データをheadに追加
@@ -57,7 +57,7 @@ export default function Home() {
 						<div className="container mx-auto px-4 h-10 flex items-center justify-between">
 							<p className="truncate">
 								現在 <strong>プレリリース</strong> です.
-								<Link href="/demo" className="underline font-semibold ml-2">
+								<Link href="/login" className="underline font-semibold ml-2">
 									デモで体験
 								</Link>{" "}
 								/{" "}
@@ -82,8 +82,12 @@ export default function Home() {
 						className="flex items-center gap-2"
 						aria-label="ギュウリスト ホームへ"
 					>
-						<Image src="/logo.svg" alt="ギュウリスト" width={28} height={28} />
-						<span className="font-bold tracking-tight">GyuList</span>
+						<Image
+							src="/icon-horizontal.png"
+							alt="ギュウリスト"
+							width={96}
+							height={96}
+						/>
 					</Link>
 					<nav className="hidden md:flex items-center gap-6 text-sm">
 						<Link href="#features" className="hover:opacity-80">
@@ -99,15 +103,15 @@ export default function Home() {
 							FAQ
 						</Link>
 						<Link
-							href="/demo"
-							className="inline-flex items-center gap-2 border border-blue-600 text-blue-700 px-4 py-2 rounded-full font-semibold hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
+							href="/login"
+							className="inline-flex items-center gap-2 border border-primary text-primary px-4 py-2 rounded-full font-semibold hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
 							data-cta="header-demo"
 						>
 							デモ
 						</Link>
 						<Link
 							href="#waitlist"
-							className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-full font-semibold hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-blue-400"
+							className="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-full font-semibold hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-blue-400"
 							data-cta="header-waitlist"
 						>
 							事前登録
@@ -115,15 +119,15 @@ export default function Home() {
 					</nav>
 					<div className="md:hidden flex items-center gap-2">
 						<Link
-							href="/demo"
-							className="inline-flex items-center border border-blue-600 text-blue-700 px-3 py-1.5 rounded-full text-sm font-semibold"
+							href="/login"
+							className="inline-flex items-center border border-primary text-primary px-3 py-1.5 rounded-full text-sm font-semibold"
 							data-cta="header-demo-mobile"
 						>
 							デモ
 						</Link>
 						<Link
 							href="#waitlist"
-							className="inline-flex items-center bg-blue-600 text-white px-3 py-1.5 rounded-full text-sm font-semibold"
+							className="inline-flex items-center bg-primary text-white px-3 py-1.5 rounded-full text-sm font-semibold"
 							data-cta="header-waitlist-mobile"
 						>
 							登録
@@ -142,7 +146,7 @@ export default function Home() {
 								alt="牧場の風景"
 								fill
 								priority
-								className="object-cover opacity-30"
+								className="object-cover opacity-70"
 							/>
 						</div>
 						<div className="md:hidden">
@@ -151,7 +155,7 @@ export default function Home() {
 								alt="牧場の風景"
 								fill
 								priority
-								className="object-cover opacity-30"
+								className="object-cover opacity-70"
 							/>
 						</div>
 						<div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/70 to-white" />
@@ -177,15 +181,15 @@ export default function Home() {
 								{/* ヒーローCTA：デモ / 事前登録 */}
 								<div className="flex flex-low gap-3 sm:items-center justify-center md:justify-start max-w-xl mx-auto md:mx-0">
 									<Link
-										href="/demo"
-										className="inline-flex justify-center items-center bg-gray-900 text-white px-6 py-3 rounded-full font-semibold tracking-wide hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400"
+										href="/login"
+										className="inline-flex justify-center items-center border border-primary text-primary px-6 py-3 rounded-full font-semibold tracking-wide hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400"
 										data-cta="hero-demo"
 									>
 										デモを触ってみる
 									</Link>
 									<Link
 										href="#waitlist"
-										className="inline-flex justify-center items-center bg-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400"
+										className="inline-flex justify-center items-center bg-primary text-white px-6 py-3 rounded-full font-semibold hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400"
 										data-cta="hero-waitlist"
 									>
 										事前登録
@@ -234,13 +238,13 @@ export default function Home() {
 							</div>
 						</div>
 
-						<div className="relative aspect-[4/3] md:aspect-[5/4] w-full rounded-2xl shadow-lg ring-1 ring-black/5 overflow-hidden motion-safe:animate-[fadeIn_700ms_ease_1_100ms]">
+						<div className="relative aspect-[4/3] md:aspect-[5/4] w-full h-full rounded-2xl shadow-lg ring-1 ring-black/5 overflow-hidden motion-safe:animate-[fadeIn_700ms_ease_1_100ms]">
 							<Image
 								src="/app-shot.png"
-								alt="ギュウリストの管理画面"
-								fill
-								className="object-cover"
+								alt="ギュウリストの画面"
+								className="object-contain"
 								priority
+								fill
 							/>
 						</div>
 					</div>
@@ -267,7 +271,7 @@ export default function Home() {
 							<div className="mt-6 text-center">
 								<Link
 									href="#waitlist"
-									className="inline-flex items-center justify-center bg-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-blue-400"
+									className="inline-flex items-center justify-center bg-primary text-white px-6 py-3 rounded-full font-semibold hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-blue-400"
 									data-cta="perks-waitlist"
 								>
 									事前登録する
@@ -365,7 +369,7 @@ export default function Home() {
 										紙の台帳から置き換え、分娩予定の把握と記録の共有が楽になりました。新人にも引き継ぎやすいです。
 									</blockquote>
 									<figcaption className="mt-4 flex items-center gap-3">
-										<div className="relative w-10 h-10 rounded-full overflow-hidden">
+										{/* <div className="relative w-10 h-10 rounded-full overflow-hidden">
 											<Image
 												src={`/avatars/farmer-${i}.jpg`}
 												alt="ユーザー"
@@ -373,7 +377,7 @@ export default function Home() {
 												className="object-cover"
 												loading="lazy"
 											/>
-										</div>
+										</div> */}
 										<div>
 											<div className="text-sm font-semibold">
 												牧場オーナー Aさん
@@ -428,7 +432,7 @@ export default function Home() {
 									key={p.name}
 									className={`rounded-2xl p-6 shadow-sm ring-1 ring-gray-100 bg-white ${
 										p.name === "アーリーアクセス"
-											? "border-2 border-blue-600"
+											? "border-2 border-primary"
 											: ""
 									}`}
 								>
@@ -444,7 +448,7 @@ export default function Home() {
 									</ul>
 									{p.name === "フリーデモ" && (
 										<Link
-											href="/demo"
+											href="/login"
 											className="mt-6 inline-flex justify-center items-center w-full px-4 py-2.5 rounded-full font-semibold bg-gray-900 text-white hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-blue-400"
 											data-cta={`pricing-${p.name}`}
 										>
@@ -454,7 +458,7 @@ export default function Home() {
 									{p.name === "アーリーアクセス" && (
 										<Link
 											href="#waitlist"
-											className="mt-6 inline-flex justify-center items-center w-full px-4 py-2.5 rounded-full font-semibold bg-blue-600 text-white hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-blue-400"
+											className="mt-6 inline-flex justify-center items-center w-full px-4 py-2.5 rounded-full font-semibold bg-primary text-white hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-blue-400"
 											data-cta={`pricing-${p.name}`}
 										>
 											事前登録する
@@ -552,7 +556,7 @@ export default function Home() {
 								/>
 								<button
 									type="submit"
-									className="inline-flex justify-center items-center bg-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400"
+									className="inline-flex justify-center items-center bg-primary text-white px-6 py-3 rounded-full font-semibold hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400"
 									data-cta="waitlist-submit"
 								>
 									登録する
@@ -577,7 +581,7 @@ export default function Home() {
 						</p>
 						<div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
 							<Link
-								href="/demo"
+								href="/login"
 								className="inline-flex items-center justify-center bg-white text-blue-700 px-6 py-3 rounded-full font-semibold hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/70"
 								data-cta="bottom-cta-demo"
 							>
@@ -605,15 +609,15 @@ export default function Home() {
 				<div className="mx-3 mb-3 rounded-2xl shadow-lg bg-white ring-1 ring-gray-200 p-2">
 					<div className="flex items-center gap-2">
 						<Link
-							href="/demo"
-							className="flex-1 px-4 py-3 rounded-xl bg-gray-900 text-white text-center font-semibold"
+							href="/login"
+							className="flex-1 px-4 py-3 rounded-xl border border-primary text-primary text-center font-semibold"
 							data-cta="sticky-demo"
 						>
 							デモ
 						</Link>
 						<Link
 							href="#waitlist"
-							className="flex-1 px-4 py-3 rounded-xl bg-blue-600 text-white text-center font-semibold"
+							className="flex-1 px-4 py-3 rounded-xl bg-primary text-white text-center font-semibold"
 							data-cta="sticky-waitlist"
 						>
 							事前登録
@@ -627,18 +631,17 @@ export default function Home() {
 					<div>
 						<div className="flex items-center gap-2">
 							<Image
-								src="/logo.svg"
+								src="/icon-horizontal.png"
 								alt="ギュウリスト"
-								width={24}
-								height={24}
+								width={96}
+								height={96}
 							/>
-							<span className="font-semibold">GyuList</span>
 						</div>
 						<p className="mt-3 text-gray-400">
 							畜産管理をもっとスマートに。現場と経営をつなぐクラウド。
 						</p>
 					</div>
-					<div>
+					{/* <div>
 						<div className="font-semibold text-white">製品</div>
 						<ul className="mt-3 space-y-2">
 							<li>
@@ -692,7 +695,7 @@ export default function Home() {
 								</Link>
 							</li>
 						</ul>
-					</div>
+					</div> */}
 				</div>
 				<div className="border-t border-white/10">
 					<div className="container mx-auto px-4 py-6 flex items-center justify-between text-xs text-gray-400">

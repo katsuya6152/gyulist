@@ -178,7 +178,7 @@ export default function LoginPage() {
 									type="button"
 									data-testid="demo-login-button"
 								>
-									体験用アカウントでログイン
+									デモ用アカウントでログイン
 								</Button>
 							</form>
 							<div className="mt-4 text-center text-sm">
