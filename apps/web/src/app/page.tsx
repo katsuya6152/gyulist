@@ -568,35 +568,6 @@ export default function Home() {
 						</div>
 					</div>
 				</section>
-
-				{/* 最終CTA */}
-				<section className="py-16 md:py-20 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-center">
-					<div className="container mx-auto px-4">
-						<h2 className="text-2xl md:text-3xl font-extrabold">
-							新しい牛の個体管理を、今すぐ。
-						</h2>
-						<p className="mt-2 text-white/90">
-							まずは <strong>デモで体験</strong>、次に <strong>事前登録</strong>{" "}
-							で先行案内を。
-						</p>
-						<div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-							<Link
-								href="/login"
-								className="inline-flex items-center justify-center bg-white text-blue-700 px-6 py-3 rounded-full font-semibold hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/70"
-								data-cta="bottom-cta-demo"
-							>
-								デモを見る（約1分）
-							</Link>
-							<Link
-								href="#waitlist"
-								className="inline-flex items-center justify-center border-2 border-white px-6 py-3 rounded-full font-semibold hover:bg-white hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/70"
-								data-cta="bottom-cta-waitlist"
-							>
-								事前登録する（先行特典）
-							</Link>
-						</div>
-					</div>
-				</section>
 			</main>
 
 			{/* モバイル固定CTAバー */}
