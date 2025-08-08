@@ -14,12 +14,10 @@ test.describe("ユーザージャーニー", () => {
 	test("新規ユーザーの完全なフロー", async ({ page }) => {
 		// 1. ランディングページから開始
 		await page.goto("/");
-		await expect(page.locator("h1")).toContainText(
-			"畜産管理を、もっとスマートに",
-		);
+		await expect(page.locator("h1")).toContainText("畜産経営をデータで支える");
 
 		// 2. ログインページへ移動
-		await page.click("text=無料で始める");
+		await page.click("text=デモを触ってみる");
 		await page.waitForURL("/login");
 		await expect(page.locator('[class*="text-2xl"]')).toContainText("ログイン");
 
