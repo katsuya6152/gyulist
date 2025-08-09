@@ -13,6 +13,7 @@ import type {
 	SearchEventQuery,
 	UpdateEventInput,
 } from "../validators/eventValidator";
+import { updateStatus } from "./cattleService";
 
 // イベント一覧取得（牛IDでフィルタ）
 export async function getEventsByCattleId(
@@ -65,6 +66,13 @@ export async function createNewEvent(
 
 	// イベント作成
 	const newEvent = await createEvent(db, data);
+
+	// ステータス更新
+	if (data.eventType === "SHIPMENT") {
+		await updateStatus(db, data.cattleId, "SHIPPED", ownerUserId);
+	} else if (data.eventType === "CALVING") {
+		await updateStatus(db, data.cattleId, "RESTING", ownerUserId);
+	}
 
 	// 作成されたイベントの詳細を取得して返す
 	return await findEventById(db, newEvent.eventId, ownerUserId);

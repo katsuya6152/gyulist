@@ -39,8 +39,10 @@ export const cattle = sqliteTable("cattle", {
 	score: integer("score", { mode: "number" }),
 	// 品種
 	breed: text("breed"),
-	// 健康状態
-	healthStatus: text("healthStatus"),
+	// ステータス
+	status: text("status", {
+		enum: ["HEALTHY", "PREGNANT", "RESTING", "TREATING", "SHIPPED", "DEAD"],
+	}),
 	// 生産者
 	producerName: text("producerName"),
 	// 牛舎
@@ -194,4 +196,27 @@ export const events = sqliteTable("events", {
 	// 登録日時・更新日時
 	createdAt: text().default(sql`(datetime('now', 'utc'))`),
 	updatedAt: text().default(sql`(datetime('now', 'utc'))`),
+});
+
+/**
+ * ステータス履歴
+ */
+export const cattleStatusHistory = sqliteTable("cattle_status_history", {
+	historyId: integer("historyId", { mode: "number" }).primaryKey({
+		autoIncrement: true,
+	}),
+	cattleId: integer("cattleId", { mode: "number" })
+		.references(() => cattle.cattleId)
+		.notNull(),
+	oldStatus: text("oldStatus", {
+		enum: ["HEALTHY", "PREGNANT", "RESTING", "TREATING", "SHIPPED", "DEAD"],
+	}),
+	newStatus: text("newStatus", {
+		enum: ["HEALTHY", "PREGNANT", "RESTING", "TREATING", "SHIPPED", "DEAD"],
+	}).notNull(),
+	changedAt: text().default(sql`(datetime('now', 'utc'))`),
+	changedBy: integer("changedBy", { mode: "number" })
+		.references(() => users.id)
+		.notNull(),
+	reason: text("reason"),
 });

@@ -101,6 +101,20 @@ export const createCattleSchema = z.object({
 // 更新用のスキーマ
 export const updateCattleSchema = createCattleSchema.partial();
 
+export const updateStatusSchema = z.object({
+	status: z.enum([
+		"HEALTHY",
+		"PREGNANT",
+		"RESTING",
+		"TREATING",
+		"SHIPPED",
+		"DEAD",
+	]),
+	reason: z.string().nullable().optional(),
+});
+
+export type UpdateStatusInput = z.infer<typeof updateStatusSchema>;
+
 export type Cattle = typeof cattle.$inferSelect;
 export type Bloodline = typeof bloodline.$inferSelect;
 export type BreedingStatus = typeof breedingStatus.$inferSelect;

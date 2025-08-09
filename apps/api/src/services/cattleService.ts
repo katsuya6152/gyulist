@@ -7,6 +7,7 @@ import {
 	createBreedingStatus,
 	createBreedingSummary,
 	createCattle,
+	createStatusHistory,
 	deleteCattle,
 	findCattleById,
 	searchCattle,
@@ -14,6 +15,7 @@ import {
 	updateBreedingStatus,
 	updateBreedingSummary,
 	updateCattle,
+	updateCattleStatus,
 } from "../repositories/cattleRepository";
 import { calculateAge } from "../utils/date";
 import type {
@@ -257,6 +259,36 @@ export async function updateCattleData(
 	}
 
 	return cattle;
+}
+
+const FINAL_STATUSES = ["SHIPPED", "DEAD"] as const;
+
+export async function updateStatus(
+	db: AnyD1Database,
+	cattleId: number,
+	newStatus: string,
+	changedBy: number,
+	reason?: string,
+) {
+	const current = await findCattleById(db, cattleId);
+	if (!current) {
+		throw new Error("牛が見つかりません");
+	}
+	if (
+		current.status &&
+		FINAL_STATUSES.includes(current.status as (typeof FINAL_STATUSES)[number])
+	) {
+		throw new Error("現在のステータスでは変更できません");
+	}
+	await updateCattleStatus(db, cattleId, newStatus);
+	await createStatusHistory(db, {
+		cattleId,
+		oldStatus: current.status ?? null,
+		newStatus,
+		changedBy,
+		reason: reason ?? null,
+	});
+	return { ...current, status: newStatus };
 }
 
 export async function deleteCattleData(db: AnyD1Database, cattleId: number) {

@@ -7,6 +7,7 @@ import {
 	breedingStatus,
 	breedingSummary,
 	cattle,
+	cattleStatusHistory,
 	motherInfo,
 } from "../db/schema";
 import type {
@@ -336,6 +337,44 @@ export async function updateBreedingSummary(
 
 	// 新規作成
 	return await createBreedingSummary(db, cattleId, breedingSummaryData);
+}
+
+export async function updateCattleStatus(
+	db: AnyD1Database,
+	cattleId: number,
+	status: string,
+) {
+	const dbInstance = drizzle(db);
+	const result = await dbInstance
+		.update(cattle)
+		.set({ status, updatedAt: new Date().toISOString() })
+		.where(eq(cattle.cattleId, cattleId))
+		.returning();
+	return result[0];
+}
+
+export async function createStatusHistory(
+	db: AnyD1Database,
+	data: {
+		cattleId: number;
+		oldStatus: string | null;
+		newStatus: string;
+		changedBy: number;
+		reason?: string | null;
+	},
+) {
+	const dbInstance = drizzle(db);
+	const result = await dbInstance
+		.insert(cattleStatusHistory)
+		.values({
+			cattleId: data.cattleId,
+			oldStatus: data.oldStatus,
+			newStatus: data.newStatus,
+			changedBy: data.changedBy,
+			reason: data.reason ?? null,
+		})
+		.returning();
+	return result[0];
 }
 
 export async function deleteCattle(db: AnyD1Database, cattleId: number) {
