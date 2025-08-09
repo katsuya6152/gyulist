@@ -11,6 +11,7 @@ import {
 	searchEventList,
 	updateEventData,
 } from "../../../src/services/eventService";
+import * as statusService from "../../../src/services/statusService";
 import type {
 	CreateEventInput,
 	SearchEventQuery,
@@ -27,9 +28,11 @@ import {
 // Mock the repository modules
 vi.mock("../../../src/repositories/cattleRepository");
 vi.mock("../../../src/repositories/eventRepository");
+vi.mock("../../../src/services/statusService");
 
 const mockEventRepository = vi.mocked(eventRepository);
 const mockCattleRepository = vi.mocked(cattleRepository);
+const mockStatusService = vi.mocked(statusService);
 
 type EventType = InferSelectModel<typeof events>;
 type CattleType = InferSelectModel<typeof cattle>;
@@ -180,6 +183,33 @@ describe("EventService", () => {
 			expect(result).toEqual(mockEvent);
 		});
 
+		it.each([
+			{ type: "INSEMINATION", status: "PREGNANT" } as const,
+			{ type: "PREGNANCY_CHECK", status: "PREGNANT" } as const,
+			{ type: "TREATMENT_START", status: "TREATING" } as const,
+			{ type: "TREATMENT_END", status: "HEALTHY" } as const,
+		])("should update status for %s event", async ({ type, status }) => {
+			// Arrange
+			const eventData: CreateEventInput = {
+				cattleId: 1,
+				eventType: type,
+				eventDatetime: "2024-01-01T10:00:00Z",
+			};
+			mockCattleRepository.findCattleById.mockResolvedValue(mockCattle);
+			mockEventRepository.createEvent.mockResolvedValue(mockCreatedEvent);
+			mockEventRepository.findEventById.mockResolvedValue(mockEvent);
+
+			// Act
+			await createNewEvent(mockDB, eventData, userId);
+
+			// Assert
+			expect(mockStatusService.updateStatus).toHaveBeenCalledWith(
+				mockDB,
+				eventData.cattleId,
+				status,
+			);
+		});
+
 		it("should throw error when cattle not found", async () => {
 			// Arrange
 			const eventData: CreateEventInput = {
@@ -228,6 +258,36 @@ describe("EventService", () => {
 			);
 			expect(result.notes).toBe("更新されたメモ");
 		});
+
+		it.each([
+			{ type: "INSEMINATION", status: "PREGNANT" } as const,
+			{ type: "PREGNANCY_CHECK", status: "PREGNANT" } as const,
+			{ type: "TREATMENT_START", status: "TREATING" } as const,
+			{ type: "TREATMENT_END", status: "HEALTHY" } as const,
+		])(
+			"should update status when event type becomes %s",
+			async ({ type, status }) => {
+				// Arrange
+				const updateData: UpdateEventInput = {
+					eventType: type,
+				};
+				const existing = { ...mockEvent, cattleId: 1 };
+				const updated = { ...mockEvent, eventType: type };
+				mockEventRepository.findEventById.mockResolvedValueOnce(existing);
+				mockEventRepository.updateEvent.mockResolvedValue(updated);
+				mockEventRepository.findEventById.mockResolvedValueOnce(updated);
+
+				// Act
+				await updateEventData(mockDB, eventId, updateData, userId);
+
+				// Assert
+				expect(mockStatusService.updateStatus).toHaveBeenCalledWith(
+					mockDB,
+					existing.cattleId,
+					status,
+				);
+			},
+		);
 
 		it("should throw error when event not found", async () => {
 			// Arrange
