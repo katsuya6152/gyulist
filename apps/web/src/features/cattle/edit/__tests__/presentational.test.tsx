@@ -102,4 +102,61 @@ describe("CattleEditPresentation", () => {
 		expect(screen.getByText(/ヶ月/)).toBeInTheDocument();
 		expect(screen.getByText(/歳/)).toBeInTheDocument();
 	});
+
+	it("should render bloodline information fields", () => {
+		const cattleWithBloodline = {
+			...mockCattle,
+			bloodline: {
+				fatherCattleName: "父牛名",
+				motherFatherCattleName: "母の父牛名",
+				motherGrandFatherCattleName: "母の祖父牛名",
+				motherGreatGrandFatherCattleName: "母の曾祖父牛名",
+			},
+		};
+
+		render(
+			<CattleEditPresentation cattle={cattleWithBloodline} error={undefined} />,
+		);
+
+		// 血統情報のフィールドを確認
+		expect(screen.getByLabelText("父牛名")).toHaveValue("父牛名");
+		expect(screen.getByLabelText("母の父牛名")).toHaveValue("母の父牛名");
+		expect(screen.getByLabelText("母の祖父牛名")).toHaveValue("母の祖父牛名");
+		expect(screen.getByLabelText("母の曾祖父牛名")).toHaveValue(
+			"母の曾祖父牛名",
+		);
+	});
+
+	it("should render breeding status fields for non-calf cattle", () => {
+		const adultCattle = {
+			...mockCattle,
+			growthStage: "MULTI_PAROUS" as const,
+			breedingStatus: {
+				expectedCalvingDate: "2024-06-01",
+				scheduledPregnancyCheckDate: "2024-05-01",
+				breedingMemo: "繁殖メモ",
+				isDifficultBirth: false,
+			},
+		};
+
+		render(<CattleEditPresentation cattle={adultCattle} error={undefined} />);
+
+		// 血統情報は表示される
+		expect(screen.getByText("血統情報")).toBeInTheDocument();
+		// 繁殖情報は経産牛の場合に条件によって表示される
+		expect(screen.getByLabelText("分娩予定日")).toBeInTheDocument();
+		expect(screen.getByLabelText("妊娠鑑定予定日")).toBeInTheDocument();
+		expect(screen.getByLabelText("繁殖メモ")).toBeInTheDocument();
+	});
+
+	it("should handle growth stage changes", async () => {
+		const user = userEvent.setup();
+		render(<CattleEditPresentation cattle={mockCattle} error={undefined} />);
+
+		// 成長段階を変更
+		const growthStageSelect = screen.getByLabelText(/成長段階/);
+		await user.selectOptions(growthStageSelect, "MULTI_PAROUS");
+
+		expect(growthStageSelect).toHaveValue("MULTI_PAROUS");
+	});
 });

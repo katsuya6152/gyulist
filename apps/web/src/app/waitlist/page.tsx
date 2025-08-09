@@ -4,6 +4,8 @@ interface WaitlistPageProps {
 	searchParams: Promise<{ email?: string }>;
 }
 
+export const runtime = "edge";
+
 export default async function WaitlistPage({
 	searchParams,
 }: WaitlistPageProps) {
