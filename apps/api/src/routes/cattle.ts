@@ -7,12 +7,14 @@ import {
 	getCattleById,
 	searchCattleList,
 	updateCattleData,
+	updateStatus,
 } from "../services/cattleService";
 import type { Bindings } from "../types";
 import {
 	createCattleSchema,
 	searchCattleSchema,
 	updateCattleSchema,
+	updateStatusSchema,
 } from "../validators/cattleValidator";
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -80,6 +82,30 @@ const app = new Hono<{ Bindings: Bindings }>()
 		}
 
 		const result = await updateCattleData(c.env.DB, cattleId, data);
+		return c.json(result);
+	})
+
+	// ステータス更新
+	.patch("/:id/status", zValidator("json", updateStatusSchema), async (c) => {
+		const cattleId = Number.parseInt(c.req.param("id"));
+		const { status, reason } = c.req.valid("json");
+		const userId = c.get("jwtPayload").userId;
+
+		const existingCattle = await getCattleById(c.env.DB, cattleId);
+		if (!existingCattle) {
+			return c.json({ error: "Cattle not found" }, 404);
+		}
+		if (existingCattle.ownerUserId !== userId) {
+			return c.json({ error: "Unauthorized" }, 403);
+		}
+
+		const result = await updateStatus(
+			c.env.DB,
+			cattleId,
+			status,
+			userId,
+			reason ?? undefined,
+		);
 		return c.json(result);
 	})
 

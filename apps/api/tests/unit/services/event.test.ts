@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { events, cattle } from "../../../src/db/schema";
 import * as cattleRepository from "../../../src/repositories/cattleRepository";
 import * as eventRepository from "../../../src/repositories/eventRepository";
+import * as cattleService from "../../../src/services/cattleService";
 import {
 	createNewEvent,
 	deleteEventData,
@@ -27,9 +28,11 @@ import {
 // Mock the repository modules
 vi.mock("../../../src/repositories/cattleRepository");
 vi.mock("../../../src/repositories/eventRepository");
+vi.mock("../../../src/services/cattleService");
 
 const mockEventRepository = vi.mocked(eventRepository);
 const mockCattleRepository = vi.mocked(cattleRepository);
+const mockCattleService = vi.mocked(cattleService);
 
 type EventType = InferSelectModel<typeof events>;
 type CattleType = InferSelectModel<typeof cattle>;
@@ -178,6 +181,48 @@ describe("EventService", () => {
 				userId,
 			);
 			expect(result).toEqual(mockEvent);
+		});
+
+		it("should update status to SHIPPED for shipment event", async () => {
+			const eventData: CreateEventInput = {
+				cattleId: 1,
+				eventType: "SHIPMENT",
+				eventDatetime: "2024-01-01T10:00:00Z",
+				notes: "出荷",
+			};
+			mockCattleRepository.findCattleById.mockResolvedValue(mockCattle);
+			mockEventRepository.createEvent.mockResolvedValue(mockCreatedEvent);
+			mockEventRepository.findEventById.mockResolvedValue(mockEvent);
+
+			await createNewEvent(mockDB, eventData, userId);
+
+			expect(mockCattleService.updateStatus).toHaveBeenCalledWith(
+				mockDB,
+				eventData.cattleId,
+				"SHIPPED",
+				userId,
+			);
+		});
+
+		it("should update status to RESTING for calving event", async () => {
+			const eventData: CreateEventInput = {
+				cattleId: 1,
+				eventType: "CALVING",
+				eventDatetime: "2024-01-01T10:00:00Z",
+				notes: "分娩",
+			};
+			mockCattleRepository.findCattleById.mockResolvedValue(mockCattle);
+			mockEventRepository.createEvent.mockResolvedValue(mockCreatedEvent);
+			mockEventRepository.findEventById.mockResolvedValue(mockEvent);
+
+			await createNewEvent(mockDB, eventData, userId);
+
+			expect(mockCattleService.updateStatus).toHaveBeenCalledWith(
+				mockDB,
+				eventData.cattleId,
+				"RESTING",
+				userId,
+			);
 		});
 
 		it("should throw error when cattle not found", async () => {

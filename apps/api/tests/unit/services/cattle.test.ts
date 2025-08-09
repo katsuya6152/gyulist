@@ -1,12 +1,15 @@
 import type { AnyD1Database } from "drizzle-orm/d1";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import * as cattleRepository from "../../../src/repositories/cattleRepository";
 import {
 	createNewCattle,
 	deleteCattleData,
 	getCattleById,
 	searchCattleList,
 	updateCattleData,
+	updateStatus,
 } from "../../../src/services/cattleService";
+import { mockCattle } from "../../fixtures/database";
 
 // repositoriesをモック
 vi.mock("../../../src/repositories/cattleRepository", () => ({
@@ -21,7 +24,10 @@ vi.mock("../../../src/repositories/cattleRepository", () => ({
 	updateBloodline: vi.fn(),
 	updateBreedingStatus: vi.fn(),
 	updateBreedingSummary: vi.fn(),
+	updateCattleStatus: vi.fn(),
+	createStatusHistory: vi.fn(),
 }));
+const mockCattleRepository = vi.mocked(cattleRepository);
 
 // utilsをモック
 vi.mock("../../../src/utils/date", () => ({
@@ -257,6 +263,56 @@ describe("CattleService", () => {
 			}
 
 			return Promise.allSettled(promises);
+		});
+	});
+
+	describe("updateStatus", () => {
+		it("should update status and create history", async () => {
+			mockCattleRepository.findCattleById.mockResolvedValue({
+				...mockCattle,
+				status: "HEALTHY",
+			});
+			mockCattleRepository.updateCattleStatus.mockResolvedValue({
+				...mockCattle,
+				status: "PREGNANT",
+			});
+			mockCattleRepository.createStatusHistory.mockResolvedValue({
+				historyId: 1,
+			});
+
+			const result = await updateStatus(mockDb, 1, "PREGNANT", 1, "reason");
+
+			expect(mockCattleRepository.findCattleById).toHaveBeenCalledWith(
+				mockDb,
+				1,
+			);
+			expect(mockCattleRepository.updateCattleStatus).toHaveBeenCalledWith(
+				mockDb,
+				1,
+				"PREGNANT",
+			);
+			expect(mockCattleRepository.createStatusHistory).toHaveBeenCalledWith(
+				mockDb,
+				{
+					cattleId: 1,
+					oldStatus: "HEALTHY",
+					newStatus: "PREGNANT",
+					changedBy: 1,
+					reason: "reason",
+				},
+			);
+			expect(result.status).toBe("PREGNANT");
+		});
+
+		it("should throw when current status is final", async () => {
+			mockCattleRepository.findCattleById.mockResolvedValue({
+				...mockCattle,
+				status: "SHIPPED",
+			});
+
+			await expect(updateStatus(mockDb, 1, "PREGNANT", 1)).rejects.toThrow(
+				"現在のステータスでは変更できません",
+			);
 		});
 	});
 });

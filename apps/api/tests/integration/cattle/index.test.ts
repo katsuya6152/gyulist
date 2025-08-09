@@ -199,6 +199,47 @@ describe("Cattle API Integration Tests", () => {
 				name: "更新された牛の名前",
 			});
 
+			describe("PATCH /cattle/:id/status", () => {
+				const body = { status: "PREGNANT" as const };
+
+				it("should update status", async () => {
+					mockCattleService.getCattleById.mockResolvedValue(mockCattle);
+					mockCattleService.updateStatus.mockResolvedValue({
+						...mockCattle,
+						status: "PREGNANT",
+					});
+
+					const req = createTestRequest("PATCH", "/cattle/1/status", body);
+					const res = await app.request(req);
+
+					expect(res.status).toBe(200);
+					const data = await res.json();
+					expect(data.status).toBe("PREGNANT");
+					expect(mockCattleService.updateStatus).toHaveBeenCalledWith(
+						expect.anything(),
+						1,
+						"PREGNANT",
+						1,
+						undefined,
+					);
+				});
+
+				it("should return 404 when cattle not found", async () => {
+					mockCattleService.getCattleById.mockResolvedValue(null);
+					const req = createTestRequest("PATCH", "/cattle/999/status", body);
+					const res = await app.request(req);
+					expect(res.status).toBe(404);
+				});
+
+				it("should return 403 when unauthorized", async () => {
+					const unauthorized = { ...mockCattle, ownerUserId: 2 };
+					mockCattleService.getCattleById.mockResolvedValue(unauthorized);
+					const req = createTestRequest("PATCH", "/cattle/1/status", body);
+					const res = await app.request(req);
+					expect(res.status).toBe(403);
+				});
+			});
+
 			// Act
 			const req = createTestRequest("PATCH", "/cattle/1", updateData);
 			const res = await app.request(req);
