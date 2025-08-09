@@ -96,7 +96,17 @@ export function CattleNewPresentation({ error }: CattleNewPresentationProps) {
 	// トースト通知の処理
 	useEffect(() => {
 		if (lastResult) {
-			if (lastResult.status === "success") {
+			if (
+				lastResult.status === "success" &&
+				"message" in lastResult &&
+				lastResult.message === "demo"
+			) {
+				// デモアカウントの場合はトースト通知
+				toast.info("牛の登録が完了しました", {
+					description: "デモアカウントのため、実際に登録はされていません",
+				});
+				router.push("/cattle");
+			} else if (lastResult.status === "success") {
 				// 成功時は牛一覧ページにリダイレクト
 				toast.success("牛の登録が完了しました", {
 					description: "新しい牛が正常に登録されました",

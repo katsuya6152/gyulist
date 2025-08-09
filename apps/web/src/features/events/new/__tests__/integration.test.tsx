@@ -13,6 +13,11 @@ vi.mock("@/services/eventService", () => ({
 	CreateEvent: vi.fn(),
 }));
 
+// Mock JWT verification
+vi.mock("@/lib/jwt", () => ({
+	verifyAndGetUserId: vi.fn(),
+}));
+
 vi.mock("next/navigation", () => ({
 	useRouter: () => ({
 		push: vi.fn(),
@@ -97,9 +102,12 @@ describe("Events New Integration", () => {
 	});
 
 	it("should handle complete event creation flow", async () => {
+		const user = userEvent.setup();
 		const { GetCattleDetail } = await import("@/services/cattleService");
 		const { CreateEvent } = await import("@/services/eventService");
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
 
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
 		vi.mocked(GetCattleDetail).mockResolvedValue(mockCattle);
 		vi.mocked(CreateEvent).mockResolvedValue(undefined);
 

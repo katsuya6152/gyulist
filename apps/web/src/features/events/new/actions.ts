@@ -1,6 +1,8 @@
 "use server";
 
-import { CreateEvent } from "@/services/eventService";
+import { createDemoResponse, isDemo } from "@/lib/api-client";
+import { verifyAndGetUserId } from "@/lib/jwt";
+import { CreateEvent, type CreateEventInput } from "@/services/eventService";
 import { parseWithZod } from "@conform-to/zod";
 import { format, parseISO } from "date-fns";
 import { redirect } from "next/navigation";
@@ -19,6 +21,11 @@ export async function createEventAction(
 	}
 
 	try {
+		const userId = await verifyAndGetUserId();
+		if (isDemo(userId)) {
+			return createDemoResponse("success");
+		}
+
 		const { cattleId, eventType, eventDate, eventTime, notes } =
 			submission.value;
 

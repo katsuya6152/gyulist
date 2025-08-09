@@ -43,7 +43,14 @@ export function SettingsPresentation() {
 			const result = await updateThemeAction(newTheme);
 
 			if (result.success) {
-				toast.success("テーマを更新しました");
+				if ("message" in result && result.message === "demo") {
+					toast.info("テーマを更新しました", {
+						description:
+							"デモアカウントのため、実際にデータベースには保存されていません",
+					});
+				} else {
+					toast.success("テーマを更新しました");
+				}
 			} else {
 				toast.error(result.error || "テーマの更新に失敗しました");
 				// エラー時は元のテーマに戻す

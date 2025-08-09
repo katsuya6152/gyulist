@@ -1,6 +1,9 @@
 "use server";
 
-import { client } from "@/lib/rpc";
+import {
+	type RegisterInput,
+	register as registerUser,
+} from "@/services/authService";
 import { z } from "zod";
 
 const RegisterSchema = z.object({
@@ -26,21 +29,11 @@ export async function register(
 		};
 	}
 
-	try {
-		const res = await client.api.v1.auth.register.$post({
-			json: { email: parsed.data.email },
-		});
-		const data = await res.json();
+	const registerData: RegisterInput = { email: parsed.data.email };
+	const result = await registerUser(registerData);
 
-		return {
-			success: true,
-			message: data.message ?? "確認メールを送信しました",
-		};
-	} catch (err) {
-		console.error(err);
-		return {
-			success: false,
-			message: "サーバーエラーが発生しました",
-		};
-	}
+	return {
+		success: result.success,
+		message: result.message,
+	};
 }

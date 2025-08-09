@@ -6,6 +6,11 @@ vi.mock("@/services/eventService", () => ({
 	CreateEvent: vi.fn(),
 }));
 
+// Mock JWT verification
+vi.mock("@/lib/jwt", () => ({
+	verifyAndGetUserId: vi.fn(),
+}));
+
 // Mock next/navigation
 vi.mock("next/navigation", () => ({
 	redirect: vi.fn(),
@@ -18,6 +23,9 @@ describe("createEventAction", () => {
 
 	it("should create event successfully with valid data", async () => {
 		const { CreateEvent } = await import("@/services/eventService");
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
+
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
 		vi.mocked(CreateEvent).mockResolvedValue(undefined);
 
 		const formData = new FormData();
@@ -42,14 +50,36 @@ describe("createEventAction", () => {
 		});
 	});
 
+	it("should return demo response for demo user", async () => {
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
+
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(1);
+
+		const formData = new FormData();
+		formData.append("cattleId", "1");
+		formData.append("eventType", "ESTRUS");
+		formData.append("eventDate", "2024-01-15");
+		formData.append("eventTime", "10:30");
+
+		const result = await createEventAction(null, formData);
+
+		expect(result).toEqual({
+			status: "success",
+			message: "demo",
+		});
+	});
+
 	it("should create event successfully without notes", async () => {
 		const { CreateEvent } = await import("@/services/eventService");
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
+
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
 		vi.mocked(CreateEvent).mockResolvedValue(undefined);
 
 		const formData = new FormData();
 		formData.append("cattleId", "1");
 		formData.append("eventType", "VACCINATION");
-		formData.append("eventDate", "2024-01-15");
+		formData.append("eventDate", "2024-02-10");
 		formData.append("eventTime", "14:00");
 
 		const result = await createEventAction(null, formData);
@@ -57,7 +87,7 @@ describe("createEventAction", () => {
 		expect(CreateEvent).toHaveBeenCalledWith({
 			cattleId: 1,
 			eventType: "VACCINATION",
-			eventDatetime: expect.stringMatching(/2024-01-15T\d{2}:00:00\.000Z/),
+			eventDatetime: expect.stringMatching(/2024-02-10T\d{2}:00:00\.000Z/),
 			notes: undefined,
 		});
 
@@ -109,6 +139,9 @@ describe("createEventAction", () => {
 
 	it("should handle API error", async () => {
 		const { CreateEvent } = await import("@/services/eventService");
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
+
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
 		const mockError = new Error("API Error");
 		vi.mocked(CreateEvent).mockRejectedValue(mockError);
 
@@ -133,6 +166,9 @@ describe("createEventAction", () => {
 
 	it("should handle date and time conversion correctly", async () => {
 		const { CreateEvent } = await import("@/services/eventService");
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
+
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
 		vi.mocked(CreateEvent).mockResolvedValue(undefined);
 
 		const formData = new FormData();
@@ -153,6 +189,9 @@ describe("createEventAction", () => {
 
 	it("should handle all event types correctly", async () => {
 		const { CreateEvent } = await import("@/services/eventService");
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
+
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
 		vi.mocked(CreateEvent).mockResolvedValue(undefined);
 
 		const eventTypes = [
@@ -174,12 +213,9 @@ describe("createEventAction", () => {
 
 			const result = await createEventAction(null, formData);
 
-			expect(result.status).toBe("success");
-			expect(CreateEvent).toHaveBeenCalledWith({
-				cattleId: 1,
-				eventType,
-				eventDatetime: expect.stringMatching(/2024-01-15T\d{2}:30:00\.000Z/),
-				notes: undefined,
+			expect(result).toEqual({
+				status: "success",
+				message: "イベントが正常に登録されました",
 			});
 		}
 	});

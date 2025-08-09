@@ -1,8 +1,8 @@
 import { SearchEvents } from "@/services/eventService";
 import type { SearchEventsQuery } from "@/services/eventService";
 import { endOfDay, startOfDay } from "date-fns";
+import type { DateFilter } from "./constants";
 import { SchedulePresentation } from "./presentational";
-import { type DateFilter, getTargetDate } from "./utils";
 
 type Props = {
 	searchParams: Promise<{ [key: string]: string | string[] | undefined }>;

@@ -1,24 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { deleteCattleAction } from "../actions";
 
-// Mock the RPC client
-vi.mock("@/lib/rpc", () => ({
-	client: {
-		api: {
-			v1: {
-				cattle: {
-					":id": {
-						$delete: vi.fn(),
-					},
-				},
-			},
-		},
-	},
+// Mock the cattle service
+vi.mock("@/services/cattleService", () => ({
+	DeleteCattle: vi.fn(),
 }));
 
-// Mock next/headers
-vi.mock("next/headers", () => ({
-	cookies: vi.fn(),
+// Mock JWT verification
+vi.mock("@/lib/jwt", () => ({
+	verifyAndGetUserId: vi.fn(),
 }));
 
 // Mock next/navigation
@@ -32,54 +22,47 @@ describe("deleteCattleAction", () => {
 	});
 
 	it("should delete cattle successfully", async () => {
-		const { client } = await import("@/lib/rpc");
-		const { cookies } = await import("next/headers");
+		const { DeleteCattle } = await import("@/services/cattleService");
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
 
-		// Mock successful response
-		vi.mocked(client.api.v1.cattle[":id"].$delete).mockResolvedValue({
-			ok: true,
-		} as never);
+		// Mock successful JWT verification
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
 
-		// Mock cookies
-		vi.mocked(cookies).mockResolvedValue({
-			get: vi.fn().mockReturnValue({ value: "valid-token" }),
-		} as never);
+		// Mock successful service call
+		vi.mocked(DeleteCattle).mockResolvedValue(undefined);
 
-		const result = await deleteCattleAction("123");
+		const result = await deleteCattleAction(123);
 
+		expect(DeleteCattle).toHaveBeenCalledWith(123);
 		expect(result).toEqual({
 			success: true,
 		});
 	});
 
-	it("should redirect to login when no token", async () => {
-		const { cookies } = await import("next/headers");
-		const { redirect } = await import("next/navigation");
+	it("should return demo response for demo user", async () => {
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
 
-		vi.mocked(cookies).mockResolvedValue({
-			get: vi.fn().mockReturnValue(undefined),
-		} as never);
+		// Mock demo user
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(1);
 
-		await deleteCattleAction("123");
+		const result = await deleteCattleAction(123);
 
-		expect(redirect).toHaveBeenCalledWith("/login");
+		expect(result).toEqual({
+			success: true,
+			message: "demo",
+		});
 	});
 
 	it("should handle network errors", async () => {
-		const { client } = await import("@/lib/rpc");
-		const { cookies } = await import("next/headers");
+		const { DeleteCattle } = await import("@/services/cattleService");
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
 
-		vi.mocked(client.api.v1.cattle[":id"].$delete).mockRejectedValue(
-			new Error("Network error"),
-		);
-
-		vi.mocked(cookies).mockResolvedValue({
-			get: vi.fn().mockReturnValue({ value: "valid-token" }),
-		} as never);
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
+		vi.mocked(DeleteCattle).mockRejectedValue(new Error("Network error"));
 
 		const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-		const result = await deleteCattleAction("789");
+		const result = await deleteCattleAction(789);
 
 		expect(consoleSpy).toHaveBeenCalledWith(
 			"Failed to delete cattle:",
@@ -91,5 +74,20 @@ describe("deleteCattleAction", () => {
 		});
 
 		consoleSpy.mockRestore();
+	});
+
+	it("should redirect to login on 401 error", async () => {
+		const { DeleteCattle } = await import("@/services/cattleService");
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
+		const { redirect } = await import("next/navigation");
+
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
+		vi.mocked(DeleteCattle).mockRejectedValue(
+			new Error("API request failed: 401 Unauthorized"),
+		);
+
+		await deleteCattleAction(123);
+
+		expect(redirect).toHaveBeenCalledWith("/login");
 	});
 });

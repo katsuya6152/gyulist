@@ -1,8 +1,9 @@
 "use server";
 
-import { client } from "@/lib/rpc";
+import { createDemoResponse, isDemo } from "@/lib/api-client";
+import { verifyAndGetUserId } from "@/lib/jwt";
+import { CreateCattle, type CreateCattleInput } from "@/services/cattleService";
 import { parseWithZod } from "@conform-to/zod";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createCattleSchema } from "./schema";
 
@@ -19,17 +20,15 @@ export async function createCattleAction(
 	}
 
 	try {
-		const cookieStore = await cookies();
-		const token = cookieStore.get("token")?.value;
-
-		if (!token) {
-			redirect("/login");
+		const userId = await verifyAndGetUserId();
+		if (isDemo(userId)) {
+			return createDemoResponse("success");
 		}
 
 		const data = submission.value;
 
 		// APIに送信するデータを準備
-		const apiData = {
+		const apiData: CreateCattleInput = {
 			identificationNumber: data.identificationNumber,
 			earTagNumber: data.earTagNumber,
 			name: data.name,
@@ -69,34 +68,21 @@ export async function createCattleAction(
 				: undefined,
 		};
 
-		const response = await client.api.v1.cattle.$post(
-			{
-				json: apiData,
-			},
-			{
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			},
-		);
-
-		if (!response.ok) {
-			if (
-				(response.status as number) === 401 ||
-				(response.status as number) === 403
-			) {
-				redirect("/login");
-			}
-			const error = await response.text();
-			return submission.reply({
-				formErrors: [error || "牛の登録に失敗しました"],
-			});
-		}
+		await CreateCattle(apiData);
 
 		// 成功時のレスポンス
 		return submission.reply();
 	} catch (error) {
 		console.error("Failed to create cattle:", error);
+
+		// 認証エラーの場合はリダイレクト
+		if (
+			error instanceof Error &&
+			(error.message.includes("401") || error.message.includes("403"))
+		) {
+			redirect("/login");
+		}
+
 		return submission.reply({
 			formErrors: ["牛の登録に失敗しました"],
 		});

@@ -1,5 +1,6 @@
 "use server";
 
+import { createDemoResponse, isDemo } from "@/lib/api-client";
 import { verifyAndGetUserId } from "@/lib/jwt";
 import { updateTheme } from "@/services/themeService";
 import { cookies } from "next/headers";
@@ -17,6 +18,9 @@ export async function updateThemeAction(theme: "light" | "dark" | "system") {
 	try {
 		// JWTからユーザーIDを取得
 		const userId = await verifyAndGetUserId();
+		if (isDemo(userId)) {
+			return createDemoResponse(true);
+		}
 
 		// テーマを更新
 		await updateTheme(userId, theme);

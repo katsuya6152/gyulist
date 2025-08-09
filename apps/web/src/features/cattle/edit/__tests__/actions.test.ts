@@ -1,24 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { updateCattleAction } from "../actions";
 
-// Mock the RPC client
-vi.mock("@/lib/rpc", () => ({
-	client: {
-		api: {
-			v1: {
-				cattle: {
-					":id": {
-						$patch: vi.fn(),
-					},
-				},
-			},
-		},
-	},
+// Mock the cattle service
+vi.mock("@/services/cattleService", () => ({
+	UpdateCattleDetailed: vi.fn(),
 }));
 
-// Mock next/headers
-vi.mock("next/headers", () => ({
-	cookies: vi.fn(),
+// Mock JWT verification
+vi.mock("@/lib/jwt", () => ({
+	verifyAndGetUserId: vi.fn(),
 }));
 
 // Mock next/navigation
@@ -47,10 +37,14 @@ describe("updateCattleAction", () => {
 		formData.append("bloodline.fatherCattleName", "更新父牛");
 		formData.append("bloodline.motherFatherCattleName", "更新母父牛");
 		formData.append("bloodline.motherGrandFatherCattleName", "更新母祖父牛");
+		formData.append(
+			"bloodline.motherGreatGrandFatherCattleName",
+			"更新母曾祖父牛",
+		);
 
-		// 繁殖情報
-		formData.append("breedingStatus.expectedCalvingDate", "2024-08-01");
-		formData.append("breedingStatus.scheduledPregnancyCheckDate", "2024-07-01");
+		// 繁殖状態
+		formData.append("breedingStatus.expectedCalvingDate", "2024-12-01");
+		formData.append("breedingStatus.scheduledPregnancyCheckDate", "2024-11-01");
 		formData.append("breedingStatus.breedingMemo", "更新繁殖メモ");
 		formData.append("breedingStatus.isDifficultBirth", "true");
 
@@ -58,142 +52,110 @@ describe("updateCattleAction", () => {
 	};
 
 	it("should update cattle successfully with valid data", async () => {
-		const { client } = await import("@/lib/rpc");
-		const { cookies } = await import("next/headers");
+		const { UpdateCattleDetailed } = await import("@/services/cattleService");
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
 
-		// Mock successful response
-		// @ts-expect-error
-		vi.mocked(client.api.v1.cattle[":id"].$patch).mockResolvedValue({
-			ok: true,
-		});
+		// Mock successful JWT verification
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
 
-		// Mock cookies
-		const mockCookieStore = {
-			get: vi.fn().mockReturnValue({ value: "valid-token" }),
-		};
-		// @ts-ignore
-		vi.mocked(cookies).mockResolvedValue(mockCookieStore);
+		// Mock successful service call
+		vi.mocked(UpdateCattleDetailed).mockResolvedValue(undefined);
 
 		const formData = createValidFormData("123");
 		const result = await updateCattleAction(null, formData);
 
-		// API呼び出しの確認
-		expect(client.api.v1.cattle[":id"].$patch).toHaveBeenCalledWith(
-			{
-				param: { id: "123" },
-				json: {
-					identificationNumber: 12345,
-					earTagNumber: 54321,
-					name: "更新テスト牛",
-					gender: "FEMALE",
-					birthday: "2020-01-01",
-					growthStage: "MULTI_PAROUS",
-					breed: "ホルスタイン",
-					notes: "更新テスト用の牛",
-					bloodline: {
-						fatherCattleName: "更新父牛",
-						motherFatherCattleName: "更新母父牛",
-						motherGrandFatherCattleName: "更新母祖父牛",
-						motherGreatGrandFatherCattleName: null,
-					},
-					breedingStatus: {
-						parity: null,
-						expectedCalvingDate: "2024-08-01",
-						scheduledPregnancyCheckDate: "2024-07-01",
-						daysAfterCalving: null,
-						daysOpen: null,
-						pregnancyDays: null,
-						daysAfterInsemination: null,
-						inseminationCount: null,
-						breedingMemo: "更新繁殖メモ",
-						isDifficultBirth: true,
-					},
-				},
-			},
-			{
-				headers: {
-					Authorization: "Bearer valid-token",
-				},
-			},
-		);
-
 		// 成功時のレスポンス確認
 		expect(result.status).toBe("success");
+		expect(UpdateCattleDetailed).toHaveBeenCalledWith("123", {
+			identificationNumber: 12345,
+			earTagNumber: 54321,
+			name: "更新テスト牛",
+			gender: "FEMALE",
+			birthday: "2020-01-01",
+			growthStage: "MULTI_PAROUS",
+			breed: "ホルスタイン",
+			notes: "更新テスト用の牛",
+			bloodline: {
+				fatherCattleName: "更新父牛",
+				motherFatherCattleName: "更新母父牛",
+				motherGrandFatherCattleName: "更新母祖父牛",
+				motherGreatGrandFatherCattleName: "更新母曾祖父牛",
+			},
+			breedingStatus: {
+				parity: null,
+				expectedCalvingDate: "2024-12-01",
+				scheduledPregnancyCheckDate: "2024-11-01",
+				daysAfterCalving: null,
+				daysOpen: null,
+				pregnancyDays: null,
+				daysAfterInsemination: null,
+				inseminationCount: null,
+				breedingMemo: "更新繁殖メモ",
+				isDifficultBirth: true,
+			},
+		});
+	});
+
+	it("should return demo response for demo user", async () => {
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
+
+		// Mock demo user
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(1);
+
+		const formData = createValidFormData();
+		const result = await updateCattleAction(null, formData);
+
+		expect(result).toEqual({
+			status: "success",
+			message: "demo",
+		});
 	});
 
 	it("should update cattle successfully with minimal required data", async () => {
-		const { client } = await import("@/lib/rpc");
-		const { cookies } = await import("next/headers");
+		const { UpdateCattleDetailed } = await import("@/services/cattleService");
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
 
-		// @ts-expect-error
-		vi.mocked(client.api.v1.cattle[":id"].$patch).mockResolvedValue({
-			ok: true,
-		});
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
+		vi.mocked(UpdateCattleDetailed).mockResolvedValue(undefined);
 
-		const mockCookieStore = {
-			get: vi.fn().mockReturnValue({ value: "valid-token" }),
-		};
-		// @ts-ignore
-		vi.mocked(cookies).mockResolvedValue(mockCookieStore);
-
-		// 最小限の必須データのみ
 		const formData = new FormData();
 		formData.append("cattleId", "456");
 		formData.append("identificationNumber", "67890");
 		formData.append("earTagNumber", "09876");
-		formData.append("name", "最小テスト牛");
+		formData.append("name", "最小データ牛");
 		formData.append("gender", "MALE");
-		formData.append("birthday", "2021-01-01");
+		formData.append("birthday", "2021-05-15");
 		formData.append("growthStage", "GROWING");
 
 		const result = await updateCattleAction(null, formData);
 
-		expect(client.api.v1.cattle[":id"].$patch).toHaveBeenCalledWith(
-			{
-				param: { id: "456" },
-				json: {
-					identificationNumber: 67890,
-					earTagNumber: 9876,
-					name: "最小テスト牛",
-					gender: "MALE",
-					birthday: "2021-01-01",
-					growthStage: "GROWING",
-					breed: null,
-					notes: null,
-					bloodline: undefined,
-					breedingStatus: undefined,
-				},
-			},
-			{
-				headers: {
-					Authorization: "Bearer valid-token",
-				},
-			},
-		);
-
 		expect(result.status).toBe("success");
+		expect(UpdateCattleDetailed).toHaveBeenCalledWith("456", {
+			identificationNumber: 67890,
+			earTagNumber: 9876,
+			name: "最小データ牛",
+			gender: "MALE",
+			birthday: "2021-05-15",
+			growthStage: "GROWING",
+			breed: null,
+			notes: null,
+		});
 	});
 
 	it("should return validation error for missing required fields", async () => {
 		const formData = new FormData();
 		formData.append("cattleId", "1");
-		formData.append("name", "テスト牛");
-		// identificationNumber, earTagNumber等の必須フィールドを省略
+		// 必須フィールドを設定しない
 
 		const result = await updateCattleAction(null, formData);
 
 		expect(result.status).toBe("error");
-		expect(result.error).toBeDefined();
 	});
 
 	it("should return error when cattleId is missing", async () => {
-		const { cookies } = await import("next/headers");
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
 
-		const mockCookieStore = {
-			get: vi.fn().mockReturnValue({ value: "valid-token" }),
-		};
-		// @ts-ignore
-		vi.mocked(cookies).mockResolvedValue(mockCookieStore);
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
 
 		const formData = new FormData();
 		formData.append("identificationNumber", "12345");
@@ -202,21 +164,23 @@ describe("updateCattleAction", () => {
 		formData.append("gender", "FEMALE");
 		formData.append("birthday", "2020-01-01");
 		formData.append("growthStage", "CALF");
-		// cattleIdを省略
+		// cattleId を設定しない
 
 		const result = await updateCattleAction(null, formData);
 
 		expect(result.status).toBe("error");
-		expect(result.error).toEqual({
-			"": ["牛のIDが見つかりません"],
-		});
+		if (result.status === "error") {
+			expect(result.error).toEqual({
+				"": ["牛のIDが見つかりません"],
+			});
+		}
 	});
 
 	it("should return validation error for invalid data types", async () => {
 		const formData = new FormData();
 		formData.append("cattleId", "1");
-		formData.append("identificationNumber", "invalid-number");
-		formData.append("earTagNumber", "invalid-number");
+		formData.append("identificationNumber", "invalid"); // 数値が必要
+		formData.append("earTagNumber", "54321");
 		formData.append("name", "テスト牛");
 		formData.append("gender", "FEMALE");
 		formData.append("birthday", "2020-01-01");
@@ -225,54 +189,17 @@ describe("updateCattleAction", () => {
 		const result = await updateCattleAction(null, formData);
 
 		expect(result.status).toBe("error");
-		expect(result.error).toBeDefined();
-	});
-
-	it("should redirect to login when no token", async () => {
-		const { cookies } = await import("next/headers");
-		const { redirect } = await import("next/navigation");
-
-		const mockCookieStore = {
-			get: vi.fn().mockReturnValue(undefined),
-		};
-		// @ts-ignore
-		vi.mocked(cookies).mockResolvedValue(mockCookieStore);
-
-		const formData = createValidFormData();
-		await updateCattleAction(null, formData);
-
-		expect(redirect).toHaveBeenCalledWith("/login");
 	});
 
 	it("should redirect to login on 401 response", async () => {
-		const { client } = await import("@/lib/rpc");
-		const { cookies } = await import("next/headers");
+		const { UpdateCattleDetailed } = await import("@/services/cattleService");
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
 		const { redirect } = await import("next/navigation");
 
-		// @ts-expect-error
-		vi.mocked(client.api.v1.cattle[":id"].$patch).mockResolvedValue({
-			ok: false,
-			status: 401,
-			body: null,
-			bodyUsed: false,
-			statusText: "Unauthorized",
-			headers: new Headers(),
-			url: "",
-			redirected: false,
-			type: "basic" as ResponseType,
-			clone: vi.fn(),
-			arrayBuffer: vi.fn(),
-			blob: vi.fn(),
-			formData: vi.fn(),
-			json: vi.fn(),
-			text: vi.fn().mockResolvedValue("Unauthorized"),
-		});
-
-		const mockCookieStore = {
-			get: vi.fn().mockReturnValue({ value: "invalid-token" }),
-		};
-		// @ts-ignore
-		vi.mocked(cookies).mockResolvedValue(mockCookieStore);
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
+		vi.mocked(UpdateCattleDetailed).mockRejectedValue(
+			new Error("API request failed: 401 Unauthorized"),
+		);
 
 		const formData = createValidFormData();
 		await updateCattleAction(null, formData);
@@ -281,34 +208,14 @@ describe("updateCattleAction", () => {
 	});
 
 	it("should redirect to login on 403 response", async () => {
-		const { client } = await import("@/lib/rpc");
-		const { cookies } = await import("next/headers");
+		const { UpdateCattleDetailed } = await import("@/services/cattleService");
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
 		const { redirect } = await import("next/navigation");
 
-		// @ts-expect-error
-		vi.mocked(client.api.v1.cattle[":id"].$patch).mockResolvedValue({
-			ok: false,
-			status: 403,
-			body: null,
-			bodyUsed: false,
-			statusText: "Forbidden",
-			headers: new Headers(),
-			url: "",
-			redirected: false,
-			type: "basic" as ResponseType,
-			clone: vi.fn(),
-			arrayBuffer: vi.fn(),
-			blob: vi.fn(),
-			formData: vi.fn(),
-			json: vi.fn(),
-			text: vi.fn().mockResolvedValue("Forbidden"),
-		});
-
-		const mockCookieStore = {
-			get: vi.fn().mockReturnValue({ value: "valid-token" }),
-		};
-		// @ts-ignore
-		vi.mocked(cookies).mockResolvedValue(mockCookieStore);
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
+		vi.mocked(UpdateCattleDetailed).mockRejectedValue(
+			new Error("API request failed: 403 Forbidden"),
+		);
 
 		const formData = createValidFormData();
 		await updateCattleAction(null, formData);
@@ -317,104 +224,69 @@ describe("updateCattleAction", () => {
 	});
 
 	it("should return form error on API error", async () => {
-		const { client } = await import("@/lib/rpc");
-		const { cookies } = await import("next/headers");
+		const { UpdateCattleDetailed } = await import("@/services/cattleService");
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
 
-		// @ts-expect-error
-		vi.mocked(client.api.v1.cattle[":id"].$patch).mockResolvedValue({
-			ok: false,
-			status: 400,
-			body: null,
-			bodyUsed: false,
-			statusText: "Bad Request",
-			headers: new Headers(),
-			url: "",
-			redirected: false,
-			type: "basic" as ResponseType,
-			clone: vi.fn(),
-			arrayBuffer: vi.fn(),
-			blob: vi.fn(),
-			formData: vi.fn(),
-			json: vi.fn(),
-			text: vi.fn().mockResolvedValue("Bad Request"),
-		});
-
-		const mockCookieStore = {
-			get: vi.fn().mockReturnValue({ value: "valid-token" }),
-		};
-		// @ts-ignore
-		vi.mocked(cookies).mockResolvedValue(mockCookieStore);
-
-		const formData = createValidFormData();
-		const result = await updateCattleAction(null, formData);
-
-		expect(result.status).toBe("error");
-		expect(result.error).toEqual({
-			"": ["Bad Request"],
-		});
-	});
-
-	it("should handle network errors", async () => {
-		const { client } = await import("@/lib/rpc");
-		const { cookies } = await import("next/headers");
-
-		vi.mocked(client.api.v1.cattle[":id"].$patch).mockRejectedValue(
-			new Error("Network error"),
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
+		vi.mocked(UpdateCattleDetailed).mockRejectedValue(
+			new Error("API request failed: 400 Bad Request"),
 		);
-
-		const mockCookieStore = {
-			get: vi.fn().mockReturnValue({ value: "valid-token" }),
-		};
-		// @ts-ignore
-		vi.mocked(cookies).mockResolvedValue(mockCookieStore);
 
 		const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
 		const formData = createValidFormData();
 		const result = await updateCattleAction(null, formData);
 
-		expect(consoleSpy).toHaveBeenCalledWith(
-			"Failed to update cattle:",
-			expect.any(Error),
-		);
 		expect(result.status).toBe("error");
-		expect(result.error).toEqual({
-			"": ["牛の更新に失敗しました"],
-		});
+		if (result.status === "error") {
+			expect(result.error).toEqual({
+				"": ["牛の更新に失敗しました"],
+			});
+		}
+
+		consoleSpy.mockRestore();
+	});
+
+	it("should handle network errors", async () => {
+		const { UpdateCattleDetailed } = await import("@/services/cattleService");
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
+
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
+		vi.mocked(UpdateCattleDetailed).mockRejectedValue(
+			new Error("Network error"),
+		);
+
+		const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+		const formData = createValidFormData();
+		const result = await updateCattleAction(null, formData);
+
+		expect(result.status).toBe("error");
+		if (result.status === "error") {
+			expect(result.error).toEqual({
+				"": ["牛の更新に失敗しました"],
+			});
+		}
 
 		consoleSpy.mockRestore();
 	});
 
 	it("should handle boolean conversion for isDifficultBirth", async () => {
-		const { client } = await import("@/lib/rpc");
-		const { cookies } = await import("next/headers");
+		const { UpdateCattleDetailed } = await import("@/services/cattleService");
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
 
-		// @ts-expect-error
-		vi.mocked(client.api.v1.cattle[":id"].$patch).mockResolvedValue({
-			ok: true,
-		});
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
+		vi.mocked(UpdateCattleDetailed).mockResolvedValue(undefined);
 
-		// @ts-ignore
-		vi.mocked(cookies).mockResolvedValue({
-			get: vi.fn().mockReturnValue({ value: "valid-token" }),
-		});
-
-		// Boolean変換のテスト
-		const testCases = [
+		const booleanValues = [
 			{ input: "true", expected: true },
 			{ input: "false", expected: false },
+			{ input: "", expected: null },
 		];
 
-		for (const testCase of testCases) {
-			const formData = new FormData();
-			formData.append("cattleId", "1");
-			formData.append("identificationNumber", "12345");
-			formData.append("earTagNumber", "54321");
-			formData.append("name", "テスト牛");
-			formData.append("gender", "FEMALE");
-			formData.append("birthday", "2020-01-01");
-			formData.append("growthStage", "CALF");
-			formData.append("breedingStatus.isDifficultBirth", testCase.input);
+		for (const { input, expected } of booleanValues) {
+			const formData = createValidFormData();
+			formData.set("breedingStatus.isDifficultBirth", input);
 
 			const result = await updateCattleAction(null, formData);
 

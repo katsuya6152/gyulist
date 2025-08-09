@@ -1,7 +1,6 @@
+import { fetchWithAuth } from "@/lib/api-client";
 import { client } from "@/lib/rpc";
 import type { InferResponseType } from "hono";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 
 export type GetCattleListResType = InferResponseType<
 	typeof client.api.v1.cattle.$get,
@@ -22,33 +21,6 @@ export type CattleListQueryParams = {
 	growth_stage?: string;
 	gender?: string;
 };
-
-async function getAuthToken() {
-	const cookieStore = await cookies();
-	const token = cookieStore.get("token")?.value;
-
-	if (!token) {
-		redirect("/login");
-	}
-
-	return token;
-}
-
-async function fetchWithAuth<T>(
-	fetchFn: (token: string) => Promise<Response>,
-): Promise<T> {
-	const token = await getAuthToken();
-	const res = await fetchFn(token);
-
-	if (!res.ok) {
-		if (res.status === 401 || res.status === 403) {
-			redirect("/login");
-		}
-		throw new Error(`API request failed: ${res.status} ${res.statusText}`);
-	}
-
-	return res.json();
-}
 
 export async function GetCattleList(
 	queryParams: CattleListQueryParams = {},
@@ -124,6 +96,85 @@ export async function UpdateCattle(
 		breed?: string | null;
 		notes?: string | null;
 	},
+): Promise<void> {
+	return fetchWithAuth<void>((token) =>
+		client.api.v1.cattle[":id"].$patch(
+			{
+				param: { id: id.toString() },
+				json: data,
+			},
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			},
+		),
+	);
+}
+
+export type CreateCattleInput = {
+	identificationNumber: number;
+	earTagNumber: number;
+	name: string;
+	gender: string;
+	birthday: string;
+	growthStage:
+		| "CALF"
+		| "GROWING"
+		| "FATTENING"
+		| "FIRST_CALVED"
+		| "MULTI_PAROUS";
+	breed: string | null;
+	notes: string | null;
+	bloodline?: {
+		fatherCattleName: string | null;
+		motherFatherCattleName: string | null;
+		motherGrandFatherCattleName: string | null;
+		motherGreatGrandFatherCattleName: string | null;
+	};
+	breedingStatus?: {
+		parity: number | null;
+		expectedCalvingDate: string | null;
+		scheduledPregnancyCheckDate: string | null;
+		daysAfterCalving: number | null;
+		daysOpen: number | null;
+		pregnancyDays: number | null;
+		daysAfterInsemination: number | null;
+		inseminationCount: number | null;
+		breedingMemo: string | null;
+		isDifficultBirth: boolean | null;
+	};
+	breedingSummary?: {
+		totalInseminationCount: number | null;
+		averageDaysOpen: number | null;
+		averagePregnancyPeriod: number | null;
+		averageCalvingInterval: number | null;
+		difficultBirthCount: number | null;
+		pregnancyHeadCount: number | null;
+		pregnancySuccessRate: number | null;
+	};
+};
+
+export type UpdateCattleInput = CreateCattleInput;
+
+export async function CreateCattle(data: CreateCattleInput): Promise<void> {
+	return fetchWithAuth<void>((token) =>
+		client.api.v1.cattle.$post(
+			{
+				json: data,
+			},
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			},
+		),
+	);
+}
+
+export async function UpdateCattleDetailed(
+	id: number | string,
+	data: UpdateCattleInput,
 ): Promise<void> {
 	return fetchWithAuth<void>((token) =>
 		client.api.v1.cattle[":id"].$patch(
