@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createRoutes } from "../../routes/index";
-import type { Bindings } from "../../types";
+import { createRoutes } from "../../../src/routes";
+import type { Bindings } from "../../../src/types";
 
 describe("Routes Integration", () => {
 	let app: Hono<{ Bindings: Bindings }>;

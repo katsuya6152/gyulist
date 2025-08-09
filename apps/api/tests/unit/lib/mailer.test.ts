@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { sendVerificationEmail } from "../../lib/mailer";
-import type { Bindings } from "../../types";
+import { sendVerificationEmail } from "../../../src/lib/mailer";
+import type { Bindings } from "../../../src/types";
 
 describe("Mailer", () => {
 	let mockEnv: Bindings;

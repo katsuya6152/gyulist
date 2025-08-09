@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { generateToken, hashPassword } from "../../lib/token";
+import { generateToken, hashPassword } from "../../../src/lib/token";
 
 // crypto.getRandomValuesをモック
 const mockGetRandomValues = vi.fn();

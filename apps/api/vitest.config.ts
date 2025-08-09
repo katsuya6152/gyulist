@@ -10,7 +10,7 @@ export default defineConfig({
 			// テスト対象ファイルを明確に指定
 			include: [
 				"src/**/*.ts",
-				"!src/tests/**",
+				"!tests/**",
 				"!src/**/*.test.ts",
 				"!src/**/*.spec.ts",
 			],
@@ -22,7 +22,7 @@ export default defineConfig({
 				".wrangler/**",
 
 				// テスト関連ファイル
-				"src/tests/**",
+				"tests/**",
 				"**/__tests__/**",
 				"**/*.test.ts",
 				"**/*.spec.ts",
@@ -36,7 +36,7 @@ export default defineConfig({
 				"src/db/dummy/**",
 
 				// モックファイル
-				"src/tests/mocks/**",
+				"tests/fixtures/**",
 
 				// 型定義のみのファイル
 				"src/types.ts",

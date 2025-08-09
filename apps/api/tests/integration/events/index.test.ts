@@ -1,16 +1,16 @@
 import type { AnyD1Database } from "drizzle-orm/d1";
 import { Hono } from "hono";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import eventRoutes from "../../routes/events";
-import * as eventService from "../../services/eventService";
-import type { Bindings } from "../../types";
-import { mockEvent, mockEvents } from "../mocks/database";
+import eventRoutes from "../../../src/routes/events";
+import * as eventService from "../../../src/services/eventService";
+import type { Bindings } from "../../../src/types";
+import { mockEvent, mockEvents } from "../../fixtures/database";
 
 // Mock the service module
-vi.mock("../../services/eventService");
+vi.mock("../../../src/services/eventService");
 
 // Mock JWT middleware
-vi.mock("../../middleware/jwt", () => ({
+vi.mock("../../../src/middleware/jwt", () => ({
 	jwtMiddleware: vi.fn((c, next) => {
 		c.set("jwtPayload", { userId: 1 });
 		return next();

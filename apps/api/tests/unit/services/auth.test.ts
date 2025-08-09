@@ -1,22 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import * as authLib from "../../lib/auth";
-import * as mailerLib from "../../lib/mailer";
-import * as tokenLib from "../../lib/token";
-import * as userRepository from "../../repositories/userRepository";
+import * as authLib from "../../../src/lib/auth";
+import * as mailerLib from "../../../src/lib/mailer";
+import * as tokenLib from "../../../src/lib/token";
+import * as userRepository from "../../../src/repositories/userRepository";
 import {
 	completeRegistration,
 	login,
 	register,
 	verifyToken,
-} from "../../services/authService";
-import type { Bindings } from "../../types";
-import { createMockDB, mockUser } from "../mocks/database";
+} from "../../../src/services/authService";
+import type { Bindings } from "../../../src/types";
+import { createMockDB, mockUser } from "../../fixtures/database";
 
 // Mock all dependencies
-vi.mock("../../repositories/userRepository");
-vi.mock("../../lib/auth");
-vi.mock("../../lib/token");
-vi.mock("../../lib/mailer");
+vi.mock("../../../src/repositories/userRepository");
+vi.mock("../../../src/lib/auth");
+vi.mock("../../../src/lib/token");
+vi.mock("../../../src/lib/mailer");
 
 const mockUserRepository = vi.mocked(userRepository);
 const mockAuthLib = vi.mocked(authLib);

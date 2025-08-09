@@ -1,8 +1,8 @@
 import type { InferSelectModel } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { events, cattle } from "../../db/schema";
-import * as cattleRepository from "../../repositories/cattleRepository";
-import * as eventRepository from "../../repositories/eventRepository";
+import type { events, cattle } from "../../../src/db/schema";
+import * as cattleRepository from "../../../src/repositories/cattleRepository";
+import * as eventRepository from "../../../src/repositories/eventRepository";
 import {
 	createNewEvent,
 	deleteEventData,
@@ -10,23 +10,23 @@ import {
 	getEventsByCattleId,
 	searchEventList,
 	updateEventData,
-} from "../../services/eventService";
+} from "../../../src/services/eventService";
 import type {
 	CreateEventInput,
 	SearchEventQuery,
 	UpdateEventInput,
-} from "../../validators/eventValidator";
+} from "../../../src/validators/eventValidator";
 import {
 	createMockDB,
 	mockCattle,
 	mockCreatedEvent,
 	mockEvent,
 	mockEvents,
-} from "../mocks/database";
+} from "../../fixtures/database";
 
 // Mock the repository modules
-vi.mock("../../repositories/cattleRepository");
-vi.mock("../../repositories/eventRepository");
+vi.mock("../../../src/repositories/cattleRepository");
+vi.mock("../../../src/repositories/eventRepository");
 
 const mockEventRepository = vi.mocked(eventRepository);
 const mockCattleRepository = vi.mocked(cattleRepository);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateAge } from "../../utils/date";
+import { calculateAge } from "../../../src/utils/date";
 
 describe("Date Utils", () => {
 	describe("calculateAge function", () => {

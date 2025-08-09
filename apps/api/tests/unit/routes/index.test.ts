@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { describe, expect, it } from "vitest";
-import { createRoutes } from "../../routes";
-import type { Bindings } from "../../types";
+import { createRoutes } from "../../../src/routes";
+import type { Bindings } from "../../../src/types";
 
 describe("Routes", () => {
 	it("should create routes successfully", () => {
