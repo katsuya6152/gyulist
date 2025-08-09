@@ -58,4 +58,50 @@ describe("CattleNewPresentation", () => {
 		expect(screen.getByText(/ヶ月/)).toBeInTheDocument();
 		expect(screen.getByText(/歳/)).toBeInTheDocument();
 	});
+
+	it("should render bloodline information fields", () => {
+		render(<CattleNewPresentation error={undefined} />);
+
+		// 血統情報のフィールドを確認
+		expect(screen.getByLabelText("父牛名")).toBeInTheDocument();
+		expect(screen.getByLabelText("母の父牛名")).toBeInTheDocument();
+		expect(screen.getByLabelText("母の祖父牛名")).toBeInTheDocument();
+		expect(screen.getByLabelText("母の曾祖父牛名")).toBeInTheDocument();
+	});
+
+	it("should show breeding information for non-calf growth stages", async () => {
+		const user = userEvent.setup();
+		render(<CattleNewPresentation error={undefined} />);
+
+		// 成長段階を経産牛に変更
+		const growthStageSelect = screen.getByLabelText(/成長段階/);
+		await user.selectOptions(growthStageSelect, "MULTI_PAROUS");
+
+		// 繁殖情報が表示されることを確認
+		expect(screen.getByText("繁殖情報")).toBeInTheDocument();
+		expect(screen.getByLabelText("分娩予定日")).toBeInTheDocument();
+		expect(screen.getByLabelText("妊娠鑑定予定日")).toBeInTheDocument();
+		expect(screen.getByLabelText("繁殖メモ")).toBeInTheDocument();
+	});
+
+	it("should handle form field inputs", async () => {
+		const user = userEvent.setup();
+		render(<CattleNewPresentation error={undefined} />);
+
+		// フォームフィールドに入力
+		await user.type(screen.getByLabelText(/個体識別番号/), "12345");
+		await user.type(screen.getByLabelText(/耳標番号/), "67890");
+		await user.type(screen.getByLabelText(/名号/), "テスト牛");
+		await user.selectOptions(screen.getByLabelText(/性別/), "メス");
+		await user.selectOptions(screen.getByLabelText(/成長段階/), "GROWING");
+		await user.type(screen.getByLabelText(/品種/), "黒毛和種");
+
+		// 入力値を確認
+		expect(screen.getByLabelText(/個体識別番号/)).toHaveValue("12345");
+		expect(screen.getByLabelText(/耳標番号/)).toHaveValue("67890");
+		expect(screen.getByLabelText(/名号/)).toHaveValue("テスト牛");
+		expect(screen.getByLabelText(/性別/)).toHaveValue("メス");
+		expect(screen.getByLabelText(/成長段階/)).toHaveValue("GROWING");
+		expect(screen.getByLabelText(/品種/)).toHaveValue("黒毛和種");
+	});
 });

@@ -30,6 +30,8 @@ const createTestApp = () => {
 			JWT_SECRET: "test-secret",
 			ENVIRONMENT: "test",
 			APP_URL: "http://localhost:3000",
+			GOOGLE_CLIENT_ID: "test-client-id",
+			GOOGLE_CLIENT_SECRET: "test-client-secret",
 		};
 		await next();
 	});
