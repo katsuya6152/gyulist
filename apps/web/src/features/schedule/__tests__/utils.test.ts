@@ -1,53 +1,71 @@
 import { addDays, endOfDay, startOfDay } from "date-fns";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { type DateFilter, getTargetDate } from "../utils";
+import type { Event } from "../constants";
+import {
+	filterEventsByDate,
+	formatEventDate,
+	formatEventTime,
+	formatFilterDate,
+	prepareFilterEventData,
+	sortAllEvents,
+} from "../utils";
 
-describe("getTargetDate", () => {
-	beforeEach(() => {
-		// Set a fixed date for consistent testing
-		vi.setSystemTime(new Date("2024-01-15T10:00:00.000Z"));
-	});
-
-	it('should return today\'s date for "today" filter', () => {
-		const result = getTargetDate("today");
-		expect(result).toEqual(new Date("2024-01-15T10:00:00.000Z"));
-	});
-
-	it('should return tomorrow\'s date for "tomorrow" filter', () => {
-		const result = getTargetDate("tomorrow");
-		expect(result).toEqual(new Date("2024-01-16T10:00:00.000Z"));
-	});
-
-	it('should return day after tomorrow\'s date for "dayAfterTomorrow" filter', () => {
-		const result = getTargetDate("dayAfterTomorrow");
-		expect(result).toEqual(new Date("2024-01-17T10:00:00.000Z"));
-	});
-
-	it("should return custom date when provided", () => {
-		const customDate = "2024-01-20";
-		const result = getTargetDate("custom", customDate);
-		expect(result).toEqual(new Date("2024-01-20T00:00:00.000Z"));
-	});
-
-	it("should return null for custom filter without date", () => {
-		const result = getTargetDate("custom");
-		expect(result).toBeNull();
-	});
-
-	it('should return null for "all" filter', () => {
-		const result = getTargetDate("all");
-		expect(result).toBeNull();
-	});
-
-	it("should return null for unknown filter", () => {
-		const result = getTargetDate("unknown" as DateFilter);
-		expect(result).toBeNull();
-	});
-});
+// Mock event data for testing
+const mockEvents: Event[] = [
+	{
+		eventId: 1,
+		cattleId: 1,
+		eventType: "ESTRUS",
+		eventDatetime: "2024-01-15T08:00:00.000Z",
+		cattleName: "Test Cattle 1",
+		cattleEarTagNumber: "001",
+		notes: "Test note 1",
+		createdAt: "2024-01-15T08:00:00.000Z",
+		updatedAt: "2024-01-15T08:00:00.000Z",
+	},
+	{
+		eventId: 2,
+		cattleId: 2,
+		eventType: "VACCINATION",
+		eventDatetime: "2024-01-16T10:00:00.000Z",
+		cattleName: "Test Cattle 2",
+		cattleEarTagNumber: "002",
+		notes: "Test note 2",
+		createdAt: "2024-01-16T10:00:00.000Z",
+		updatedAt: "2024-01-16T10:00:00.000Z",
+	},
+	{
+		eventId: 3,
+		cattleId: 3,
+		eventType: "CALVING",
+		eventDatetime: "2024-01-15T14:00:00.000Z",
+		cattleName: "Test Cattle 3",
+		cattleEarTagNumber: "003",
+		notes: "Test note 3",
+		createdAt: "2024-01-15T14:00:00.000Z",
+		updatedAt: "2024-01-15T14:00:00.000Z",
+	},
+];
 
 describe("Date formatting utilities", () => {
 	beforeEach(() => {
 		vi.setSystemTime(new Date("2024-01-15T10:00:00.000Z"));
+	});
+
+	it("should format event date correctly", () => {
+		const result = formatEventDate("2024-01-15T08:00:00.000Z");
+		expect(result).toMatch(/1月15日/);
+	});
+
+	it("should format event time correctly", () => {
+		const result = formatEventTime("2024-01-15T08:30:00.000Z");
+		expect(result).toMatch(/\d{2}:\d{2}/); // HH:MM format check instead of exact time
+	});
+
+	it("should format filter date correctly", () => {
+		const date = new Date("2024-01-15T00:00:00.000Z");
+		const result = formatFilterDate(date);
+		expect(result).toMatch(/1\/15/);
 	});
 
 	it("should create correct start and end dates for API queries", () => {
@@ -82,5 +100,38 @@ describe("Date formatting utilities", () => {
 		expect(endDate.getHours()).toBe(23);
 		expect(endDate.getMinutes()).toBe(59);
 		expect(endDate.getSeconds()).toBe(59);
+	});
+});
+
+describe("Event filtering utilities", () => {
+	beforeEach(() => {
+		vi.setSystemTime(new Date("2024-01-15T10:00:00.000Z"));
+	});
+
+	it("should filter events by date correctly", () => {
+		const targetDate = new Date("2024-01-15T00:00:00.000Z");
+		const result = filterEventsByDate(mockEvents, targetDate);
+
+		expect(result).toHaveLength(2); // Two events on 2024-01-15
+		expect(result[0].eventId).toBe(3); // Should be sorted by datetime desc
+		expect(result[1].eventId).toBe(1);
+	});
+
+	it("should sort all events correctly", () => {
+		const result = sortAllEvents(mockEvents);
+
+		expect(result).toHaveLength(3);
+		expect(result[0].eventId).toBe(2); // 2024-01-16 (latest)
+		expect(result[1].eventId).toBe(3); // 2024-01-15 14:00
+		expect(result[2].eventId).toBe(1); // 2024-01-15 08:00
+	});
+
+	it("should prepare filter event data correctly", () => {
+		const result = prepareFilterEventData(mockEvents);
+
+		expect(result.today).toHaveLength(2);
+		expect(result.tomorrow).toHaveLength(1);
+		expect(result.dayAfterTomorrow).toHaveLength(0);
+		expect(result.all).toHaveLength(3);
 	});
 });

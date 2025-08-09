@@ -1,34 +1,59 @@
-import { addDays } from "date-fns";
+import { addDays, format, parseISO } from "date-fns";
+import { ja } from "date-fns/locale";
+import type { Event } from "./constants";
 
-export type DateFilter =
-	| "all"
-	| "today"
-	| "tomorrow"
-	| "dayAfterTomorrow"
-	| "custom";
+// 日付フォーマット関数をメモ化
+export const formatEventDate = (dateString: string) => {
+	return format(parseISO(dateString), "M月d日 (E)", { locale: ja });
+};
 
-/**
- * 日付フィルターに基づいてtargetDateを取得
- * @param filter 日付フィルター
- * @param customDate カスタム日付（文字列形式）
- * @returns 対象の日付またはnull
- */
-export function getTargetDate(
-	filter: DateFilter,
-	customDate?: string,
-): Date | null {
+export const formatEventTime = (dateString: string) => {
+	return format(parseISO(dateString), "HH:mm");
+};
+
+export const formatFilterDate = (date: Date) => {
+	return format(date, "M/d", { locale: ja });
+};
+
+// イベントデータをフィルタリングする関数
+export const filterEventsByDate = (
+	events: Event[],
+	targetDate: Date,
+): Event[] => {
+	return events
+		.filter((event) => {
+			const eventDate = new Date(event.eventDatetime);
+			return (
+				eventDate.getFullYear() === targetDate.getFullYear() &&
+				eventDate.getMonth() === targetDate.getMonth() &&
+				eventDate.getDate() === targetDate.getDate()
+			);
+		})
+		.sort(
+			(a, b) =>
+				new Date(b.eventDatetime).getTime() -
+				new Date(a.eventDatetime).getTime(),
+		);
+};
+
+// 全イベントをソートする関数
+export const sortAllEvents = (events: Event[]): Event[] => {
+	return [...events].sort(
+		(a, b) =>
+			new Date(b.eventDatetime).getTime() - new Date(a.eventDatetime).getTime(),
+	);
+};
+
+// フィルター別のイベントデータを準備する関数
+export const prepareFilterEventData = (events: Event[]) => {
 	const today = new Date();
+	const tomorrow = addDays(today, 1);
+	const dayAfterTomorrow = addDays(today, 2);
 
-	switch (filter) {
-		case "today":
-			return today;
-		case "tomorrow":
-			return addDays(today, 1);
-		case "dayAfterTomorrow":
-			return addDays(today, 2);
-		case "custom":
-			return customDate ? new Date(customDate) : null;
-		default:
-			return null;
-	}
-}
+	return {
+		today: filterEventsByDate(events, today),
+		tomorrow: filterEventsByDate(events, tomorrow),
+		dayAfterTomorrow: filterEventsByDate(events, dayAfterTomorrow),
+		all: sortAllEvents(events),
+	};
+};
