@@ -43,7 +43,7 @@ export function SettingsPresentation() {
 			const result = await updateThemeAction(newTheme);
 
 			if (result.success) {
-				if (result.message === "demo") {
+				if ("message" in result && result.message === "demo") {
 					toast.info("テーマを更新しました", {
 						description:
 							"デモアカウントのため、実際にデータベースには保存されていません",

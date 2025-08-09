@@ -43,7 +43,7 @@ export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 		setDeleteError(null);
 
 		try {
-			const result = await deleteCattleAction(cattle.cattleId.toString());
+			const result = await deleteCattleAction(cattle.cattleId);
 
 			if (result.success) {
 				if ("message" in result && result.message === "demo") {

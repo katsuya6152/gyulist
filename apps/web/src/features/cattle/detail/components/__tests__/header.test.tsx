@@ -196,7 +196,7 @@ describe("CattleDetailHeader", () => {
 		await user.click(confirmDeleteButton);
 
 		// 削除アクションが呼ばれることを確認
-		expect(deleteCattleAction).toHaveBeenCalledWith("1");
+		expect(deleteCattleAction).toHaveBeenCalledWith(1);
 
 		// 成功トーストが表示されることを確認
 		expect(toast.success).toHaveBeenCalledWith(

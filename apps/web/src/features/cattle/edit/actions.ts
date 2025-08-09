@@ -1,9 +1,12 @@
 "use server";
 
+import { createDemoResponse, isDemo } from "@/lib/api-client";
 import { verifyAndGetUserId } from "@/lib/jwt";
-import { client } from "@/lib/rpc";
+import {
+	UpdateCattleDetailed,
+	type UpdateCattleInput,
+} from "@/services/cattleService";
 import { parseWithZod } from "@conform-to/zod";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { updateCattleSchema } from "./schema";
 
@@ -20,22 +23,23 @@ export async function updateCattleAction(
 	}
 
 	try {
-		const cookieStore = await cookies();
-		const token = cookieStore.get("token")?.value;
-
-		if (!token) {
-			redirect("/login");
-		}
-
 		const userId = await verifyAndGetUserId();
-		if (userId === 1) {
-			return { status: "success" as const, message: "demo" };
+		if (isDemo(userId)) {
+			return createDemoResponse("success");
 		}
 
 		const data = submission.value;
 
+		// 牛のIDを取得
+		const cattleId = formData.get("cattleId") as string;
+		if (!cattleId) {
+			return submission.reply({
+				formErrors: ["牛のIDが見つかりません"],
+			});
+		}
+
 		// APIに送信するデータを準備
-		const apiData = {
+		const apiData: UpdateCattleInput = {
 			identificationNumber: data.identificationNumber,
 			earTagNumber: data.earTagNumber,
 			name: data.name,
@@ -75,43 +79,21 @@ export async function updateCattleAction(
 				: undefined,
 		};
 
-		// 牛のIDを取得（URLから取得する必要があります）
-		const cattleId = formData.get("cattleId") as string;
-		if (!cattleId) {
-			return submission.reply({
-				formErrors: ["牛のIDが見つかりません"],
-			});
-		}
-
-		const response = await client.api.v1.cattle[":id"].$patch(
-			{
-				param: { id: cattleId },
-				json: apiData,
-			},
-			{
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			},
-		);
-
-		if (!response.ok) {
-			if (
-				(response.status as number) === 401 ||
-				(response.status as number) === 403
-			) {
-				redirect("/login");
-			}
-			const error = await response.text();
-			return submission.reply({
-				formErrors: [error || "牛の更新に失敗しました"],
-			});
-		}
+		await UpdateCattleDetailed(cattleId, apiData);
 
 		// 成功時のレスポンス
 		return submission.reply();
 	} catch (error) {
 		console.error("Failed to update cattle:", error);
+
+		// 認証エラーの場合はリダイレクト
+		if (
+			error instanceof Error &&
+			(error.message.includes("401") || error.message.includes("403"))
+		) {
+			redirect("/login");
+		}
+
 		return submission.reply({
 			formErrors: ["牛の更新に失敗しました"],
 		});
