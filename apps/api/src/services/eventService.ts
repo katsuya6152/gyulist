@@ -13,6 +13,7 @@ import type {
 	SearchEventQuery,
 	UpdateEventInput,
 } from "../validators/eventValidator";
+import { updateStatus } from "./statusService";
 
 // イベント一覧取得（牛IDでフィルタ）
 export async function getEventsByCattleId(
@@ -66,6 +67,20 @@ export async function createNewEvent(
 	// イベント作成
 	const newEvent = await createEvent(db, data);
 
+	// 特定のイベント種別に応じて状態を更新
+	switch (data.eventType) {
+		case "INSEMINATION":
+		case "PREGNANCY_CHECK":
+			await updateStatus(db, data.cattleId, "PREGNANT");
+			break;
+		case "TREATMENT_START":
+			await updateStatus(db, data.cattleId, "TREATING");
+			break;
+		case "TREATMENT_END":
+			await updateStatus(db, data.cattleId, "HEALTHY");
+			break;
+	}
+
 	// 作成されたイベントの詳細を取得して返す
 	return await findEventById(db, newEvent.eventId, ownerUserId);
 }
@@ -85,6 +100,22 @@ export async function updateEventData(
 
 	// イベント更新
 	const updatedEvent = await updateEvent(db, eventId, data);
+
+	// イベント種別が更新された場合の状態遷移
+	if (data.eventType) {
+		switch (data.eventType) {
+			case "INSEMINATION":
+			case "PREGNANCY_CHECK":
+				await updateStatus(db, existingEvent.cattleId, "PREGNANT");
+				break;
+			case "TREATMENT_START":
+				await updateStatus(db, existingEvent.cattleId, "TREATING");
+				break;
+			case "TREATMENT_END":
+				await updateStatus(db, existingEvent.cattleId, "HEALTHY");
+				break;
+		}
+	}
 
 	// 更新されたイベントの詳細を取得して返す
 	return await findEventById(db, updatedEvent.eventId, ownerUserId);

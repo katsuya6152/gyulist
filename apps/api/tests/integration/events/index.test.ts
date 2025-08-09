@@ -291,6 +291,29 @@ describe("Events API Integration Tests", () => {
 			expect(data).toEqual(mockEvent);
 		});
 
+		it.each([
+			"INSEMINATION",
+			"PREGNANCY_CHECK",
+			"TREATMENT_START",
+			"TREATMENT_END",
+		] as const)("should create %s event", async (type) => {
+			// Arrange
+			const event = { ...mockEvent, eventType: type };
+			mockEventService.createNewEvent.mockResolvedValue(event);
+
+			// Act
+			const req = createTestRequest("POST", "/events", {
+				...validEventData,
+				eventType: type,
+			});
+			const res = await app.request(req);
+
+			// Assert
+			expect(res.status).toBe(201);
+			const data = await res.json();
+			expect(data).toEqual(event);
+		});
+
 		it("should handle validation error", async () => {
 			// Act
 			const req = createTestRequest("POST", "/events", {

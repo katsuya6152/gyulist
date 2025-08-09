@@ -4,6 +4,9 @@ import { z } from "zod";
 export const eventTypes = [
 	"ESTRUS", // 発情
 	"INSEMINATION", // 受精（人工授精）
+	"PREGNANCY_CHECK", // 妊娠鑑定
+	"TREATMENT_START", // 治療開始
+	"TREATMENT_END", // 治療終了
 	"CALVING", // 分娩
 	"VACCINATION", // ワクチン接種
 	"SHIPMENT", // 出荷

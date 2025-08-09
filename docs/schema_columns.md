@@ -63,7 +63,7 @@
 |                      | updatedAt                       | 更新日時                      | システム自動設定   | Yes  |
 | **events**           | eventId                         | イベントID                    | システム自動設定   | Yes  |
 |                | cattleId                        | 牛ID                          | システム自動設定   | Yes  |
-|                      | eventType                       | イベント種別                  | ユーザー入力       | Yes  |
+|                      | eventType                       | イベント種別 (ESTRUS / INSEMINATION / PREGNANCY_CHECK / TREATMENT_START / TREATMENT_END / CALVING / VACCINATION / SHIPMENT / HOOF_TRIMMING / OTHER) | ユーザー入力       | Yes  |
 |                      | eventDatetime                   | イベント日時                  | ユーザー入力       | Yes  |
 |                      | notes                            | メモ                           | ユーザー入力       | No   |
 |                      | createdAt                       | 登録日時                      | システム自動設定   | Yes  |
