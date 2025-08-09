@@ -30,6 +30,8 @@ const createTestApp = () => {
 			JWT_SECRET: "test-secret",
 			ENVIRONMENT: "test",
 			APP_URL: "http://localhost:3000",
+			GOOGLE_CLIENT_ID: "test-client-id",
+			GOOGLE_CLIENT_SECRET: "test-client-secret",
 		};
 		await next();
 	});
@@ -39,7 +41,7 @@ const createTestApp = () => {
 };
 
 // Helper function to create test requests
-const createTestRequest = (method: string, url: string) => {
+const createTestRequest = (method: string, url: string, body?: unknown) => {
 	const headers: Record<string, string> = {
 		"Content-Type": "application/json",
 	};
@@ -47,6 +49,7 @@ const createTestRequest = (method: string, url: string) => {
 	return new Request(`http://localhost${url}`, {
 		method,
 		headers,
+		body: body ? JSON.stringify(body) : undefined,
 	});
 };
 
@@ -61,7 +64,11 @@ describe("Users API Integration Tests", () => {
 	describe("GET /users/:id", () => {
 		it("should return user details", async () => {
 			// Arrange
-			mockUserService.getUserById.mockResolvedValue(mockUser);
+			mockUserService.getUserById.mockResolvedValue(
+				mockUser as Parameters<
+					typeof mockUserService.getUserById.mockResolvedValue
+				>[0],
+			);
 
 			// Act
 			const req = createTestRequest("GET", "/users/1");
@@ -109,6 +116,82 @@ describe("Users API Integration Tests", () => {
 
 			// Act
 			const req = createTestRequest("GET", "/users/1");
+			const res = await app.request(req);
+
+			// Assert
+			expect(res.status).toBe(500);
+			const data = await res.json();
+			expect(data.error).toBe("Internal Server Error");
+		});
+	});
+
+	describe("PATCH /users/:id/theme", () => {
+		it("should update user theme successfully", async () => {
+			// Arrange
+			mockUserService.updateTheme.mockResolvedValue(undefined);
+
+			// Act
+			const req = createTestRequest("PATCH", "/users/1/theme", {
+				theme: "dark",
+			});
+			const res = await app.request(req);
+
+			// Assert
+			expect(res.status).toBe(200);
+			const data = await res.json();
+			expect(data).toEqual({ success: true, theme: "dark" });
+			expect(mockUserService.updateTheme).toHaveBeenCalledWith(
+				expect.anything(),
+				1,
+				"dark",
+			);
+		});
+
+		it("should return 400 for invalid theme", async () => {
+			// Act
+			const req = createTestRequest("PATCH", "/users/1/theme", {
+				theme: "invalid-theme",
+			});
+			const res = await app.request(req);
+
+			// Assert
+			expect(res.status).toBe(400);
+			const data = await res.json();
+			expect(data.error).toBeDefined();
+		});
+
+		it("should return 400 for missing theme", async () => {
+			// Act
+			const req = createTestRequest("PATCH", "/users/1/theme", {});
+			const res = await app.request(req);
+
+			// Assert
+			expect(res.status).toBe(400);
+			const data = await res.json();
+			expect(data.error).toBeDefined();
+		});
+
+		it("should return 400 for invalid user ID", async () => {
+			// Act
+			const req = createTestRequest("PATCH", "/users/invalid/theme", {
+				theme: "dark",
+			});
+			const res = await app.request(req);
+
+			// Assert
+			expect(res.status).toBe(400);
+		});
+
+		it("should handle internal server error", async () => {
+			// Arrange
+			mockUserService.updateTheme.mockRejectedValue(
+				new Error("Database error"),
+			);
+
+			// Act
+			const req = createTestRequest("PATCH", "/users/1/theme", {
+				theme: "dark",
+			});
 			const res = await app.request(req);
 
 			// Assert
