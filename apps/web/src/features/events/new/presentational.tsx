@@ -46,7 +46,13 @@ export function EventNewPresentation({ cattle }: EventNewPresentationProps) {
 			lastResult.status === "success" &&
 			"message" in lastResult
 		) {
-			toast.success(lastResult.message);
+			if (lastResult.message === "demo") {
+				toast.info("イベントを登録しました", {
+					description: "デモアカウントのため、実際に保存はされていません",
+				});
+			} else {
+				toast.success(lastResult.message);
+			}
 			// 牛の詳細画面にリダイレクト
 			router.push(`/cattle/${cattle.cattleId}`);
 		} else if (

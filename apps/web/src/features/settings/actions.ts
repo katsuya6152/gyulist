@@ -17,6 +17,9 @@ export async function updateThemeAction(theme: "light" | "dark" | "system") {
 	try {
 		// JWTからユーザーIDを取得
 		const userId = await verifyAndGetUserId();
+		if (userId === 1) {
+			return { success: true, message: "demo" };
+		}
 
 		// テーマを更新
 		await updateTheme(userId, theme);

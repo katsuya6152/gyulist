@@ -142,15 +142,21 @@ const CattleEditPresentation = ({
 	useEffect(() => {
 		if (lastResult) {
 			if (lastResult.status === "success") {
-				toast.success("牛の更新が完了しました", {
-					description: "牛の情報が正常に更新されました",
-					duration: 10000,
-					style: {
-						background: "#f0fdf4",
-						border: "1px solid #bbf7d0",
-						color: "#166534",
-					},
-				});
+				if ("message" in lastResult && lastResult.message === "demo") {
+					toast.info("牛の更新が完了しました", {
+						description: "デモアカウントのため、実際に更新はされていません",
+					});
+				} else {
+					toast.success("牛の更新が完了しました", {
+						description: "牛の情報が正常に更新されました",
+						duration: 10000,
+						style: {
+							background: "#f0fdf4",
+							border: "1px solid #bbf7d0",
+							color: "#166534",
+						},
+					});
+				}
 				router.push(`/cattle/${cattle.cattleId}`);
 			} else if (lastResult.status === "error") {
 				toast.error("更新に失敗しました", {

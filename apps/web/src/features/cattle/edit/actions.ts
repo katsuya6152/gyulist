@@ -1,5 +1,6 @@
 "use server";
 
+import { verifyAndGetUserId } from "@/lib/jwt";
 import { client } from "@/lib/rpc";
 import { parseWithZod } from "@conform-to/zod";
 import { cookies } from "next/headers";
@@ -24,6 +25,11 @@ export async function updateCattleAction(
 
 		if (!token) {
 			redirect("/login");
+		}
+
+		const userId = await verifyAndGetUserId();
+		if (userId === 1) {
+			return { status: "success" as const, message: "demo" };
 		}
 
 		const data = submission.value;

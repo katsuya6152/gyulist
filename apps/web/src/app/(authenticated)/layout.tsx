@@ -50,12 +50,7 @@ export default async function AuthenticatedLayout({
 				</main>
 				<FooterNav />
 				<ScrollToTop threshold={200} duration={500} />
-				<Toaster
-					position="top-center"
-					richColors
-					closeButton
-					duration={10000}
-				/>
+				<Toaster position="top-center" richColors closeButton duration={5000} />
 			</div>
 		</ThemeProvider>
 	);

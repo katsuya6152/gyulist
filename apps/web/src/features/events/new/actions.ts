@@ -1,11 +1,11 @@
 "use server";
 
+import { verifyAndGetUserId } from "@/lib/jwt";
 import { CreateEvent } from "@/services/eventService";
 import { parseWithZod } from "@conform-to/zod";
 import { format, parseISO } from "date-fns";
 import { redirect } from "next/navigation";
 import { createEventSchema } from "./schema";
-
 export async function createEventAction(
 	prevState: unknown,
 	formData: FormData,
@@ -16,6 +16,11 @@ export async function createEventAction(
 
 	if (submission.status !== "success") {
 		return submission.reply();
+	}
+
+	const userId = await verifyAndGetUserId();
+	if (userId === 1) {
+		return { status: "success" as const, message: "demo" };
 	}
 
 	try {

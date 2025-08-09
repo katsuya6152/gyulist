@@ -438,14 +438,23 @@ export function SchedulePresentation({
 				const result = await updateEventAction(eventId, data);
 
 				if (result.success) {
-					toast.success("イベントを更新しました");
+					if ("message" in result && result.message === "demo") {
+						toast.info("イベントを更新しました", {
+							description: "デモアカウントのため、実際に更新はされていません",
+						});
+					} else {
+						toast.success("イベントを更新しました");
+					}
 					setIsEditDialogOpen(false);
 					setTimeout(() => {
 						setEditingEvent(null);
 						router.refresh();
 					}, 150);
 				} else {
-					toast.error(result.error || "イベントの更新に失敗しました");
+					toast.error(
+						("error" in result && result.error) ||
+							"イベントの更新に失敗しました",
+					);
 				}
 			} catch (error) {
 				console.error("Failed to update event:", error);
@@ -463,14 +472,23 @@ export function SchedulePresentation({
 				const result = await deleteEventAction(eventId);
 
 				if (result.success) {
-					toast.success("イベントを削除しました");
+					if ("message" in result && result.message === "demo") {
+						toast.info("イベントを削除しました", {
+							description: "デモアカウントのため、実際に削除はされていません",
+						});
+					} else {
+						toast.success("イベントを削除しました");
+					}
 					setIsDeleteDialogOpen(false);
 					setTimeout(() => {
 						setDeletingEvent(null);
 						router.refresh();
 					}, 150);
 				} else {
-					toast.error(result.error || "イベントの削除に失敗しました");
+					toast.error(
+						("error" in result && result.error) ||
+							"イベントの削除に失敗しました",
+					);
 				}
 			} catch (error) {
 				console.error("Failed to delete event:", error);

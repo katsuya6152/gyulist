@@ -1,5 +1,6 @@
 "use server";
 
+import { verifyAndGetUserId } from "@/lib/jwt";
 import { client } from "@/lib/rpc";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -11,6 +12,11 @@ export async function deleteCattleAction(cattleId: string) {
 
 		if (!token) {
 			redirect("/login");
+		}
+
+		const userId = await verifyAndGetUserId();
+		if (userId === 1) {
+			return { success: true, message: "demo" };
 		}
 
 		const response = await client.api.v1.cattle[":id"].$delete(

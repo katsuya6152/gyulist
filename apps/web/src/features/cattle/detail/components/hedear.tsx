@@ -46,17 +46,22 @@ export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 			const result = await deleteCattleAction(cattle.cattleId.toString());
 
 			if (result.success) {
-				// 削除成功時のトースト表示
-				toast.success("牛の削除が完了しました", {
-					description: `${cattle.name}（個体識別番号: ${cattle.identificationNumber}）を削除しました`,
-					// duration: 10000,
-					style: {
-						background: "#f0fdf4",
-						border: "1px solid #bbf7d0",
-						color: "#166534",
-					},
-				});
-
+				if ("message" in result && result.message === "demo") {
+					toast.info("牛の削除が完了しました", {
+						description: "デモアカウントのため、実際に削除はされていません",
+					});
+				} else {
+					// 削除成功時のトースト表示
+					toast.success("牛の削除が完了しました", {
+						description: `${cattle.name}（個体識別番号: ${cattle.identificationNumber}）を削除しました`,
+						// duration: 10000,
+						style: {
+							background: "#f0fdf4",
+							border: "1px solid #bbf7d0",
+							color: "#166534",
+						},
+					});
+				}
 				// 牛一覧ページにリダイレクト
 				router.push("/cattle");
 			} else {
