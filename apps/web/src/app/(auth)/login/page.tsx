@@ -1,5 +1,6 @@
 "use client";
 
+import { PCNotification } from "@/components/pc-notification";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -69,6 +70,9 @@ export default function LoginPage() {
 
 	return (
 		<div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10 bg-gradient-to-br from-background to-muted/30 animate-fade-in">
+			{/* PC通知コンポーネント */}
+			<PCNotification />
+
 			<div className="w-full max-w-sm animate-fade-in-up">
 				<div className={cn("flex flex-col gap-6")}>
 					<Card

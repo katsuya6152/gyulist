@@ -1,4 +1,5 @@
 import { FooterNav } from "@/components/footer-nav";
+import { PCNotification } from "@/components/pc-notification";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { verifyAndGetUserId } from "@/lib/jwt";
 import { ThemeProvider } from "@/lib/theme-provider";
@@ -45,6 +46,9 @@ export default async function AuthenticatedLayout({
 	return (
 		<ThemeProvider defaultTheme={userTheme as "light" | "dark" | "system"}>
 			<div className="min-h-screen pb-20 scroll-smooth">
+				{/* PC通知コンポーネント */}
+				<PCNotification />
+
 				<main className="relative z-0 page-wrapper animate-fade-in bg-background">
 					{children}
 				</main>
