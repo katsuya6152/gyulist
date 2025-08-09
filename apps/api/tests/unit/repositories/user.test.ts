@@ -1,6 +1,6 @@
 import type { AnyD1Database } from "drizzle-orm/d1";
 import { describe, expect, it } from "vitest";
-import * as userRepository from "../../repositories/userRepository";
+import * as userRepository from "../../../src/repositories/userRepository";
 
 describe("UserRepository", () => {
 	describe("exports", () => {

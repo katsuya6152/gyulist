@@ -6,10 +6,10 @@ import {
 	getCattleById,
 	searchCattleList,
 	updateCattleData,
-} from "../../services/cattleService";
+} from "../../../src/services/cattleService";
 
 // repositoriesをモック
-vi.mock("../../repositories/cattleRepository", () => ({
+vi.mock("../../../src/repositories/cattleRepository", () => ({
 	findCattleById: vi.fn(),
 	createCattle: vi.fn(),
 	updateCattle: vi.fn(),
@@ -24,7 +24,7 @@ vi.mock("../../repositories/cattleRepository", () => ({
 }));
 
 // utilsをモック
-vi.mock("../../utils/date", () => ({
+vi.mock("../../../src/utils/date", () => ({
 	calculateAge: vi.fn(),
 }));
 

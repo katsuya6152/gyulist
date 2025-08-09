@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import * as userRepository from "../../repositories/userRepository";
-import { getUserById, updateTheme } from "../../services/userService";
-import { createMockDB, mockUser } from "../mocks/database";
+import * as userRepository from "../../../src/repositories/userRepository";
+import { getUserById, updateTheme } from "../../../src/services/userService";
+import { createMockDB, mockUser } from "../../fixtures/database";
 
 // Mock the repository module
-vi.mock("../../repositories/userRepository");
+vi.mock("../../../src/repositories/userRepository");
 
 const mockUserRepository = vi.mocked(userRepository);
 

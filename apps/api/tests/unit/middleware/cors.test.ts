@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { corsMiddleware } from "../../middleware/cors";
+import { corsMiddleware } from "../../../src/middleware/cors";
 
 describe("CORS Middleware", () => {
 	it("should export cors middleware", () => {

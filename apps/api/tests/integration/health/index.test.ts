@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { describe, expect, it, vi } from "vitest";
-import healthRoutes from "../../routes/health";
-import type { Bindings } from "../../types";
+import healthRoutes from "../../../src/routes/health";
+import type { Bindings } from "../../../src/types";
 
 // Create test app
 const createTestApp = () => {

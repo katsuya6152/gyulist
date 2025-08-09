@@ -1,6 +1,6 @@
 import type { AnyD1Database } from "drizzle-orm/d1";
 import { describe, expect, it } from "vitest";
-import * as eventRepository from "../../repositories/eventRepository";
+import * as eventRepository from "../../../src/repositories/eventRepository";
 
 describe("EventRepository", () => {
 	describe("exports", () => {

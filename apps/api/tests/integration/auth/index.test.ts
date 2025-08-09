@@ -1,12 +1,12 @@
 import type { AnyD1Database } from "drizzle-orm/d1";
 import { Hono } from "hono";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import authRoutes from "../../routes/auth";
-import * as authService from "../../services/authService";
-import type { Bindings } from "../../types";
+import authRoutes from "../../../src/routes/auth";
+import * as authService from "../../../src/services/authService";
+import type { Bindings } from "../../../src/types";
 
 // Mock the service module
-vi.mock("../../services/authService");
+vi.mock("../../../src/services/authService");
 
 const mockAuthService = vi.mocked(authService);
 

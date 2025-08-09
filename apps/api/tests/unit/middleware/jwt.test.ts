@@ -1,6 +1,6 @@
 import type { Context, Next } from "hono";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { jwtMiddleware } from "../../middleware/jwt";
+import { jwtMiddleware } from "../../../src/middleware/jwt";
 
 // atobをモック
 global.atob = vi.fn();

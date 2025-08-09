@@ -3,7 +3,7 @@ import {
 	generateOAuthDummyPasswordHash,
 	signToken,
 	verifyPassword,
-} from "../../lib/auth";
+} from "../../../src/lib/auth";
 
 // crypto.getRandomValuesをモック
 const mockGetRandomValues = vi.fn();

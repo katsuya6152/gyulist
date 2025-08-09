@@ -1,6 +1,6 @@
 import type { AnyD1Database } from "drizzle-orm/d1";
 import { describe, expect, it } from "vitest";
-import * as cattleRepository from "../../repositories/cattleRepository";
+import * as cattleRepository from "../../../src/repositories/cattleRepository";
 
 describe("CattleRepository", () => {
 	describe("exports", () => {
