@@ -1,11 +1,13 @@
 import Link from "next/link";
 
 interface WaitlistPageProps {
-	searchParams: { email?: string };
+	searchParams: Promise<{ email?: string }>;
 }
 
-export default function WaitlistPage({ searchParams }: WaitlistPageProps) {
-	const email = searchParams.email;
+export default async function WaitlistPage({
+	searchParams,
+}: WaitlistPageProps) {
+	const { email } = await searchParams;
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br gradient-primary-start gradient-primary-end flex items-center justify-center p-4">
