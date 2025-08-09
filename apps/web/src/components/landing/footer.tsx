@@ -6,12 +6,16 @@ export function LandingFooter() {
 			<div className="container mx-auto px-4 py-10 grid md:grid-cols-4 gap-8 text-sm">
 				<div>
 					<div className="flex items-center gap-2">
-						<Image
-							src="/icon-horizontal.png"
-							alt="ギュウリスト"
-							width={96}
-							height={96}
-						/>
+						<picture>
+							<source srcSet="/icon-horizontal.webp" type="image/webp" />
+							<Image
+								src="/icon-horizontal.png"
+								alt="ギュウリスト"
+								width={96}
+								height={96}
+								sizes="96px"
+							/>
+						</picture>
 					</div>
 					<p className="mt-3 text-gray-400">
 						畜産管理をもっとスマートに。現場と経営をつなぐクラウド。

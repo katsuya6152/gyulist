@@ -10,13 +10,16 @@
 		"format:fix": "pnpm format --write .",
 		"lint": "biome check .",
 		"lint:fix": "pnpm lint --write",
-		"prepare": "pnpm simple-git-hooks"
+		"prepare": "pnpm simple-git-hooks",
+		"optimize-images": "node scripts/optimize-images.js",
+		"measure-performance": "node scripts/measure-performance.js"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
+		"sharp": "^0.34.3",
 		"simple-git-hooks": "^2.13.0"
 	},
 	"simple-git-hooks": {

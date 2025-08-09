@@ -10,12 +10,17 @@ export function LandingHeader() {
 					className="flex items-center gap-2"
 					aria-label="ギュウリスト ホームへ"
 				>
-					<Image
-						src="/icon-horizontal.png"
-						alt="ギュウリスト"
-						width={96}
-						height={96}
-					/>
+					<picture>
+						<source srcSet="/icon-horizontal.webp" type="image/webp" />
+						<Image
+							src="/icon-horizontal.png"
+							alt="ギュウリスト"
+							width={96}
+							height={96}
+							sizes="96px"
+							priority
+						/>
+					</picture>
 				</Link>
 				<nav className="hidden md:flex items-center gap-6 text-sm">
 					<Link href="#features" className="hover:opacity-80">

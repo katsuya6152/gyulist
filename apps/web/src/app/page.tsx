@@ -44,6 +44,27 @@ export const metadata: Metadata = {
 export default function Home() {
 	return (
 		<>
+			{/* 重要な画像のプリロード */}
+			<link
+				rel="preload"
+				href="/hero-bg-pc.webp"
+				as="image"
+				type="image/webp"
+			/>
+			<link
+				rel="preload"
+				href="/hero-bg-sp.webp"
+				as="image"
+				type="image/webp"
+			/>
+			<link rel="preload" href="/app-shot.webp" as="image" type="image/webp" />
+			<link
+				rel="preload"
+				href="/icon-horizontal.webp"
+				as="image"
+				type="image/webp"
+			/>
+
 			<LandingHeader />
 
 			<main>
