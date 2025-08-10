@@ -12,7 +12,7 @@ export function LandingFooter() {
 								src="/icon-horizontal.png"
 								alt="ギュウリスト"
 								width={96}
-								height={96}
+								height={31}
 								sizes="96px"
 							/>
 						</picture>
