@@ -37,6 +37,7 @@ export async function createCattleAction(
 			growthStage: data.growthStage,
 			breed: data.breed || null,
 			notes: data.notes || null,
+			status: "HEALTHY", // デフォルトで健康ステータスを設定
 			// 血統情報
 			bloodline: data.bloodline
 				? {

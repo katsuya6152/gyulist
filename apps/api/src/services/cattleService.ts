@@ -120,6 +120,7 @@ export async function createNewCattle(
 		age,
 		monthsOld,
 		daysOld,
+		status: "HEALTHY", // デフォルトで健康ステータスを設定
 	};
 
 	// 牛の基本情報を保存
@@ -261,8 +262,6 @@ export async function updateCattleData(
 	return cattle;
 }
 
-const FINAL_STATUSES = ["SHIPPED", "DEAD"] as const;
-
 export async function updateStatus(
 	db: AnyD1Database,
 	cattleId: number,
@@ -274,12 +273,7 @@ export async function updateStatus(
 	if (!current) {
 		throw new Error("牛が見つかりません");
 	}
-	if (
-		current.status &&
-		FINAL_STATUSES.includes(current.status as (typeof FINAL_STATUSES)[number])
-	) {
-		throw new Error("現在のステータスでは変更できません");
-	}
+	// 最終ステータスの制限チェックを削除
 	await updateCattleStatus(db, cattleId, newStatus);
 	await createStatusHistory(db, {
 		cattleId,

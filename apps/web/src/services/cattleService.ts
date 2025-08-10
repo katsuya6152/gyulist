@@ -21,6 +21,7 @@ export type CattleListQueryParams = {
 	search?: string;
 	growth_stage?: string;
 	gender?: string;
+	status?: string;
 };
 
 export async function GetCattleList(
@@ -37,6 +38,7 @@ export async function GetCattleList(
 					search: queryParams.search,
 					growth_stage: queryParams.growth_stage,
 					gender: queryParams.gender,
+					status: queryParams.status,
 				},
 			},
 			{
@@ -147,6 +149,7 @@ export type CreateCattleInput = {
 		| "MULTI_PAROUS";
 	breed: string | null;
 	notes: string | null;
+	status?: "HEALTHY" | "PREGNANT" | "RESTING" | "TREATING" | "SHIPPED" | "DEAD";
 	bloodline?: {
 		fatherCattleName: string | null;
 		motherFatherCattleName: string | null;
