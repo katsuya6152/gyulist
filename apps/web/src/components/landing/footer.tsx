@@ -14,6 +14,7 @@ export function LandingFooter() {
 								width={96}
 								height={31}
 								sizes="96px"
+								loading="lazy"
 							/>
 						</picture>
 					</div>
