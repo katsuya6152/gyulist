@@ -105,6 +105,7 @@ describe("CattleDetailHeader", () => {
 		gender: "メス",
 		birthday: "2020-01-01",
 		growthStage: "MULTI_PAROUS",
+		status: "HEALTHY",
 		healthStatus: "健康",
 		createdAt: "2023-01-01T00:00:00Z",
 		updatedAt: "2023-12-01T00:00:00Z",

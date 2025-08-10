@@ -25,6 +25,7 @@ describe("CattleEditContainer", () => {
 		score: 80,
 		breed: "黒毛和種",
 		healthStatus: "健康",
+		status: "HEALTHY",
 		producerName: "テスト生産者",
 		barn: "テスト牛舎",
 		breedingValue: "AAAAAA",

@@ -7,6 +7,7 @@ import { getGrowthStage } from "@/lib/utils";
 import classNames from "classnames";
 import { CalendarPlus, ChevronRight } from "lucide-react";
 import { memo } from "react";
+import { statusLabelMap } from "../../constants";
 import type { CattleListItem } from "../constants";
 
 interface CattleItemProps {
@@ -65,24 +66,27 @@ export const CattleItem = memo(
 							>
 								{getGrowthStage(cattle.growthStage)}
 							</Badge>
-							{cattle.healthStatus && (
+							{cattle.status && (
 								<Badge
 									variant="outline"
 									className={classNames(
 										"transition-all duration-200 hover:shadow-sm",
 										{
 											"border-blue-500 text-blue-500":
-												cattle.healthStatus === "健康",
+												cattle.status === "HEALTHY",
 											"border-yellow-500 text-yellow-500":
-												cattle.healthStatus === "妊娠中",
+												cattle.status === "PREGNANT",
 											"border-green-500 text-green-500":
-												cattle.healthStatus === "休息中",
+												cattle.status === "RESTING",
 											"border-red-500 text-red-500":
-												cattle.healthStatus === "治療中",
+												cattle.status === "TREATING",
+											"border-gray-500 text-gray-500":
+												cattle.status === "SHIPPED",
+											"border-red-600 text-red-600": cattle.status === "DEAD",
 										},
 									)}
 								>
-									{cattle.healthStatus}
+									{statusLabelMap[cattle.status]}
 								</Badge>
 							)}
 						</div>

@@ -144,6 +144,16 @@ export const searchCattleSchema = z.object({
 		.transform((val) => val?.split(","))
 		.pipe(z.enum(["オス", "メス"]).array().optional())
 		.optional(),
+	status: z
+		.string()
+		.transform((val) => val?.split(","))
+		.pipe(
+			z
+				.enum(["HEALTHY", "PREGNANT", "RESTING", "TREATING", "SHIPPED", "DEAD"])
+				.array()
+				.optional(),
+		)
+		.optional(),
 });
 
 export type SearchCattleQuery = z.infer<typeof searchCattleSchema>;

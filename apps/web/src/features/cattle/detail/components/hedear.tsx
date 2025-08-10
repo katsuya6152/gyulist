@@ -19,7 +19,9 @@ import { CalendarPlus, Edit, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import type { CattleStatus } from "../../constants";
 import { deleteCattleAction } from "../actions";
+import { StatusBadge } from "./status-badge";
 
 type CattleDetailHeaderProps = {
 	cattle: GetCattleDetailResType;
@@ -107,13 +109,20 @@ export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 						</span>
 					</Badge>
 					<Badge>{getGrowthStage(cattle.growthStage)}</Badge>
-					<Badge variant="outline">{cattle.healthStatus}</Badge>
 				</div>
 				<p className="text-xs">耳標番号：{cattle.earTagNumber}</p>
 			</div>
 
-			{/* 右側: イベント登録・編集・削除ボタン */}
+			{/* 右側: ステータスバッジ・イベント登録・編集・削除ボタン */}
 			<div className="flex items-center space-x-2">
+				{/* ステータスバッジ */}
+				{cattle.status && (
+					<StatusBadge
+						cattleId={cattle.cattleId}
+						status={cattle.status as CattleStatus}
+					/>
+				)}
+
 				{/* イベント登録ボタン */}
 				<Button
 					variant="outline"

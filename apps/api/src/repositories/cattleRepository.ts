@@ -34,6 +34,7 @@ export async function searchCattle(
 		search?: string;
 		growth_stage?: string[];
 		gender?: string[];
+		status?: string[];
 	},
 ) {
 	const dbInstance = drizzle(db);
@@ -58,6 +59,12 @@ export async function searchCattle(
 	if (query.gender && query.gender.length > 0) {
 		const quotedGenders = query.gender.map((g) => `'${g}'`).join(",");
 		conditions.push(sql`${cattle.gender} IN (${sql.raw(quotedGenders)})`);
+	}
+
+	// ステータスでフィルター
+	if (query.status && query.status.length > 0) {
+		const quotedStatuses = query.status.map((s) => `'${s}'`).join(",");
+		conditions.push(sql`${cattle.status} IN (${sql.raw(quotedStatuses)})`);
 	}
 
 	// カーソル条件の追加

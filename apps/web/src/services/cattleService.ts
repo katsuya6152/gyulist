@@ -1,3 +1,4 @@
+import type { CattleStatus } from "@/features/cattle/constants";
 import { fetchWithAuth } from "@/lib/api-client";
 import { client } from "@/lib/rpc";
 import type { InferResponseType } from "hono";
@@ -20,6 +21,7 @@ export type CattleListQueryParams = {
 	search?: string;
 	growth_stage?: string;
 	gender?: string;
+	status?: string;
 };
 
 export async function GetCattleList(
@@ -36,6 +38,7 @@ export async function GetCattleList(
 					search: queryParams.search,
 					growth_stage: queryParams.growth_stage,
 					gender: queryParams.gender,
+					status: queryParams.status,
 				},
 			},
 			{
@@ -69,6 +72,26 @@ export async function DeleteCattle(id: number | string): Promise<void> {
 		client.api.v1.cattle[":id"].$delete(
 			{
 				param: { id: id.toString() },
+			},
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			},
+		),
+	);
+}
+
+export async function updateCattleStatus(
+	id: number | string,
+	status: CattleStatus,
+	reason?: string,
+): Promise<void> {
+	return fetchWithAuth<void>((token) =>
+		client.api.v1.cattle[":id"].status.$patch(
+			{
+				param: { id: id.toString() },
+				json: { status, reason },
 			},
 			{
 				headers: {
@@ -126,6 +149,7 @@ export type CreateCattleInput = {
 		| "MULTI_PAROUS";
 	breed: string | null;
 	notes: string | null;
+	status?: "HEALTHY" | "PREGNANT" | "RESTING" | "TREATING" | "SHIPPED" | "DEAD";
 	bloodline?: {
 		fatherCattleName: string | null;
 		motherFatherCattleName: string | null;

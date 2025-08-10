@@ -55,6 +55,7 @@ describe("Breeding", () => {
 		bloodline: null,
 		motherInfo: null,
 		events: null,
+		status: "HEALTHY",
 		healthStatus: "健康",
 	} as unknown as GetCattleDetailResType;
 
