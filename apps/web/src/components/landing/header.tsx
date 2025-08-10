@@ -11,7 +11,7 @@ export function LandingHeader() {
 					aria-label="ギュウリスト ホームへ"
 				>
 					<picture>
-						<source srcSet="/icon-horizontal.webp" type="image/webp" />
+						<source srcSet="/icon-horizontal_half.webp" type="image/webp" />
 						<Image
 							src="/icon-horizontal.png"
 							alt="ギュウリスト"

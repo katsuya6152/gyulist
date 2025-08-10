@@ -9,40 +9,26 @@ export function HeroSection() {
 		<>
 			<section className="relative overflow-hidden">
 				<div className="absolute inset-0 -z-10">
-					<div className="hidden md:block">
-						<picture>
-							<source
-								srcSet="/hero-bg-pc.webp 1x, /hero-bg-pc@2x.webp 2x"
-								type="image/webp"
-							/>
-							<Image
-								src="/hero-bg-pc.png"
-								alt="牧場の風景"
-								fill
-								priority
-								fetchPriority="high"
-								sizes="100vw"
-								className="object-cover opacity-70"
-							/>
-						</picture>
-					</div>
-					<div className="md:hidden">
-						<picture>
-							<source
-								srcSet="/hero-bg-sp.webp 1x, /hero-bg-sp@2x.webp 2x"
-								type="image/webp"
-							/>
-							<Image
-								src="/hero-bg-sp.png"
-								alt="牧場の風景"
-								fill
-								priority
-								fetchPriority="high"
-								sizes="100vw"
-								className="object-cover opacity-70"
-							/>
-						</picture>
-					</div>
+					<picture>
+						<source
+							media="(min-width: 768px)"
+							srcSet="/hero-bg-pc.webp 1x"
+							type="image/webp"
+						/>
+						<source
+							media="(max-width: 767px)"
+							srcSet="/hero-bg-sp.webp 1x"
+							type="image/webp"
+						/>
+						<Image
+							src="/hero-bg-pc.png"
+							alt="牧場の風景"
+							fill
+							priority
+							fetchPriority="high"
+							className="object-cover opacity-70"
+						/>
+					</picture>
 					<div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/70 to-white" />
 				</div>
 

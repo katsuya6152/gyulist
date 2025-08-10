@@ -5,10 +5,7 @@ export function HeroImage() {
 		<div className="relative">
 			<div className="relative aspect-[4/3] md:aspect-[5/4] w-full h-full rounded-2xl shadow-lg ring-1 ring-black/5 overflow-hidden animate-float">
 				<picture>
-					<source
-						srcSet="/app-shot.webp 1x, /app-shot.webp 2x"
-						type="image/webp"
-					/>
+					<source srcSet="/app-shot.webp" type="image/webp" />
 					<Image
 						src="/app-shot.png"
 						alt="ギュウリストの画面"
