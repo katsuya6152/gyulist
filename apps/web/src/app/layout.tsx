@@ -1,3 +1,4 @@
+import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -14,8 +15,34 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "ギュウリスト",
-	description: "牛の個体管理アプリ",
+	title: "ギュウリスト - 畜産経営をデータで支える",
+	description:
+		"個体・繁殖・健康のデータを一元管理。紙とExcelから卒業し、効率的な牧場経営を実現します。",
+	keywords: [
+		"畜産管理",
+		"個体管理",
+		"繁殖管理",
+		"健康管理",
+		"牧場経営",
+		"データ管理",
+	],
+	openGraph: {
+		title: "ギュウリスト - 畜産経営をデータで支える",
+		description:
+			"個体・繁殖・健康のデータを一元管理。紙とExcelから卒業し、効率的な牧場経営を実現します。",
+		type: "website",
+	},
+	robots: {
+		index: true,
+		follow: true,
+		googleBot: {
+			index: true,
+			follow: true,
+			"max-video-preview": -1,
+			"max-image-preview": "large",
+			"max-snippet": -1,
+		},
+	},
 };
 
 export default function RootLayout({
@@ -24,11 +51,14 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en">
+		<html lang="ja">
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>
-				<ThemeProvider defaultTheme="light">{children}</ThemeProvider>
+				<ThemeProvider defaultTheme="light">
+					{children}
+					<GoogleAnalytics gaId="G-BVT447BW6L" />
+				</ThemeProvider>
 			</body>
 		</html>
 	);
