@@ -8,12 +8,16 @@ const geistSans = Geist({
 	variable: "--font-geist-sans",
 	subsets: ["latin"],
 	display: "swap",
+	preload: true,
+	fallback: ["system-ui", "arial"],
 });
 
 const geistMono = Geist_Mono({
 	variable: "--font-geist-mono",
 	subsets: ["latin"],
 	display: "swap",
+	preload: true,
+	fallback: ["monospace"],
 });
 
 export const metadata: Metadata = {
@@ -54,6 +58,23 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="ja">
+			<head>
+				{/* 重要なリソースのプリロード */}
+				<link
+					rel="preload"
+					href="/hero-bg-pc.webp"
+					as="image"
+					type="image/webp"
+					fetchPriority="high"
+				/>
+				<link
+					rel="preload"
+					href="/hero-bg-sp.webp"
+					as="image"
+					type="image/webp"
+					fetchPriority="high"
+				/>
+			</head>
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>

@@ -58,12 +58,6 @@ export default function Home() {
 				type="image/webp"
 			/>
 			<link rel="preload" href="/app-shot.webp" as="image" type="image/webp" />
-			<link
-				rel="preload"
-				href="/icon-horizontal.webp"
-				as="image"
-				type="image/webp"
-			/>
 
 			<LandingHeader />
 
