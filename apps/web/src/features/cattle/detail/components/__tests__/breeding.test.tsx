@@ -56,6 +56,7 @@ describe("Breeding", () => {
 		motherInfo: null,
 		events: null,
 		healthStatus: "健康",
+		status: "ACTIVE",
 	} as unknown as GetCattleDetailResType;
 
 	it("should render breeding status correctly", () => {

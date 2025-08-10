@@ -25,6 +25,15 @@ vi.mock("../../actions", () => ({
 	deleteCattleAction: vi.fn(),
 }));
 
+vi.mock("@/services/cattleService", async (importOriginal) => {
+	const actual =
+		await importOriginal<typeof import("@/services/cattleService")>();
+	return {
+		...actual,
+		updateCattleStatus: vi.fn(),
+	};
+});
+
 // Mock getGrowthStage utility
 vi.mock("@/lib/utils", async (importOriginal) => {
 	const actual = await importOriginal<typeof import("@/lib/utils")>();
@@ -106,6 +115,7 @@ describe("CattleDetailHeader", () => {
 		birthday: "2020-01-01",
 		growthStage: "MULTI_PAROUS",
 		healthStatus: "健康",
+		status: "ACTIVE",
 		createdAt: "2023-01-01T00:00:00Z",
 		updatedAt: "2023-12-01T00:00:00Z",
 		bloodline: null,
@@ -268,6 +278,17 @@ describe("CattleDetailHeader", () => {
 				description: "予期しないエラーが発生しました",
 			}),
 		);
+	});
+
+	it("should update status through dialog", async () => {
+		const { updateCattleStatus } = await import("@/services/cattleService");
+
+		render(<CattleDetailHeader cattle={mockCattle} />);
+
+		await user.click(screen.getByText("飼養中"));
+		await user.click(screen.getByRole("button", { name: "変更" }));
+
+		expect(updateCattleStatus).toHaveBeenCalledWith(1, "ACTIVE", undefined);
 	});
 
 	it("should show loading state during deletion", async () => {

@@ -20,6 +20,7 @@ export type CattleListQueryParams = {
 	search?: string;
 	growth_stage?: string;
 	gender?: string;
+	status?: string;
 };
 
 export async function GetCattleList(
@@ -36,6 +37,7 @@ export async function GetCattleList(
 					search: queryParams.search,
 					growth_stage: queryParams.growth_stage,
 					gender: queryParams.gender,
+					status: queryParams.status,
 				},
 			},
 			{
@@ -69,6 +71,26 @@ export async function DeleteCattle(id: number | string): Promise<void> {
 		client.api.v1.cattle[":id"].$delete(
 			{
 				param: { id: id.toString() },
+			},
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			},
+		),
+	);
+}
+
+export async function updateCattleStatus(
+	id: number | string,
+	status: string,
+	reason?: string,
+): Promise<void> {
+	return fetchWithAuth<void>((token) =>
+		client.api.v1.cattle[":id"].status.$patch(
+			{
+				param: { id: id.toString() },
+				json: { status, reason },
 			},
 			{
 				headers: {

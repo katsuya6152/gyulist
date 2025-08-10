@@ -3,35 +3,23 @@ import { z } from "zod";
 
 export type CattleListItem = GetCattleListResType["results"][0];
 
-export const filterOptions = [
-	{
-		id: "CALF",
-		label: "仔牛",
-	},
-	{
-		id: "GROWING",
-		label: "育成牛",
-	},
-	{
-		id: "FATTENING",
-		label: "肥育牛",
-	},
-	{
-		id: "FIRST_CALVED",
-		label: "初産牛",
-	},
-	{
-		id: "MULTI_PAROUS",
-		label: "経産牛",
-	},
-	{
-		id: "オス",
-		label: "オス",
-	},
-	{
-		id: "メス",
-		label: "メス",
-	},
+export const growthStageOptions = [
+	{ id: "CALF", label: "仔牛" },
+	{ id: "GROWING", label: "育成牛" },
+	{ id: "FATTENING", label: "肥育牛" },
+	{ id: "FIRST_CALVED", label: "初産牛" },
+	{ id: "MULTI_PAROUS", label: "経産牛" },
+] as const;
+
+export const genderOptions = [
+	{ id: "オス", label: "オス" },
+	{ id: "メス", label: "メス" },
+] as const;
+
+export const statusOptions = [
+	{ id: "ACTIVE", label: "飼養中" },
+	{ id: "SOLD", label: "出荷済み" },
+	{ id: "DECEASED", label: "死亡" },
 ] as const;
 
 export const sortOptions = [
@@ -43,6 +31,7 @@ export const sortOptions = [
 export const FormSchema = z.object({
 	growth_stage: z.array(z.string()),
 	gender: z.array(z.string()),
+	status: z.array(z.string()),
 });
 
 export type FilterFormData = z.infer<typeof FormSchema>;

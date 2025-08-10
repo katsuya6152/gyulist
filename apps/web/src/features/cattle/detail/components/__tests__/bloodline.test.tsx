@@ -45,6 +45,7 @@ describe("Bloodline", () => {
 		breedingSummary: null,
 		events: null,
 		healthStatus: "健康",
+		status: "ACTIVE",
 	} as unknown as GetCattleDetailResType;
 
 	it("should render bloodline information correctly", () => {

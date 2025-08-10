@@ -3,6 +3,14 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
+import {
 	Drawer,
 	DrawerClose,
 	DrawerContent,
@@ -12,8 +20,17 @@ import {
 	DrawerTitle,
 	DrawerTrigger,
 } from "@/components/ui/drawer";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { getGrowthStage } from "@/lib/utils";
 import type { GetCattleDetailResType } from "@/services/cattleService";
+import { updateCattleStatus } from "@/services/cattleService";
 import classNames from "classnames";
 import { CalendarPlus, Edit, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -25,10 +42,22 @@ type CattleDetailHeaderProps = {
 	cattle: GetCattleDetailResType;
 };
 
+const statusOptions = [
+	{ value: "ACTIVE", label: "飼養中" },
+	{ value: "SOLD", label: "出荷済み" },
+	{ value: "DECEASED", label: "死亡" },
+] as const;
+
 export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 	const router = useRouter();
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [deleteError, setDeleteError] = useState<string | null>(null);
+	const [currentStatus, setCurrentStatus] = useState(cattle.status);
+	const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+	const [newStatus, setNewStatus] = useState(cattle.status);
+	const [reason, setReason] = useState("");
+	const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+	const [statusError, setStatusError] = useState<string | null>(null);
 
 	const handleAddEvent = () => {
 		router.push(`/events/new/${cattle.cattleId}`);
@@ -90,6 +119,22 @@ export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 		}
 	};
 
+	const handleStatusUpdate = async () => {
+		setIsUpdatingStatus(true);
+		setStatusError(null);
+		try {
+			await updateCattleStatus(cattle.cattleId, newStatus, reason || undefined);
+			setCurrentStatus(newStatus);
+			toast.success("ステータスを更新しました");
+			setStatusDialogOpen(false);
+		} catch (error) {
+			setStatusError("ステータスの更新に失敗しました");
+			toast.error("ステータスの更新に失敗しました");
+		} finally {
+			setIsUpdatingStatus(false);
+		}
+	};
+
 	return (
 		<div className="flex justify-between">
 			{/* 左側: 個体情報 */}
@@ -107,6 +152,49 @@ export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 						</span>
 					</Badge>
 					<Badge>{getGrowthStage(cattle.growthStage)}</Badge>
+					<Dialog open={statusDialogOpen} onOpenChange={setStatusDialogOpen}>
+						<DialogTrigger asChild>
+							<Badge variant="outline" className="cursor-pointer">
+								{statusOptions.find((opt) => opt.value === currentStatus)
+									?.label || currentStatus}
+							</Badge>
+						</DialogTrigger>
+						<DialogContent>
+							<DialogHeader>
+								<DialogTitle>ステータスを変更</DialogTitle>
+							</DialogHeader>
+							<div className="space-y-4">
+								<Select value={newStatus} onValueChange={setNewStatus}>
+									<SelectTrigger>
+										<SelectValue placeholder="ステータスを選択" />
+									</SelectTrigger>
+									<SelectContent>
+										{statusOptions.map((opt) => (
+											<SelectItem key={opt.value} value={opt.value}>
+												{opt.label}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+								<Textarea
+									placeholder="理由 (任意)"
+									value={reason}
+									onChange={(e) => setReason(e.target.value)}
+								/>
+								{statusError && (
+									<p className="text-sm text-red-600">{statusError}</p>
+								)}
+							</div>
+							<DialogFooter>
+								<Button
+									onClick={handleStatusUpdate}
+									disabled={isUpdatingStatus}
+								>
+									{isUpdatingStatus ? "更新中..." : "変更"}
+								</Button>
+							</DialogFooter>
+						</DialogContent>
+					</Dialog>
 					<Badge variant="outline">{cattle.healthStatus}</Badge>
 				</div>
 				<p className="text-xs">耳標番号：{cattle.earTagNumber}</p>

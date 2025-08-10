@@ -19,6 +19,7 @@ export default async function CattleListContainer({ searchParams }: Props) {
 			? params.growth_stage[0]
 			: params.growth_stage,
 		gender: Array.isArray(params.gender) ? params.gender[0] : params.gender,
+		status: Array.isArray(params.status) ? params.status[0] : params.status,
 	});
 	const cattleList = data.results;
 

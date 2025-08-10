@@ -38,6 +38,7 @@ describe("CattleListPresentation", () => {
 			score: 80,
 			breed: "黒毛和種",
 			healthStatus: "健康",
+			status: "ACTIVE",
 			producerName: "テスト生産者",
 			barn: "テスト牛舎",
 			breedingValue: "AAAAAA",
@@ -61,6 +62,7 @@ describe("CattleListPresentation", () => {
 			score: 85,
 			breed: "黒毛和種",
 			healthStatus: "健康",
+			status: "ACTIVE",
 			producerName: "テスト生産者",
 			barn: "テスト牛舎",
 			breedingValue: "AAAAAA",
@@ -84,6 +86,7 @@ describe("CattleListPresentation", () => {
 			score: 90,
 			breed: "黒毛和種",
 			healthStatus: "健康",
+			status: "ACTIVE",
 			producerName: "テスト生産者",
 			barn: "テスト牛舎",
 			breedingValue: "AAAAAA",
@@ -97,6 +100,7 @@ describe("CattleListPresentation", () => {
 		mockSearchParams.delete("search");
 		mockSearchParams.delete("growth_stage");
 		mockSearchParams.delete("gender");
+		mockSearchParams.delete("status");
 		mockSearchParams.delete("sort_by");
 		mockSearchParams.delete("sort_order");
 
@@ -179,11 +183,17 @@ describe("CattleListPresentation", () => {
 		// オスを選択（Command内のオプション）
 		await user.click(screen.getByRole("option", { name: "オス" }));
 
+		// ステータスのドロップダウンを開く
+		await user.click(screen.getByRole("button", { name: "ステータスを選択" }));
+
+		// 飼養中を選択
+		await user.click(screen.getByRole("option", { name: "飼養中" }));
+
 		// 絞り込みを適用
 		await user.click(screen.getByRole("button", { name: "絞り込む" }));
 
 		expect(mockPush).toHaveBeenCalledWith(
-			"/cattle?growth_stage=CALF&gender=%E3%82%AA%E3%82%B9",
+			"/cattle?growth_stage=CALF&gender=%E3%82%AA%E3%82%B9&status=ACTIVE",
 		);
 	});
 
@@ -191,6 +201,7 @@ describe("CattleListPresentation", () => {
 		const user = userEvent.setup();
 		mockSearchParams.set("growth_stage", "CALF");
 		mockSearchParams.set("gender", "オス");
+		mockSearchParams.set("status", "ACTIVE");
 
 		render(<CattleListPresentation cattleList={mockCattleList} />);
 
