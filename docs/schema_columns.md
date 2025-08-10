@@ -14,7 +14,7 @@
 |                      | gender                         | 性別                          | ユーザー入力       | No   |
 |                      | score                          | 得点                          | ユーザー入力       | No   |
 |                      | breed                          | 品種                          | ユーザー入力       | No   |
-|                      | healthStatus                   | 健康状態                      | ユーザー入力       | No   |
+|                      | status                         | ステータス                    | ユーザー入力       | No   |
 |                      | producerName                   | 生産者名                      | ユーザー入力       | No   |
 |                      | barn                            | 牛舎                          | ユーザー入力       | No   |
 |                      | breedingValue                  | 育種価                        | ユーザー入力       | No   |
@@ -68,3 +68,10 @@
 |                      | notes                            | メモ                           | ユーザー入力       | No   |
 |                      | createdAt                       | 登録日時                      | システム自動設定   | Yes  |
 |                      | updatedAt                       | 更新日時                      | システム自動設定   | Yes  |
+| **cattle_status_history** | historyId                   | ステータス履歴ID              | システム自動設定   | Yes  |
+|                      | cattleId                        | 牛ID                          | システム自動設定   | Yes  |
+|                      | oldStatus                      | 旧ステータス                  | システム自動設定   | No   |
+|                      | newStatus                      | 新ステータス                  | ユーザー入力       | Yes  |
+|                      | changedAt                      | 変更日時                      | システム自動設定   | Yes  |
+|                      | changedBy                      | 変更者ユーザーID              | システム自動設定   | Yes  |
+|                      | reason                         | 変更理由                      | ユーザー入力       | No   |
