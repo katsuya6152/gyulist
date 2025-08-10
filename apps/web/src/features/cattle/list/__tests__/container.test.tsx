@@ -69,7 +69,26 @@ describe("CattleListContainer", () => {
 		expect(screen.getByText("テスト牛2")).toBeInTheDocument();
 		expect(screen.getByText("耳標番号：1234")).toBeInTheDocument();
 		expect(screen.getByText("耳標番号：1235")).toBeInTheDocument();
-		expect(cattleService.GetCattleList).toHaveBeenCalledWith({});
+		expect(cattleService.GetCattleList).toHaveBeenCalledWith({
+			cursor: undefined,
+			limit: undefined,
+			sort_by: undefined,
+			sort_order: undefined,
+			search: undefined,
+			growth_stage: undefined,
+			gender: undefined,
+			status: undefined,
+		});
+	});
+
+	it("should pass status param", async () => {
+		vi.mocked(cattleService.GetCattleList).mockResolvedValue(mockCattleList);
+		await CattleListContainer({
+			searchParams: Promise.resolve({ status: "HEALTHY" }),
+		});
+		expect(cattleService.GetCattleList).toHaveBeenCalledWith(
+			expect.objectContaining({ status: "HEALTHY" }),
+		);
 	});
 
 	it("should handle API error correctly", async () => {

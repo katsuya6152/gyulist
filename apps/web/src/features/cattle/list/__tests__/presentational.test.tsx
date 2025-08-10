@@ -97,6 +97,7 @@ describe("CattleListPresentation", () => {
 		mockSearchParams.delete("search");
 		mockSearchParams.delete("growth_stage");
 		mockSearchParams.delete("gender");
+		mockSearchParams.delete("status");
 		mockSearchParams.delete("sort_by");
 		mockSearchParams.delete("sort_order");
 
@@ -170,20 +171,26 @@ describe("CattleListPresentation", () => {
 		// 成長段階のドロップダウンを開く
 		await user.click(screen.getByRole("button", { name: "成長段階を選択" }));
 
-		// 仔牛を選択（Command内のオプション）
+		// 仔牛を選択
 		await user.click(screen.getByRole("option", { name: "仔牛" }));
 
 		// 性別のドロップダウンを開く
 		await user.click(screen.getByRole("button", { name: "性別を選択" }));
 
-		// オスを選択（Command内のオプション）
+		// オスを選択
 		await user.click(screen.getByRole("option", { name: "オス" }));
+
+		// ステータスのドロップダウンを開く
+		await user.click(screen.getByRole("button", { name: "ステータスを選択" }));
+
+		// 健康を選択
+		await user.click(screen.getByRole("option", { name: "健康" }));
 
 		// 絞り込みを適用
 		await user.click(screen.getByRole("button", { name: "絞り込む" }));
 
 		expect(mockPush).toHaveBeenCalledWith(
-			"/cattle?growth_stage=CALF&gender=%E3%82%AA%E3%82%B9",
+			"/cattle?growth_stage=CALF&gender=%E3%82%AA%E3%82%B9&status=HEALTHY",
 		);
 	});
 
@@ -191,6 +198,7 @@ describe("CattleListPresentation", () => {
 		const user = userEvent.setup();
 		mockSearchParams.set("growth_stage", "CALF");
 		mockSearchParams.set("gender", "オス");
+		mockSearchParams.set("status", "HEALTHY");
 
 		render(<CattleListPresentation cattleList={mockCattleList} />);
 

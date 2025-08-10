@@ -23,6 +23,7 @@ vi.mock("sonner", () => ({
 // Mock the delete action
 vi.mock("../../actions", () => ({
 	deleteCattleAction: vi.fn(),
+	updateCattleStatusAction: vi.fn(),
 }));
 
 // Mock getGrowthStage utility

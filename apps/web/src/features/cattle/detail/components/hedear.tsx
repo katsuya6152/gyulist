@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { deleteCattleAction } from "../actions";
+import { StatusBadge } from "./status-badge";
 
 type CattleDetailHeaderProps = {
 	cattle: GetCattleDetailResType;
@@ -107,7 +108,10 @@ export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 						</span>
 					</Badge>
 					<Badge>{getGrowthStage(cattle.growthStage)}</Badge>
-					<Badge variant="outline">{cattle.healthStatus}</Badge>
+					<StatusBadge
+						cattleId={cattle.cattleId}
+						status={cattle.healthStatus}
+					/>
 				</div>
 				<p className="text-xs">耳標番号：{cattle.earTagNumber}</p>
 			</div>

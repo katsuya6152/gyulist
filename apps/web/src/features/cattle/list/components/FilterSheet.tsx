@@ -30,11 +30,18 @@ import classNames from "classnames";
 import { Check, ChevronsUpDown, Filter, X } from "lucide-react";
 import { memo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { type FilterFormData, FormSchema, filterOptions } from "../constants";
+import {
+	type FilterFormData,
+	FormSchema,
+	genderOptions,
+	growthStageOptions,
+	statusOptions,
+} from "../constants";
 
 interface FilterSheetProps {
 	initialGrowthStage: string[];
 	initialGender: string[];
+	initialStatus: string[];
 	onSubmit: (data: FilterFormData) => void;
 	onClear: () => void;
 }
@@ -43,17 +50,20 @@ export const FilterSheet = memo(
 	({
 		initialGrowthStage,
 		initialGender,
+		initialStatus,
 		onSubmit,
 		onClear,
 	}: FilterSheetProps) => {
 		const [growthStageOpen, setGrowthStageOpen] = useState(false);
 		const [genderOpen, setGenderOpen] = useState(false);
+		const [statusOpen, setStatusOpen] = useState(false);
 
 		const form = useForm<FilterFormData>({
 			resolver: zodResolver(FormSchema),
 			defaultValues: {
 				growth_stage: initialGrowthStage,
 				gender: initialGender,
+				status: initialStatus,
 			},
 		});
 
@@ -87,10 +97,26 @@ export const FilterSheet = memo(
 			);
 		};
 
+		const addStatus = (status: string) => {
+			const currentValues = form.getValues("status");
+			if (!currentValues.includes(status)) {
+				form.setValue("status", [...currentValues, status]);
+			}
+		};
+
+		const removeStatus = (status: string) => {
+			const currentValues = form.getValues("status");
+			form.setValue(
+				"status",
+				currentValues.filter((s) => s !== status),
+			);
+		};
+
 		const handleClear = () => {
 			form.reset({
 				growth_stage: [],
 				gender: [],
+				status: [],
 			});
 			onClear();
 		};
@@ -99,7 +125,7 @@ export const FilterSheet = memo(
 			const selected = form.watch("growth_stage");
 			if (selected.length === 0) return "成長段階を選択";
 			if (selected.length === 1) {
-				const option = filterOptions.find((opt) => opt.id === selected[0]);
+				const option = growthStageOptions.find((opt) => opt.id === selected[0]);
 				return option?.label || selected[0];
 			}
 			return `${selected.length}個選択中`;
@@ -109,7 +135,17 @@ export const FilterSheet = memo(
 			const selected = form.watch("gender");
 			if (selected.length === 0) return "性別を選択";
 			if (selected.length === 1) {
-				const option = filterOptions.find((opt) => opt.id === selected[0]);
+				const option = genderOptions.find((opt) => opt.id === selected[0]);
+				return option?.label || selected[0];
+			}
+			return `${selected.length}個選択中`;
+		};
+
+		const getSelectedStatuses = () => {
+			const selected = form.watch("status");
+			if (selected.length === 0) return "ステータスを選択";
+			if (selected.length === 1) {
+				const option = statusOptions.find((opt) => opt.id === selected[0]);
 				return option?.label || selected[0];
 			}
 			return `${selected.length}個選択中`;
@@ -161,38 +197,34 @@ export const FilterSheet = memo(
 															該当する成長段階が見つかりません。
 														</CommandEmpty>
 														<CommandGroup>
-															{filterOptions
-																.filter(
-																	(item) => !["オス", "メス"].includes(item.id),
-																)
-																.map((item) => {
-																	const isSelected = form
-																		.watch("growth_stage")
-																		.includes(item.id);
-																	return (
-																		<CommandItem
-																			key={item.id}
-																			value={item.id}
-																			onSelect={() => {
-																				if (isSelected) {
-																					removeGrowthStage(item.id);
-																				} else {
-																					addGrowthStage(item.id);
-																				}
-																			}}
-																		>
-																			<Check
-																				className={classNames(
-																					"mr-2 h-4 w-4",
-																					isSelected
-																						? "opacity-100"
-																						: "opacity-0",
-																				)}
-																			/>
-																			{item.label}
-																		</CommandItem>
-																	);
-																})}
+															{growthStageOptions.map((item) => {
+																const isSelected = form
+																	.watch("growth_stage")
+																	.includes(item.id);
+																return (
+																	<CommandItem
+																		key={item.id}
+																		value={item.id}
+																		onSelect={() => {
+																			if (isSelected) {
+																				removeGrowthStage(item.id);
+																			} else {
+																				addGrowthStage(item.id);
+																			}
+																		}}
+																	>
+																		<Check
+																			className={classNames(
+																				"mr-2 h-4 w-4",
+																				isSelected
+																					? "opacity-100"
+																					: "opacity-0",
+																			)}
+																		/>
+																		{item.label}
+																	</CommandItem>
+																);
+															})}
 														</CommandGroup>
 													</CommandList>
 												</Command>
@@ -202,7 +234,7 @@ export const FilterSheet = memo(
 										{form.watch("growth_stage").length > 0 && (
 											<div className="flex flex-wrap gap-2">
 												{form.watch("growth_stage").map((stage) => {
-													const option = filterOptions.find(
+													const option = growthStageOptions.find(
 														(opt) => opt.id === stage,
 													);
 													return (
@@ -247,38 +279,34 @@ export const FilterSheet = memo(
 															該当する性別が見つかりません。
 														</CommandEmpty>
 														<CommandGroup>
-															{filterOptions
-																.filter((item) =>
-																	["オス", "メス"].includes(item.id),
-																)
-																.map((item) => {
-																	const isSelected = form
-																		.watch("gender")
-																		.includes(item.id);
-																	return (
-																		<CommandItem
-																			key={item.id}
-																			value={item.id}
-																			onSelect={() => {
-																				if (isSelected) {
-																					removeGender(item.id);
-																				} else {
-																					addGender(item.id);
-																				}
-																			}}
-																		>
-																			<Check
-																				className={classNames(
-																					"mr-2 h-4 w-4",
-																					isSelected
-																						? "opacity-100"
-																						: "opacity-0",
-																				)}
-																			/>
-																			{item.label}
-																		</CommandItem>
-																	);
-																})}
+															{genderOptions.map((item) => {
+																const isSelected = form
+																	.watch("gender")
+																	.includes(item.id);
+																return (
+																	<CommandItem
+																		key={item.id}
+																		value={item.id}
+																		onSelect={() => {
+																			if (isSelected) {
+																				removeGender(item.id);
+																			} else {
+																				addGender(item.id);
+																			}
+																		}}
+																	>
+																		<Check
+																			className={classNames(
+																				"mr-2 h-4 w-4",
+																				isSelected
+																					? "opacity-100"
+																					: "opacity-0",
+																			)}
+																		/>
+																		{item.label}
+																	</CommandItem>
+																);
+															})}
 														</CommandGroup>
 													</CommandList>
 												</Command>
@@ -288,7 +316,7 @@ export const FilterSheet = memo(
 										{form.watch("gender").length > 0 && (
 											<div className="flex flex-wrap gap-2">
 												{form.watch("gender").map((gender) => {
-													const option = filterOptions.find(
+													const option = genderOptions.find(
 														(opt) => opt.id === gender,
 													);
 													return (
@@ -301,6 +329,88 @@ export const FilterSheet = memo(
 															<button
 																type="button"
 																onClick={() => removeGender(gender)}
+																className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
+															>
+																<X className="h-3 w-3" />
+															</button>
+														</Badge>
+													);
+												})}
+											</div>
+										)}
+									</div>
+
+									<div className="space-y-3">
+										<h3 className="font-medium text-lg">ステータス</h3>
+										<Popover open={statusOpen} onOpenChange={setStatusOpen}>
+											<PopoverTrigger asChild>
+												<Button
+													variant="outline"
+													aria-expanded={statusOpen}
+													className="w-full justify-between"
+												>
+													{getSelectedStatuses()}
+													<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+												</Button>
+											</PopoverTrigger>
+											<PopoverContent className="w-full p-0">
+												<Command>
+													<CommandInput placeholder="ステータスを検索..." />
+													<CommandList>
+														<CommandEmpty>
+															該当するステータスが見つかりません。
+														</CommandEmpty>
+														<CommandGroup>
+															{statusOptions.map((item) => {
+																const isSelected = form
+																	.watch("status")
+																	.includes(item.id);
+																return (
+																	<CommandItem
+																		key={item.id}
+																		value={item.id}
+																		onSelect={() => {
+																			if (isSelected) {
+																				removeStatus(item.id);
+																			} else {
+																				addStatus(item.id);
+																			}
+																		}}
+																	>
+																		<Check
+																			className={classNames(
+																				"mr-2 h-4 w-4",
+																				isSelected
+																					? "opacity-100"
+																					: "opacity-0",
+																			)}
+																		/>
+																		{item.label}
+																	</CommandItem>
+																);
+															})}
+														</CommandGroup>
+													</CommandList>
+												</Command>
+											</PopoverContent>
+										</Popover>
+
+										{form.watch("status").length > 0 && (
+											<div className="flex flex-wrap gap-2">
+												{form.watch("status").map((status) => {
+													const option = statusOptions.find(
+														(opt) => opt.id === status,
+													);
+													return (
+														<Badge
+															key={status}
+															variant="secondary"
+															className="text-sm"
+														>
+															{option?.label}
+															<button
+																type="button"
+																onClick={() => removeStatus(status)}
 																className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
 															>
 																<X className="h-3 w-3" />

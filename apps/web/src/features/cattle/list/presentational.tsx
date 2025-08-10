@@ -57,6 +57,12 @@ export function CattleListPresentation({
 			params.delete("gender");
 		}
 
+		if (data.status.length > 0) {
+			params.set("status", data.status.join(","));
+		} else {
+			params.delete("status");
+		}
+
 		router.push(`/cattle?${params.toString()}`);
 	};
 
@@ -64,6 +70,7 @@ export function CattleListPresentation({
 		const params = new URLSearchParams(searchParams.toString());
 		params.delete("growth_stage");
 		params.delete("gender");
+		params.delete("status");
 		router.push(`/cattle?${params.toString()}`);
 	};
 
@@ -100,6 +107,7 @@ export function CattleListPresentation({
 							searchParams.get("growth_stage")?.split(",") || []
 						}
 						initialGender={searchParams.get("gender")?.split(",") || []}
+						initialStatus={searchParams.get("status")?.split(",") || []}
 						onSubmit={handleFilterSubmit}
 						onClear={clearAllFilters}
 					/>
