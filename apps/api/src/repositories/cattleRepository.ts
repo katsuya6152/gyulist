@@ -349,7 +349,7 @@ export async function updateBreedingSummary(
 export async function updateCattleStatus(
 	db: AnyD1Database,
 	cattleId: number,
-	status: string,
+	status: "HEALTHY" | "PREGNANT" | "RESTING" | "TREATING" | "SHIPPED" | "DEAD",
 ) {
 	const dbInstance = drizzle(db);
 	const result = await dbInstance
@@ -379,7 +379,8 @@ export async function createStatusHistory(
 			newStatus: data.newStatus,
 			changedBy: data.changedBy,
 			reason: data.reason ?? null,
-		})
+			changedAt: new Date().toISOString(),
+		} as typeof cattleStatusHistory.$inferInsert)
 		.returning();
 	return result[0];
 }

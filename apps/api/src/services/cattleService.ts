@@ -265,7 +265,13 @@ export async function updateCattleData(
 export async function updateStatus(
 	db: AnyD1Database,
 	cattleId: number,
-	newStatus: string,
+	newStatus:
+		| "HEALTHY"
+		| "PREGNANT"
+		| "RESTING"
+		| "TREATING"
+		| "SHIPPED"
+		| "DEAD",
 	changedBy: number,
 	reason?: string,
 ) {
