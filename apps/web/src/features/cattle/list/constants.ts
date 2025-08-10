@@ -1,5 +1,6 @@
 import type { GetCattleListResType } from "@/services/cattleService";
 import { z } from "zod";
+import { statusOptions } from "../constants";
 
 export type CattleListItem = GetCattleListResType["results"][0];
 
@@ -43,6 +44,8 @@ export const sortOptions = [
 export const FormSchema = z.object({
 	growth_stage: z.array(z.string()),
 	gender: z.array(z.string()),
+	status: z.array(z.string()),
 });
 
 export type FilterFormData = z.infer<typeof FormSchema>;
+export { statusOptions };

@@ -18,6 +18,7 @@ describe("CattleDetailPresentation", () => {
 		weight: 250,
 		score: 80,
 		breed: "黒毛和種",
+		status: "HEALTHY",
 		healthStatus: "健康",
 		producerName: "テスト生産者",
 		barn: "テスト牛舎",

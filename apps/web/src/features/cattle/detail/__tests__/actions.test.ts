@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { deleteCattleAction } from "../actions";
+import { deleteCattleAction, updateCattleStatusAction } from "../actions";
 
 // Mock the cattle service
 vi.mock("@/services/cattleService", () => ({
 	DeleteCattle: vi.fn(),
+	updateCattleStatus: vi.fn(),
 }));
 
 // Mock JWT verification
@@ -89,5 +90,39 @@ describe("deleteCattleAction", () => {
 		await deleteCattleAction(123);
 
 		expect(redirect).toHaveBeenCalledWith("/login");
+	});
+});
+
+describe("updateCattleStatusAction", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	it("should update status successfully", async () => {
+		const { updateCattleStatus } = await import("@/services/cattleService");
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
+
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
+		vi.mocked(updateCattleStatus).mockResolvedValue(undefined);
+
+		const result = await updateCattleStatusAction(1, "HEALTHY", "test");
+
+		expect(updateCattleStatus).toHaveBeenCalledWith(1, "HEALTHY", "test");
+		expect(result).toEqual({ success: true });
+	});
+
+	it("should handle errors", async () => {
+		const { updateCattleStatus } = await import("@/services/cattleService");
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
+
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
+		vi.mocked(updateCattleStatus).mockRejectedValue(new Error("error"));
+
+		const result = await updateCattleStatusAction(1, "HEALTHY");
+
+		expect(result).toEqual({
+			success: false,
+			error: "ステータスの更新に失敗しました",
+		});
 	});
 });
