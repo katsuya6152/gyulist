@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-// 血統情報のスキーマ
 export const bloodlineSchema = z.object({
 	fatherCattleName: z.string().optional(),
 	motherFatherCattleName: z.string().optional(),
@@ -8,7 +7,13 @@ export const bloodlineSchema = z.object({
 	motherGreatGrandFatherCattleName: z.string().optional(),
 });
 
-// 繁殖状態のスキーマ
+export const motherInfoSchema = z.object({
+	motherCattleId: z.coerce.number().min(1, "母牛IDは必須です"),
+	motherName: z.string().optional(),
+	motherIdentificationNumber: z.string().optional(),
+	motherScore: z.coerce.number().optional(),
+});
+
 export const breedingStatusSchema = z.object({
 	expectedCalvingDate: z.string().optional(),
 	scheduledPregnancyCheckDate: z.string().optional(),
@@ -16,23 +21,32 @@ export const breedingStatusSchema = z.object({
 	isDifficultBirth: z.coerce.boolean().optional(),
 });
 
-// 新規作成用のスキーマ
-export const createCattleSchema = z.object({
+const baseSchema = z.object({
 	identificationNumber: z.coerce.number().min(1, "個体識別番号は必須です"),
 	earTagNumber: z.coerce.number().min(1, "耳標番号は必須です"),
 	name: z.string().min(1, "名号は必須です"),
 	gender: z.string().min(1, "性別は必須です"),
 	birthday: z.string().min(1, "生年月日は必須です"),
-	growthStage: z.enum(
-		["CALF", "GROWING", "FATTENING", "FIRST_CALVED", "MULTI_PAROUS"],
-		{
-			required_error: "成長段階は必須です",
-		},
-	),
 	breed: z.string().optional(),
 	notes: z.string().optional(),
-	// 血統情報
 	bloodline: bloodlineSchema.optional(),
-	// 繁殖情報
+});
+
+export const createCalfSchema = baseSchema.extend({
+	growthStage: z.enum(["CALF", "GROWING", "FATTENING"], {
+		required_error: "成長段階は必須です",
+	}),
+	motherInfo: motherInfoSchema,
+});
+
+export const createBreedingCowSchema = baseSchema.extend({
+	growthStage: z.enum(["FIRST_CALVED", "MULTI_PAROUS"], {
+		required_error: "成長段階は必須です",
+	}),
 	breedingStatus: breedingStatusSchema.optional(),
 });
+
+export const createCattleSchema = z.discriminatedUnion("growthStage", [
+	createCalfSchema,
+	createBreedingCowSchema,
+]);

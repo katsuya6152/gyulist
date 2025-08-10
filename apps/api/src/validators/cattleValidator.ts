@@ -4,6 +4,7 @@ import type {
 	breedingStatus,
 	breedingSummary,
 	cattle,
+	motherInfo,
 } from "../db/schema";
 
 // データベース用のスキーマ
@@ -41,6 +42,16 @@ export const bloodlineSchema = z.object({
 	motherGreatGrandFatherCattleName: z.string().nullable(),
 });
 
+// 母情報のスキーマ
+export const motherInfoSchema = z.object({
+	motherInfoId: z.number().optional(),
+	cattleId: z.number().optional(),
+	motherCattleId: z.number(),
+	motherName: z.string().nullable(),
+	motherIdentificationNumber: z.string().nullable(),
+	motherScore: z.number().nullable(),
+});
+
 // 繁殖状態のスキーマ
 export const breedingStatusSchema = z.object({
 	breedingStatusId: z.number().optional(),
@@ -74,32 +85,49 @@ export const breedingSummarySchema = z.object({
 	updatedAt: z.string().optional(),
 });
 
-// 新規作成用のスキーマ（血統・繁殖情報を含む）
-export const createCattleSchema = z.object({
-	// 基本情報
+// 新規作成用スキーマ
+const baseCreateSchema = z.object({
 	identificationNumber: z.number(),
 	earTagNumber: z.number(),
 	name: z.string(),
 	gender: z.string(),
 	birthday: z.string(),
-	growthStage: z.enum([
-		"CALF",
-		"GROWING",
-		"FATTENING",
-		"FIRST_CALVED",
-		"MULTI_PAROUS",
-	]),
 	breed: z.string().nullable(),
 	notes: z.string().nullable(),
-	// 血統情報
 	bloodline: bloodlineSchema.optional(),
-	// 繁殖情報
+});
+
+export const createCalfSchema = baseCreateSchema.extend({
+	growthStage: z.enum(["CALF", "GROWING", "FATTENING"]),
+	motherInfo: motherInfoSchema,
+});
+
+export const createBreedingCowSchema = baseCreateSchema.extend({
+	growthStage: z.enum(["FIRST_CALVED", "MULTI_PAROUS"]),
 	breedingStatus: breedingStatusSchema.optional(),
 	breedingSummary: breedingSummarySchema.optional(),
 });
 
+export const createCattleSchema = z.discriminatedUnion("growthStage", [
+	createCalfSchema,
+	createBreedingCowSchema,
+]);
+
 // 更新用のスキーマ
-export const updateCattleSchema = createCattleSchema.partial();
+export const updateCalfSchema = createCalfSchema.partial().extend({
+	growthStage: z.enum(["CALF", "GROWING", "FATTENING"]),
+});
+
+export const updateBreedingCowSchema = createBreedingCowSchema
+	.partial()
+	.extend({
+		growthStage: z.enum(["FIRST_CALVED", "MULTI_PAROUS"]),
+	});
+
+export const updateCattleSchema = z.discriminatedUnion("growthStage", [
+	updateCalfSchema,
+	updateBreedingCowSchema,
+]);
 
 export const updateStatusSchema = z.object({
 	status: z.enum([
@@ -119,6 +147,11 @@ export type Cattle = typeof cattle.$inferSelect;
 export type Bloodline = typeof bloodline.$inferSelect;
 export type BreedingStatus = typeof breedingStatus.$inferSelect;
 export type BreedingSummary = typeof breedingSummary.$inferSelect;
+export type MotherInfo = typeof motherInfo.$inferSelect;
+export type CreateCalfInput = z.infer<typeof createCalfSchema>;
+export type CreateBreedingCowInput = z.infer<typeof createBreedingCowSchema>;
+export type UpdateCalfInput = z.infer<typeof updateCalfSchema>;
+export type UpdateBreedingCowInput = z.infer<typeof updateBreedingCowSchema>;
 export type CreateCattleInput = typeof cattle.$inferInsert;
 export type UpdateCattleInput = Partial<typeof cattle.$inferInsert>;
 

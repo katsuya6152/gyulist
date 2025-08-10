@@ -135,21 +135,38 @@ export async function UpdateCattle(
 	);
 }
 
-export type CreateCattleInput = {
+export type CreateCalfInput = {
 	identificationNumber: number;
 	earTagNumber: number;
 	name: string;
 	gender: string;
 	birthday: string;
-	growthStage:
-		| "CALF"
-		| "GROWING"
-		| "FATTENING"
-		| "FIRST_CALVED"
-		| "MULTI_PAROUS";
+	growthStage: "CALF" | "GROWING" | "FATTENING";
 	breed: string | null;
 	notes: string | null;
-	status?: "HEALTHY" | "PREGNANT" | "RESTING" | "TREATING" | "SHIPPED" | "DEAD";
+	bloodline?: {
+		fatherCattleName: string | null;
+		motherFatherCattleName: string | null;
+		motherGrandFatherCattleName: string | null;
+		motherGreatGrandFatherCattleName: string | null;
+	};
+	motherInfo: {
+		motherCattleId: number;
+		motherName: string | null;
+		motherIdentificationNumber: string | null;
+		motherScore: number | null;
+	};
+};
+
+export type CreateBreedingCowInput = {
+	identificationNumber: number;
+	earTagNumber: number;
+	name: string;
+	gender: string;
+	birthday: string;
+	growthStage: "FIRST_CALVED" | "MULTI_PAROUS";
+	breed: string | null;
+	notes: string | null;
 	bloodline?: {
 		fatherCattleName: string | null;
 		motherFatherCattleName: string | null;
@@ -168,18 +185,13 @@ export type CreateCattleInput = {
 		breedingMemo: string | null;
 		isDifficultBirth: boolean | null;
 	};
-	breedingSummary?: {
-		totalInseminationCount: number | null;
-		averageDaysOpen: number | null;
-		averagePregnancyPeriod: number | null;
-		averageCalvingInterval: number | null;
-		difficultBirthCount: number | null;
-		pregnancyHeadCount: number | null;
-		pregnancySuccessRate: number | null;
-	};
 };
 
-export type UpdateCattleInput = CreateCattleInput;
+export type CreateCattleInput = CreateCalfInput | CreateBreedingCowInput;
+
+export type UpdateCalfInput = CreateCalfInput;
+export type UpdateBreedingCowInput = CreateBreedingCowInput;
+export type UpdateCattleInput = UpdateCalfInput | UpdateBreedingCowInput;
 
 export async function CreateCattle(data: CreateCattleInput): Promise<void> {
 	return fetchWithAuth<void>((token) =>

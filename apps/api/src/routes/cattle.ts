@@ -11,6 +11,10 @@ import {
 } from "../services/cattleService";
 import type { Bindings } from "../types";
 import {
+	type CreateBreedingCowInput,
+	type CreateCalfInput,
+	type UpdateBreedingCowInput,
+	type UpdateCalfInput,
 	createCattleSchema,
 	searchCattleSchema,
 	updateCattleSchema,
@@ -52,7 +56,9 @@ const app = new Hono<{ Bindings: Bindings }>()
 
 	// 牛を新規登録
 	.post("/", zValidator("json", createCattleSchema), async (c) => {
-		const data = c.req.valid("json");
+		const data = c.req.valid("json") as
+			| CreateCalfInput
+			| CreateBreedingCowInput;
 		const userId = c.get("jwtPayload").userId;
 
 		// ownerUserIdをJWTペイロードから設定
@@ -68,7 +74,9 @@ const app = new Hono<{ Bindings: Bindings }>()
 	// 牛を編集
 	.patch("/:id", zValidator("json", updateCattleSchema), async (c) => {
 		const cattleId = Number.parseInt(c.req.param("id"));
-		const data = c.req.valid("json");
+		const data = c.req.valid("json") as
+			| UpdateCalfInput
+			| UpdateBreedingCowInput;
 		const userId = c.get("jwtPayload").userId;
 
 		// 既存の牛を取得して所有者を確認

@@ -12,6 +12,7 @@ import {
 } from "../db/schema";
 import type {
 	CreateCattleInput,
+	MotherInfo,
 	UpdateCattleInput,
 } from "../validators/cattleValidator";
 
@@ -227,6 +228,27 @@ export async function createBreedingSummary(
 	return result[0];
 }
 
+export async function createMotherInfo(
+	db: AnyD1Database,
+	cattleId: number,
+	data: {
+		motherCattleId: number;
+		motherName?: string | null;
+		motherIdentificationNumber?: string | null;
+		motherScore?: number | null;
+	},
+): Promise<MotherInfo> {
+	const dbInstance = drizzle(db);
+	const result = await dbInstance
+		.insert(motherInfo)
+		.values({
+			cattleId,
+			...data,
+		})
+		.returning();
+	return result[0];
+}
+
 export async function updateCattle(
 	db: AnyD1Database,
 	cattleId: number,
@@ -271,6 +293,35 @@ export async function updateBloodline(
 
 	// 新規作成
 	return await createBloodline(db, cattleId, bloodlineData);
+}
+
+export async function updateMotherInfo(
+	db: AnyD1Database,
+	cattleId: number,
+	data: {
+		motherCattleId: number;
+		motherName?: string | null;
+		motherIdentificationNumber?: string | null;
+		motherScore?: number | null;
+	},
+): Promise<MotherInfo> {
+	const dbInstance = drizzle(db);
+	const existing = await dbInstance
+		.select()
+		.from(motherInfo)
+		.where(eq(motherInfo.cattleId, cattleId))
+		.limit(1);
+
+	if (existing.length > 0) {
+		const result = await dbInstance
+			.update(motherInfo)
+			.set(data)
+			.where(eq(motherInfo.cattleId, cattleId))
+			.returning();
+		return result[0];
+	}
+
+	return await createMotherInfo(db, cattleId, data);
 }
 
 export async function updateBreedingStatus(

@@ -176,6 +176,7 @@ const CattleEditPresentation = ({
 	const shouldShowBreedingInfo =
 		growthStage &&
 		(growthStage === "FIRST_CALVED" || growthStage === "MULTI_PAROUS");
+	const shouldShowMotherInfo = growthStage && !shouldShowBreedingInfo;
 
 	return (
 		<div className="container mx-auto px-4 py-8">
@@ -473,6 +474,77 @@ const CattleEditPresentation = ({
 						</div>
 					</div>
 				</div>
+
+				{/* 母情報セクション - 子牛の場合のみ表示 */}
+				{shouldShowMotherInfo && (
+					<div className="border-t pt-6">
+						<h2 className="text-lg font-semibold mb-4">母情報</h2>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div>
+								<label
+									htmlFor="motherInfo.motherCattleId"
+									className="block text-sm font-medium mb-2"
+								>
+									母牛ID*
+								</label>
+								<input
+									id="motherInfo.motherCattleId"
+									type="number"
+									name="motherInfo.motherCattleId"
+									defaultValue={cattle.motherInfo?.motherCattleId || ""}
+									className="w-full rounded-md border border-input bg-background px-3 py-2"
+								/>
+							</div>
+							<div>
+								<label
+									htmlFor="motherInfo.motherName"
+									className="block text-sm font-medium mb-2"
+								>
+									母牛名
+								</label>
+								<input
+									id="motherInfo.motherName"
+									type="text"
+									name="motherInfo.motherName"
+									defaultValue={cattle.motherInfo?.motherName || ""}
+									className="w-full rounded-md border border-input bg-background px-3 py-2"
+								/>
+							</div>
+							<div>
+								<label
+									htmlFor="motherInfo.motherIdentificationNumber"
+									className="block text-sm font-medium mb-2"
+								>
+									母の個体識別番号
+								</label>
+								<input
+									id="motherInfo.motherIdentificationNumber"
+									type="text"
+									name="motherInfo.motherIdentificationNumber"
+									defaultValue={
+										cattle.motherInfo?.motherIdentificationNumber || ""
+									}
+									className="w-full rounded-md border border-input bg-background px-3 py-2"
+								/>
+							</div>
+							<div>
+								<label
+									htmlFor="motherInfo.motherScore"
+									className="block text-sm font-medium mb-2"
+								>
+									母の得点
+								</label>
+								<input
+									id="motherInfo.motherScore"
+									type="number"
+									name="motherInfo.motherScore"
+									defaultValue={cattle.motherInfo?.motherScore || ""}
+									className="w-full rounded-md border border-input bg-background px-3 py-2"
+								/>
+							</div>
+						</div>
+					</div>
+				)}
 
 				{/* 繁殖情報セクション - 子牛以外の場合のみ表示 */}
 				{shouldShowBreedingInfo && (

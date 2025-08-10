@@ -2,7 +2,11 @@
 
 import { createDemoResponse, isDemo } from "@/lib/api-client";
 import { verifyAndGetUserId } from "@/lib/jwt";
-import { CreateCattle, type CreateCattleInput } from "@/services/cattleService";
+import {
+	type CreateBreedingCowInput,
+	type CreateCalfInput,
+	CreateCattle,
+} from "@/services/cattleService";
 import { parseWithZod } from "@conform-to/zod";
 import { redirect } from "next/navigation";
 import { createCattleSchema } from "./schema";
@@ -27,49 +31,79 @@ export async function createCattleAction(
 
 		const data = submission.value;
 
-		// APIに送信するデータを準備
-		const apiData: CreateCattleInput = {
-			identificationNumber: data.identificationNumber,
-			earTagNumber: data.earTagNumber,
-			name: data.name,
-			gender: data.gender,
-			birthday: data.birthday,
-			growthStage: data.growthStage,
-			breed: data.breed || null,
-			notes: data.notes || null,
-			status: "HEALTHY", // デフォルトで健康ステータスを設定
-			// 血統情報
-			bloodline: data.bloodline
-				? {
-						fatherCattleName: data.bloodline.fatherCattleName || null,
-						motherFatherCattleName:
-							data.bloodline.motherFatherCattleName || null,
-						motherGrandFatherCattleName:
-							data.bloodline.motherGrandFatherCattleName || null,
-						motherGreatGrandFatherCattleName:
-							data.bloodline.motherGreatGrandFatherCattleName || null,
-					}
-				: undefined,
-			// 繁殖状態（手動入力項目のみ）
-			breedingStatus: data.breedingStatus
-				? {
-						parity: null,
-						expectedCalvingDate:
-							data.breedingStatus.expectedCalvingDate || null,
-						scheduledPregnancyCheckDate:
-							data.breedingStatus.scheduledPregnancyCheckDate || null,
-						daysAfterCalving: null,
-						daysOpen: null,
-						pregnancyDays: null,
-						daysAfterInsemination: null,
-						inseminationCount: null,
-						breedingMemo: data.breedingStatus.breedingMemo || null,
-						isDifficultBirth: data.breedingStatus.isDifficultBirth ?? null,
-					}
-				: undefined,
-		};
-
-		await CreateCattle(apiData);
+		if (
+			data.growthStage === "FIRST_CALVED" ||
+			data.growthStage === "MULTI_PAROUS"
+		) {
+			const apiData: CreateBreedingCowInput = {
+				identificationNumber: data.identificationNumber,
+				earTagNumber: data.earTagNumber,
+				name: data.name,
+				gender: data.gender,
+				birthday: data.birthday,
+				growthStage: data.growthStage,
+				breed: data.breed || null,
+				notes: data.notes || null,
+				bloodline: data.bloodline
+					? {
+							fatherCattleName: data.bloodline.fatherCattleName || null,
+							motherFatherCattleName:
+								data.bloodline.motherFatherCattleName || null,
+							motherGrandFatherCattleName:
+								data.bloodline.motherGrandFatherCattleName || null,
+							motherGreatGrandFatherCattleName:
+								data.bloodline.motherGreatGrandFatherCattleName || null,
+						}
+					: undefined,
+				breedingStatus: data.breedingStatus
+					? {
+							parity: null,
+							expectedCalvingDate:
+								data.breedingStatus.expectedCalvingDate || null,
+							scheduledPregnancyCheckDate:
+								data.breedingStatus.scheduledPregnancyCheckDate || null,
+							daysAfterCalving: null,
+							daysOpen: null,
+							pregnancyDays: null,
+							daysAfterInsemination: null,
+							inseminationCount: null,
+							breedingMemo: data.breedingStatus.breedingMemo || null,
+							isDifficultBirth: data.breedingStatus.isDifficultBirth ?? null,
+						}
+					: undefined,
+			};
+			await CreateCattle(apiData);
+		} else {
+			const apiData: CreateCalfInput = {
+				identificationNumber: data.identificationNumber,
+				earTagNumber: data.earTagNumber,
+				name: data.name,
+				gender: data.gender,
+				birthday: data.birthday,
+				growthStage: data.growthStage,
+				breed: data.breed || null,
+				notes: data.notes || null,
+				bloodline: data.bloodline
+					? {
+							fatherCattleName: data.bloodline.fatherCattleName || null,
+							motherFatherCattleName:
+								data.bloodline.motherFatherCattleName || null,
+							motherGrandFatherCattleName:
+								data.bloodline.motherGrandFatherCattleName || null,
+							motherGreatGrandFatherCattleName:
+								data.bloodline.motherGreatGrandFatherCattleName || null,
+						}
+					: undefined,
+				motherInfo: {
+					motherCattleId: data.motherInfo.motherCattleId,
+					motherName: data.motherInfo.motherName || null,
+					motherIdentificationNumber:
+						data.motherInfo.motherIdentificationNumber || null,
+					motherScore: data.motherInfo.motherScore || null,
+				},
+			};
+			await CreateCattle(apiData);
+		}
 
 		// 成功時のレスポンス
 		return submission.reply();

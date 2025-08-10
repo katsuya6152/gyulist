@@ -7,6 +7,7 @@ import {
 	createBreedingStatus,
 	createBreedingSummary,
 	createCattle,
+	createMotherInfo,
 	createStatusHistory,
 	deleteCattle,
 	findCattleById,
@@ -16,12 +17,17 @@ import {
 	updateBreedingSummary,
 	updateCattle,
 	updateCattleStatus,
+	updateMotherInfo,
 } from "../repositories/cattleRepository";
 import { calculateAge } from "../utils/date";
 import type {
 	Cattle,
+	CreateBreedingCowInput,
+	CreateCalfInput,
 	CreateCattleInput,
 	SearchCattleQuery,
+	UpdateBreedingCowInput,
+	UpdateCalfInput,
 	UpdateCattleInput,
 } from "../validators/cattleValidator";
 
@@ -75,35 +81,7 @@ export async function getCattleById(db: AnyD1Database, cattleId: number) {
 
 export async function createNewCattle(
 	db: AnyD1Database,
-	data: CreateCattleInput & {
-		bloodline?: {
-			fatherCattleName?: string | null;
-			motherFatherCattleName?: string | null;
-			motherGrandFatherCattleName?: string | null;
-			motherGreatGrandFatherCattleName?: string | null;
-		};
-		breedingStatus?: {
-			parity?: number | null;
-			expectedCalvingDate?: string | null;
-			scheduledPregnancyCheckDate?: string | null;
-			daysAfterCalving?: number | null;
-			daysOpen?: number | null;
-			pregnancyDays?: number | null;
-			daysAfterInsemination?: number | null;
-			inseminationCount?: number | null;
-			breedingMemo?: string | null;
-			isDifficultBirth?: boolean | null;
-		};
-		breedingSummary?: {
-			totalInseminationCount?: number | null;
-			averageDaysOpen?: number | null;
-			averagePregnancyPeriod?: number | null;
-			averageCalvingInterval?: number | null;
-			difficultBirthCount?: number | null;
-			pregnancyHeadCount?: number | null;
-			pregnancySuccessRate?: number | null;
-		};
-	},
+	data: CreateCalfInput | CreateBreedingCowInput,
 ) {
 	// 生年月日から年齢を計算
 	const age = data.birthday ? calculateAge(new Date(data.birthday)) : null;
@@ -131,41 +109,44 @@ export async function createNewCattle(
 		await createBloodline(db, cattle.cattleId, data.bloodline);
 	}
 
-	// 繁殖状態の自動計算
-	const breedingCalculations = calculateBreedingValues(
-		data.birthday || null,
-		data.breedingStatus?.expectedCalvingDate || null,
-		data.breedingStatus?.scheduledPregnancyCheckDate || null,
-	);
-
-	// 繁殖状態を保存（自動計算値を含む）
-	const breedingStatusData = {
-		...data.breedingStatus,
-		parity: breedingCalculations.parity,
-		pregnancyDays: breedingCalculations.pregnancyDays,
-		// 手動入力値があれば優先、なければ自動計算値を使用
-		expectedCalvingDate: data.breedingStatus?.expectedCalvingDate || null,
-		scheduledPregnancyCheckDate:
+	if (
+		data.growthStage === "FIRST_CALVED" ||
+		data.growthStage === "MULTI_PAROUS"
+	) {
+		const breedingCalculations = calculateBreedingValues(
+			data.birthday || null,
+			data.breedingStatus?.expectedCalvingDate || null,
 			data.breedingStatus?.scheduledPregnancyCheckDate || null,
-		breedingMemo: data.breedingStatus?.breedingMemo || null,
-		isDifficultBirth: data.breedingStatus?.isDifficultBirth || null,
-	};
+		);
 
-	await createBreedingStatus(db, cattle.cattleId, breedingStatusData);
+		const breedingStatusData = {
+			...data.breedingStatus,
+			parity: breedingCalculations.parity,
+			pregnancyDays: breedingCalculations.pregnancyDays,
+			expectedCalvingDate: data.breedingStatus?.expectedCalvingDate || null,
+			scheduledPregnancyCheckDate:
+				data.breedingStatus?.scheduledPregnancyCheckDate || null,
+			breedingMemo: data.breedingStatus?.breedingMemo || null,
+			isDifficultBirth: data.breedingStatus?.isDifficultBirth || null,
+		};
 
-	// 繁殖統計は初期値として0を設定
-	const breedingSummaryData = {
-		totalInseminationCount: 0,
-		averageDaysOpen: 0,
-		averagePregnancyPeriod: 0,
-		averageCalvingInterval: 0,
-		difficultBirthCount: 0,
-		pregnancyHeadCount: 0,
-		pregnancySuccessRate: 0,
-		...data.breedingSummary, // 手動入力値があれば上書き
-	};
+		await createBreedingStatus(db, cattle.cattleId, breedingStatusData);
 
-	await createBreedingSummary(db, cattle.cattleId, breedingSummaryData);
+		const breedingSummaryData = {
+			totalInseminationCount: 0,
+			averageDaysOpen: 0,
+			averagePregnancyPeriod: 0,
+			averageCalvingInterval: 0,
+			difficultBirthCount: 0,
+			pregnancyHeadCount: 0,
+			pregnancySuccessRate: 0,
+			...data.breedingSummary,
+		};
+
+		await createBreedingSummary(db, cattle.cattleId, breedingSummaryData);
+	} else {
+		await createMotherInfo(db, cattle.cattleId, data.motherInfo);
+	}
 
 	return cattle;
 }
@@ -173,35 +154,7 @@ export async function createNewCattle(
 export async function updateCattleData(
 	db: AnyD1Database,
 	cattleId: number,
-	data: UpdateCattleInput & {
-		bloodline?: {
-			fatherCattleName?: string | null;
-			motherFatherCattleName?: string | null;
-			motherGrandFatherCattleName?: string | null;
-			motherGreatGrandFatherCattleName?: string | null;
-		};
-		breedingStatus?: {
-			parity?: number | null;
-			expectedCalvingDate?: string | null;
-			scheduledPregnancyCheckDate?: string | null;
-			daysAfterCalving?: number | null;
-			daysOpen?: number | null;
-			pregnancyDays?: number | null;
-			daysAfterInsemination?: number | null;
-			inseminationCount?: number | null;
-			breedingMemo?: string | null;
-			isDifficultBirth?: boolean | null;
-		};
-		breedingSummary?: {
-			totalInseminationCount?: number | null;
-			averageDaysOpen?: number | null;
-			averagePregnancyPeriod?: number | null;
-			averageCalvingInterval?: number | null;
-			difficultBirthCount?: number | null;
-			pregnancyHeadCount?: number | null;
-			pregnancySuccessRate?: number | null;
-		};
-	},
+	data: UpdateCalfInput | UpdateBreedingCowInput,
 ) {
 	// 生年月日が更新された場合、年齢を再計算
 	let age = null;
@@ -215,7 +168,7 @@ export async function updateCattleData(
 	}
 
 	// 更新データの作成
-	const updateData: Partial<CreateCattleInput> = {
+	const updateData: UpdateCattleInput = {
 		...data,
 		...(age !== null && {
 			age,
@@ -232,31 +185,34 @@ export async function updateCattleData(
 		await updateBloodline(db, cattleId, data.bloodline);
 	}
 
-	// 繁殖状態の自動計算
-	const breedingCalculations = calculateBreedingValues(
-		data.birthday || null,
-		data.breedingStatus?.expectedCalvingDate || null,
-		data.breedingStatus?.scheduledPregnancyCheckDate || null,
-	);
-
-	// 繁殖状態を更新（自動計算値を含む）
-	const breedingStatusData = {
-		...data.breedingStatus,
-		parity: breedingCalculations.parity,
-		pregnancyDays: breedingCalculations.pregnancyDays,
-		// 手動入力値があれば優先、なければ自動計算値を使用
-		expectedCalvingDate: data.breedingStatus?.expectedCalvingDate || null,
-		scheduledPregnancyCheckDate:
+	if (
+		data.growthStage === "FIRST_CALVED" ||
+		data.growthStage === "MULTI_PAROUS"
+	) {
+		const breedingCalculations = calculateBreedingValues(
+			data.birthday || null,
+			data.breedingStatus?.expectedCalvingDate || null,
 			data.breedingStatus?.scheduledPregnancyCheckDate || null,
-		breedingMemo: data.breedingStatus?.breedingMemo || null,
-		isDifficultBirth: data.breedingStatus?.isDifficultBirth || null,
-	};
+		);
 
-	await updateBreedingStatus(db, cattleId, breedingStatusData);
+		const breedingStatusData = {
+			...data.breedingStatus,
+			parity: breedingCalculations.parity,
+			pregnancyDays: breedingCalculations.pregnancyDays,
+			expectedCalvingDate: data.breedingStatus?.expectedCalvingDate || null,
+			scheduledPregnancyCheckDate:
+				data.breedingStatus?.scheduledPregnancyCheckDate || null,
+			breedingMemo: data.breedingStatus?.breedingMemo || null,
+			isDifficultBirth: data.breedingStatus?.isDifficultBirth || null,
+		};
 
-	// 繁殖統計を更新（手動入力値のみ）
-	if (data.breedingSummary) {
-		await updateBreedingSummary(db, cattleId, data.breedingSummary);
+		await updateBreedingStatus(db, cattleId, breedingStatusData);
+
+		if (data.breedingSummary) {
+			await updateBreedingSummary(db, cattleId, data.breedingSummary);
+		}
+	} else if (data.motherInfo) {
+		await updateMotherInfo(db, cattleId, data.motherInfo);
 	}
 
 	return cattle;
