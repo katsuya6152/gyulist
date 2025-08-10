@@ -10,7 +10,42 @@ setupDevPlatform().catch(console.error);
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-	/* config options here */
+	// JavaScriptバンドルの最適化
+	experimental: {
+		// バンドル分割の最適化
+		optimizePackageImports: [
+			"@radix-ui/react-accordion",
+			"@radix-ui/react-checkbox",
+			"@radix-ui/react-dialog",
+			"@radix-ui/react-dropdown-menu",
+			"@radix-ui/react-label",
+			"@radix-ui/react-popover",
+			"@radix-ui/react-radio-group",
+			"@radix-ui/react-select",
+			"@radix-ui/react-separator",
+			"@radix-ui/react-slot",
+			"@radix-ui/react-tabs",
+			"lucide-react",
+			"date-fns",
+			"embla-carousel-react",
+		],
+		// ツリーシェイキングの強化
+		turbo: {
+			rules: {
+				"*.svg": {
+					loaders: ["@svgr/webpack"],
+					as: "*.js",
+				},
+			},
+		},
+	},
+	// 圧縮の有効化
+	compress: true,
+	// SWCによる最適化
+	swcMinify: true,
+	// パフォーマンス最適化
+	poweredByHeader: false,
+	generateEtags: false,
 };
 
 export default nextConfig;
