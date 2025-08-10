@@ -6,7 +6,7 @@ export function HeroImage() {
 			<div className="relative aspect-[4/3] md:aspect-[5/4] w-full h-full rounded-2xl shadow-lg ring-1 ring-black/5 overflow-hidden animate-float">
 				<picture>
 					<source
-						srcSet="/app-shot.webp 1x, /app-shot@2x.webp 2x"
+						srcSet="/app-shot.webp 1x, /app-shot.webp 2x"
 						type="image/webp"
 					/>
 					<Image
@@ -14,8 +14,9 @@ export function HeroImage() {
 						alt="ギュウリストの画面"
 						className="object-contain"
 						priority
+						fetchPriority="high"
 						fill
-						sizes="(max-width: 768px) 100vw, 50vw"
+						sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
 					/>
 				</picture>
 			</div>
