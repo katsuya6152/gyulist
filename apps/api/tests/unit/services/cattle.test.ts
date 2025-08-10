@@ -304,15 +304,41 @@ describe("CattleService", () => {
 			expect(result.status).toBe("PREGNANT");
 		});
 
-		it("should throw when current status is final", async () => {
+		it("should allow status change from final status", async () => {
 			mockCattleRepository.findCattleById.mockResolvedValue({
 				...mockCattle,
 				status: "SHIPPED",
 			});
+			mockCattleRepository.updateCattleStatus.mockResolvedValue({
+				...mockCattle,
+				status: "PREGNANT",
+			});
+			mockCattleRepository.createStatusHistory.mockResolvedValue({
+				historyId: 1,
+			});
 
-			await expect(updateStatus(mockDb, 1, "PREGNANT", 1)).rejects.toThrow(
-				"現在のステータスでは変更できません",
+			const result = await updateStatus(mockDb, 1, "PREGNANT", 1);
+
+			expect(mockCattleRepository.findCattleById).toHaveBeenCalledWith(
+				mockDb,
+				1,
 			);
+			expect(mockCattleRepository.updateCattleStatus).toHaveBeenCalledWith(
+				mockDb,
+				1,
+				"PREGNANT",
+			);
+			expect(mockCattleRepository.createStatusHistory).toHaveBeenCalledWith(
+				mockDb,
+				{
+					cattleId: 1,
+					oldStatus: "SHIPPED",
+					newStatus: "PREGNANT",
+					changedBy: 1,
+					reason: null,
+				},
+			);
+			expect(result.status).toBe("PREGNANT");
 		});
 	});
 });
