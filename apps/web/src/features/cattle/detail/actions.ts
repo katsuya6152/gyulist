@@ -1,5 +1,6 @@
 "use server";
 
+import type { CattleStatus } from "@/features/cattle/constants";
 import { createDemoResponse, isDemo } from "@/lib/api-client";
 import { verifyAndGetUserId } from "@/lib/jwt";
 import { DeleteCattle, updateCattleStatus } from "@/services/cattleService";
@@ -34,7 +35,7 @@ export async function deleteCattleAction(cattleId: number) {
 
 export async function updateCattleStatusAction(
 	cattleId: number,
-	status: string,
+	status: CattleStatus,
 	reason?: string,
 ) {
 	try {

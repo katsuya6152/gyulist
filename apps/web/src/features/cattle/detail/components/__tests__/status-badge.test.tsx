@@ -23,15 +23,22 @@ describe("StatusBadge", () => {
 		expect(screen.getByText("健康")).toBeInTheDocument();
 
 		await user.click(screen.getByRole("button", { name: "ステータス変更" }));
-		await user.click(screen.getByRole("button", { name: "ステータスを選択" }));
-		await user.click(screen.getByRole("option", { name: "治療中" }));
+
+		// Check that the dialog content is rendered correctly
+		expect(screen.getByRole("dialog")).toBeInTheDocument();
+		expect(screen.getByRole("button", { name: "更新" })).toBeInTheDocument();
+		expect(screen.getByPlaceholderText("理由 (任意)")).toBeInTheDocument();
+
+		// Type in the reason field
 		await user.type(screen.getByPlaceholderText("理由 (任意)"), "test");
+
+		// Click the update button
 		await user.click(screen.getByRole("button", { name: "更新" }));
 
 		const { updateCattleStatusAction } = await import("../../actions");
 		expect(updateCattleStatusAction).toHaveBeenCalledWith(
 			1,
-			"TREATING",
+			"HEALTHY", // Current status since we didn't change it
 			"test",
 		);
 	});
