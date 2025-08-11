@@ -1,10 +1,6 @@
 import Link from "next/link";
 
-const perks = [
-	"先行アクセス",
-	"初年度○%OFF（先着◯名）",
-	"オンボーディング優先",
-];
+const perks = ["先行案内", "限定特典", "データ移行優先"];
 
 export function PerksSection() {
 	return (

@@ -1,53 +1,8 @@
-import dynamic from "next/dynamic";
 import Image from "next/image";
-
-// 動的インポートで遅延読み込み
-const HeroContent = dynamic(
-	() =>
-		import("./hero/hero-content").then((mod) => ({ default: mod.HeroContent })),
-	{
-		loading: () => (
-			<div className="animate-pulse bg-gray-200 h-64 rounded-lg" />
-		),
-		ssr: true,
-	},
-);
-
-const HeroImage = dynamic(
-	() => import("./hero/hero-image").then((mod) => ({ default: mod.HeroImage })),
-	{
-		loading: () => (
-			<div className="animate-pulse bg-gray-200 h-64 rounded-lg" />
-		),
-		ssr: true,
-	},
-);
-
-const PerksSection = dynamic(
-	() =>
-		import("./hero/perks-section").then((mod) => ({
-			default: mod.PerksSection,
-		})),
-	{
-		loading: () => (
-			<div className="animate-pulse bg-gray-200 h-32 rounded-lg" />
-		),
-		ssr: true,
-	},
-);
-
-const TrustSection = dynamic(
-	() =>
-		import("./hero/trust-section").then((mod) => ({
-			default: mod.TrustSection,
-		})),
-	{
-		loading: () => (
-			<div className="animate-pulse bg-gray-200 h-32 rounded-lg" />
-		),
-		ssr: true,
-	},
-);
+import { HeroContent } from "./hero/hero-content";
+import { HeroImage } from "./hero/hero-image";
+import { PerksSection } from "./hero/perks-section";
+import { TrustSection } from "./hero/trust-section";
 
 export function HeroSection() {
 	return (
