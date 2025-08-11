@@ -76,6 +76,11 @@ cp .env.example .env.local
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
 - `JWT_SECRET`
+- `RESEND_API_KEY`
+- `MAIL_FROM`
+- `TURNSTILE_SECRET_KEY`
+- `ADMIN_USER`
+- `ADMIN_PASS`
 
 #### Web (apps/web)
 ```bash
@@ -85,6 +90,9 @@ cp .env.example .env.local
 
 必要な環境変数:
 - `NEXT_PUBLIC_API_URL`
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
+- `ADMIN_USER`
+- `ADMIN_PASS`
 
 ### 4. データベースのセットアップ
 ```bash
@@ -176,6 +184,12 @@ cd apps/api
 pnpm run create-dummy-data:local   # ローカル用
 pnpm run create-dummy-data:remote  # 本番用
 ```
+
+### 事前登録テーブルの初期化
+```bash
+wrangler d1 execute <DB_NAME> --file=apps/api/drizzle/migrations/0010_pre_registration.sql
+```
+Resend の Sender Domain `gyulist.com` を認証し、`RESEND_API_KEY` を設定してください。
 
 ## 🚀 デプロイメント
 
