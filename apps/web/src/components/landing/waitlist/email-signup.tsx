@@ -20,7 +20,7 @@ export function EmailSignup() {
 			<div className="container mx-auto px-4 max-w-2xl">
 				<div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm ring-1 ring-blue-100">
 					<h2 className="text-xl md:text-2xl font-bold text-center">
-						正式ローンチの先行案内を受け取る
+						正式開始の先行案内を受け取る
 					</h2>
 					<p className="mt-2 text-center text-gray-600">
 						メールを登録すると、先行アクセスや特典のご案内をお送りします。
@@ -49,9 +49,6 @@ export function EmailSignup() {
 							登録する
 						</button>
 					</form>
-					<p className="mt-2 text-xs text-gray-500 text-center">
-						退会は1クリック。スパムは送りません。
-					</p>
 				</div>
 			</div>
 		</section>

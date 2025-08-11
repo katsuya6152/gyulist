@@ -50,15 +50,22 @@ export default function Home() {
 				href="/hero-bg-pc.webp"
 				as="image"
 				type="image/webp"
+				fetchPriority="high"
 			/>
 			<link
 				rel="preload"
 				href="/hero-bg-sp.webp"
 				as="image"
 				type="image/webp"
+				fetchPriority="high"
 			/>
-			<link rel="preload" href="/app-shot.webp" as="image" type="image/webp" />
-
+			<link
+				rel="preload"
+				href="/app-shot.webp"
+				as="image"
+				type="image/webp"
+				fetchPriority="high"
+			/>
 			<LandingHeader />
 
 			<main>
