@@ -65,32 +65,15 @@ export function EmailSignup({
 			}
 		};
 
+		// If turnstile is already available, render immediately
 		if (typeof window.turnstile?.render === "function") {
 			renderWidget();
 			return;
 		}
 
-		let script = document.querySelector<HTMLScriptElement>(
-			"script[data-turnstile]",
-		);
-		if (!script) {
-			script = document.createElement("script");
-			script.src =
-				"https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
-			script.async = true;
-			script.defer = true;
-			script.setAttribute("data-turnstile", "true");
-			script.onload = renderWidget;
-			script.onerror = () => {
-				// Dev fallback: if widget failed to load, unblock form in non-production
-				if (process.env.NODE_ENV !== "production") {
-					form.setValue("turnstileToken", "XXXX.DUMMY.TOKEN.XXXX");
-				}
-			};
-			document.head.appendChild(script);
-		} else {
-			script.addEventListener("load", renderWidget, { once: true });
-		}
+		// Otherwise, wait for the global script (loaded in layout) to finish loading
+		const headScript = document.getElementById("cf-turnstile");
+		headScript?.addEventListener("load", renderWidget, { once: true });
 		// Safety net: if token isn't set shortly after mount in dev, set a dummy token
 		const t = setTimeout(() => {
 			if (process.env.NODE_ENV !== "production") {
