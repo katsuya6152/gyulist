@@ -1,6 +1,14 @@
 import type { AnyD1Database } from "drizzle-orm/d1";
 import { Hono } from "hono";
-import { type Mock, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	type Mock,
+	afterEach,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi,
+} from "vitest";
 import { createRoutes } from "../../../src/routes";
 import type { Bindings } from "../../../src/types";
 import { createMemoryDB } from "../../fixtures/memoryDb";

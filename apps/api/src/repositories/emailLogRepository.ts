@@ -33,9 +33,9 @@ export async function insertEmailLog(
 			log.id,
 			log.email,
 			log.type,
-			log.httpStatus,
-			log.resendId,
-			log.error,
+			log.httpStatus ?? null,
+			log.resendId ?? null,
+			log.error ?? null,
 			log.createdAt,
 		)
 		.run();
