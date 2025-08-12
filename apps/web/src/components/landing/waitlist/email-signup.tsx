@@ -21,7 +21,8 @@ import { trackWaitlistSignup } from "@/lib/analytics";
 import { preRegister, preRegisterSchema } from "@/services/preRegisterService";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import Script from "next/script";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
@@ -42,7 +43,11 @@ export function EmailSignup({
 }: EmailSignupProps) {
 	const router = useRouter();
 	const [step, setStep] = useState<1 | 2>(1);
+	const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+	const [widgetId, setWidgetId] = useState<string | null>(null);
+	const turnstileRef = useRef<HTMLDivElement>(null);
 	const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "";
+
 	const form = useForm<z.infer<typeof preRegisterSchema>>({
 		resolver: zodResolver(preRegisterSchema),
 		defaultValues: {
@@ -52,41 +57,116 @@ export function EmailSignup({
 		},
 	});
 
+	// Handle Turnstile script loading and widget rendering
+	const handleScriptLoad = () => {
+		setIsScriptLoaded(true);
+	};
+
+	// Render Turnstile widget after script loads
 	useEffect(() => {
-		// Managed (declarative) mode: define global callbacks referenced by data-attributes
-		window.onTurnstileToken = (token: string) => {
-			form.setValue("turnstileToken", token);
-		};
-		window.onTurnstileExpired = () => {
-			form.setValue("turnstileToken", "");
-		};
-		window.onTurnstileError = () => {
-			form.setValue("turnstileToken", "");
-		};
+		if (
+			isScriptLoaded &&
+			window.turnstile &&
+			turnstileRef.current &&
+			!widgetId
+		) {
+			const id = window.turnstile.render(turnstileRef.current, {
+				sitekey: siteKey,
+				size: "invisible", // 非表示モード
+				callback: (token: string) => {
+					form.setValue("turnstileToken", token);
+				},
+				"expired-callback": () => {
+					form.setValue("turnstileToken", "");
+				},
+				"error-callback": () => {
+					form.setValue("turnstileToken", "");
+				},
+			});
+			setWidgetId(id);
+		}
 
-		// Strict implicit mode: let Cloudflare auto-render manage the widget
-
-		// Safety net: if token isn't set shortly after mount in dev, set a dummy token
-		const t = setTimeout(() => {
-			if (process.env.NODE_ENV !== "production") {
-				const cur = form.getValues("turnstileToken");
-				if (!cur || cur.length < 10) {
+		// Development fallback
+		if (process.env.NODE_ENV !== "production") {
+			const timer = setTimeout(() => {
+				const currentToken = form.getValues("turnstileToken");
+				if (!currentToken || currentToken.length < 10) {
 					form.setValue("turnstileToken", "XXXX.DUMMY.TOKEN.XXXX");
 				}
-			}
-		}, 1500);
+			}, 1500);
+			return () => clearTimeout(timer);
+		}
+	}, [isScriptLoaded, siteKey, form, widgetId]);
+
+	// Cleanup on unmount
+	useEffect(() => {
 		return () => {
-			clearTimeout(t);
-			window.onTurnstileToken = undefined;
-			window.onTurnstileExpired = undefined;
-			window.onTurnstileError = undefined;
+			if (widgetId && window.turnstile?.remove) {
+				window.turnstile.remove(widgetId);
+			}
 		};
-	}, [form]);
+	}, [widgetId]);
 
 	const onSubmit = async (values: z.infer<typeof preRegisterSchema>) => {
-		// Step 1: only validate email and token, then move to step 2
+		// Step 1: only validate email, then ensure token, then move to step 2
 		if (step === 1) {
-			const isValid = await form.trigger(["email", "turnstileToken"]);
+			const isEmailValid = await form.trigger(["email"]);
+			if (!isEmailValid) return;
+
+			// If a valid token already exists (e.g., tests or dev fallback), skip executing
+			const existingToken = form.getValues("turnstileToken");
+			if (existingToken && existingToken.length >= 10) {
+				setStep(2);
+				return;
+			}
+
+			// Execute invisible Turnstile challenge when token not present
+			if (widgetId && window.turnstile) {
+				try {
+					// Execute the challenge programmatically
+					window.turnstile.execute(widgetId);
+
+					// Wait for token to be set (with timeout)
+					const waitForToken = () => {
+						return new Promise<void>((resolve, reject) => {
+							let isResolved = false;
+
+							const checkToken = () => {
+								if (isResolved) return;
+								const token = form.getValues("turnstileToken");
+								if (token && token.length >= 10) {
+									isResolved = true;
+									clearInterval(interval);
+									clearTimeout(timeout);
+									resolve();
+								}
+							};
+
+							// Check immediately
+							checkToken();
+
+							// Then check every 100ms for up to 10 seconds
+							const interval = setInterval(checkToken, 100);
+							const timeout = setTimeout(() => {
+								if (!isResolved) {
+									isResolved = true;
+									clearInterval(interval);
+									reject(new Error("Turnstile timeout"));
+								}
+							}, 10000);
+						});
+					};
+
+					await waitForToken();
+				} catch (error) {
+					form.setError("turnstileToken", {
+						message: "セキュリティ認証に失敗しました。もう一度お試しください。",
+					});
+					return;
+				}
+			}
+
+			const isValid = await form.trigger(["turnstileToken"]);
 			if (!isValid) return;
 			setStep(2);
 			return;
@@ -119,109 +199,121 @@ export function EmailSignup({
 
 	const isSubmitting = form.formState.isSubmitting;
 	const token = form.watch("turnstileToken");
-	const isTokenReady = typeof token === "string" && token.length >= 10;
+	// For invisible mode, we don't need to check token readiness for UI
+	const canSubmit =
+		step === 1 ||
+		(step === 2 && typeof token === "string" && token.length >= 10);
 
 	return (
-		<section id="waitlist" className="py-12 md:py-16 bg-blue-50">
-			<div className="container mx-auto px-4 max-w-2xl">
-				<div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm ring-1 ring-blue-100">
-					<h2 className="text-xl md:text-2xl font-bold text-center">
-						正式開始の先行案内を受け取る
-					</h2>
-					<p className="mt-2 text-center text-gray-600">
-						メールを登録すると、先行アクセスや特典のご案内をお送りします。
-					</p>
-					<Form {...form}>
-						<form
-							onSubmit={form.handleSubmit(onSubmit)}
-							className="mt-6 flex flex-col sm:flex-row gap-3"
-							aria-live="polite"
-						>
-							<FormField
-								control={form.control}
-								name="email"
-								render={({ field }) => (
-									<FormItem className="flex-1">
-										<FormLabel className="sr-only">メールアドレス</FormLabel>
-										<FormControl>
-											<Input
-												id="waitlist-email"
-												type="email"
-												placeholder="メールアドレス"
-												{...field}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-							{step === 2 && (
+		<>
+			<Script
+				src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+				onLoad={handleScriptLoad}
+				strategy="afterInteractive"
+			/>
+			<section id="waitlist" className="py-12 md:py-16 bg-blue-50">
+				<div className="container mx-auto px-4 max-w-2xl">
+					<div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm ring-1 ring-blue-100">
+						<h2 className="text-xl md:text-2xl font-bold text-center">
+							正式開始の先行案内を受け取る
+						</h2>
+						<p className="mt-2 text-center text-gray-600">
+							メールを登録すると、先行アクセスや特典のご案内をお送りします。
+						</p>
+						<Form {...form}>
+							<form
+								onSubmit={form.handleSubmit(onSubmit)}
+								className="mt-6 space-y-4"
+								aria-live="polite"
+							>
 								<FormField
 									control={form.control}
-									name="referralSource"
+									name="email"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>
-												どこでギュウリストを知りましたか？（任意）
-											</FormLabel>
+											<FormLabel className="sr-only">メールアドレス</FormLabel>
 											<FormControl>
-												<Select
-													onValueChange={field.onChange}
-													defaultValue={field.value}
-												>
-													<SelectTrigger className="w-full">
-														<SelectValue placeholder="選択してください" />
-													</SelectTrigger>
-													<SelectContent>
-														{sources.map((src) => (
-															<SelectItem key={src} value={src}>
-																{src}
-															</SelectItem>
-														))}
-													</SelectContent>
-												</Select>
+												<Input
+													id="waitlist-email"
+													type="email"
+													placeholder="メールアドレス"
+													{...field}
+												/>
 											</FormControl>
 											<FormMessage />
 										</FormItem>
 									)}
 								/>
-							)}
-							<FormField
-								control={form.control}
-								name="turnstileToken"
-								render={({ field }) => (
-									<FormItem className="hidden">
-										<FormControl>
-											<Input type="hidden" {...field} data-testid="turnstile" />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
+								{step === 2 && (
+									<FormField
+										control={form.control}
+										name="referralSource"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>
+													どこでギュウリストを知りましたか？（任意）
+												</FormLabel>
+												<FormControl>
+													<Select
+														onValueChange={field.onChange}
+														defaultValue={field.value}
+													>
+														<SelectTrigger className="w-full">
+															<SelectValue placeholder="選択してください" />
+														</SelectTrigger>
+														<SelectContent>
+															{sources.map((src) => (
+																<SelectItem key={src} value={src}>
+																	{src}
+																</SelectItem>
+															))}
+														</SelectContent>
+													</Select>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
 								)}
-							/>
-							<div
-								id="turnstile"
-								className="cf-turnstile"
-								data-sitekey={siteKey}
-								data-callback="onTurnstileToken"
-								data-expired-callback="onTurnstileExpired"
-								data-error-callback="onTurnstileError"
-								data-appearance="always"
-								data-action="waitlist_signup"
-							/>
-							<Button
-								type="submit"
-								disabled={isSubmitting || !isTokenReady}
-								className="inline-flex justify-center items-center bg-primary text-white px-6 py-3 rounded-full font-semibold hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400"
-								data-cta="waitlist-submit"
-							>
-								{isSubmitting ? "送信中..." : step === 1 ? "次へ" : buttonLabel}
-							</Button>
-						</form>
-					</Form>
-					<p id="waitlist-result" className="text-center mt-4 text-sm" />
+								<FormField
+									control={form.control}
+									name="turnstileToken"
+									render={({ field }) => (
+										<FormItem className="hidden">
+											<FormControl>
+												<Input
+													type="hidden"
+													{...field}
+													data-testid="turnstile"
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+								{/* Hidden Turnstile widget */}
+								<div className="hidden">
+									<div ref={turnstileRef} />
+								</div>
+								<Button
+									type="submit"
+									disabled={isSubmitting || !canSubmit}
+									className="w-full bg-primary text-white px-6 py-3 rounded-full font-semibold hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400"
+									data-cta="waitlist-submit"
+								>
+									{isSubmitting
+										? "送信中..."
+										: step === 1
+											? "次へ"
+											: buttonLabel}
+								</Button>
+							</form>
+						</Form>
+						<p id="waitlist-result" className="text-center mt-4 text-sm" />
+					</div>
 				</div>
-			</div>
-		</section>
+			</section>
+		</>
 	);
 }
 
@@ -232,16 +324,21 @@ declare global {
 				element: string | HTMLElement,
 				options: {
 					sitekey: string;
-					callback: (token: string) => void;
-					appearance?: string;
+					callback?: (token: string) => void;
+					"expired-callback"?: () => void;
+					"error-callback"?: () => void;
+					appearance?: "always" | "execute" | "interaction-only";
+					theme?: "light" | "dark" | "auto";
+					size?: "normal" | "compact" | "invisible";
 					action?: string;
+					cData?: string;
 					[key: string]: unknown;
 				},
-			) => void;
-			reset?: () => void;
+			) => string;
+			reset: (widgetId?: string) => void;
+			remove: (widgetId: string) => void;
+			execute: (widgetId?: string) => void;
+			getResponse: (widgetId?: string) => string | undefined;
 		};
-		onTurnstileToken?: (token: string) => void;
-		onTurnstileExpired?: () => void;
-		onTurnstileError?: () => void;
 	}
 }
