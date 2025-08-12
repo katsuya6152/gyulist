@@ -1,7 +1,6 @@
 import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 import { ThemeProvider } from "@/lib/theme-provider";
 
@@ -74,12 +73,6 @@ export default function RootLayout({
 					as="image"
 					type="image/webp"
 					fetchPriority="high"
-				/>
-				{/* Cloudflare Turnstile: declarative auto-render */}
-				<Script
-					id="cf-turnstile"
-					src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-					strategy="afterInteractive"
 				/>
 			</head>
 			<body
