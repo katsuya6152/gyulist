@@ -1,7 +1,7 @@
 import { client } from "@/lib/rpc";
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, vi } from "vitest";
+import { vi } from "vitest";
 import { EmailSignup } from "../email-signup";
 
 // Infer the Hono client response type for $post once and reuse
@@ -23,19 +23,13 @@ describe("EmailSignup", () => {
 		vi.restoreAllMocks();
 	});
 
-	beforeEach(() => {
-		// Simulate Turnstile being available and immediately providing a token
-		// so the component's useEffect sets the form value via callback.
-		window.turnstile = {
-			render: (_el: unknown, opts: { callback: (t: string) => void }) => {
-				opts.callback("token-123456");
-			},
-		} as unknown as Window["turnstile"]; // satisfy TS
-	});
-
 	it("validates required and format", async () => {
 		mockFetch({ ok: true });
 		render(<EmailSignup />);
+		// Simulate managed Turnstile issuing a token
+		(
+			window as unknown as { onTurnstileToken?: (t: string) => void }
+		).onTurnstileToken?.("token-123456");
 		const submit = screen.getByRole("button", { name: "次へ" });
 		await userEvent.click(submit);
 		expect(
@@ -59,6 +53,10 @@ describe("EmailSignup", () => {
 		render(<EmailSignup onSuccess={onSuccess} />);
 		const email = screen.getByPlaceholderText("メールアドレス");
 		await userEvent.type(email, "test@example.com");
+		// Simulate managed Turnstile issuing a token
+		(
+			window as unknown as { onTurnstileToken?: (t: string) => void }
+		).onTurnstileToken?.("token-123456");
 		// Step 1 -> Step 2
 		const next = screen.getByRole("button", { name: "次へ" });
 		await userEvent.click(next);
@@ -79,6 +77,10 @@ describe("EmailSignup", () => {
 		render(<EmailSignup />);
 		const email = screen.getByPlaceholderText("メールアドレス");
 		await userEvent.type(email, "test@example.com");
+		// Simulate managed Turnstile issuing a token
+		(
+			window as unknown as { onTurnstileToken?: (t: string) => void }
+		).onTurnstileToken?.("token-123456");
 		// Step 1 -> Step 2
 		const next = screen.getByRole("button", { name: "次へ" });
 		await userEvent.click(next);
@@ -98,6 +100,10 @@ describe("EmailSignup", () => {
 		render(<EmailSignup />);
 		const email = screen.getByPlaceholderText("メールアドレス");
 		await userEvent.type(email, "test@example.com");
+		// Simulate managed Turnstile issuing a token
+		(
+			window as unknown as { onTurnstileToken?: (t: string) => void }
+		).onTurnstileToken?.("token-123456");
 		// Step 1 -> Step 2
 		const next = screen.getByRole("button", { name: "次へ" });
 		await userEvent.click(next);
