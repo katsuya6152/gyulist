@@ -40,7 +40,7 @@ export function PreRegisterAdmin({ initialParams }: Props) {
 				Authorization: `Basic ${btoa(`${auth.user}:${auth.pass}`)}`,
 			},
 		})
-			.then((res) => res.json())
+			.then((res) => res.json<{ items?: Item[] }>())
 			.then((data) => setItems(data.items ?? []));
 	}, [auth, params]);
 
