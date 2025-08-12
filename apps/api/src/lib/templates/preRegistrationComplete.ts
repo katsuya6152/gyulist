@@ -4,7 +4,7 @@ export function preRegistrationCompleteHtml(): string {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<title>事前登録完了のお知らせ｜Gyulist</title>
+<title>事前登録完了のお知らせ｜ギュウリスト</title>
 </head>
 <body style="margin:0; padding:0; background-color:#ffffff; font-family: Arial, 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif; color:#333333;">
 
@@ -45,7 +45,7 @@ export function preRegistrationCompleteHtml(): string {
   <!-- フッター -->
   <tr>
     <td style="font-size:12px; color:#999999; text-align:center; line-height:1.4;">
-      Gyulist 運営事務局<br>
+      ギュウリスト 運営事務局<br>
       <a href="mailto:support@gyulist.com" style="color:#BA5B34; text-decoration:none;">support@gyulist.com</a><br>
       <a href="https://gyulist.com" style="color:#BA5B34; text-decoration:none;">https://gyulist.com</a>
     </td>
