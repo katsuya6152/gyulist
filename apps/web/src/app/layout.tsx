@@ -75,10 +75,10 @@ export default function RootLayout({
 					type="image/webp"
 					fetchPriority="high"
 				/>
-				{/* Cloudflare Turnstile: load once site-wide */}
+				{/* Cloudflare Turnstile: declarative auto-render */}
 				<Script
 					id="cf-turnstile"
-					src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+					src="https://challenges.cloudflare.com/turnstile/v0/api.js"
 					strategy="afterInteractive"
 				/>
 			</head>
