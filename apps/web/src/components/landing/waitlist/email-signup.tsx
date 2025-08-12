@@ -42,8 +42,7 @@ export function EmailSignup({
 }: EmailSignupProps) {
 	const router = useRouter();
 	const [step, setStep] = useState<1 | 2>(1);
-	const siteKey =
-		process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"; // Cloudflare public test key for local/dev
+	const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "";
 	const form = useForm<z.infer<typeof preRegisterSchema>>({
 		resolver: zodResolver(preRegisterSchema),
 		defaultValues: {
@@ -64,6 +63,8 @@ export function EmailSignup({
 		window.onTurnstileError = () => {
 			form.setValue("turnstileToken", "");
 		};
+
+		// Strict implicit mode: let Cloudflare auto-render manage the widget
 
 		// Safety net: if token isn't set shortly after mount in dev, set a dummy token
 		const t = setTimeout(() => {
@@ -229,7 +230,13 @@ declare global {
 		turnstile?: {
 			render: (
 				element: string | HTMLElement,
-				options: { sitekey: string; callback: (token: string) => void },
+				options: {
+					sitekey: string;
+					callback: (token: string) => void;
+					appearance?: string;
+					action?: string;
+					[key: string]: unknown;
+				},
 			) => void;
 			reset?: () => void;
 		};
