@@ -10,6 +10,10 @@ jobs:
   # 1. Build & Test (CI)
   build-and-test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
     outputs:
       api_changed: ${{ steps.filter.outputs.api }}
       web_changed: ${{ steps.filter.outputs.web }}
@@ -61,8 +65,8 @@ jobs:
 
       # --- Codecov へのアップロード（API）---
       - name: Upload API coverage to Codecov
-        if: steps.filter.outputs.api == 'true'
-        uses: codecov/codecov-action@v4
+        if: steps.filter.outputs.api == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: codecov/codecov-action@v5
         with:
           files: apps/api/coverage/lcov.info
           flags: api
@@ -71,8 +75,8 @@ jobs:
 
       # --- Codecov へのアップロード（Web）---
       - name: Upload Web coverage to Codecov
-        if: steps.filter.outputs.web == 'true'
-        uses: codecov/codecov-action@v4
+        if: steps.filter.outputs.web == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: codecov/codecov-action@v5
         with:
           files: apps/web/coverage/lcov.info
           flags: web
