@@ -42,6 +42,8 @@ export function EmailSignup({
 }: EmailSignupProps) {
 	const router = useRouter();
 	const [step, setStep] = useState<1 | 2>(1);
+	const siteKey =
+		process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"; // Cloudflare public test key for local/dev
 	const form = useForm<z.infer<typeof preRegisterSchema>>({
 		resolver: zodResolver(preRegisterSchema),
 		defaultValues: {
@@ -52,28 +54,17 @@ export function EmailSignup({
 	});
 
 	useEffect(() => {
-		const siteKey =
-			process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"; // Cloudflare public test key for local/dev
-		const renderWidget = () => {
-			if (typeof window.turnstile?.render === "function") {
-				window.turnstile.render("#turnstile", {
-					sitekey: siteKey,
-					callback: (token: string) => {
-						form.setValue("turnstileToken", token);
-					},
-				});
-			}
+		// Managed (declarative) mode: define global callbacks referenced by data-attributes
+		window.onTurnstileToken = (token: string) => {
+			form.setValue("turnstileToken", token);
+		};
+		window.onTurnstileExpired = () => {
+			form.setValue("turnstileToken", "");
+		};
+		window.onTurnstileError = () => {
+			form.setValue("turnstileToken", "");
 		};
 
-		// If turnstile is already available, render immediately
-		if (typeof window.turnstile?.render === "function") {
-			renderWidget();
-			return;
-		}
-
-		// Otherwise, wait for the global script (loaded in layout) to finish loading
-		const headScript = document.getElementById("cf-turnstile");
-		headScript?.addEventListener("load", renderWidget, { once: true });
 		// Safety net: if token isn't set shortly after mount in dev, set a dummy token
 		const t = setTimeout(() => {
 			if (process.env.NODE_ENV !== "production") {
@@ -83,7 +74,12 @@ export function EmailSignup({
 				}
 			}
 		}, 1500);
-		return () => clearTimeout(t);
+		return () => {
+			clearTimeout(t);
+			window.onTurnstileToken = undefined;
+			window.onTurnstileExpired = undefined;
+			window.onTurnstileError = undefined;
+		};
 	}, [form]);
 
 	const onSubmit = async (values: z.infer<typeof preRegisterSchema>) => {
@@ -201,7 +197,16 @@ export function EmailSignup({
 									</FormItem>
 								)}
 							/>
-							<div id="turnstile" />
+							<div
+								id="turnstile"
+								className="cf-turnstile"
+								data-sitekey={siteKey}
+								data-callback="onTurnstileToken"
+								data-expired-callback="onTurnstileExpired"
+								data-error-callback="onTurnstileError"
+								data-appearance="always"
+								data-action="waitlist_signup"
+							/>
 							<Button
 								type="submit"
 								disabled={isSubmitting || !isTokenReady}
@@ -228,5 +233,8 @@ declare global {
 			) => void;
 			reset?: () => void;
 		};
+		onTurnstileToken?: (token: string) => void;
+		onTurnstileExpired?: () => void;
+		onTurnstileError?: () => void;
 	}
 }
