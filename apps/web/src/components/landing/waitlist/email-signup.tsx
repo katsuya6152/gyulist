@@ -46,7 +46,10 @@ export function EmailSignup({
 	const [isScriptLoaded, setIsScriptLoaded] = useState(false);
 	const [widgetId, setWidgetId] = useState<string | null>(null);
 	const turnstileRef = useRef<HTMLDivElement>(null);
-	const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "";
+	// Prefer configured site key; fallback to Cloudflare's public test key in non-production
+	const siteKey =
+		process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ||
+		(process.env.NODE_ENV !== "production" ? "1x00000000000000000000AA" : "");
 
 	const form = useForm<z.infer<typeof preRegisterSchema>>({
 		resolver: zodResolver(preRegisterSchema),
@@ -62,28 +65,46 @@ export function EmailSignup({
 		setIsScriptLoaded(true);
 	};
 
+	const handleScriptError = () => {
+		console.warn("Turnstile script failed to load");
+		// In development, set a dummy token to allow testing
+		if (process.env.NODE_ENV !== "production") {
+			form.setValue("turnstileToken", "XXXX.DUMMY.TOKEN.XXXX");
+		}
+	};
+
 	// Render Turnstile widget after script loads
 	useEffect(() => {
 		if (
 			isScriptLoaded &&
 			window.turnstile &&
 			turnstileRef.current &&
-			!widgetId
+			!widgetId &&
+			siteKey
 		) {
-			const id = window.turnstile.render(turnstileRef.current, {
-				sitekey: siteKey,
-				size: "invisible", // 非表示モード
-				callback: (token: string) => {
-					form.setValue("turnstileToken", token);
-				},
-				"expired-callback": () => {
-					form.setValue("turnstileToken", "");
-				},
-				"error-callback": () => {
-					form.setValue("turnstileToken", "");
-				},
-			});
-			setWidgetId(id);
+			try {
+				const id = window.turnstile.render(turnstileRef.current, {
+					sitekey: siteKey,
+					size: "invisible", // 非表示モード
+					callback: (token: string) => {
+						form.setValue("turnstileToken", token);
+					},
+					"expired-callback": () => {
+						form.setValue("turnstileToken", "");
+					},
+					"error-callback": () => {
+						form.setValue("turnstileToken", "");
+						console.warn("Turnstile widget error");
+					},
+				});
+				setWidgetId(id);
+			} catch (error) {
+				console.warn("Failed to render Turnstile widget:", error);
+				// In development, set a dummy token to allow testing
+				if (process.env.NODE_ENV !== "production") {
+					form.setValue("turnstileToken", "XXXX.DUMMY.TOKEN.XXXX");
+				}
+			}
 		}
 
 		// Development fallback
@@ -209,6 +230,7 @@ export function EmailSignup({
 			<Script
 				src="https://challenges.cloudflare.com/turnstile/v0/api.js"
 				onLoad={handleScriptLoad}
+				onError={handleScriptError}
 				strategy="afterInteractive"
 			/>
 			<section id="waitlist" className="py-12 md:py-16 bg-blue-50">
