@@ -49,22 +49,37 @@ export function EmailSignup({
 	});
 
 	useEffect(() => {
-		const script = document.createElement("script");
-		script.src =
-			"https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
-		script.async = true;
-		script.onload = () => {
-			window.turnstile?.render("#turnstile", {
-				sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "",
-				callback: (token: string) => {
-					form.setValue("turnstileToken", token);
-				},
-			});
+		const renderWidget = () => {
+			if (typeof window.turnstile?.render === "function") {
+				window.turnstile.render("#turnstile", {
+					sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "",
+					callback: (token: string) => {
+						form.setValue("turnstileToken", token);
+					},
+				});
+			}
 		};
-		document.head.appendChild(script);
-		return () => {
-			document.head.removeChild(script);
-		};
+
+		if (typeof window.turnstile?.render === "function") {
+			renderWidget();
+			return;
+		}
+
+		let script = document.querySelector<HTMLScriptElement>(
+			"script[data-turnstile]",
+		);
+		if (!script) {
+			script = document.createElement("script");
+			script.src =
+				"https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+			script.async = true;
+			script.defer = true;
+			script.setAttribute("data-turnstile", "true");
+			script.onload = renderWidget;
+			document.head.appendChild(script);
+		} else {
+			script.addEventListener("load", renderWidget, { once: true });
+		}
 	}, [form]);
 
 	const onSubmit = async (values: z.infer<typeof preRegisterSchema>) => {
@@ -77,6 +92,9 @@ export function EmailSignup({
 				trackWaitlistSignup();
 				onSuccess?.();
 				form.reset();
+				// Reset Turnstile to fetch a fresh token for subsequent submissions
+				window.turnstile?.reset?.();
+				form.setValue("turnstileToken", "");
 				if (resultEl) {
 					resultEl.textContent = "登録完了メールを送信しました";
 				}
@@ -193,6 +211,7 @@ declare global {
 				element: string | HTMLElement,
 				options: { sitekey: string; callback: (token: string) => void },
 			) => void;
+			reset?: () => void;
 		};
 	}
 }
