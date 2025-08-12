@@ -42,7 +42,7 @@ describe("registrationRepository (D1 path)", () => {
 			"a@b.com",
 		);
 		expect(row?.email).toBe("a@b.com");
-		expect(db.calls[0].sql).toMatch(/SELECT \* FROM registrations/);
+		expect(db.calls[0].sql).toMatch(/SELECT .* FROM registrations/);
 		expect(db.calls[0].binds).toEqual(["a@b.com"]);
 	});
 
@@ -82,8 +82,8 @@ describe("registrationRepository (D1 path)", () => {
 			offset: 10,
 		} as const;
 		await searchRegistrations(db as unknown as AnyD1Database, params);
-		// first prepared statement is for SELECT * ... LIMIT ? OFFSET ?
-		expect(db.calls[0].sql).toMatch(/SELECT \* FROM registrations/);
+		// first prepared statement is for SELECT ... LIMIT ? OFFSET ?
+		expect(db.calls[0].sql).toMatch(/SELECT .* FROM registrations/);
 		// binds: q, from, to, source, limit, offset
 		expect(db.calls[0].binds).toEqual(["%user%", 1, 10, "search", 5, 10]);
 		// second prepared statement is for COUNT(*) with same where binds
@@ -98,7 +98,7 @@ describe("registrationRepository (D1 path)", () => {
 			offset: 0,
 		});
 		expect(db.calls[0].sql).toMatch(
-			/SELECT \* FROM registrations\s+ORDER BY created_at DESC LIMIT \? OFFSET \?/,
+			/SELECT .* FROM registrations\s+ORDER BY created_at DESC LIMIT \? OFFSET \?/,
 		);
 		expect(db.calls[0].binds).toEqual([10, 0]);
 		expect(db.calls[1].sql).toMatch(

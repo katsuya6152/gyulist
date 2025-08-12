@@ -22,7 +22,7 @@
 			"@/*": ["./src/*"],
 			"@repo/api": ["../api/dist"]
 		},
-		"types": ["@cloudflare/workers-types/2023-07-01"]
+		"types": ["@cloudflare/workers-types/2023-07-01", "vitest/globals"]
 	},
 	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
 	"exclude": ["node_modules"]

@@ -81,6 +81,17 @@ vi.mock("@repo/api", () => ({
 						$delete: vi.fn(),
 					},
 				},
+				"pre-register": {
+					$post: vi.fn(),
+				},
+				admin: {
+					registrations: {
+						$get: vi.fn(),
+					},
+					"registrations.csv": {
+						$get: vi.fn(),
+					},
+				},
 			},
 		},
 	}),
@@ -105,6 +116,17 @@ vi.mock("@/lib/rpc", () => ({
 						$get: vi.fn(),
 						$patch: vi.fn(),
 						$delete: vi.fn(),
+					},
+				},
+				"pre-register": {
+					$post: vi.fn(),
+				},
+				admin: {
+					registrations: {
+						$get: vi.fn(),
+					},
+					"registrations.csv": {
+						$get: vi.fn(),
 					},
 				},
 			},
