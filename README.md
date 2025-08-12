@@ -85,6 +85,7 @@ cp .env.example .env.local
 
 必要な環境変数:
 - `NEXT_PUBLIC_API_URL`
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
 
 ### 4. データベースのセットアップ
 ```bash
@@ -108,6 +109,12 @@ pnpm run dev
 ```
 
 ブラウザで [http://localhost:3000](http://localhost:3000) を開いてアプリケーションを確認できます。
+
+### 事前登録フォームと管理画面
+
+トップページの「正式開始の先行案内」フォームから事前登録できます。Cloudflare Turnstile を利用するため `NEXT_PUBLIC_TURNSTILE_SITE_KEY` を設定してください。
+
+登録内容は `/pre-registers` で確認できます。ユーザー名とパスワードを入力して Basic 認証を通過すると一覧が表示され、検索・期間指定・流入元フィルタ・CSV ダウンロードが利用できます。
 
 ## 📁 プロジェクト構造
 

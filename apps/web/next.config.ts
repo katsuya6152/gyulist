@@ -29,20 +29,9 @@ const nextConfig: NextConfig = {
 			"date-fns",
 			"embla-carousel-react",
 		],
-		// ツリーシェイキングの強化
-		turbo: {
-			rules: {
-				"*.svg": {
-					loaders: ["@svgr/webpack"],
-					as: "*.js",
-				},
-			},
-		},
 	},
 	// 圧縮の有効化
 	compress: true,
-	// SWCによる最適化
-	swcMinify: true,
 	// パフォーマンス最適化
 	poweredByHeader: false,
 	generateEtags: false,
