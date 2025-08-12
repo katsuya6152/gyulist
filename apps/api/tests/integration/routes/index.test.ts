@@ -18,6 +18,11 @@ describe("Routes Integration", () => {
 				APP_URL: "http://localhost:3000",
 				GOOGLE_CLIENT_ID: "test-client-id",
 				GOOGLE_CLIENT_SECRET: "test-client-secret",
+				RESEND_API_KEY: "",
+				TURNSTILE_SECRET_KEY: "",
+				ADMIN_USER: "a",
+				ADMIN_PASS: "b",
+				WEB_ORIGIN: "http://localhost:3000",
 			};
 			await next();
 		});
