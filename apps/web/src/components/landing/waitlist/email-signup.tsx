@@ -20,7 +20,8 @@ import {
 import { trackWaitlistSignup } from "@/lib/analytics";
 import { preRegister, preRegisterSchema } from "@/services/preRegisterService";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
@@ -39,6 +40,8 @@ export function EmailSignup({
 	sources = defaultSources,
 	onSuccess,
 }: EmailSignupProps) {
+	const router = useRouter();
+	const [step, setStep] = useState<1 | 2>(1);
 	const form = useForm<z.infer<typeof preRegisterSchema>>({
 		resolver: zodResolver(preRegisterSchema),
 		defaultValues: {
@@ -49,10 +52,12 @@ export function EmailSignup({
 	});
 
 	useEffect(() => {
+		const siteKey =
+			process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"; // Cloudflare public test key for local/dev
 		const renderWidget = () => {
 			if (typeof window.turnstile?.render === "function") {
 				window.turnstile.render("#turnstile", {
-					sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "",
+					sitekey: siteKey,
 					callback: (token: string) => {
 						form.setValue("turnstileToken", token);
 					},
@@ -76,13 +81,38 @@ export function EmailSignup({
 			script.defer = true;
 			script.setAttribute("data-turnstile", "true");
 			script.onload = renderWidget;
+			script.onerror = () => {
+				// Dev fallback: if widget failed to load, unblock form in non-production
+				if (process.env.NODE_ENV !== "production") {
+					form.setValue("turnstileToken", "XXXX.DUMMY.TOKEN.XXXX");
+				}
+			};
 			document.head.appendChild(script);
 		} else {
 			script.addEventListener("load", renderWidget, { once: true });
 		}
+		// Safety net: if token isn't set shortly after mount in dev, set a dummy token
+		const t = setTimeout(() => {
+			if (process.env.NODE_ENV !== "production") {
+				const cur = form.getValues("turnstileToken");
+				if (!cur || cur.length < 10) {
+					form.setValue("turnstileToken", "XXXX.DUMMY.TOKEN.XXXX");
+				}
+			}
+		}, 1500);
+		return () => clearTimeout(t);
 	}, [form]);
 
 	const onSubmit = async (values: z.infer<typeof preRegisterSchema>) => {
+		// Step 1: only validate email and token, then move to step 2
+		if (step === 1) {
+			const isValid = await form.trigger(["email", "turnstileToken"]);
+			if (!isValid) return;
+			setStep(2);
+			return;
+		}
+
+		// Step 2: submit to API
 		const res = await preRegister(values);
 		const resultEl = document.getElementById("waitlist-result");
 		if (res.ok) {
@@ -91,13 +121,8 @@ export function EmailSignup({
 			} else {
 				trackWaitlistSignup();
 				onSuccess?.();
-				form.reset();
-				// Reset Turnstile to fetch a fresh token for subsequent submissions
-				window.turnstile?.reset?.();
-				form.setValue("turnstileToken", "");
-				if (resultEl) {
-					resultEl.textContent = "登録完了メールを送信しました";
-				}
+				router.push("/waitlist");
+				return;
 			}
 			return;
 		}
@@ -113,6 +138,8 @@ export function EmailSignup({
 	};
 
 	const isSubmitting = form.formState.isSubmitting;
+	const token = form.watch("turnstileToken");
+	const isTokenReady = typeof token === "string" && token.length >= 10;
 
 	return (
 		<section id="waitlist" className="py-12 md:py-16 bg-blue-50">
@@ -148,32 +175,37 @@ export function EmailSignup({
 									</FormItem>
 								)}
 							/>
-							<FormField
-								control={form.control}
-								name="referralSource"
-								render={({ field }) => (
-									<FormItem>
-										<FormControl>
-											<Select
-												onValueChange={field.onChange}
-												defaultValue={field.value}
-											>
-												<SelectTrigger className="w-[140px]">
-													<SelectValue placeholder="流入元" />
-												</SelectTrigger>
-												<SelectContent>
-													{sources.map((src) => (
-														<SelectItem key={src} value={src}>
-															{src}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+							{step === 2 && (
+								<FormField
+									control={form.control}
+									name="referralSource"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>
+												どこでギュウリストを知りましたか？（任意）
+											</FormLabel>
+											<FormControl>
+												<Select
+													onValueChange={field.onChange}
+													defaultValue={field.value}
+												>
+													<SelectTrigger className="w-full">
+														<SelectValue placeholder="選択してください" />
+													</SelectTrigger>
+													<SelectContent>
+														{sources.map((src) => (
+															<SelectItem key={src} value={src}>
+																{src}
+															</SelectItem>
+														))}
+													</SelectContent>
+												</Select>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							)}
 							<FormField
 								control={form.control}
 								name="turnstileToken"
@@ -189,11 +221,11 @@ export function EmailSignup({
 							<div id="turnstile" />
 							<Button
 								type="submit"
-								disabled={isSubmitting}
+								disabled={isSubmitting || !isTokenReady}
 								className="inline-flex justify-center items-center bg-primary text-white px-6 py-3 rounded-full font-semibold hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400"
 								data-cta="waitlist-submit"
 							>
-								{isSubmitting ? "送信中..." : buttonLabel}
+								{isSubmitting ? "送信中..." : step === 1 ? "次へ" : buttonLabel}
 							</Button>
 						</form>
 					</Form>

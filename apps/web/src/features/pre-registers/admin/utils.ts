@@ -18,7 +18,17 @@ export function buildQuery(params: QueryParams): string {
 }
 
 export function formatDate(iso: string): string {
-	return new Date(iso).toLocaleString();
+	const d = new Date(iso);
+	return d.toLocaleString("ja-JP", {
+		year: "numeric",
+		month: "numeric",
+		day: "numeric",
+		hour: "numeric",
+		minute: "numeric",
+		second: "numeric",
+		hour12: false,
+		timeZone: "UTC",
+	});
 }
 
 export async function downloadCsv(blob: Blob, filename: string) {

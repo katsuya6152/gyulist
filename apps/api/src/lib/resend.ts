@@ -1,3 +1,4 @@
+import { preRegistrationCompleteHtml } from "./templates/preRegistrationComplete";
 export async function sendCompletionEmail(
 	apiKey: string,
 	from: string,
@@ -13,8 +14,8 @@ export async function sendCompletionEmail(
 		body: JSON.stringify({
 			from,
 			to,
-			subject: "事前登録ありがとうございます",
-			html: `<p>Gyulistへの事前登録が完了しました。</p><p>登録メール: ${to}</p><p>どこで知ったか: ${referralSource ?? ""}</p>`,
+			subject: "事前登録完了のお知らせ｜ギュウリスト",
+			html: preRegistrationCompleteHtml(),
 		}),
 	});
 	if (!res.ok) {
