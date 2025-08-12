@@ -59,6 +59,6 @@ describe("emailLogRepository (D1 path)", () => {
 			createdAt: 124,
 		} as unknown as EmailLogRecord;
 		await insertEmailLog(db as unknown as AnyD1Database, log);
-		expect(db.calls[0].binds[3]).toBeUndefined();
+		expect(db.calls[0].binds[3]).toBeNull();
 	});
 });
