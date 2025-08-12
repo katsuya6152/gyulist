@@ -15,7 +15,7 @@ export const basicAuthMiddleware: MiddlewareHandler<{
 			401,
 		);
 	}
-	const decoded = Buffer.from(header.slice(6), "base64").toString();
+	const decoded = atob(header.slice(6));
 	const [user, pass] = decoded.split(":");
 	if (user !== c.env.ADMIN_USER || pass !== c.env.ADMIN_PASS) {
 		c.header("WWW-Authenticate", 'Basic realm="admin"');

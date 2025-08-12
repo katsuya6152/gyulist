@@ -9,6 +9,7 @@ import {
 	updateCattleData,
 	updateStatus,
 } from "../../../src/services/cattleService";
+import * as dateUtils from "../../../src/utils/date";
 import { mockCattle } from "../../fixtures/database";
 
 // repositoriesをモック
@@ -277,8 +278,16 @@ describe("CattleService", () => {
 				status: "PREGNANT",
 			});
 			mockCattleRepository.createStatusHistory.mockResolvedValue({
+				cattleId: 1,
 				historyId: 1,
-			});
+				oldStatus: "HEALTHY",
+				newStatus: "PREGNANT",
+				changedAt: new Date().toISOString(),
+				changedBy: 1,
+				reason: "reason",
+			} as unknown as Awaited<
+				ReturnType<typeof cattleRepository.createStatusHistory>
+			>);
 
 			const result = await updateStatus(mockDb, 1, "PREGNANT", 1, "reason");
 
@@ -314,8 +323,16 @@ describe("CattleService", () => {
 				status: "PREGNANT",
 			});
 			mockCattleRepository.createStatusHistory.mockResolvedValue({
+				cattleId: 1,
 				historyId: 1,
-			});
+				oldStatus: "SHIPPED",
+				newStatus: "PREGNANT",
+				changedAt: new Date().toISOString(),
+				changedBy: 1,
+				reason: null,
+			} as unknown as Awaited<
+				ReturnType<typeof cattleRepository.createStatusHistory>
+			>);
 
 			const result = await updateStatus(mockDb, 1, "PREGNANT", 1);
 
@@ -339,6 +356,148 @@ describe("CattleService", () => {
 				},
 			);
 			expect(result.status).toBe("PREGNANT");
+		});
+
+		// Additional coverage merged from cattle.coverage.test.ts
+		describe("additional coverage", () => {
+			it("createNewCattle computes derived fields and persists related entities", async () => {
+				mockCattleRepository.createCattle.mockResolvedValue({
+					cattleId: 10,
+					birthday: "2022-01-01",
+				} as unknown as Awaited<
+					ReturnType<typeof cattleRepository.createCattle>
+				>);
+				mockCattleRepository.createBreedingStatus.mockResolvedValue({
+					id: 1,
+				} as unknown as Awaited<
+					ReturnType<typeof cattleRepository.createBreedingStatus>
+				>);
+				mockCattleRepository.createBreedingSummary.mockResolvedValue({
+					id: 1,
+				} as unknown as Awaited<
+					ReturnType<typeof cattleRepository.createBreedingSummary>
+				>);
+				(
+					dateUtils.calculateAge as unknown as ReturnType<typeof vi.fn>
+				).mockImplementation((d: Date, unit?: "months" | "days") => {
+					if (unit === "months") return 12;
+					if (unit === "days") return 365;
+					return 1;
+				});
+
+				await createNewCattle(mockDb, {
+					ownerUserId: 1,
+					name: "Cow",
+					identificationNumber: 1,
+					earTagNumber: 2,
+					birthday: "2022-01-01",
+					gender: "雌",
+					growthStage: "GROWING",
+					bloodline: { fatherCattleName: "Bull" },
+					breedingStatus: {
+						expectedCalvingDate: "2025-01-01",
+						scheduledPregnancyCheckDate: "2024-01-01",
+					},
+					breedingSummary: { totalInseminationCount: 3 },
+				} as unknown as Parameters<typeof createNewCattle>[1]);
+
+				expect(mockCattleRepository.createCattle).toHaveBeenCalled();
+				expect(mockCattleRepository.createBreedingStatus).toHaveBeenCalledWith(
+					mockDb,
+					10,
+					expect.objectContaining({
+						parity: expect.any(Number),
+						pregnancyDays: expect.any(Number),
+					}),
+				);
+				expect(mockCattleRepository.createBreedingSummary).toHaveBeenCalled();
+			});
+
+			it("updateCattleData recalculates age when birthday provided and updates related entities", async () => {
+				mockCattleRepository.updateCattle.mockResolvedValue({
+					cattleId: 11,
+				} as unknown as Awaited<
+					ReturnType<typeof cattleRepository.updateCattle>
+				>);
+				mockCattleRepository.updateBreedingStatus.mockResolvedValue({
+					id: 1,
+				} as unknown as Awaited<
+					ReturnType<typeof cattleRepository.updateBreedingStatus>
+				>);
+				mockCattleRepository.updateBreedingSummary.mockResolvedValue({
+					id: 1,
+				} as unknown as Awaited<
+					ReturnType<typeof cattleRepository.updateBreedingSummary>
+				>);
+				(
+					dateUtils.calculateAge as unknown as ReturnType<typeof vi.fn>
+				).mockImplementation(() => 2);
+
+				await updateCattleData(mockDb, 11, {
+					name: "Updated",
+					birthday: "2020-01-01",
+					bloodline: { fatherCattleName: "New Father" },
+					breedingStatus: { breedingMemo: "memo" },
+					breedingSummary: { totalInseminationCount: 5 },
+				} as unknown as Parameters<typeof updateCattleData>[2]);
+
+				expect(mockCattleRepository.updateCattle).toHaveBeenCalled();
+				expect(mockCattleRepository.updateBreedingStatus).toHaveBeenCalled();
+				expect(mockCattleRepository.updateBreedingSummary).toHaveBeenCalled();
+			});
+
+			it("searchCattleList handles invalid cursor and proceeds", async () => {
+				const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+				mockCattleRepository.searchCattle.mockResolvedValueOnce(
+					[] as unknown as Awaited<
+						ReturnType<typeof cattleRepository.searchCattle>
+					>,
+				);
+				await searchCattleList(mockDb, 1, {
+					limit: 1,
+					sort_by: "id",
+					sort_order: "asc",
+					cursor: "invalid!",
+				} as unknown as Parameters<typeof searchCattleList>[2]);
+				expect(spy).toHaveBeenCalled();
+				spy.mockRestore();
+			});
+
+			it("searchCattleList builds nextCursor for days_old sort", async () => {
+				const items: Array<{ cattleId: number; birthday: string }> = [
+					{ cattleId: 1, birthday: "2024-01-01" },
+					{ cattleId: 2, birthday: "2023-01-01" },
+				];
+				mockCattleRepository.searchCattle.mockResolvedValueOnce([
+					...items,
+					{ cattleId: 999 },
+				] as Array<{
+					cattleId: number;
+					birthday?: string;
+				}> as unknown as Awaited<
+					ReturnType<typeof cattleRepository.searchCattle>
+				>); // limit+1
+				const res = await searchCattleList(mockDb, 1, {
+					limit: 2,
+					sort_by: "days_old",
+					sort_order: "asc",
+				} as unknown as Parameters<typeof searchCattleList>[2]);
+				expect(res.has_next).toBe(true);
+				expect(res.next_cursor).not.toBeNull();
+				const nextCursor = res.next_cursor as string | null;
+				expect(nextCursor).not.toBeNull();
+				const decoded = JSON.parse(atob(nextCursor as string));
+				expect(decoded.id).toBe(2);
+			});
+
+			it("updateStatus throws when target not found", async () => {
+				mockCattleRepository.findCattleById.mockResolvedValueOnce(
+					null as unknown as Awaited<
+						ReturnType<typeof cattleRepository.findCattleById>
+					>,
+				);
+				await expect(updateStatus(mockDb, 1, "HEALTHY", 99)).rejects.toThrow();
+			});
 		});
 	});
 });
