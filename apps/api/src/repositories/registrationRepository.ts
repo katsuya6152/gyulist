@@ -25,7 +25,9 @@ export async function findRegistrationByEmail(
 		return db.registrations.find((r) => r.email === email) ?? null;
 	}
 	const stmt = db
-		.prepare("SELECT * FROM registrations WHERE email = ? LIMIT 1")
+		.prepare(
+			"SELECT id, email, referral_source AS referralSource, status, locale, created_at AS createdAt, updated_at AS updatedAt FROM registrations WHERE email = ? LIMIT 1",
+		)
 		.bind(email);
 	const row = await stmt.first<RegistrationRecord>();
 	return row ?? null;
@@ -70,17 +72,21 @@ export async function searchRegistrations(
 ) {
 	if (isMemory(db)) {
 		let items = [...db.registrations];
-		if (params.q) {
-			items = items.filter((r) => r.email.includes(params.q));
+		if (typeof params.q === "string") {
+			const q = params.q;
+			items = items.filter((r) => r.email.includes(q));
 		}
-		if (params.from !== undefined) {
-			items = items.filter((r) => r.createdAt >= params.from);
+		if (typeof params.from === "number") {
+			const from = params.from;
+			items = items.filter((r) => r.createdAt >= from);
 		}
-		if (params.to !== undefined) {
-			items = items.filter((r) => r.createdAt <= params.to);
+		if (typeof params.to === "number") {
+			const to = params.to;
+			items = items.filter((r) => r.createdAt <= to);
 		}
-		if (params.source) {
-			items = items.filter((r) => r.referralSource === params.source);
+		if (typeof params.source === "string") {
+			const source = params.source;
+			items = items.filter((r) => r.referralSource === source);
 		}
 		items.sort((a, b) => b.createdAt - a.createdAt);
 		const total = items.length;
@@ -105,10 +111,10 @@ export async function searchRegistrations(
 		where.push("referral_source = ?");
 		binds.push(params.source);
 	}
-	const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
+	const whereSql = where.length ? `WHERE ${where.join(" AND")}` : "";
 	const itemsStmt = db
 		.prepare(
-			`SELECT * FROM registrations ${whereSql} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
+			`SELECT id, email, referral_source AS referralSource, status, locale, created_at AS createdAt, updated_at AS updatedAt FROM registrations ${whereSql} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
 		)
 		.bind(...binds, params.limit, params.offset);
 	const items = (await itemsStmt.all<RegistrationRecord>()).results as

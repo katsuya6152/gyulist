@@ -30,6 +30,7 @@ type Item = {
 };
 
 const sources = ["Twitter/X", "検索", "友人", "ブログ記事", "その他"];
+const pageSizeOptions = [5, 10, 20, 50, 100];
 
 export function PreRegisterAdmin({ initialParams }: Props) {
 	const router = useRouter();
@@ -38,6 +39,7 @@ export function PreRegisterAdmin({ initialParams }: Props) {
 	const [params, setParams] = useState<QueryParams>(initialParams);
 	const [items, setItems] = useState<Item[]>([]);
 	const [total, setTotal] = useState<number>(0);
+	const [hasTotal, setHasTotal] = useState<boolean>(false);
 
 	useEffect(() => {
 		if (!auth) return;
@@ -64,9 +66,9 @@ export function PreRegisterAdmin({ initialParams }: Props) {
 				};
 			});
 			setItems(mapped);
-			setTotal(
-				(data as { total?: number } | undefined)?.total ?? mapped.length,
-			);
+			const apiTotal = (data as { total?: number } | undefined)?.total;
+			setHasTotal(typeof apiTotal === "number");
+			setTotal(apiTotal ?? mapped.length);
 		});
 	}, [auth, params]);
 
@@ -87,6 +89,15 @@ export function PreRegisterAdmin({ initialParams }: Props) {
 		const blob = await downloadRegistrationsCsv(params, basic);
 		await downloadCsv(blob, "pre-registers.csv");
 	};
+
+	// Pagination helpers (use UI default limit 20 when undefined)
+	const effectiveLimit = params.limit ?? 20;
+	const effectiveOffset = params.offset ?? 0;
+	const hasPrev = effectiveOffset > 0;
+	// Use server total when available, otherwise fall back to page-size heuristic
+	const hasNext = hasTotal
+		? effectiveOffset + effectiveLimit < total
+		: items.length === effectiveLimit;
 
 	if (!auth) {
 		return (
@@ -184,6 +195,28 @@ export function PreRegisterAdmin({ initialParams }: Props) {
 								</SelectContent>
 							</Select>
 						</div>
+						<div>
+							<Select
+								value={String(params.limit ?? 20)}
+								onValueChange={(v) => {
+									const newLimit = Number(v);
+									const nextParams = { ...params, limit: newLimit, offset: 0 };
+									setParams(nextParams);
+									router.replace(`?${buildQuery(nextParams)}`);
+								}}
+							>
+								<SelectTrigger className="w-full">
+									<SelectValue placeholder="表示件数" />
+								</SelectTrigger>
+								<SelectContent>
+									{pageSizeOptions.map((n) => (
+										<SelectItem key={n} value={String(n)}>
+											{n}件
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
 						<div className="flex gap-2 md:col-span-5">
 							<Button type="submit" className="shrink-0">
 								検索
@@ -250,12 +283,9 @@ export function PreRegisterAdmin({ initialParams }: Props) {
 				<Button
 					type="button"
 					variant="outline"
-					disabled={(params.offset ?? 0) === 0}
+					disabled={!hasPrev}
 					onClick={() => {
-						const newOffset = Math.max(
-							0,
-							(params.offset ?? 0) - (params.limit ?? 20),
-						);
+						const newOffset = Math.max(0, effectiveOffset - effectiveLimit);
 						setParams({ ...params, offset: newOffset });
 						router.replace(`?${buildQuery({ ...params, offset: newOffset })}`);
 					}}
@@ -264,8 +294,9 @@ export function PreRegisterAdmin({ initialParams }: Props) {
 				</Button>
 				<Button
 					type="button"
+					disabled={!hasNext}
 					onClick={() => {
-						const newOffset = (params.offset ?? 0) + (params.limit ?? 20);
+						const newOffset = effectiveOffset + effectiveLimit;
 						setParams({ ...params, offset: newOffset });
 						router.replace(`?${buildQuery({ ...params, offset: newOffset })}`);
 					}}

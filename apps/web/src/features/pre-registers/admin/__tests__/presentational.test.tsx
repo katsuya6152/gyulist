@@ -36,7 +36,7 @@ describe("PreRegisterAdmin", () => {
 		await userEvent.click(screen.getByRole("button", { name: "検索" }));
 		await waitFor(() => expect(spy).toHaveBeenCalled());
 		const last = spy.mock.calls[spy.mock.calls.length - 1];
-		const firstArg = last?.[0];
+		const firstArg = last?.[0] as { query?: { q?: string } } | undefined;
 		const opts = last?.[1] as { headers?: Record<string, string> } | undefined;
 		// headers
 		const authHeader =
