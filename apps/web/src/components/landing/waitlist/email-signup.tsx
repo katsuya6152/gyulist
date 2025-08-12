@@ -27,7 +27,6 @@ import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
 interface EmailSignupProps {
-	className?: string;
 	buttonLabel?: string;
 	sources?: string[];
 	onSuccess?: () => void;
@@ -36,17 +35,15 @@ interface EmailSignupProps {
 const defaultSources = ["Twitter/X", "検索", "友人", "ブログ記事", "その他"];
 
 export function EmailSignup({
-	className,
 	buttonLabel = "登録する",
 	sources = defaultSources,
 	onSuccess,
 }: EmailSignupProps) {
 	const router = useRouter();
 	const [step, setStep] = useState<1 | 2>(1);
-	const [isScriptLoaded, setIsScriptLoaded] = useState(false);
 	const [widgetId, setWidgetId] = useState<string | null>(null);
 	const turnstileRef = useRef<HTMLDivElement>(null);
-	// Prefer configured site key; fallback to Cloudflare's public test key in non-production
+
 	const siteKey =
 		process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ||
 		(process.env.NODE_ENV !== "production" ? "1x00000000000000000000AA" : "");
@@ -60,32 +57,17 @@ export function EmailSignup({
 		},
 	});
 
-	// Handle Turnstile script loading and widget rendering
-	const handleScriptLoad = () => {
-		setIsScriptLoaded(true);
-	};
-
-	const handleScriptError = () => {
-		console.warn("Turnstile script failed to load");
-		// In development, set a dummy token to allow testing
-		if (process.env.NODE_ENV !== "production") {
-			form.setValue("turnstileToken", "XXXX.DUMMY.TOKEN.XXXX");
-		}
-	};
-
-	// Render Turnstile widget after script loads
+	// Turnstileウィジェットの初期化
 	useEffect(() => {
-		if (
-			isScriptLoaded &&
-			window.turnstile &&
-			turnstileRef.current &&
-			!widgetId &&
-			siteKey
-		) {
+		const initTurnstile = () => {
+			if (!window.turnstile || !turnstileRef.current || widgetId || !siteKey) {
+				return;
+			}
+
 			try {
 				const id = window.turnstile.render(turnstileRef.current, {
 					sitekey: siteKey,
-					size: "invisible", // 非表示モード
+					size: "normal",
 					callback: (token: string) => {
 						form.setValue("turnstileToken", token);
 					},
@@ -94,32 +76,40 @@ export function EmailSignup({
 					},
 					"error-callback": () => {
 						form.setValue("turnstileToken", "");
-						console.warn("Turnstile widget error");
 					},
 				});
 				setWidgetId(id);
 			} catch (error) {
 				console.warn("Failed to render Turnstile widget:", error);
-				// In development, set a dummy token to allow testing
-				if (process.env.NODE_ENV !== "production") {
-					form.setValue("turnstileToken", "XXXX.DUMMY.TOKEN.XXXX");
-				}
 			}
-		}
+		};
 
-		// Development fallback
-		if (process.env.NODE_ENV !== "production") {
-			const timer = setTimeout(() => {
-				const currentToken = form.getValues("turnstileToken");
-				if (!currentToken || currentToken.length < 10) {
-					form.setValue("turnstileToken", "XXXX.DUMMY.TOKEN.XXXX");
+		// スクリプト読み込み後の初期化
+		if (window.turnstile) {
+			initTurnstile();
+		} else {
+			// スクリプト読み込み待機
+			const checkTurnstile = setInterval(() => {
+				if (window.turnstile) {
+					clearInterval(checkTurnstile);
+					initTurnstile();
 				}
-			}, 1500);
-			return () => clearTimeout(timer);
-		}
-	}, [isScriptLoaded, siteKey, form, widgetId]);
+			}, 100);
 
-	// Cleanup on unmount
+			// 3秒後にタイムアウト
+			const fallbackTimer = setTimeout(() => {
+				clearInterval(checkTurnstile);
+				console.warn("Turnstile script loading timeout");
+			}, 3000);
+
+			return () => {
+				clearInterval(checkTurnstile);
+				clearTimeout(fallbackTimer);
+			};
+		}
+	}, [siteKey, form, widgetId]);
+
+	// クリーンアップ
 	useEffect(() => {
 		return () => {
 			if (widgetId && window.turnstile?.remove) {
@@ -129,73 +119,26 @@ export function EmailSignup({
 	}, [widgetId]);
 
 	const onSubmit = async (values: z.infer<typeof preRegisterSchema>) => {
-		// Step 1: only validate email, then ensure token, then move to step 2
+		// Step 1: メール検証とTurnstileトークン取得
 		if (step === 1) {
 			const isEmailValid = await form.trigger(["email"]);
 			if (!isEmailValid) return;
 
-			// If a valid token already exists (e.g., tests or dev fallback), skip executing
-			const existingToken = form.getValues("turnstileToken");
-			if (existingToken && existingToken.length >= 10) {
-				setStep(2);
+			// Turnstileトークンチェック
+			const token = form.getValues("turnstileToken");
+			if (!token || token.length < 10) {
+				form.setError("turnstileToken", {
+					message: "セキュリティ認証を完了してください。",
+				});
 				return;
 			}
 
-			// Execute invisible Turnstile challenge when token not present
-			if (widgetId && window.turnstile) {
-				try {
-					// Execute the challenge programmatically
-					window.turnstile.execute(widgetId);
-
-					// Wait for token to be set (with timeout)
-					const waitForToken = () => {
-						return new Promise<void>((resolve, reject) => {
-							let isResolved = false;
-
-							const checkToken = () => {
-								if (isResolved) return;
-								const token = form.getValues("turnstileToken");
-								if (token && token.length >= 10) {
-									isResolved = true;
-									clearInterval(interval);
-									clearTimeout(timeout);
-									resolve();
-								}
-							};
-
-							// Check immediately
-							checkToken();
-
-							// Then check every 100ms for up to 10 seconds
-							const interval = setInterval(checkToken, 100);
-							const timeout = setTimeout(() => {
-								if (!isResolved) {
-									isResolved = true;
-									clearInterval(interval);
-									reject(new Error("Turnstile timeout"));
-								}
-							}, 10000);
-						});
-					};
-
-					await waitForToken();
-				} catch (error) {
-					form.setError("turnstileToken", {
-						message: "セキュリティ認証に失敗しました。もう一度お試しください。",
-					});
-					return;
-				}
-			}
-
-			const isValid = await form.trigger(["turnstileToken"]);
-			if (!isValid) return;
 			setStep(2);
 			return;
 		}
 
-		// Step 2: submit to API
+		// Step 2: API送信
 		const res = await preRegister(values);
-		const resultEl = document.getElementById("waitlist-result");
 		if (res.ok) {
 			if (res.alreadyRegistered) {
 				form.setError("email", { message: "既に登録済みです" });
@@ -203,24 +146,25 @@ export function EmailSignup({
 				trackWaitlistSignup();
 				onSuccess?.();
 				router.push("/waitlist");
-				return;
 			}
 			return;
 		}
+
+		// エラーハンドリング
 		if (res.code === "VALIDATION_FAILED" || res.code === "TURNSTILE_FAILED") {
 			for (const [key, msg] of Object.entries(res.fieldErrors ?? {})) {
 				form.setError(key as keyof z.infer<typeof preRegisterSchema>, {
 					message: msg,
 				});
 			}
-		} else if (resultEl) {
-			resultEl.textContent = "エラーが発生しました";
+		} else {
+			// 一般的なエラーはコンソールに記録
+			console.error("Unexpected error during registration:", res);
 		}
 	};
 
 	const isSubmitting = form.formState.isSubmitting;
 	const token = form.watch("turnstileToken");
-	// For invisible mode, we don't need to check token readiness for UI
 	const canSubmit =
 		step === 1 ||
 		(step === 2 && typeof token === "string" && token.length >= 10);
@@ -229,8 +173,7 @@ export function EmailSignup({
 		<>
 			<Script
 				src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-				onLoad={handleScriptLoad}
-				onError={handleScriptError}
+				onError={() => console.warn("Failed to load Turnstile script")}
 				strategy="afterInteractive"
 			/>
 			<section id="waitlist" className="py-12 md:py-16 bg-blue-50">
@@ -313,10 +256,6 @@ export function EmailSignup({
 										</FormItem>
 									)}
 								/>
-								{/* Hidden Turnstile widget */}
-								<div className="hidden">
-									<div ref={turnstileRef} />
-								</div>
 								<Button
 									type="submit"
 									disabled={isSubmitting || !canSubmit}
@@ -329,9 +268,11 @@ export function EmailSignup({
 											? "次へ"
 											: buttonLabel}
 								</Button>
+								<div className="flex justify-center py-2">
+									<div ref={turnstileRef} />
+								</div>
 							</form>
 						</Form>
-						<p id="waitlist-result" className="text-center mt-4 text-sm" />
 					</div>
 				</div>
 			</section>
@@ -349,18 +290,10 @@ declare global {
 					callback?: (token: string) => void;
 					"expired-callback"?: () => void;
 					"error-callback"?: () => void;
-					appearance?: "always" | "execute" | "interaction-only";
-					theme?: "light" | "dark" | "auto";
 					size?: "normal" | "compact" | "invisible";
-					action?: string;
-					cData?: string;
-					[key: string]: unknown;
 				},
 			) => string;
-			reset: (widgetId?: string) => void;
 			remove: (widgetId: string) => void;
-			execute: (widgetId?: string) => void;
-			getResponse: (widgetId?: string) => string | undefined;
 		};
 	}
 }
