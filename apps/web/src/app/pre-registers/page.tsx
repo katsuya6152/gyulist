@@ -16,11 +16,11 @@ export const metadata: Metadata = {
 	},
 };
 
-export default function Page({
+export default async function Page({
 	searchParams,
 }: {
-	searchParams?: QueryParams;
+	searchParams?: Promise<QueryParams>;
 }) {
-	const params: QueryParams = searchParams ?? {};
+	const params: QueryParams = (await searchParams) ?? {};
 	return <PreRegisterAdmin initialParams={params} />;
 }
