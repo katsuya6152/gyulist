@@ -151,6 +151,7 @@ export function EventNewPresentation({ cattle }: EventNewPresentationProps) {
 				{/* イベントタイプ（グルーピング＋折りたたみ） */}
 				<div>
 					<label
+						id={`${fields.eventType.id}-label`}
 						htmlFor={fields.eventType.id}
 						className="block text-sm font-medium mb-2"
 					>
@@ -168,6 +169,7 @@ export function EventNewPresentation({ cattle }: EventNewPresentationProps) {
 								type="button"
 								variant="outline"
 								className="w-full justify-between"
+								aria-labelledby={`${fields.eventType.id}-label`}
 							>
 								<span className="truncate">
 									{selectedType
