@@ -4,9 +4,8 @@ import { createDemoResponse, isDemo } from "@/lib/api-client";
 import { verifyAndGetUserId } from "@/lib/jwt";
 import { CreateEvent, type CreateEventInput } from "@/services/eventService";
 import { parseWithZod } from "@conform-to/zod";
-import { format, parseISO } from "date-fns";
-import { redirect } from "next/navigation";
-import { createEventSchema } from "./schema";
+import { parseISO } from "date-fns";
+import { type CreateEventFormData, createEventSchema } from "./schema";
 
 export async function createEventAction(
 	prevState: unknown,
@@ -27,14 +26,14 @@ export async function createEventAction(
 		}
 
 		const { cattleId, eventType, eventDate, eventTime, notes } =
-			submission.value;
+			submission.value as CreateEventFormData;
 
 		// 日付と時刻を結合してISO形式に変換（タイムゾーンを考慮）
 		const eventDatetime = parseISO(`${eventDate}T${eventTime}`).toISOString();
 
 		await CreateEvent({
 			cattleId,
-			eventType,
+			eventType: eventType as CreateEventInput["eventType"],
 			eventDatetime,
 			notes,
 		});
