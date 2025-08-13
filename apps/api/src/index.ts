@@ -8,6 +8,7 @@ const app = new Hono<{ Bindings: Bindings }>();
 const routes = createRoutes(app);
 
 export type AppType = typeof routes;
+export * from "./constants/events";
 
 type ClientType = typeof hc<AppType>;
 

@@ -1,15 +1,28 @@
 "use client";
 
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 import type { GetCattleDetailResType } from "@/services/cattleService";
 import { useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { EVENT_TYPE_LABELS } from "@repo/api";
+import { Check, ChevronsUpDown } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { createEventAction } from "./actions";
-import { createEventSchema, eventTypes } from "./schema";
+import { createEventSchema } from "./schema";
 
 interface EventNewPresentationProps {
 	cattle: GetCattleDetailResType;
@@ -65,6 +78,40 @@ export function EventNewPresentation({ cattle }: EventNewPresentationProps) {
 		}
 	}, [lastResult, router, cattle.cattleId]);
 
+	const [selectedType, setSelectedType] = useState<string>(
+		fields.eventType.initialValue || "",
+	);
+
+	const GROUPS: { key: string; label: string; items: string[] }[] = [
+		{ key: "ARRIVAL", label: "導入", items: ["ARRIVAL"] },
+		{
+			key: "BREEDING",
+			label: "繁殖",
+			items: ["ESTRUS", "INSEMINATION", "PREGNANCY_CHECK"],
+		},
+		{
+			key: "CALVING",
+			label: "分娩・異常",
+			items: ["CALVING", "ABORTION", "STILLBIRTH"],
+		},
+		{ key: "GROWTH", label: "成長遷移", items: ["WEANING", "START_FATTENING"] },
+		{ key: "MEASUREMENT", label: "計測", items: ["WEIGHT_MEASURED"] },
+		{
+			key: "HEALTH",
+			label: "健康・治療",
+			items: [
+				"VACCINATION",
+				"DIAGNOSIS",
+				"MEDICATION",
+				"TREATMENT_STARTED",
+				"TREATMENT_COMPLETED",
+				"HOOF_TRIMMING",
+			],
+		},
+		{ key: "LOGISTICS", label: "ロジ", items: ["SHIPMENT"] },
+		{ key: "OTHER", label: "その他", items: ["OTHER"] },
+	];
+
 	return (
 		<div className="container mx-auto px-4 py-8">
 			<div className="mb-6">
@@ -101,34 +148,90 @@ export function EventNewPresentation({ cattle }: EventNewPresentationProps) {
 					value={fields.cattleId.initialValue}
 				/>
 
-				{/* イベントタイプ */}
+				{/* イベントタイプ（グルーピング＋折りたたみ） */}
 				<div>
 					<label
+						id={`${fields.eventType.id}-label`}
 						htmlFor={fields.eventType.id}
 						className="block text-sm font-medium mb-2"
 					>
 						イベントタイプ<span className="text-red-500 ml-1">*</span>
 					</label>
-					<select
+					<input
 						id={fields.eventType.id}
-						key={fields.eventType.key}
+						type="hidden"
 						name={fields.eventType.name}
-						defaultValue={fields.eventType.initialValue}
-						className={`w-full rounded-md border px-3 py-2 ${
-							fields.eventType.errors
-								? "border-red-500 bg-red-50"
-								: "border-input bg-background"
-						}`}
-					>
-						<option value="">イベントタイプを選択してください</option>
-						{eventTypes.map((type) => (
-							<option key={type.value} value={type.value}>
-								{type.label}
-							</option>
-						))}
-					</select>
+						value={selectedType}
+					/>
+					<Popover>
+						<PopoverTrigger asChild>
+							<Button
+								type="button"
+								variant="outline"
+								className="w-full justify-between"
+								aria-labelledby={`${fields.eventType.id}-label`}
+							>
+								<span className="truncate">
+									{selectedType
+										? EVENT_TYPE_LABELS[
+												selectedType as keyof typeof EVENT_TYPE_LABELS
+											]
+										: "イベントタイプを選択してください"}
+								</span>
+								<ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+							</Button>
+						</PopoverTrigger>
+						<PopoverContent className="w-[min(640px,90vw)] p-0" align="start">
+							<div className="p-2">
+								<Accordion type="single" collapsible>
+									{GROUPS.map((group) => (
+										<AccordionItem
+											key={group.key}
+											value={group.key}
+											className="px-3"
+										>
+											<AccordionTrigger className="py-2">
+												<span className="text-sm font-semibold">
+													{group.label}
+												</span>
+											</AccordionTrigger>
+											<AccordionContent>
+												<div className="grid grid-cols-2 gap-2 py-2">
+													{group.items.map((value) => (
+														<button
+															key={value}
+															type="button"
+															onClick={() => {
+																setSelectedType(value);
+															}}
+															aria-pressed={selectedType === value}
+															className={`relative text-left text-sm px-3 py-2 rounded border transition-colors hover:bg-accent ${
+																selectedType === value
+																	? "border-primary bg-primary/10"
+																	: "border-input"
+															}`}
+														>
+															{
+																EVENT_TYPE_LABELS[
+																	value as keyof typeof EVENT_TYPE_LABELS
+																]
+															}
+															{selectedType === value && (
+																<Check className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+															)}
+														</button>
+													))}
+												</div>
+											</AccordionContent>
+										</AccordionItem>
+									))}
+								</Accordion>
+							</div>
+						</PopoverContent>
+					</Popover>
+
 					{fields.eventType.errors && (
-						<p className="text-sm text-red-600 mt-1">
+						<p className="text-sm text-red-600 mt-2">
 							{fields.eventType.errors}
 						</p>
 					)}

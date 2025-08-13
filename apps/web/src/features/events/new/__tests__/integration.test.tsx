@@ -114,14 +114,18 @@ describe("Events New Integration", () => {
 		const container = await EventNewContainer({ cattleId: "1" });
 		render(container);
 
-		// フォームに入力
-		const eventTypeSelect = screen.getByLabelText(/イベントタイプ/);
+		// フォームに入力（イベントタイプはポップオーバー→グループ展開→項目選択）
+		const eventTypeTrigger = screen.getByRole("button", {
+			name: /イベントタイプ/,
+		});
+		await user.click(eventTypeTrigger);
+		await user.click(await screen.findByText("繁殖"));
+		await user.click(await screen.findByText("発情"));
 		const eventDateInput = screen.getByLabelText(/イベント日付/);
 		const eventTimeInput = screen.getByLabelText(/イベント時刻/);
 		const notesInput = screen.getByLabelText(/メモ/);
 		const submitButton = screen.getByRole("button", { name: "イベントを登録" });
 
-		await user.selectOptions(eventTypeSelect, "ESTRUS");
 		await user.clear(eventDateInput);
 		await user.type(eventDateInput, "2024-01-15");
 		await user.clear(eventTimeInput);
@@ -210,19 +214,25 @@ describe("Events New Integration", () => {
 		const container = await EventNewContainer({ cattleId: "1" });
 		render(container);
 
-		// すべてのイベントタイプオプションが表示されることを確認
-		const expectedEventTypes = [
-			"発情",
-			"人工授精",
-			"分娩",
-			"ワクチン接種",
-			"出荷",
-			"削蹄",
-			"その他",
-		];
+		// すべてのイベントタイプオプションが表示されることを確認（ポップオーバーを開く）
+		await user.click(screen.getByRole("button", { name: /イベントタイプ/ }));
+		// 各グループを展開して検証
+		await user.click(await screen.findByText("繁殖"));
+		expect(await screen.findByText("発情")).toBeInTheDocument();
+		expect(await screen.findByText("人工授精")).toBeInTheDocument();
 
-		for (const eventType of expectedEventTypes) {
-			expect(screen.getByText(eventType)).toBeInTheDocument();
-		}
+		await user.click(screen.getByText("分娩・異常"));
+		expect(await screen.findByText("分娩")).toBeInTheDocument();
+
+		await user.click(screen.getByText("健康・治療"));
+		expect(await screen.findByText("ワクチン接種")).toBeInTheDocument();
+		expect(await screen.findByText("削蹄")).toBeInTheDocument();
+
+		await user.click(screen.getByText("ロジ"));
+		expect(await screen.findByText("出荷")).toBeInTheDocument();
+
+		await user.click(screen.getByText("その他"));
+		// group label と option の重複を避けるため getAllByText の2つ目を確認
+		expect((await screen.findAllByText("その他"))[1]).toBeInTheDocument();
 	});
 });

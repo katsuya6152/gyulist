@@ -97,12 +97,11 @@ describe("SchedulePresentation", () => {
 	it("should display formatted dates correctly", () => {
 		render(<SchedulePresentation events={mockEvents} currentFilter="all" />);
 
-		// Use more flexible text matching since the dates might be split across elements
-		// formatEventDate returns "M月d日 (E)" format, e.g., "1月15日 (月)"
-		expect(screen.getByText(/1月15日/)).toBeInTheDocument();
-		expect(screen.getByText(/1月14日/)).toBeInTheDocument();
+		const cards = screen.getAllByTestId("event-item");
+		expect(cards.length).toBeGreaterThanOrEqual(2);
+		expect(cards[0]).toHaveTextContent("2024/01/15");
+		expect(cards[1]).toHaveTextContent("2024/01/14");
 
-		// Time might not be visible in the collapsed accordion state, so just check that events are rendered
 		expect(screen.getByText("テスト牛1")).toBeInTheDocument();
 		expect(screen.getByText("テスト牛2")).toBeInTheDocument();
 	});
@@ -203,9 +202,9 @@ describe("SchedulePresentation", () => {
 			/>,
 		);
 
-		const dates = screen.getAllByText(/1月\d{1,2}日/);
-		expect(dates[0]).toHaveTextContent(/1月16日/); // newer date first
-		expect(dates[1]).toHaveTextContent(/1月13日/);
+		const dates = screen.getAllByText(/2024\/(01)\/(\d{2})/);
+		expect(dates[0]).toHaveTextContent("2024/01/16"); // newer date first
+		expect(dates[1]).toHaveTextContent("2024/01/13");
 	});
 
 	it("should display custom date when provided", () => {

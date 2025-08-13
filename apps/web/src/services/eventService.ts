@@ -2,29 +2,35 @@ import { fetchWithAuth, getAuthToken } from "@/lib/api-client";
 import { client } from "@/lib/rpc";
 import { redirect } from "next/navigation";
 
+type EventType =
+	| "ESTRUS"
+	| "INSEMINATION"
+	| "CALVING"
+	| "VACCINATION"
+	| "SHIPMENT"
+	| "HOOF_TRIMMING"
+	| "PREGNANCY_CHECK"
+	| "ABORTION"
+	| "STILLBIRTH"
+	| "DIAGNOSIS"
+	| "TREATMENT_STARTED"
+	| "TREATMENT_COMPLETED"
+	| "MEDICATION"
+	| "ARRIVAL"
+	| "WEIGHT_MEASURED"
+	| "WEANING"
+	| "START_FATTENING"
+	| "OTHER";
+
 export type CreateEventInput = {
 	cattleId: number;
-	eventType:
-		| "ESTRUS"
-		| "INSEMINATION"
-		| "CALVING"
-		| "VACCINATION"
-		| "SHIPMENT"
-		| "HOOF_TRIMMING"
-		| "OTHER";
+	eventType: EventType;
 	eventDatetime: string;
 	notes?: string;
 };
 
 export type UpdateEventInput = {
-	eventType:
-		| "ESTRUS"
-		| "INSEMINATION"
-		| "CALVING"
-		| "VACCINATION"
-		| "SHIPMENT"
-		| "HOOF_TRIMMING"
-		| "OTHER";
+	eventType: EventType;
 	eventDatetime: string;
 	notes?: string;
 };

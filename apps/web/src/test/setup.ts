@@ -60,42 +60,46 @@ vi.mock("next/navigation", () => ({
 const mockDate = new Date("2024-01-15T10:00:00.000Z");
 vi.setSystemTime(mockDate);
 
-// Mock @repo/api
-vi.mock("@repo/api", () => ({
-	createClient: () => ({
-		api: {
-			v1: {
-				cattle: {
-					$get: vi.fn(),
-					":id": {
+// Mock @repo/api partially: keep real constants, override only createClient
+vi.mock("@repo/api", async (importOriginal) => {
+	const actual = (await importOriginal()) as Record<string, unknown>;
+	return {
+		...actual,
+		createClient: () => ({
+			api: {
+				v1: {
+					cattle: {
 						$get: vi.fn(),
-						$patch: vi.fn(),
-						$delete: vi.fn(),
+						":id": {
+							$get: vi.fn(),
+							$patch: vi.fn(),
+							$delete: vi.fn(),
+						},
 					},
-				},
-				events: {
-					$get: vi.fn(),
-					":id": {
+					events: {
 						$get: vi.fn(),
-						$patch: vi.fn(),
-						$delete: vi.fn(),
+						":id": {
+							$get: vi.fn(),
+							$patch: vi.fn(),
+							$delete: vi.fn(),
+						},
 					},
-				},
-				"pre-register": {
-					$post: vi.fn(),
-				},
-				admin: {
-					registrations: {
-						$get: vi.fn(),
+					"pre-register": {
+						$post: vi.fn(),
 					},
-					"registrations.csv": {
-						$get: vi.fn(),
+					admin: {
+						registrations: {
+							$get: vi.fn(),
+						},
+						"registrations.csv": {
+							$get: vi.fn(),
+						},
 					},
 				},
 			},
-		},
-	}),
-}));
+		}),
+	};
+});
 
 // Mock lib/rpc
 vi.mock("@/lib/rpc", () => ({

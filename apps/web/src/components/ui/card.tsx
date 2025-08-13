@@ -4,11 +4,11 @@ import type * as React from "react";
 import { cn } from "@/lib/utils";
 
 const cardVariants = cva(
-	"bg-card text-card-foreground flex flex-col gap-6 rounded-xl border shadow-sm transition-all duration-200",
+	"bg-card text-card-foreground flex flex-col gap-3 rounded-xl border shadow-sm transition-all duration-200",
 	{
 		variants: {
 			variant: {
-				default: "py-6",
+				default: "py-3",
 				interactive: "py-6 hover-lift cursor-pointer hover:border-primary/20",
 				gradient: "py-6 bg-gradient-card hover-lift",
 				elevated: "py-6 shadow-md hover:shadow-xl hover-lift",
