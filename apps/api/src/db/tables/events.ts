@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { EVENT_TYPES_TUPLE } from "../../constants/events";
 import { cattle } from "./cattle";
 import { users } from "./users";
 
@@ -13,17 +14,7 @@ export const events = sqliteTable("events", {
 	cattleId: integer("cattleId", { mode: "number" })
 		.references(() => cattle.cattleId)
 		.notNull(),
-	eventType: text("eventType", {
-		enum: [
-			"ESTRUS", // 発情
-			"INSEMINATION", // 受精（人工授精）
-			"CALVING", // 分娩
-			"VACCINATION", // ワクチン接種
-			"SHIPMENT", // 出荷
-			"HOOF_TRIMMING", // 削蹄
-			"OTHER", // その他
-		],
-	}).notNull(),
+	eventType: text("eventType", { enum: EVENT_TYPES_TUPLE }).notNull(),
 	// イベントが起こった日時
 	eventDatetime: text("eventDatetime").notNull(),
 	// イベントに関する自由メモ

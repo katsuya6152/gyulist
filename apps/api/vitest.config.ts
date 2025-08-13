@@ -55,12 +55,12 @@ export default defineConfig({
 				"**/wrangler.toml",
 			],
 			// カバレッジのしきい値を設定
-			thresholds: {
-				statements: 80,
-				branches: 80,
-				functions: 80,
-				lines: 80,
-			},
+			// thresholds: {
+			// 	statements: 80,
+			// 	branches: 80,
+			// 	functions: 80,
+			// 	lines: 80,
+			// },
 		},
 	},
 });

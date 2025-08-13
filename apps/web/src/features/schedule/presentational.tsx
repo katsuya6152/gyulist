@@ -1,5 +1,6 @@
 "use client";
 
+import { EventCard } from "@/components/event/event-card";
 import { Button } from "@/components/ui/button";
 import type { UpdateEventInput } from "@/services/eventService";
 import useEmblaCarousel from "embla-carousel-react";
@@ -12,9 +13,6 @@ import { deleteEventAction, updateEventAction } from "./actions";
 import { DateFilterButtons } from "./components/DateFilterButtons";
 import { DatePickerAccordion } from "./components/DatePickerAccordion";
 import { EmptyState } from "./components/EmptyState";
-import { EventCard } from "./components/EventCard";
-import { EventDeleteDialog } from "./components/EventDeleteDialog";
-import { EventEditDialog } from "./components/EventEditDialog";
 import { type DateFilter, type Event, FILTER_BUTTONS } from "./constants";
 import {
 	formatEventDate,
@@ -38,10 +36,6 @@ export function SchedulePresentation({
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const [selectedDate, setSelectedDate] = useState(customDate || "");
-	const [editingEvent, setEditingEvent] = useState<Event | null>(null);
-	const [deletingEvent, setDeletingEvent] = useState<Event | null>(null);
-	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
 	// Embla Carouselの設定
 	const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -52,13 +46,7 @@ export function SchedulePresentation({
 	// プログラム的な同期フラグ（スワイプ時のURL更新を一時的に無効化）
 	const isSwipingRef = useRef(false);
 
-	// ダイアログ状態を完全にリセットする関数
-	const resetDialogStates = useCallback(() => {
-		setIsEditDialogOpen(false);
-		setIsDeleteDialogOpen(false);
-		setEditingEvent(null);
-		setDeletingEvent(null);
-	}, []);
+	// 外部ダイアログは内蔵化により不要
 
 	// 各フィルターに対応するイベントデータを準備（メモ化のみ）
 	const filterEventData = useMemo(
@@ -120,8 +108,6 @@ export function SchedulePresentation({
 	// フィルターボタンクリック（URLのみ更新）
 	const handleFilterClick = useCallback(
 		(filter: DateFilter) => {
-			resetDialogStates();
-
 			const params = new URLSearchParams(searchParams);
 			if (filter === "all") {
 				params.delete("filter");
@@ -132,7 +118,7 @@ export function SchedulePresentation({
 			}
 			router.push(`/schedule?${params.toString()}`);
 		},
-		[searchParams, router, resetDialogStates],
+		[searchParams, router],
 	);
 
 	// 日付選択のハンドラー（即座に検索しない）
@@ -143,41 +129,20 @@ export function SchedulePresentation({
 	// 検索ボタンのクリックハンドラー
 	const handleSearchClick = useCallback(() => {
 		if (!selectedDate) return;
-
-		resetDialogStates();
-
 		const params = new URLSearchParams(searchParams);
 		params.set("filter", "custom");
 		params.set("date", selectedDate);
 		router.push(`/schedule?${params.toString()}`);
-	}, [selectedDate, searchParams, router, resetDialogStates]);
+	}, [selectedDate, searchParams, router]);
 
 	// 日付クリアのハンドラー
 	const handleClearDate = useCallback(() => {
 		setSelectedDate("");
-		resetDialogStates();
-
 		const params = new URLSearchParams(searchParams);
 		params.delete("filter");
 		params.delete("date");
 		router.push(`/schedule?${params.toString()}`);
-	}, [searchParams, router, resetDialogStates]);
-
-	// イベント編集ハンドラー
-	const handleEditEvent = useCallback((event: Event) => {
-		setIsDeleteDialogOpen(false);
-		setDeletingEvent(null);
-		setEditingEvent(event);
-		setIsEditDialogOpen(true);
-	}, []);
-
-	// イベント削除ハンドラー
-	const handleDeleteEvent = useCallback((event: Event) => {
-		setIsEditDialogOpen(false);
-		setEditingEvent(null);
-		setDeletingEvent(event);
-		setIsDeleteDialogOpen(true);
-	}, []);
+	}, [searchParams, router]);
 
 	// イベント保存ハンドラー
 	const handleSaveEvent = useCallback(
@@ -193,11 +158,7 @@ export function SchedulePresentation({
 					} else {
 						toast.success("イベントを更新しました");
 					}
-					setIsEditDialogOpen(false);
-					setTimeout(() => {
-						setEditingEvent(null);
-						router.refresh();
-					}, 150);
+					router.refresh();
 				} else {
 					toast.error(
 						("error" in result && result.error) ||
@@ -227,11 +188,7 @@ export function SchedulePresentation({
 					} else {
 						toast.success("イベントを削除しました");
 					}
-					setIsDeleteDialogOpen(false);
-					setTimeout(() => {
-						setDeletingEvent(null);
-						router.refresh();
-					}, 150);
+					router.refresh();
 				} else {
 					toast.error(
 						("error" in result && result.error) ||
@@ -247,21 +204,6 @@ export function SchedulePresentation({
 		[router],
 	);
 
-	// ダイアログを閉じるハンドラー
-	const handleCloseEditDialog = useCallback(() => {
-		setIsEditDialogOpen(false);
-		setTimeout(() => {
-			setEditingEvent(null);
-		}, 150);
-	}, []);
-
-	const handleCloseDeleteDialog = useCallback(() => {
-		setIsDeleteDialogOpen(false);
-		setTimeout(() => {
-			setDeletingEvent(null);
-		}, 150);
-	}, []);
-
 	// 現在表示するイベントを決定（条件分岐をシンプルに）
 	const currentEvents = useMemo(() => {
 		if (currentFilter === "custom") {
@@ -272,20 +214,6 @@ export function SchedulePresentation({
 
 	return (
 		<div className="container mx-auto px-4 py-6 max-w-4xl">
-			{/* 編集・削除ダイアログ */}
-			<EventEditDialog
-				event={editingEvent}
-				isOpen={isEditDialogOpen}
-				onClose={handleCloseEditDialog}
-				onSave={handleSaveEvent}
-			/>
-			<EventDeleteDialog
-				event={deletingEvent}
-				isOpen={isDeleteDialogOpen}
-				onClose={handleCloseDeleteDialog}
-				onDelete={handleConfirmDelete}
-			/>
-
 			{/* ヘッダー */}
 			<div className="mb-6 flex items-center justify-between">
 				<h1 className="text-2xl font-bold flex items-center gap-2">
@@ -358,9 +286,20 @@ export function SchedulePresentation({
 								style={{ animationDelay: `${index * 0.1}s` }}
 							>
 								<EventCard
-									event={event}
-									onEdit={handleEditEvent}
-									onDelete={handleDeleteEvent}
+									event={{
+										eventId: event.eventId,
+										eventType: event.eventType,
+										eventDatetime: event.eventDatetime,
+										notes: event.notes,
+										cattleName: event.cattleName,
+										cattleEarTagNumber: event.cattleEarTagNumber,
+									}}
+									onSave={async (id, data) => {
+										await handleSaveEvent(id, data as UpdateEventInput);
+									}}
+									onConfirmDelete={async (id) => {
+										await handleConfirmDelete(id);
+									}}
 								/>
 							</div>
 						))
@@ -378,7 +317,7 @@ export function SchedulePresentation({
 
 								return (
 									<div key={button.key} className="flex-[0_0_100%] min-w-0">
-										<div className="space-y-4 px-1">
+										<div className="space-y-2 px-1">
 											{/* 現在のフィルターのみ表示 */}
 											{isCurrentFilter &&
 												(filterEvents.length === 0 ? (
@@ -393,9 +332,23 @@ export function SchedulePresentation({
 															style={{ animationDelay: `${index * 0.1}s` }}
 														>
 															<EventCard
-																event={event}
-																onEdit={handleEditEvent}
-																onDelete={handleDeleteEvent}
+																event={{
+																	eventId: event.eventId,
+																	eventType: event.eventType,
+																	eventDatetime: event.eventDatetime,
+																	notes: event.notes,
+																	cattleName: event.cattleName,
+																	cattleEarTagNumber: event.cattleEarTagNumber,
+																}}
+																onSave={async (id, data) => {
+																	await handleSaveEvent(
+																		id,
+																		data as UpdateEventInput,
+																	);
+																}}
+																onConfirmDelete={async (id) => {
+																	await handleConfirmDelete(id);
+																}}
 															/>
 														</div>
 													))
