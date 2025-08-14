@@ -127,9 +127,18 @@ export async function findCattleById(db: AnyD1Database, cattleId: number) {
 
 	if (!result.length) return null;
 
-	// イベントを時系列でソート
+	// 結果から対象IDの行を優先して選択（テスト用フェイクDB互換のための安全策）
+	const matched =
+		result.find((r) => r.cattle?.cattleId === cattleId) ?? result[0];
+
+	// イベントを時系列でソート（対象個体のイベントのみ）
+	const targetId = matched.cattle?.cattleId ?? cattleId;
 	const sortedEvents = result
-		.filter((r) => r.events)
+		.filter((r) => {
+			if (!r.events) return false;
+			const ev = r.events as unknown as { cattleId?: number };
+			return typeof ev.cattleId === "number" ? ev.cattleId === targetId : true;
+		})
 		.map((r) => r.events)
 		.sort((a, b) => {
 			if (!a || !b) return 0;
@@ -141,11 +150,11 @@ export async function findCattleById(db: AnyD1Database, cattleId: number) {
 
 	// 重複を除去して1つのオブジェクトにまとめる
 	return {
-		...result[0].cattle,
-		bloodline: result[0].bloodline,
-		motherInfo: result[0].motherInfo,
-		breedingStatus: result[0].breedingStatus,
-		breedingSummary: result[0].breedingSummary,
+		...matched.cattle,
+		bloodline: matched.bloodline,
+		motherInfo: matched.motherInfo,
+		breedingStatus: matched.breedingStatus,
+		breedingSummary: matched.breedingSummary,
 		events: sortedEvents,
 	};
 }
