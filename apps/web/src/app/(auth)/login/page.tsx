@@ -29,7 +29,7 @@ export default function LoginPage() {
 	// 成功時のリダイレクト処理
 	useEffect(() => {
 		if (state?.success) {
-			router.push("/schedule?filter=today");
+			router.push("/home");
 		}
 	}, [state, router]);
 

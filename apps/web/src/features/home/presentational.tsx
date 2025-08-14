@@ -4,6 +4,11 @@ import { eventTypeColors } from "@/components/event/event-constants";
 import { formatEventTime } from "@/components/event/event-utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 import { statusLabelMap, statusOptions } from "@/features/cattle/constants";
 import type { CattleStatus } from "@/features/cattle/constants";
 import { EVENT_TYPE_LABELS } from "@repo/api";
@@ -102,6 +107,12 @@ type HomePresentationProps = {
 		dueAt: string | null;
 		message: string;
 	}>;
+	breedingKpi: {
+		conceptionRate: number | null;
+		avgDaysOpen: number | null;
+		avgCalvingInterval: number | null;
+		aiPerConception: number | null;
+	};
 	error?: string;
 };
 
@@ -109,6 +120,7 @@ export function HomePresentation({
 	todayEvents,
 	statusCounts,
 	alerts,
+	breedingKpi,
 	error,
 }: HomePresentationProps) {
 	const SEVERITY_ICON_MAP: Record<"high" | "medium" | "low", ReactNode> = {
@@ -253,31 +265,77 @@ export function HomePresentation({
 				<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
 					<CardTitle className="text-lg font-semibold flex items-center gap-2">
 						<Activity className="h-5 w-5" />
-						繁殖KPI
+						繁殖KPI（当月）
 					</CardTitle>
 					<TrendingUp className="h-4 w-4 text-muted-foreground" />
 				</CardHeader>
 				<CardContent>
 					<div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-						{BREEDING_KPI.map((kpi) => (
-							<div key={kpi.label} className="rounded-md border p-3">
+						{[
+							{
+								key: "受胎率",
+								value:
+									breedingKpi.conceptionRate != null
+										? `${breedingKpi.conceptionRate}%`
+										: "-",
+								tip: "今月のAI本数に対する、今月に分娩で受胎確定できた割合",
+							},
+							{
+								key: "平均空胎日数",
+								value:
+									breedingKpi.avgDaysOpen != null
+										? `${breedingKpi.avgDaysOpen}日`
+										: "-",
+								tip: "前回分娩から受胎AIまでの日数の平均（今月に受胎AIがあったケース）",
+							},
+							{
+								key: "分娩間隔",
+								value:
+									breedingKpi.avgCalvingInterval != null
+										? `${breedingKpi.avgCalvingInterval}日`
+										: "-",
+								tip: "同一個体の連続分娩の間隔の平均（後側分娩が今月のもの）",
+							},
+							{
+								key: "AI回数/受胎",
+								value:
+									breedingKpi.aiPerConception != null
+										? `${breedingKpi.aiPerConception}回`
+										: "-",
+								tip: "受胎成立までに要したAI本数の平均（今月に受胎成立したケース）",
+							},
+						].map((kpi) => (
+							<div key={kpi.key} className="rounded-md border p-3">
 								<div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-									{kpi.label === "受胎率" && <Activity className="h-4 w-4" />}
-									{kpi.label === "平均空胎日数" && (
-										<Clock className="h-4 w-4" />
-									)}
-									{kpi.label === "分娩間隔" && <Calendar className="h-4 w-4" />}
-									{kpi.label === "AI回数/受胎" && (
-										<Repeat className="h-4 w-4" />
-									)}
-									<span>{kpi.label}</span>
+									{kpi.key === "受胎率" && <Activity className="h-4 w-4" />}
+									{kpi.key === "平均空胎日数" && <Clock className="h-4 w-4" />}
+									{kpi.key === "分娩間隔" && <Calendar className="h-4 w-4" />}
+									{kpi.key === "AI回数/受胎" && <Repeat className="h-4 w-4" />}
+									<span className="inline-flex items-center gap-1">
+										{kpi.key}
+										<Popover>
+											<PopoverTrigger asChild>
+												<button
+													type="button"
+													aria-label={kpi.tip}
+													className="p-0.5"
+												>
+													<Info className="h-3 w-3 text-muted-foreground" />
+												</button>
+											</PopoverTrigger>
+											<PopoverContent
+												side="top"
+												align="start"
+												className="max-w-[220px] text-xs leading-relaxed"
+											>
+												{kpi.tip}
+											</PopoverContent>
+										</Popover>
+									</span>
 								</div>
 								<div className="text-xl font-bold leading-tight">
 									{kpi.value}
 								</div>
-								{kpi.sub && (
-									<div className="text-xs text-muted-foreground">{kpi.sub}</div>
-								)}
 							</div>
 						))}
 					</div>

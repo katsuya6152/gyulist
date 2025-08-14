@@ -7,6 +7,7 @@ import authRoutes from "./auth";
 import cattleRoutes from "./cattle";
 import eventsRoutes from "./events";
 import healthRoutes from "./health";
+import kpiRoutes from "./kpi";
 import oauthRoutes from "./oauth";
 import preRegisterRoutes from "./pre-register";
 import usersRoutes from "./users";
@@ -23,6 +24,7 @@ return app
 .route("/oauth", oauthRoutes)
 .route("/users", usersRoutes)
 .route("/alerts", alertsRoutes)
+.route("/kpi", kpiRoutes)
 .route("/cattle", cattleRoutes)
 .route("/events", eventsRoutes);
 };
