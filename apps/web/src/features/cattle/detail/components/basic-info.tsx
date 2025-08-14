@@ -25,6 +25,10 @@ export function BasicInfo({ cattle }: { cattle: GetCattleDetailResType }) {
 						</span>
 					</div>
 					<div className="flex justify-between items-center">
+						<span className="text-sm text-gray-500">体重:</span>
+						<span>{cattle.weight != null ? `${cattle.weight}kg` : "-"}</span>
+					</div>
+					<div className="flex justify-between items-center">
 						<span className="text-sm text-gray-500">得点:</span>
 						<span>{cattle.score ?? "-"}</span>
 					</div>

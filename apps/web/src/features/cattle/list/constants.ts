@@ -1,38 +1,21 @@
 import type { GetCattleListResType } from "@/services/cattleService";
+import {
+	CATTLE_GENDERS,
+	CATTLE_GENDER_LABELS,
+	CATTLE_GROWTH_STAGES,
+	CATTLE_GROWTH_STAGE_LABELS,
+} from "@repo/api";
 import { z } from "zod";
 import { statusOptions } from "../constants";
 
 export type CattleListItem = GetCattleListResType["results"][0];
 
 export const filterOptions = [
-	{
-		id: "CALF",
-		label: "仔牛",
-	},
-	{
-		id: "GROWING",
-		label: "育成牛",
-	},
-	{
-		id: "FATTENING",
-		label: "肥育牛",
-	},
-	{
-		id: "FIRST_CALVED",
-		label: "初産牛",
-	},
-	{
-		id: "MULTI_PAROUS",
-		label: "経産牛",
-	},
-	{
-		id: "オス",
-		label: "オス",
-	},
-	{
-		id: "メス",
-		label: "メス",
-	},
+	...CATTLE_GROWTH_STAGES.map((id) => ({
+		id,
+		label: CATTLE_GROWTH_STAGE_LABELS[id],
+	})),
+	...CATTLE_GENDERS.map((id) => ({ id, label: CATTLE_GENDER_LABELS[id] })),
 ] as const;
 
 export const sortOptions = [

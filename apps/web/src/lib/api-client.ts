@@ -1,3 +1,4 @@
+import { DEMO_USER_ID } from "@/constants/app";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -27,9 +28,6 @@ export async function fetchWithAuth<T>(
 
 	return res.json();
 }
-
-// Demo user utilities
-export const DEMO_USER_ID = 1;
 
 export function isDemo(userId: number): boolean {
 	return userId === DEMO_USER_ID;

@@ -1,4 +1,8 @@
+import { CATTLE_GROWTH_STAGES_TUPLE } from "@repo/api";
 import { z } from "zod";
+
+const preprocessOptional = (v: unknown) =>
+	v === "" || v == null ? undefined : v;
 
 // 血統情報のスキーマ
 export const bloodlineSchema = z.object({
@@ -16,46 +20,23 @@ export const breedingStatusSchema = z.object({
 	isDifficultBirth: z.coerce.boolean().optional(),
 });
 
-// 新規作成用のスキーマ
+// 新規作成用のスキーマ（UI前処理 -> API仕様にパイプ）
 export const createCattleSchema = z.object({
 	identificationNumber: z.coerce.number().min(1, "個体識別番号は必須です"),
 	earTagNumber: z.coerce.number().min(1, "耳標番号は必須です"),
 	name: z.string().min(1, "名号は必須です"),
 	gender: z.string().min(1, "性別は必須です"),
 	birthday: z.string().min(1, "生年月日は必須です"),
-	growthStage: z.enum(
-		["CALF", "GROWING", "FATTENING", "FIRST_CALVED", "MULTI_PAROUS"],
-		{
-			required_error: "成長段階は必須です",
-		},
-	),
-	// 追加の基本情報（空文字は未入力扱い）
-	score: z.preprocess(
-		(v) => (v === "" || v === null || v === undefined ? undefined : v),
-		z.coerce.number().optional(),
-	),
-	breed: z.preprocess(
-		(v) => (v === "" || v === null || v === undefined ? undefined : v),
-		z.string().optional(),
-	),
-	producerName: z.preprocess(
-		(v) => (v === "" || v === null || v === undefined ? undefined : v),
-		z.string().optional(),
-	),
-	barn: z.preprocess(
-		(v) => (v === "" || v === null || v === undefined ? undefined : v),
-		z.string().optional(),
-	),
-	breedingValue: z.preprocess(
-		(v) => (v === "" || v === null || v === undefined ? undefined : v),
-		z.string().optional(),
-	),
-	notes: z.preprocess(
-		(v) => (v === "" || v === null || v === undefined ? undefined : v),
-		z.string().optional(),
-	),
-	// 血統情報
+	growthStage: z.enum(CATTLE_GROWTH_STAGES_TUPLE, {
+		required_error: "成長段階は必須です",
+	}),
+	weight: z.preprocess(preprocessOptional, z.coerce.number().min(0).optional()),
+	score: z.preprocess(preprocessOptional, z.coerce.number().optional()),
+	breed: z.preprocess(preprocessOptional, z.string().optional()),
+	producerName: z.preprocess(preprocessOptional, z.string().optional()),
+	barn: z.preprocess(preprocessOptional, z.string().optional()),
+	breedingValue: z.preprocess(preprocessOptional, z.string().optional()),
+	notes: z.preprocess(preprocessOptional, z.string().optional()),
 	bloodline: bloodlineSchema.optional(),
-	// 繁殖情報
 	breedingStatus: breedingStatusSchema.optional(),
 });

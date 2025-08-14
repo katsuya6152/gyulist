@@ -209,6 +209,23 @@ const CattleEditPresentation = ({
 				className="space-y-6"
 			>
 				<div>
+					<label htmlFor="weight" className="block text-sm font-medium mb-2">
+						体重
+					</label>
+					<input
+						id="weight"
+						type="number"
+						key={fields.weight.key}
+						name={fields.weight.name}
+						defaultValue={String(cattle.weight ?? "")}
+						placeholder="体重を入力 (kg)"
+						className="w-full rounded-md border border-input bg-background px-3 py-2"
+						step="0.1"
+						min="0"
+					/>
+				</div>
+
+				<div>
 					<label
 						htmlFor="identificationNumber"
 						className="block text-sm font-medium mb-2"
