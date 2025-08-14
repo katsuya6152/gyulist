@@ -5,6 +5,7 @@ import {
 	createNewCattle,
 	deleteCattleData,
 	getCattleById,
+	getCattleStatusCounts,
 	searchCattleList,
 	updateCattleData,
 	updateStatus,
@@ -27,6 +28,18 @@ const app = new Hono<{ Bindings: Bindings }>()
 			const query = c.req.valid("query");
 			const result = await searchCattleList(c.env.DB, userId, query);
 			return c.json(result);
+		} catch (e) {
+			console.error(e);
+			return c.json({ message: "Internal Server Error" }, 500);
+		}
+	})
+
+	// ステータス別頭数（詳細より先に定義して/:idに食われないように）
+	.get("/status-counts", async (c) => {
+		const userId = c.get("jwtPayload").userId;
+		try {
+			const counts = await getCattleStatusCounts(c.env.DB, userId);
+			return c.json({ counts });
 		} catch (e) {
 			console.error(e);
 			return c.json({ message: "Internal Server Error" }, 500);

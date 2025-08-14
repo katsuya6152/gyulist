@@ -1,19 +1,14 @@
 "use client";
 
-import { ArrowLeft, Calendar, List, Plus, Settings } from "lucide-react";
+import { Calendar, Home, List, Plus, Settings } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export function FooterNav() {
 	const pathname = usePathname();
-	const router = useRouter();
 	const [isVisible, setIsVisible] = useState(true);
 	const [lastScrollY, setLastScrollY] = useState(0);
-
-	const handleGoBack = () => {
-		router.back();
-	};
 
 	// スクロール検知とフッターの表示/非表示制御
 	useEffect(() => {
@@ -64,20 +59,14 @@ export function FooterNav() {
 			<div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent pointer-events-none" />
 
 			<div className="relative z-10 grid items-center grid-cols-5">
-				{/* 戻るボタン */}
+				{/* 0. ホーム */}
 				<div className="flex justify-center">
-					<button
-						type="button"
-						onClick={handleGoBack}
-						className="flex flex-col items-center transition-all duration-200 hover:text-primary tap-feedback group"
-					>
-						<div className="p-2 rounded-xl transition-all duration-200 hover:bg-white/20 hover:shadow-lg group-hover:scale-110 backdrop-blur-sm">
-							<ArrowLeft className="h-5 w-5 transition-transform duration-200" />
-						</div>
-						<span className="text-xs font-medium mt-1 transition-all duration-200">
-							戻る
-						</span>
-					</button>
+					<FooterItem
+						icon={<Home className="h-5 w-5" />}
+						label="ホーム"
+						href="/home"
+						isActive={pathname === "/home"}
+					/>
 				</div>
 
 				{/* 1. 予定 */}

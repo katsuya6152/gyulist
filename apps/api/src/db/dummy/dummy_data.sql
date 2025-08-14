@@ -1,22 +1,28 @@
 -- =============================
 -- 0) テーブルデータのリセット
 -- =============================
--- 各テーブルのデータ削除
+-- 参照整合性の都合で依存順に削除
 DELETE FROM events;
+DELETE FROM cattle_status_history;
 DELETE FROM breeding_summary;
 DELETE FROM breeding_status;
 DELETE FROM mother_info;
 DELETE FROM bloodline;
 DELETE FROM cattle;
+DELETE FROM sessions;
+DELETE FROM registrations;
+DELETE FROM email_logs;
 DELETE FROM users;
 
 -- 自動増分IDのリセット (sqlite_sequence)
 DELETE FROM sqlite_sequence WHERE name = 'events';
+DELETE FROM sqlite_sequence WHERE name = 'cattle_status_history';
 DELETE FROM sqlite_sequence WHERE name = 'breeding_summary';
 DELETE FROM sqlite_sequence WHERE name = 'breeding_status';
 DELETE FROM sqlite_sequence WHERE name = 'mother_info';
 DELETE FROM sqlite_sequence WHERE name = 'bloodline';
 DELETE FROM sqlite_sequence WHERE name = 'cattle';
+-- sessions はTEXT主キー、registrations/email_logs はTEXT主キーのためリセット不要
 DELETE FROM sqlite_sequence WHERE name = 'users';
 
 -- =============================
@@ -62,6 +68,24 @@ VALUES
 (2, 2001, 9012, 'じろう',   'FATTENING', '2022-07-20', 1,   14,  45,  'メス', '130',   78, '黒毛和種',   'TREATING', '生産者B', '牛舎B', 'BABCBB', '成長が早く、今後の期待大'),
 -- cattleId=4
 (2, 2002, 3456, 'マルコ', 'GROWING', '2021-05-15', 2,   24,  70,  'オス', '140', 90, '黒毛和種',   'RESTING',      '生産者B', '牛舎B', 'AAAAAA', '生産後の休息中。元気な状態を維持');
+
+-- 追加: cattleId=5（KPIデモ用）
+INSERT INTO cattle (
+  ownerUserId, identificationNumber, earTagNumber, name, status
+) VALUES
+(1, 1005, 5555, 'けいぴー', 'HEALTHY');
+
+-- 追加: cattleId=6（KPIトレンド用: 2025-07 の daysOpen/AI分母用）
+INSERT INTO cattle (
+  ownerUserId, identificationNumber, earTagNumber, name, status
+) VALUES
+(1, 1006, 6666, 'けいぴー2', 'HEALTHY');
+
+-- 追加: cattleId=7（KPIトレンド用: 2025-07 の分娩間隔/受胎率の安定化用）
+INSERT INTO cattle (
+  ownerUserId, identificationNumber, earTagNumber, name, status
+) VALUES
+(1, 1007, 7777, 'けいぴー3', 'HEALTHY');
 
 
 -- =============================
@@ -182,3 +206,66 @@ VALUES
 -- cattleId=4
 (4, 'ESTRUS',        '2024-12-07', '発情に関するメモがここに記載される'),
 (4, 'OTHER',         '2024-12-08', 'その他に関するメモがここに記載される');
+
+-- =============================
+-- 6-2) KPI表示用 追加ダミーイベント
+-- =============================
+INSERT INTO events (
+  cattleId,
+  eventType,
+  eventDatetime,
+  notes
+)
+VALUES
+-- cattleId=1: 前回分娩→採用AI（約266日）→年末分娩、期間内AIも追加
+(1, 'CALVING',      '2024-03-01', 'KPIデモ: 前回分娩'),
+(1, 'INSEMINATION', '2024-03-10', 'KPIデモ: 採用AI候補'),
+(1, 'INSEMINATION', '2024-11-15', 'KPIデモ: 期間内AI'),
+(1, 'CALVING',      '2024-12-01', 'KPIデモ: 受胎分娩'),
+-- cattleId=2: 分娩間隔算出用の前回分娩
+(2, 'CALVING',      '2024-06-01', 'KPIデモ: 前回分娩');
+
+-- =============================
+-- 6-3) 今日(2025-08-14)にKPIが出るようにする追加ダミー
+-- =============================
+INSERT INTO events (
+  cattleId,
+  eventType,
+  eventDatetime,
+  notes
+) VALUES
+-- cattleId=1: 今日のAI（分母用）と将来分娩（daysOpen用）
+(1, 'CALVING',      '2025-05-01T00:00:00Z', 'KPIデモ: 今日のdaysOpen計算用の前回分娩'),
+(1, 'INSEMINATION', '2025-08-14T09:00:00Z', 'KPIデモ: 今日のAI（分母・daysOpen採用AI）'),
+(1, 'CALVING',      '2026-05-21T00:00:00Z', 'KPIデモ: 採用AIから約280日後の分娩'),
+-- cattleId=5: 今日の分娩（分子・分娩間隔用）とその採用AI（260-300日差）、直前分娩はAIより前
+(5, 'CALVING',      '2024-10-01T00:00:00Z', 'KPIデモ: 直前分娩'),
+(5, 'INSEMINATION', '2024-11-20T00:00:00Z', 'KPIデモ: 採用AI（分娩まで約267日）'),
+(5, 'CALVING',      '2025-08-14T06:00:00Z', 'KPIデモ: 今日の分娩（受胎）');
+
+-- =============================
+-- 6-4) KPIトレンド用: 直近2ヶ月（2025-07, 2025-08）を両方算出可能にする追加データ
+-- =============================
+-- 目的:
+--  - 2025-07 にも各指標が極力算出されるようデータを補完
+--  - 受胎率: 7月に分娩が1件以上、かつ7月のAI分母が0にならないようにAIも配置
+--  - 平均空胎日数: 7月に「受胎AI」があるように前回分娩→7月AI→将来分娩の流れを作る
+--  - 分娩間隔: 7月に分娩があり、同個体の前回分娩も存在する
+--  - AI回数/受胎: 7月分娩に対して受胎AI1本のシンプルケース（=1回）
+
+-- cattleId=2: 7月分娩（分娩間隔・受胎率用）。前回分娩は既存の 2024-06-01
+INSERT INTO events (cattleId, eventType, eventDatetime, notes) VALUES
+  -- 7月に向けた採用AI（約280日前）
+  (2, 'INSEMINATION', '2024-10-05T00:00:00Z', 'KPIデモ: 2025-07分娩に対応する採用AI'),
+  -- 2025-07 の分娩
+  (2, 'CALVING',      '2025-07-12T03:00:00Z', 'KPIデモ: 2025-07の分娩');
+
+-- cattleId=6: 7月の「受胎AI」（daysOpen算出用）。前回分娩→受胎AI(7月)→将来分娩
+INSERT INTO events (cattleId, eventType, eventDatetime, notes) VALUES
+  (6, 'CALVING',      '2025-03-15T00:00:00Z', 'KPIデモ: cattle6 前回分娩'),
+  (6, 'INSEMINATION', '2025-07-05T08:00:00Z', 'KPIデモ: 受胎AI（2026-04分娩へ）'),
+  (6, 'CALVING',      '2026-04-10T00:00:00Z', 'KPIデモ: cattle6 将来分娩');
+
+-- 受胎率の分母が0にならないよう、7月のAIをもう1本（cattleId=7）
+INSERT INTO events (cattleId, eventType, eventDatetime, notes) VALUES
+  (7, 'INSEMINATION', '2025-07-02T00:00:00Z', 'KPIデモ: 7月のAI（分母用）');
