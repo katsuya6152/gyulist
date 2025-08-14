@@ -1,8 +1,15 @@
 import { GetAlerts } from "@/services/alertsService";
+import { GetBreedingKpiDelta } from "@/services/breedingKpiDeltaService";
 import { GetBreedingKpi } from "@/services/breedingKpiService";
 import { GetCattleStatusCounts } from "@/services/cattleService";
 import { SearchEvents } from "@/services/eventService";
-import { endOfDay, endOfMonth, startOfDay, startOfMonth } from "date-fns";
+import {
+	endOfDay,
+	endOfMonth,
+	format,
+	startOfDay,
+	startOfMonth,
+} from "date-fns";
 import { HomePresentation } from "./presentational";
 
 export default async function HomeContainer() {
@@ -13,19 +20,31 @@ export default async function HomeContainer() {
 	const monthStart = startOfMonth(today).toISOString();
 	const monthEnd = endOfMonth(today).toISOString();
 
+	// ダミートレンド生成は廃止（APIのデルタのみ使用）
+
 	try {
-		const [eventsData, statusCounts, alerts, kpi] = await Promise.all([
-			SearchEvents({ startDate: start, endDate: end, limit: 100 }),
-			GetCattleStatusCounts(),
-			GetAlerts(),
-			GetBreedingKpi({ from: monthStart, to: monthEnd }),
-		]);
+		const [eventsData, statusCounts, alerts, kpi, kpiDelta] = await Promise.all(
+			[
+				SearchEvents({ startDate: start, endDate: end, limit: 100 }),
+				GetCattleStatusCounts(),
+				GetAlerts(),
+				GetBreedingKpi({ from: monthStart, to: monthEnd }),
+				// 前月比のみ必要なので delta API を利用
+				GetBreedingKpiDelta({ month: format(today, "yyyy-MM") }),
+			],
+		);
 		return (
 			<HomePresentation
 				todayEvents={eventsData.results || []}
 				statusCounts={statusCounts.counts}
 				alerts={alerts.results}
 				breedingKpi={kpi.metrics}
+				// KPIトレンドは前月比のみ使用
+				kpiTrendDeltas={
+					kpiDelta.month
+						? [{ month: kpiDelta.month, metrics: kpiDelta.delta }]
+						: []
+				}
 				error={undefined}
 			/>
 		);
@@ -49,6 +68,7 @@ export default async function HomeContainer() {
 					avgCalvingInterval: null,
 					aiPerConception: null,
 				}}
+				kpiTrendDeltas={[]}
 				error="データ取得に失敗しました"
 			/>
 		);
