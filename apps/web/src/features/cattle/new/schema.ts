@@ -29,8 +29,31 @@ export const createCattleSchema = z.object({
 			required_error: "成長段階は必須です",
 		},
 	),
-	breed: z.string().optional(),
-	notes: z.string().optional(),
+	// 追加の基本情報（空文字は未入力扱い）
+	score: z.preprocess(
+		(v) => (v === "" || v === null || v === undefined ? undefined : v),
+		z.coerce.number().optional(),
+	),
+	breed: z.preprocess(
+		(v) => (v === "" || v === null || v === undefined ? undefined : v),
+		z.string().optional(),
+	),
+	producerName: z.preprocess(
+		(v) => (v === "" || v === null || v === undefined ? undefined : v),
+		z.string().optional(),
+	),
+	barn: z.preprocess(
+		(v) => (v === "" || v === null || v === undefined ? undefined : v),
+		z.string().optional(),
+	),
+	breedingValue: z.preprocess(
+		(v) => (v === "" || v === null || v === undefined ? undefined : v),
+		z.string().optional(),
+	),
+	notes: z.preprocess(
+		(v) => (v === "" || v === null || v === undefined ? undefined : v),
+		z.string().optional(),
+	),
 	// 血統情報
 	bloodline: bloodlineSchema.optional(),
 	// 繁殖情報

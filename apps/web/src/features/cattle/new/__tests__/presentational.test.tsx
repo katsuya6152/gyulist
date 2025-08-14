@@ -95,6 +95,10 @@ describe("CattleNewPresentation", () => {
 		await user.selectOptions(screen.getByLabelText(/性別/), "メス");
 		await user.selectOptions(screen.getByLabelText(/成長段階/), "GROWING");
 		await user.type(screen.getByLabelText(/品種/), "黒毛和種");
+		await user.type(screen.getByLabelText(/得点/), "80");
+		await user.type(screen.getByLabelText(/生産者/), "〇〇牧場");
+		await user.type(screen.getByLabelText(/牛舎/), "B棟");
+		await user.type(screen.getByLabelText(/育種価/), "110");
 
 		// 入力値を確認
 		expect(screen.getByLabelText(/個体識別番号/)).toHaveValue("12345");
@@ -103,5 +107,9 @@ describe("CattleNewPresentation", () => {
 		expect(screen.getByLabelText(/性別/)).toHaveValue("メス");
 		expect(screen.getByLabelText(/成長段階/)).toHaveValue("GROWING");
 		expect(screen.getByLabelText(/品種/)).toHaveValue("黒毛和種");
+		expect(screen.getByLabelText(/得点/)).toHaveValue(80);
+		expect(screen.getByLabelText(/生産者/)).toHaveValue("〇〇牧場");
+		expect(screen.getByLabelText(/牛舎/)).toHaveValue("B棟");
+		expect(screen.getByLabelText(/育種価/)).toHaveValue("110");
 	});
 });

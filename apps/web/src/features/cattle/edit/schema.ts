@@ -30,6 +30,24 @@ export const updateCattleSchema = z.object({
 		},
 	),
 	breed: z.string().optional(),
+	// 追加の基本情報
+	// 空文字は未入力として扱う
+	score: z.preprocess(
+		(v) => (v === "" || v === null || v === undefined ? undefined : v),
+		z.coerce.number().optional(),
+	),
+	producerName: z.preprocess(
+		(v) => (v === "" || v === null || v === undefined ? undefined : v),
+		z.string().optional(),
+	),
+	barn: z.preprocess(
+		(v) => (v === "" || v === null || v === undefined ? undefined : v),
+		z.string().optional(),
+	),
+	breedingValue: z.preprocess(
+		(v) => (v === "" || v === null || v === undefined ? undefined : v),
+		z.string().optional(),
+	),
 	notes: z.string().optional(),
 	// 血統情報
 	bloodline: bloodlineSchema.optional(),

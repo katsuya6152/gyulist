@@ -147,7 +147,11 @@ export type CreateCattleInput = {
 		| "FATTENING"
 		| "FIRST_CALVED"
 		| "MULTI_PAROUS";
+	score?: number | null;
 	breed: string | null;
+	producerName?: string | null;
+	barn?: string | null;
+	breedingValue?: string | null;
 	notes: string | null;
 	status?: "HEALTHY" | "PREGNANT" | "RESTING" | "TREATING" | "SHIPPED" | "DEAD";
 	bloodline?: {

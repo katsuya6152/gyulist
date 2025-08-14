@@ -326,6 +326,23 @@ export function CattleNewPresentation({ error }: CattleNewPresentationProps) {
 				</div>
 
 				<div>
+					<label htmlFor="score" className="block text-sm font-medium mb-2">
+						得点
+					</label>
+					<input
+						id="score"
+						type="number"
+						key={fields.score?.key}
+						name={fields.score?.name}
+						placeholder="得点を入力"
+						className="w-full rounded-md border border-input bg-background px-3 py-2"
+					/>
+					{fields.score?.errors && (
+						<p className="text-sm text-red-600 mt-1">{fields.score.errors}</p>
+					)}
+				</div>
+
+				<div>
 					<label htmlFor="breed" className="block text-sm font-medium mb-2">
 						品種
 					</label>
@@ -334,10 +351,70 @@ export function CattleNewPresentation({ error }: CattleNewPresentationProps) {
 						type="text"
 						key={fields.breed.key}
 						name={fields.breed.name}
-						defaultValue={fields.breed.initialValue}
 						placeholder="品種を入力"
 						className="w-full rounded-md border border-input bg-background px-3 py-2"
 					/>
+				</div>
+
+				<div>
+					<label
+						htmlFor="producerName"
+						className="block text-sm font-medium mb-2"
+					>
+						生産者
+					</label>
+					<input
+						id="producerName"
+						type="text"
+						key={fields.producerName?.key}
+						name={fields.producerName?.name}
+						placeholder="生産者名を入力"
+						className="w-full rounded-md border border-input bg-background px-3 py-2"
+					/>
+					{fields.producerName?.errors && (
+						<p className="text-sm text-red-600 mt-1">
+							{fields.producerName.errors}
+						</p>
+					)}
+				</div>
+
+				<div>
+					<label htmlFor="barn" className="block text-sm font-medium mb-2">
+						牛舎
+					</label>
+					<input
+						id="barn"
+						type="text"
+						key={fields.barn?.key}
+						name={fields.barn?.name}
+						placeholder="牛舎を入力"
+						className="w-full rounded-md border border-input bg-background px-3 py-2"
+					/>
+					{fields.barn?.errors && (
+						<p className="text-sm text-red-600 mt-1">{fields.barn.errors}</p>
+					)}
+				</div>
+
+				<div>
+					<label
+						htmlFor="breedingValue"
+						className="block text-sm font-medium mb-2"
+					>
+						育種価
+					</label>
+					<input
+						id="breedingValue"
+						type="text"
+						key={fields.breedingValue?.key}
+						name={fields.breedingValue?.name}
+						placeholder="育種価を入力"
+						className="w-full rounded-md border border-input bg-background px-3 py-2"
+					/>
+					{fields.breedingValue?.errors && (
+						<p className="text-sm text-red-600 mt-1">
+							{fields.breedingValue.errors}
+						</p>
+					)}
 				</div>
 
 				<div>
@@ -348,7 +425,6 @@ export function CattleNewPresentation({ error }: CattleNewPresentationProps) {
 						id="notes"
 						key={fields.notes.key}
 						name={fields.notes.name}
-						defaultValue={fields.notes.initialValue}
 						placeholder="備考を入力"
 						className="w-full rounded-md border border-input bg-background px-3 py-2 resize-none"
 						rows={4}
