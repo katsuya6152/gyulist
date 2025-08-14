@@ -89,7 +89,11 @@ export const createCattleSchema = z.object({
 		"FIRST_CALVED",
 		"MULTI_PAROUS",
 	]),
+	score: z.number().nullable().optional(),
 	breed: z.string().nullable(),
+	producerName: z.string().nullable().optional(),
+	barn: z.string().nullable().optional(),
+	breedingValue: z.string().nullable().optional(),
 	notes: z.string().nullable(),
 	// 血統情報
 	bloodline: bloodlineSchema.optional(),

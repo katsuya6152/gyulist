@@ -28,10 +28,10 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { eventTypeColors } from "@/constants/events";
 import { EVENT_TYPE_LABELS } from "@repo/api";
 import { Calendar, Clock, Edit, MoreHorizontal, Trash } from "lucide-react";
 import { memo, useCallback, useState } from "react";
-import { eventTypeColors } from "./event-constants";
 import { formatEventDate, formatEventTime } from "./event-utils";
 
 export type EventLike = {

@@ -79,6 +79,10 @@ const CattleEditPresentation = ({
 			birthday: cattle.birthday || "",
 			growthStage: cattle.growthStage || "",
 			breed: cattle.breed || "",
+			score: cattle.score?.toString() || "",
+			producerName: cattle.producerName || "",
+			barn: cattle.barn || "",
+			breedingValue: cattle.breedingValue || "",
 			notes: cattle.notes || "",
 			// 血統情報の初期値
 			bloodline: {
@@ -204,6 +208,23 @@ const CattleEditPresentation = ({
 				noValidate
 				className="space-y-6"
 			>
+				<div>
+					<label htmlFor="weight" className="block text-sm font-medium mb-2">
+						体重
+					</label>
+					<input
+						id="weight"
+						type="number"
+						key={fields.weight.key}
+						name={fields.weight.name}
+						defaultValue={String(cattle.weight ?? "")}
+						placeholder="体重を入力 (kg)"
+						className="w-full rounded-md border border-input bg-background px-3 py-2"
+						step="0.1"
+						min="0"
+					/>
+				</div>
+
 				<div>
 					<label
 						htmlFor="identificationNumber"
@@ -367,6 +388,24 @@ const CattleEditPresentation = ({
 				</div>
 
 				<div>
+					<label htmlFor="score" className="block text-sm font-medium mb-2">
+						得点
+					</label>
+					<input
+						id="score"
+						type="number"
+						key={fields.score.key}
+						name={fields.score.name}
+						defaultValue={String(fields.score.initialValue ?? "")}
+						placeholder="得点を入力"
+						className="w-full rounded-md border border-input bg-background px-3 py-2"
+					/>
+					{fields.score.errors && (
+						<p className="text-sm text-red-600 mt-1">{fields.score.errors}</p>
+					)}
+				</div>
+
+				<div>
 					<label htmlFor="breed" className="block text-sm font-medium mb-2">
 						品種
 					</label>
@@ -379,6 +418,70 @@ const CattleEditPresentation = ({
 						placeholder="品種を入力"
 						className="w-full rounded-md border border-input bg-background px-3 py-2"
 					/>
+				</div>
+
+				<div>
+					<label
+						htmlFor="producerName"
+						className="block text-sm font-medium mb-2"
+					>
+						生産者
+					</label>
+					<input
+						id="producerName"
+						type="text"
+						key={fields.producerName.key}
+						name={fields.producerName.name}
+						defaultValue={String(fields.producerName.initialValue ?? "")}
+						placeholder="生産者名を入力"
+						className="w-full rounded-md border border-input bg-background px-3 py-2"
+					/>
+					{fields.producerName.errors && (
+						<p className="text-sm text-red-600 mt-1">
+							{fields.producerName.errors}
+						</p>
+					)}
+				</div>
+
+				<div>
+					<label htmlFor="barn" className="block text-sm font-medium mb-2">
+						牛舎
+					</label>
+					<input
+						id="barn"
+						type="text"
+						key={fields.barn.key}
+						name={fields.barn.name}
+						defaultValue={String(fields.barn.initialValue ?? "")}
+						placeholder="牛舎を入力"
+						className="w-full rounded-md border border-input bg-background px-3 py-2"
+					/>
+					{fields.barn.errors && (
+						<p className="text-sm text-red-600 mt-1">{fields.barn.errors}</p>
+					)}
+				</div>
+
+				<div>
+					<label
+						htmlFor="breedingValue"
+						className="block text-sm font-medium mb-2"
+					>
+						育種価
+					</label>
+					<input
+						id="breedingValue"
+						type="text"
+						key={fields.breedingValue.key}
+						name={fields.breedingValue.name}
+						defaultValue={String(fields.breedingValue.initialValue ?? "")}
+						placeholder="育種価を入力"
+						className="w-full rounded-md border border-input bg-background px-3 py-2"
+					/>
+					{fields.breedingValue.errors && (
+						<p className="text-sm text-red-600 mt-1">
+							{fields.breedingValue.errors}
+						</p>
+					)}
 				</div>
 
 				<div>

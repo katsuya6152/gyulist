@@ -1,6 +1,5 @@
 "use client";
 
-import { eventTypeColors } from "@/components/event/event-constants";
 import { formatEventTime } from "@/components/event/event-utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +8,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+import { eventTypeColors } from "@/constants/events";
 import { statusLabelMap, statusOptions } from "@/features/cattle/constants";
 import type { CattleStatus } from "@/features/cattle/constants";
 import { EVENT_TYPE_LABELS } from "@repo/api";

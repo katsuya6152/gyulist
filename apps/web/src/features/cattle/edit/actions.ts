@@ -38,15 +38,20 @@ export async function updateCattleAction(
 			});
 		}
 
-		// APIに送信するデータを準備
+		// APIに送信するデータを準備（新規任意項目も含めて送信）
 		const apiData: UpdateCattleInput = {
 			identificationNumber: data.identificationNumber,
 			earTagNumber: data.earTagNumber,
 			name: data.name,
 			gender: data.gender,
 			birthday: data.birthday,
-			growthStage: data.growthStage,
+			growthStage: data.growthStage as UpdateCattleInput["growthStage"],
+			...(data.weight != null ? { weight: data.weight } : {}),
+			score: data.score ?? null,
 			breed: data.breed || null,
+			producerName: data.producerName ?? null,
+			barn: data.barn ?? null,
+			breedingValue: data.breedingValue ?? null,
 			notes: data.notes || null,
 			// 血統情報
 			bloodline: data.bloodline

@@ -34,40 +34,43 @@ export async function createCattleAction(
 			name: data.name,
 			gender: data.gender,
 			birthday: data.birthday,
-			growthStage: data.growthStage,
+			growthStage: data.growthStage as CreateCattleInput["growthStage"],
+			score: data.score ?? null,
 			breed: data.breed || null,
+			producerName: data.producerName ?? null,
+			barn: data.barn ?? null,
+			breedingValue: data.breedingValue ?? null,
 			notes: data.notes || null,
 			status: "HEALTHY", // デフォルトで健康ステータスを設定
-			// 血統情報
-			bloodline: data.bloodline
-				? {
-						fatherCattleName: data.bloodline.fatherCattleName || null,
-						motherFatherCattleName:
-							data.bloodline.motherFatherCattleName || null,
-						motherGrandFatherCattleName:
-							data.bloodline.motherGrandFatherCattleName || null,
-						motherGreatGrandFatherCattleName:
-							data.bloodline.motherGreatGrandFatherCattleName || null,
-					}
-				: undefined,
-			// 繁殖状態（手動入力項目のみ）
-			breedingStatus: data.breedingStatus
-				? {
-						parity: null,
-						expectedCalvingDate:
-							data.breedingStatus.expectedCalvingDate || null,
-						scheduledPregnancyCheckDate:
-							data.breedingStatus.scheduledPregnancyCheckDate || null,
-						daysAfterCalving: null,
-						daysOpen: null,
-						pregnancyDays: null,
-						daysAfterInsemination: null,
-						inseminationCount: null,
-						breedingMemo: data.breedingStatus.breedingMemo || null,
-						isDifficultBirth: data.breedingStatus.isDifficultBirth ?? null,
-					}
-				: undefined,
+			...(data.weight != null ? { weight: data.weight } : {}),
 		};
+
+		// 血統情報/繁殖状態のキーは、テスト互換のため常に存在させる
+		(apiData as CreateCattleInput).bloodline = data.bloodline
+			? {
+					fatherCattleName: data.bloodline.fatherCattleName || null,
+					motherFatherCattleName: data.bloodline.motherFatherCattleName || null,
+					motherGrandFatherCattleName:
+						data.bloodline.motherGrandFatherCattleName || null,
+					motherGreatGrandFatherCattleName:
+						data.bloodline.motherGreatGrandFatherCattleName || null,
+				}
+			: undefined;
+		(apiData as CreateCattleInput).breedingStatus = data.breedingStatus
+			? {
+					parity: null,
+					expectedCalvingDate: data.breedingStatus.expectedCalvingDate || null,
+					scheduledPregnancyCheckDate:
+						data.breedingStatus.scheduledPregnancyCheckDate || null,
+					daysAfterCalving: null,
+					daysOpen: null,
+					pregnancyDays: null,
+					daysAfterInsemination: null,
+					inseminationCount: null,
+					breedingMemo: data.breedingStatus.breedingMemo || null,
+					isDifficultBirth: data.breedingStatus.isDifficultBirth ?? null,
+				}
+			: undefined;
 
 		await CreateCattle(apiData);
 

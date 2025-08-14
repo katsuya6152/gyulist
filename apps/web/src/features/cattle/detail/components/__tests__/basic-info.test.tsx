@@ -84,7 +84,7 @@ describe("BasicInfo", () => {
 
 		// null値に対して "-" が表示されることを確認
 		const dashElements = screen.getAllByText("-");
-		expect(dashElements).toHaveLength(6); // score, breed, producerName, barn, breedingValue, notes
+		expect(dashElements).toHaveLength(7); // score, breed, producerName, barn, breedingValue, notes, weight
 	});
 
 	it("should display creation and update timestamps", () => {
@@ -113,7 +113,7 @@ describe("BasicInfo", () => {
 
 		// null値に対して "-" が表示されることを確認
 		const dashElements = screen.getAllByText("-");
-		expect(dashElements).toHaveLength(6);
+		expect(dashElements).toHaveLength(7);
 	});
 
 	it("should display numeric values correctly", () => {

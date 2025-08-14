@@ -15,7 +15,12 @@ import {
 import type { GetCattleDetailResType } from "@/services/cattleService";
 import { useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import { EVENT_TYPE_LABELS } from "@repo/api";
+import {
+	EVENT_GROUP_LABELS,
+	EVENT_GROUP_ORDER,
+	EVENT_TYPE_GROUPS,
+	EVENT_TYPE_LABELS,
+} from "@repo/api";
 import { Check, ChevronsUpDown } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -82,35 +87,12 @@ export function EventNewPresentation({ cattle }: EventNewPresentationProps) {
 		fields.eventType.initialValue || "",
 	);
 
-	const GROUPS: { key: string; label: string; items: string[] }[] = [
-		{ key: "ARRIVAL", label: "導入", items: ["ARRIVAL"] },
-		{
-			key: "BREEDING",
-			label: "繁殖",
-			items: ["ESTRUS", "INSEMINATION", "PREGNANCY_CHECK"],
-		},
-		{
-			key: "CALVING",
-			label: "分娩・異常",
-			items: ["CALVING", "ABORTION", "STILLBIRTH"],
-		},
-		{ key: "GROWTH", label: "成長遷移", items: ["WEANING", "START_FATTENING"] },
-		{ key: "MEASUREMENT", label: "計測", items: ["WEIGHT_MEASURED"] },
-		{
-			key: "HEALTH",
-			label: "健康・治療",
-			items: [
-				"VACCINATION",
-				"DIAGNOSIS",
-				"MEDICATION",
-				"TREATMENT_STARTED",
-				"TREATMENT_COMPLETED",
-				"HOOF_TRIMMING",
-			],
-		},
-		{ key: "LOGISTICS", label: "ロジ", items: ["SHIPMENT"] },
-		{ key: "OTHER", label: "その他", items: ["OTHER"] },
-	];
+	const GROUPS: { key: string; label: string; items: string[] }[] =
+		EVENT_GROUP_ORDER.map((groupKey) => ({
+			key: groupKey,
+			label: EVENT_GROUP_LABELS[groupKey],
+			items: [...EVENT_TYPE_GROUPS[groupKey]],
+		}));
 
 	return (
 		<div className="container mx-auto px-4 py-8">

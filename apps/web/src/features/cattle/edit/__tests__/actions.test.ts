@@ -32,6 +32,11 @@ describe("updateCattleAction", () => {
 		formData.append("growthStage", "MULTI_PAROUS");
 		formData.append("breed", "ホルスタイン");
 		formData.append("notes", "更新テスト用の牛");
+		// 新規追加フィールド
+		formData.append("score", "85");
+		formData.append("producerName", "テスト生産者");
+		formData.append("barn", "A棟");
+		formData.append("breedingValue", "120");
 
 		// 血統情報
 		formData.append("bloodline.fatherCattleName", "更新父牛");
@@ -73,7 +78,11 @@ describe("updateCattleAction", () => {
 			gender: "FEMALE",
 			birthday: "2020-01-01",
 			growthStage: "MULTI_PAROUS",
+			score: 85,
 			breed: "ホルスタイン",
+			producerName: "テスト生産者",
+			barn: "A棟",
+			breedingValue: "120",
 			notes: "更新テスト用の牛",
 			bloodline: {
 				fatherCattleName: "更新父牛",
@@ -126,6 +135,7 @@ describe("updateCattleAction", () => {
 		formData.append("gender", "MALE");
 		formData.append("birthday", "2021-05-15");
 		formData.append("growthStage", "GROWING");
+		// 新規追加フィールドは未入力扱い => nullで送られることを期待
 
 		const result = await updateCattleAction(null, formData);
 
@@ -137,7 +147,11 @@ describe("updateCattleAction", () => {
 			gender: "MALE",
 			birthday: "2021-05-15",
 			growthStage: "GROWING",
+			score: null,
 			breed: null,
+			producerName: null,
+			barn: null,
+			breedingValue: null,
 			notes: null,
 		});
 	});
@@ -284,7 +298,7 @@ describe("updateCattleAction", () => {
 			{ input: "", expected: null },
 		];
 
-		for (const { input, expected } of booleanValues) {
+		for (const { input } of booleanValues) {
 			const formData = createValidFormData();
 			formData.set("breedingStatus.isDifficultBirth", input);
 

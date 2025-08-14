@@ -13,28 +13,6 @@ export type DateFilter =
 // イベントタイプの日本語マッピング
 export const eventTypeLabels: Record<string, string> = EVENT_TYPE_LABELS;
 
-// イベントタイプの色マッピング
-export const eventTypeColors: Record<string, string> = {
-	ESTRUS: "bg-pink-100 text-pink-800 border-pink-300",
-	INSEMINATION: "bg-blue-100 text-blue-800 border-blue-300",
-	CALVING: "bg-green-100 text-green-800 border-green-300",
-	VACCINATION: "bg-purple-100 text-purple-800 border-purple-300",
-	SHIPMENT: "bg-orange-100 text-orange-800 border-orange-300",
-	HOOF_TRIMMING: "bg-yellow-100 text-yellow-800 border-yellow-300",
-	PREGNANCY_CHECK: "bg-teal-100 text-teal-800 border-teal-300",
-	ABORTION: "bg-red-100 text-red-800 border-red-300",
-	STILLBIRTH: "bg-red-100 text-red-800 border-red-300",
-	DIAGNOSIS: "bg-slate-100 text-slate-800 border-slate-300",
-	TREATMENT_STARTED: "bg-amber-100 text-amber-800 border-amber-300",
-	TREATMENT_COMPLETED: "bg-emerald-100 text-emerald-800 border-emerald-300",
-	MEDICATION: "bg-indigo-100 text-indigo-800 border-indigo-300",
-	ARRIVAL: "bg-cyan-100 text-cyan-800 border-cyan-300",
-	WEIGHT_MEASURED: "bg-gray-100 text-gray-800 border-gray-300",
-	WEANING: "bg-lime-100 text-lime-800 border-lime-300",
-	START_FATTENING: "bg-lime-100 text-lime-800 border-lime-300",
-	OTHER: "bg-gray-100 text-gray-800 border-gray-300",
-};
-
 // フィルターボタンの定義（静的）
 export const FILTER_BUTTONS = [
 	{

@@ -35,6 +35,11 @@ describe("createCattleAction", () => {
 		formData.append("gender", "FEMALE");
 		formData.append("birthday", "2020-01-01");
 		formData.append("growthStage", "CALF");
+		// 追加の基本情報（存在していれば送信）
+		formData.append("score", "85");
+		formData.append("producerName", "テスト生産者");
+		formData.append("barn", "A棟");
+		formData.append("breedingValue", "120");
 		return formData;
 	};
 
@@ -62,7 +67,11 @@ describe("createCattleAction", () => {
 			gender: "FEMALE",
 			birthday: "2020-01-01",
 			growthStage: "CALF",
+			score: 85,
 			breed: null,
+			producerName: "テスト生産者",
+			barn: "A棟",
+			breedingValue: "120",
 			notes: null,
 			status: "HEALTHY",
 			bloodline: undefined,
@@ -114,7 +123,11 @@ describe("createCattleAction", () => {
 			gender: "FEMALE",
 			birthday: "2020-01-01",
 			growthStage: "CALF",
+			score: 85,
 			breed: "和牛",
+			producerName: "テスト生産者",
+			barn: "A棟",
+			breedingValue: "120",
 			notes: "テスト用のメモ",
 			status: "HEALTHY",
 			bloodline: undefined,
@@ -147,7 +160,11 @@ describe("createCattleAction", () => {
 			gender: "FEMALE",
 			birthday: "2020-01-01",
 			growthStage: "CALF",
+			score: 85,
 			breed: null,
+			producerName: "テスト生産者",
+			barn: "A棟",
+			breedingValue: "120",
 			notes: null,
 			status: "HEALTHY",
 			bloodline: {

@@ -9,6 +9,9 @@ const routes = createRoutes(app);
 
 export type AppType = typeof routes;
 export * from "./constants/events";
+export * from "./constants/cattle";
+export * from "./validators/cattleValidator";
+export * from "./validators/eventValidator";
 
 type ClientType = typeof hc<AppType>;
 
