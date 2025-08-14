@@ -214,3 +214,22 @@ export async function UpdateCattleDetailed(
 		),
 	);
 }
+
+// ステータス別頭数取得
+export type GetCattleStatusCountsRes = {
+	counts: Record<
+		"HEALTHY" | "PREGNANT" | "RESTING" | "TREATING" | "SHIPPED" | "DEAD",
+		number
+	>;
+};
+
+export async function GetCattleStatusCounts(): Promise<GetCattleStatusCountsRes> {
+	return fetchWithAuth<GetCattleStatusCountsRes>((token) =>
+		client.api.v1.cattle["status-counts"].$get(
+			{},
+			{
+				headers: { Authorization: `Bearer ${token}` },
+			},
+		),
+	);
+}

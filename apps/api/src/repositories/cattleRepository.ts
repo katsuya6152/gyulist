@@ -1,4 +1,5 @@
 import { and, asc, desc, eq, sql } from "drizzle-orm";
+import type { InferSelectModel } from "drizzle-orm";
 import type { AnyD1Database } from "drizzle-orm/d1";
 import { drizzle } from "drizzle-orm/d1";
 import {
@@ -401,4 +402,25 @@ export async function deleteCattle(db: AnyD1Database, cattleId: number) {
 
 	// 牛のレコードを削除
 	await dbInstance.delete(cattle).where(eq(cattle.cattleId, cattleId));
+}
+
+// ステータス別の頭数集計
+export async function countCattleByStatus(
+	db: AnyD1Database,
+	ownerUserId: number,
+) {
+	const dbInstance = drizzle(db);
+	const rows = await dbInstance
+		.select({
+			status: cattle.status,
+			count: sql<number>`COUNT(*)`.as("count"),
+		})
+		.from(cattle)
+		.where(eq(cattle.ownerUserId, ownerUserId))
+		.groupBy(cattle.status);
+
+	return rows as Array<{
+		status: InferSelectModel<typeof cattle>["status"];
+		count: number;
+	}>;
 }

@@ -2,6 +2,7 @@ import type { Hono } from "hono";
 import { corsMiddleware } from "../middleware/cors";
 import type { Bindings } from "../types";
 import adminRoutes from "./admin";
+import alertsRoutes from "./alerts";
 import authRoutes from "./auth";
 import cattleRoutes from "./cattle";
 import eventsRoutes from "./events";
@@ -21,6 +22,7 @@ return app
 .route("/auth", authRoutes)
 .route("/oauth", oauthRoutes)
 .route("/users", usersRoutes)
+.route("/alerts", alertsRoutes)
 .route("/cattle", cattleRoutes)
 .route("/events", eventsRoutes);
 };

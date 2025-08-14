@@ -14,9 +14,11 @@ import {
 	ArrowUpRight,
 	Baby,
 	Bed,
+	Bell,
 	Calendar,
 	Clock,
 	Heart,
+	Info,
 	Repeat,
 	Skull,
 	Syringe,
@@ -26,25 +28,10 @@ import {
 import type { ReactNode } from "react";
 
 // 一時定数データ（API連携前）
-const TODAY_EVENTS: Array<{ time: string; title: string }> = [
-	{ time: "08:00", title: "給餌" },
-	{ time: "10:30", title: "妊娠鑑定" },
-	{ time: "15:00", title: "治療（#102）" },
-];
-
 const ALERT_CATTLE: Array<{ name: string; reason: string }> = [
 	{ name: "#101 あかね", reason: "発情検知" },
 	{ name: "#087 つばき", reason: "治療フォロー" },
 ];
-
-const STATUS_COUNTS: Record<string, number> = {
-	HEALTHY: 32,
-	PREGNANT: 12,
-	RESTING: 5,
-	TREATING: 3,
-	SHIPPED: 1,
-	DEAD: 0,
-};
 
 const STATUS_ICON_MAP: Record<CattleStatus, ReactNode> = {
 	HEALTHY: <Heart className="h-4 w-4 text-blue-500" />,
@@ -101,13 +88,40 @@ type HomePresentationProps = {
 		cattleName: string;
 		cattleEarTagNumber: string;
 	}>;
+	statusCounts: Record<
+		"HEALTHY" | "PREGNANT" | "RESTING" | "TREATING" | "SHIPPED" | "DEAD",
+		number
+	>;
+	alerts: Array<{
+		alertId: string;
+		type: string;
+		severity: "high" | "medium" | "low";
+		cattleId: number;
+		cattleName: string | null;
+		cattleEarTagNumber: string | null;
+		dueAt: string | null;
+		message: string;
+	}>;
 	error?: string;
 };
 
 export function HomePresentation({
 	todayEvents,
+	statusCounts,
+	alerts,
 	error,
 }: HomePresentationProps) {
+	const SEVERITY_ICON_MAP: Record<"high" | "medium" | "low", ReactNode> = {
+		high: <AlertTriangle className="h-4 w-4" />,
+		medium: <Bell className="h-4 w-4" />,
+		low: <Info className="h-4 w-4" />,
+	};
+
+	const SEVERITY_TEXT_CLASS_MAP: Record<"high" | "medium" | "low", string> = {
+		high: "text-red-600",
+		medium: "text-amber-600",
+		low: "text-blue-600",
+	};
 	return (
 		<div className="container mx-auto px-4 py-4 space-y-3">
 			{/* 今日のイベント */}
@@ -167,24 +181,33 @@ export function HomePresentation({
 						アラートのある牛
 					</CardTitle>
 					<span className="text-sm text-muted-foreground">
-						{ALERT_CATTLE.length}頭
+						{alerts.length}頭
 					</span>
 				</CardHeader>
 				<CardContent>
-					{ALERT_CATTLE.length === 0 ? (
+					{alerts.length === 0 ? (
 						<p className="text-sm text-muted-foreground">
 							現在アラートはありません
 						</p>
 					) : (
 						<ul className="space-y-2">
-							{ALERT_CATTLE.map((cattle, idx) => (
+							{alerts.map((a) => (
 								<li
-									key={`${cattle.name}-${idx}`}
-									className="flex items-center justify-between"
+									key={a.alertId}
+									className="flex items-start justify-between gap-3"
 								>
-									<span className="text-sm font-medium">{cattle.name}</span>
-									<span className="text-xs text-muted-foreground">
-										{cattle.reason}
+									<span className="text-sm font-medium shrink-0">
+										{a.cattleName}（{a.cattleEarTagNumber}）
+									</span>
+									<span
+										className={`text-xs flex-1 break-words whitespace-normal inline-flex items-start gap-1 ${SEVERITY_TEXT_CLASS_MAP[a.severity]}`}
+									>
+										{SEVERITY_ICON_MAP[a.severity]}
+										<span
+											className={a.severity === "high" ? "font-semibold" : ""}
+										>
+											{a.message}
+										</span>
 									</span>
 								</li>
 							))}
@@ -217,7 +240,7 @@ export function HomePresentation({
 									</Badge>
 								</div>
 								<span className="text-base font-semibold">
-									{STATUS_COUNTS[opt.value] ?? 0}
+									{statusCounts[opt.value as keyof typeof statusCounts] ?? 0}
 								</span>
 							</div>
 						))}

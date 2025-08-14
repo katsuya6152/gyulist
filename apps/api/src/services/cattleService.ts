@@ -3,6 +3,7 @@ import type { AnyD1Database } from "drizzle-orm/d1";
 import { drizzle } from "drizzle-orm/d1";
 import { cattle } from "../db/schema";
 import {
+	countCattleByStatus,
 	createBloodline,
 	createBreedingStatus,
 	createBreedingSummary,
@@ -342,6 +343,28 @@ export async function searchCattleList(
 		next_cursor: nextCursor,
 		has_next: hasNext,
 	};
+}
+
+// ステータス別の頭数集計
+export async function getCattleStatusCounts(
+	db: AnyD1Database,
+	ownerUserId: number,
+) {
+	const rows = await countCattleByStatus(db, ownerUserId);
+	const result: Record<string, number> = {
+		HEALTHY: 0,
+		PREGNANT: 0,
+		RESTING: 0,
+		TREATING: 0,
+		SHIPPED: 0,
+		DEAD: 0,
+	};
+	for (const r of rows) {
+		if (r.status) {
+			result[r.status as keyof typeof result] = r.count ?? 0;
+		}
+	}
+	return result;
 }
 
 // ソートカラムのキー取得
