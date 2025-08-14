@@ -23,7 +23,7 @@ function AuthCallbackContent() {
 			document.cookie = cookieString;
 
 			// 成功後にスケジュールページにリダイレクト
-			router.push("/schedule?filter=today");
+			router.push("/home");
 		} catch (error) {
 			console.error("Failed to set token cookie:", error);
 			router.push("/login?error=cookie_failed");
