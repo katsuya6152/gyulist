@@ -7,7 +7,7 @@ export const preRegisterSchema = z.object({
 		.max(100)
 		.optional()
 		.transform((v) => (v?.trim() ? v.trim() : null)),
-	turnstileToken: z.string().min(10),
+	turnstileToken: z.string().min(10)
 });
 
 export type PreRegisterInput = z.infer<typeof preRegisterSchema>;

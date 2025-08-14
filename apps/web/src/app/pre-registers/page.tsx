@@ -11,13 +11,13 @@ export const metadata: Metadata = {
 		googleBot: {
 			index: false,
 			follow: false,
-			noimageindex: true,
-		},
-	},
+			noimageindex: true
+		}
+	}
 };
 
 export default async function Page({
-	searchParams,
+	searchParams
 }: {
 	searchParams?: Promise<QueryParams>;
 }) {

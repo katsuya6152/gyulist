@@ -29,7 +29,7 @@ export default defineConfig({
 		navigationTimeout: 30 * 1000,
 
 		/* Action timeout */
-		actionTimeout: 10 * 1000,
+		actionTimeout: 10 * 1000
 	},
 
 	/* Configure projects for major browsers */
@@ -52,12 +52,12 @@ export default defineConfig({
 		/* Test against mobile viewports. */
 		{
 			name: "Mobile Chrome",
-			use: { ...devices["Pixel 5"] },
+			use: { ...devices["Pixel 5"] }
 		},
 		{
 			name: "Mobile Safari",
-			use: { ...devices["iPhone 12"] },
-		},
+			use: { ...devices["iPhone 12"] }
+		}
 
 		/* Test against branded browsers. */
 		// {
@@ -78,7 +78,7 @@ export default defineConfig({
 			reuseExistingServer: !process.env.CI, // CIでは新しいサーバーを起動
 			timeout: 180 * 1000, // 3分に延長
 			stdout: "pipe",
-			stderr: "pipe",
+			stderr: "pipe"
 		},
 		{
 			command: "pnpm dev",
@@ -86,7 +86,7 @@ export default defineConfig({
 			reuseExistingServer: !process.env.CI, // CIでは新しいサーバーを起動
 			timeout: 180 * 1000, // 3分に延長
 			stdout: "pipe",
-			stderr: "pipe",
-		},
-	],
+			stderr: "pipe"
+		}
+	]
 });

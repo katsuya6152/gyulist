@@ -8,7 +8,7 @@ export async function getUserById(dbInstance: AnyD1Database, id: number) {
 export async function updateTheme(
 	dbInstance: AnyD1Database,
 	userId: number,
-	theme: string,
+	theme: string
 ) {
 	return updateUserTheme(dbInstance, userId, theme);
 }

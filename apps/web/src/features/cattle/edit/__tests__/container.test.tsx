@@ -5,7 +5,7 @@ import CattleEditContainer from "../container";
 
 // cattleServiceのモック
 vi.mock("@/services/cattleService", () => ({
-	GetCattleDetail: vi.fn(),
+	GetCattleDetail: vi.fn()
 }));
 
 describe("CattleEditContainer", () => {
@@ -36,7 +36,7 @@ describe("CattleEditContainer", () => {
 		motherInfo: null,
 		breedingStatus: null,
 		breedingSummary: null,
-		events: [],
+		events: []
 	};
 
 	beforeEach(() => {
@@ -58,7 +58,7 @@ describe("CattleEditContainer", () => {
 
 	it("should handle API error correctly", async () => {
 		vi.mocked(cattleService.GetCattleDetail).mockRejectedValue(
-			new Error("API Error"),
+			new Error("API Error")
 		);
 
 		// エラーをキャッチして期待する動作を確認

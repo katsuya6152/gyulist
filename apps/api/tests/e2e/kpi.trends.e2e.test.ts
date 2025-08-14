@@ -7,7 +7,7 @@ import {
 	type FakeStore,
 	createEmptyStore,
 	createFakeD1,
-	createFakeDrizzle,
+	createFakeDrizzle
 } from "./helpers/fakeDrizzle";
 
 vi.mock("drizzle-orm/d1", async () => {
@@ -18,19 +18,19 @@ vi.mock("drizzle-orm/d1", async () => {
 		drizzle: (_db: AnyD1Database) => createFakeDrizzle(currentStore),
 		__setStore: (s: FakeStore) => {
 			currentStore = s;
-		},
+		}
 	};
 });
 
 const makeJwt = (payload: Record<string, unknown>) => {
 	const header = Buffer.from(
-		JSON.stringify({ alg: "none", typ: "JWT" }),
+		JSON.stringify({ alg: "none", typ: "JWT" })
 	).toString("base64");
 	const body = Buffer.from(JSON.stringify(payload)).toString("base64");
 	return `${header}.${body}.sig`;
 };
 const authHeaders = {
-	Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`,
+	Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`
 };
 
 describe("KPI Trends API E2E", () => {
@@ -64,7 +64,7 @@ describe("KPI Trends API E2E", () => {
 			breedingValue: null,
 			notes: null,
 			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString()
 		} as unknown as FakeStore["cattle"][number]);
 		set?.(store);
 
@@ -82,7 +82,7 @@ describe("KPI Trends API E2E", () => {
 				TURNSTILE_SECRET_KEY: "",
 				ADMIN_USER: "a",
 				ADMIN_PASS: "b",
-				WEB_ORIGIN: "http://localhost:3000",
+				WEB_ORIGIN: "http://localhost:3000"
 			} as unknown as Bindings;
 			await next();
 		});
@@ -91,7 +91,7 @@ describe("KPI Trends API E2E", () => {
 
 	it("GET /kpi/breeding/trends ok", async () => {
 		const res = await app.request("/kpi/breeding/trends?months=1", {
-			headers: authHeaders,
+			headers: authHeaders
 		});
 		expect(res.status).toBe(200);
 		const body = await res.json();

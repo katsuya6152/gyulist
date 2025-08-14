@@ -7,7 +7,7 @@ import {
 	type FakeStore,
 	createEmptyStore,
 	createFakeD1,
-	createFakeDrizzle,
+	createFakeDrizzle
 } from "./helpers/fakeDrizzle";
 
 vi.mock("drizzle-orm/d1", async () => {
@@ -18,13 +18,13 @@ vi.mock("drizzle-orm/d1", async () => {
 		drizzle: (_db: AnyD1Database) => createFakeDrizzle(currentStore),
 		__setStore: (s: FakeStore) => {
 			currentStore = s;
-		},
+		}
 	};
 });
 
 const makeJwt = (payload: Record<string, unknown>) => {
 	const header = Buffer.from(
-		JSON.stringify({ alg: "none", typ: "JWT" }),
+		JSON.stringify({ alg: "none", typ: "JWT" })
 	).toString("base64");
 	const body = Buffer.from(JSON.stringify(payload)).toString("base64");
 	return `${header}.${body}.sig`;
@@ -34,7 +34,7 @@ describe("KPI API E2E (success)", () => {
 	let app: Hono<{ Bindings: Bindings }>;
 	let store: FakeStore;
 	const auth = () => ({
-		Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`,
+		Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`
 	});
 
 	beforeEach(async () => {
@@ -63,7 +63,7 @@ describe("KPI API E2E (success)", () => {
 			breedingValue: null,
 			notes: null,
 			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString()
 		} as unknown as (typeof store.cattle)[number]);
 		const ai = new Date("2024-01-10T00:00:00Z").toISOString();
 		const calving = new Date("2024-11-05T00:00:00Z").toISOString();
@@ -74,7 +74,7 @@ describe("KPI API E2E (success)", () => {
 			eventDatetime: ai,
 			notes: null,
 			createdAt: ai,
-			updatedAt: ai,
+			updatedAt: ai
 		} as unknown as (typeof store.events)[number]);
 		store.events.push({
 			eventId: 2,
@@ -83,7 +83,7 @@ describe("KPI API E2E (success)", () => {
 			eventDatetime: calving,
 			notes: null,
 			createdAt: calving,
-			updatedAt: calving,
+			updatedAt: calving
 		} as unknown as (typeof store.events)[number]);
 		set?.(store);
 
@@ -101,7 +101,7 @@ describe("KPI API E2E (success)", () => {
 				TURNSTILE_SECRET_KEY: "",
 				ADMIN_USER: "a",
 				ADMIN_PASS: "b",
-				WEB_ORIGIN: "http://localhost:3000",
+				WEB_ORIGIN: "http://localhost:3000"
 			} as unknown as Bindings;
 			await next();
 		});
@@ -111,7 +111,7 @@ describe("KPI API E2E (success)", () => {
 	it("GET /kpi/breeding returns metrics non-null", async () => {
 		const res = await app.request(
 			"/kpi/breeding?from=2024-01-01T00:00:00Z&to=2024-12-31T23:59:59Z",
-			{ headers: auth() },
+			{ headers: auth() }
 		);
 		expect(res.status).toBe(200);
 		const body = await res.json();

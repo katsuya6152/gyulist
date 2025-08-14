@@ -6,30 +6,30 @@ import { EventNewContainer } from "../container";
 
 // Mock all services and navigation
 vi.mock("@/services/cattleService", () => ({
-	GetCattleDetail: vi.fn(),
+	GetCattleDetail: vi.fn()
 }));
 
 vi.mock("@/services/eventService", () => ({
-	CreateEvent: vi.fn(),
+	CreateEvent: vi.fn()
 }));
 
 // Mock JWT verification
 vi.mock("@/lib/jwt", () => ({
-	verifyAndGetUserId: vi.fn(),
+	verifyAndGetUserId: vi.fn()
 }));
 
 vi.mock("next/navigation", () => ({
 	useRouter: () => ({
-		push: vi.fn(),
+		push: vi.fn()
 	}),
-	notFound: vi.fn(),
+	notFound: vi.fn()
 }));
 
 vi.mock("sonner", () => ({
 	toast: {
 		success: vi.fn(),
-		error: vi.fn(),
-	},
+		error: vi.fn()
+	}
 }));
 
 describe("Events New Integration", () => {
@@ -51,7 +51,7 @@ describe("Events New Integration", () => {
 			fatherCattleName: "父牛",
 			motherFatherCattleName: "母父牛",
 			motherGrandFatherCattleName: "母祖父牛",
-			motherGreatGrandFatherCattleName: "母曽祖父牛",
+			motherGreatGrandFatherCattleName: "母曽祖父牛"
 		},
 		breedingStatus: {
 			breedingStatusId: 1,
@@ -63,10 +63,10 @@ describe("Events New Integration", () => {
 			isDifficultBirth: false,
 			breedingMemo: "",
 			createdAt: "2023-01-01T00:00:00Z",
-			updatedAt: null,
+			updatedAt: null
 		},
 		createdAt: "2023-01-01T00:00:00Z",
-		updatedAt: null,
+		updatedAt: null
 	} as GetCattleDetailResType;
 
 	beforeEach(() => {
@@ -83,7 +83,7 @@ describe("Events New Integration", () => {
 		// 全体の構造を確認
 		expect(screen.getByText("イベント登録")).toBeInTheDocument();
 		expect(
-			screen.getByText("テスト牛1 (1) のイベントを登録します"),
+			screen.getByText("テスト牛1 (1) のイベントを登録します")
 		).toBeInTheDocument();
 
 		// フォーム要素を確認
@@ -94,10 +94,10 @@ describe("Events New Integration", () => {
 
 		// ボタンを確認
 		expect(
-			screen.getByRole("button", { name: "イベントを登録" }),
+			screen.getByRole("button", { name: "イベントを登録" })
 		).toBeInTheDocument();
 		expect(
-			screen.getByRole("link", { name: "キャンセル" }),
+			screen.getByRole("link", { name: "キャンセル" })
 		).toBeInTheDocument();
 	});
 
@@ -116,7 +116,7 @@ describe("Events New Integration", () => {
 
 		// フォームに入力（イベントタイプはポップオーバー→グループ展開→項目選択）
 		const eventTypeTrigger = screen.getByRole("button", {
-			name: /イベントタイプ/,
+			name: /イベントタイプ/
 		});
 		await user.click(eventTypeTrigger);
 		await user.click(await screen.findByText("繁殖"));
@@ -141,7 +141,7 @@ describe("Events New Integration", () => {
 				cattleId: 1,
 				eventType: "ESTRUS",
 				eventDatetime: expect.stringMatching(/2024-01-15T\d{2}:30/),
-				notes: "統合テスト用の発情確認",
+				notes: "統合テスト用の発情確認"
 			});
 		});
 	});
@@ -173,10 +173,10 @@ describe("Events New Integration", () => {
 
 		// デフォルト値の設定を確認
 		const eventDateInput = screen.getByLabelText(
-			/イベント日付/,
+			/イベント日付/
 		) as HTMLInputElement;
 		const eventTimeInput = screen.getByLabelText(
-			/イベント時刻/,
+			/イベント時刻/
 		) as HTMLInputElement;
 
 		expect(eventDateInput.value).toMatch(/^\d{4}-\d{2}-\d{2}$/);
@@ -200,7 +200,7 @@ describe("Events New Integration", () => {
 
 		expect(consoleSpy).toHaveBeenCalledWith(
 			"Failed to fetch cattle data:",
-			mockError,
+			mockError
 		);
 		expect(notFound).toHaveBeenCalled();
 

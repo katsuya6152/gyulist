@@ -31,7 +31,7 @@ describe("BasicInfo", () => {
 		breedingSummary: null,
 		events: null,
 		status: "HEALTHY",
-		healthStatus: "健康",
+		healthStatus: "健康"
 	} as unknown as GetCattleDetailResType;
 
 	it("should render basic cattle information correctly", () => {
@@ -77,7 +77,7 @@ describe("BasicInfo", () => {
 			producerName: null,
 			barn: null,
 			breedingValue: null,
-			notes: null,
+			notes: null
 		} as GetCattleDetailResType;
 
 		render(<BasicInfo cattle={cattleWithNulls} />);
@@ -91,10 +91,10 @@ describe("BasicInfo", () => {
 		render(<BasicInfo cattle={mockCattle} />);
 
 		expect(
-			screen.getByText("登録日時: 2023-01-01T00:00:00Z"),
+			screen.getByText("登録日時: 2023-01-01T00:00:00Z")
 		).toBeInTheDocument();
 		expect(
-			screen.getByText("更新日時: 2023-12-01T00:00:00Z"),
+			screen.getByText("更新日時: 2023-12-01T00:00:00Z")
 		).toBeInTheDocument();
 	});
 
@@ -106,7 +106,7 @@ describe("BasicInfo", () => {
 			producerName: null,
 			barn: null,
 			breedingValue: null,
-			notes: null,
+			notes: null
 		} as unknown as GetCattleDetailResType;
 
 		render(<BasicInfo cattle={cattleWithUndefined} />);
@@ -123,7 +123,7 @@ describe("BasicInfo", () => {
 			monthsOld: 0,
 			daysOld: 0,
 			score: 0,
-			breedingValue: "0",
+			breedingValue: "0"
 		} as unknown as GetCattleDetailResType;
 
 		render(<BasicInfo cattle={cattleWithZeroValues} />);

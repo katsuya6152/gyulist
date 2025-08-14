@@ -7,7 +7,7 @@ import {
 	type FakeStore,
 	createEmptyStore,
 	createFakeD1,
-	createFakeDrizzle,
+	createFakeDrizzle
 } from "./helpers/fakeDrizzle";
 
 vi.mock("drizzle-orm/d1", async () => {
@@ -18,19 +18,19 @@ vi.mock("drizzle-orm/d1", async () => {
 		drizzle: (_db: AnyD1Database) => createFakeDrizzle(currentStore),
 		__setStore: (s: FakeStore) => {
 			currentStore = s;
-		},
+		}
 	};
 });
 
 const makeJwt = (payload: Record<string, unknown>) => {
 	const header = Buffer.from(
-		JSON.stringify({ alg: "none", typ: "JWT" }),
+		JSON.stringify({ alg: "none", typ: "JWT" })
 	).toString("base64");
 	const body = Buffer.from(JSON.stringify(payload)).toString("base64");
 	return `${header}.${body}.sig`;
 };
 const authHeaders = {
-	Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`,
+	Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`
 };
 
 describe("KPI API E2E (no mocks)", () => {
@@ -64,7 +64,7 @@ describe("KPI API E2E (no mocks)", () => {
 			breedingValue: null,
 			notes: null,
 			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString()
 		} as unknown as FakeStore["cattle"][number]);
 
 		const ai1 = new Date("2024-01-15T00:00:00Z").toISOString();
@@ -77,7 +77,7 @@ describe("KPI API E2E (no mocks)", () => {
 			eventDatetime: ai1,
 			notes: null,
 			createdAt: ai1,
-			updatedAt: ai1,
+			updatedAt: ai1
 		} as unknown as FakeStore["events"][number]);
 		store.events.push({
 			eventId: 2,
@@ -86,7 +86,7 @@ describe("KPI API E2E (no mocks)", () => {
 			eventDatetime: ai2,
 			notes: null,
 			createdAt: ai2,
-			updatedAt: ai2,
+			updatedAt: ai2
 		} as unknown as FakeStore["events"][number]);
 		store.events.push({
 			eventId: 3,
@@ -95,7 +95,7 @@ describe("KPI API E2E (no mocks)", () => {
 			eventDatetime: calving,
 			notes: null,
 			createdAt: calving,
-			updatedAt: calving,
+			updatedAt: calving
 		} as unknown as FakeStore["events"][number]);
 
 		setter?.(store);
@@ -114,7 +114,7 @@ describe("KPI API E2E (no mocks)", () => {
 				TURNSTILE_SECRET_KEY: "",
 				ADMIN_USER: "a",
 				ADMIN_PASS: "b",
-				WEB_ORIGIN: "http://localhost:3000",
+				WEB_ORIGIN: "http://localhost:3000"
 			} as unknown as Bindings;
 			await next();
 		});
@@ -129,7 +129,7 @@ describe("KPI API E2E (no mocks)", () => {
 	it("GET /kpi/breeding returns metrics", async () => {
 		const res = await app.request(
 			"/kpi/breeding?from=2024-01-01T00:00:00.000Z&to=2024-12-31T23:59:59.000Z",
-			{ headers: authHeaders },
+			{ headers: authHeaders }
 		);
 		expect(res.status).toBe(200);
 		const body = await res.json();
@@ -139,7 +139,7 @@ describe("KPI API E2E (no mocks)", () => {
 
 	it("GET /kpi/breeding/delta returns shape", async () => {
 		const res = await app.request("/kpi/breeding/delta?month=2024-12", {
-			headers: authHeaders,
+			headers: authHeaders
 		});
 		expect(res.status).toBe(200);
 		const body = await res.json();
@@ -149,7 +149,7 @@ describe("KPI API E2E (no mocks)", () => {
 
 	it("GET /kpi/breeding/trends returns array", async () => {
 		const res = await app.request("/kpi/breeding/trends?months=2", {
-			headers: authHeaders,
+			headers: authHeaders
 		});
 		expect(res.status).toBe(200);
 		const body = await res.json();

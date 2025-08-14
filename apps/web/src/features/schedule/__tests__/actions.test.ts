@@ -4,18 +4,18 @@ import { deleteEventAction, updateEventAction } from "../actions";
 // Mock the event service
 vi.mock("@/services/eventService", () => ({
 	DeleteEventServer: vi.fn(),
-	UpdateEventServer: vi.fn(),
+	UpdateEventServer: vi.fn()
 }));
 
 // Mock JWT verification
 vi.mock("@/lib/jwt", () => ({
-	verifyAndGetUserId: vi.fn(),
+	verifyAndGetUserId: vi.fn()
 }));
 
 // Mock API client
 vi.mock("@/lib/api-client", () => ({
 	createDemoResponse: vi.fn(),
-	isDemo: vi.fn(),
+	isDemo: vi.fn()
 }));
 
 describe("updateEventAction", () => {
@@ -37,7 +37,7 @@ describe("updateEventAction", () => {
 		const updateData = {
 			eventType: "VACCINATION" as const,
 			eventDatetime: "2024-01-01T10:00:00Z",
-			notes: "Updated notes",
+			notes: "Updated notes"
 		};
 
 		const result = await updateEventAction(eventId, updateData);
@@ -58,14 +58,14 @@ describe("updateEventAction", () => {
 		vi.mocked(isDemo).mockReturnValue(true);
 		vi.mocked(createDemoResponse).mockReturnValue({
 			success: true,
-			message: "demo",
+			message: "demo"
 		});
 
 		const eventId = 789;
 		const updateData = {
 			eventType: "CALVING" as const,
 			eventDatetime: "2024-02-01T08:00:00Z",
-			notes: "Demo notes",
+			notes: "Demo notes"
 		};
 
 		const result = await updateEventAction(eventId, updateData);
@@ -87,11 +87,11 @@ describe("updateEventAction", () => {
 		const updateData = {
 			eventType: "OTHER" as const,
 			eventDatetime: "2024-03-01T12:00:00Z",
-			notes: "Error test notes",
+			notes: "Error test notes"
 		};
 
 		await expect(updateEventAction(eventId, updateData)).rejects.toThrow(
-			"Invalid token",
+			"Invalid token"
 		);
 	});
 });
@@ -131,7 +131,7 @@ describe("deleteEventAction", () => {
 		vi.mocked(isDemo).mockReturnValue(true);
 		vi.mocked(createDemoResponse).mockReturnValue({
 			success: true,
-			message: "demo",
+			message: "demo"
 		});
 
 		const eventId = 456;

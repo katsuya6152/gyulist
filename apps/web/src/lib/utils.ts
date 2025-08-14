@@ -12,7 +12,7 @@ export const getGrowthStage = (
 		| "FATTENING"
 		| "FIRST_CALVED"
 		| "MULTI_PAROUS"
-		| null,
+		| null
 ) => {
 	switch (growthStage) {
 		case "CALF":

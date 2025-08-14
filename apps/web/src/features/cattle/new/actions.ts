@@ -9,10 +9,10 @@ import { createCattleSchema } from "./schema";
 
 export async function createCattleAction(
 	prevState: unknown,
-	formData: FormData,
+	formData: FormData
 ) {
 	const submission = parseWithZod(formData, {
-		schema: createCattleSchema,
+		schema: createCattleSchema
 	});
 
 	if (submission.status !== "success") {
@@ -42,7 +42,7 @@ export async function createCattleAction(
 			breedingValue: data.breedingValue ?? null,
 			notes: data.notes || null,
 			status: "HEALTHY", // デフォルトで健康ステータスを設定
-			...(data.weight != null ? { weight: data.weight } : {}),
+			...(data.weight != null ? { weight: data.weight } : {})
 		};
 
 		// 血統情報/繁殖状態のキーは、テスト互換のため常に存在させる
@@ -53,7 +53,7 @@ export async function createCattleAction(
 					motherGrandFatherCattleName:
 						data.bloodline.motherGrandFatherCattleName || null,
 					motherGreatGrandFatherCattleName:
-						data.bloodline.motherGreatGrandFatherCattleName || null,
+						data.bloodline.motherGreatGrandFatherCattleName || null
 				}
 			: undefined;
 		(apiData as CreateCattleInput).breedingStatus = data.breedingStatus
@@ -68,7 +68,7 @@ export async function createCattleAction(
 					daysAfterInsemination: null,
 					inseminationCount: null,
 					breedingMemo: data.breedingStatus.breedingMemo || null,
-					isDifficultBirth: data.breedingStatus.isDifficultBirth ?? null,
+					isDifficultBirth: data.breedingStatus.isDifficultBirth ?? null
 				}
 			: undefined;
 
@@ -88,7 +88,7 @@ export async function createCattleAction(
 		}
 
 		return submission.reply({
-			formErrors: ["牛の登録に失敗しました"],
+			formErrors: ["牛の登録に失敗しました"]
 		});
 	}
 }

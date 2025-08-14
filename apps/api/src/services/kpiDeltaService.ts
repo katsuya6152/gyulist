@@ -4,7 +4,7 @@ import { getBreedingKpiTrends } from "./kpiTrendsService";
 export async function getBreedingKpiDelta(
 	db: AnyD1Database,
 	ownerUserId: number,
-	params: { month?: string },
+	params: { month?: string }
 ): Promise<{
 	month: string | null;
 	delta: {
@@ -17,7 +17,7 @@ export async function getBreedingKpiDelta(
 	const toMonth = params.month;
 	const trends = await getBreedingKpiTrends(db, ownerUserId, {
 		toMonth,
-		months: 2,
+		months: 2
 	});
 	const last = trends.deltas.at(-1);
 	if (!last) {
@@ -27,8 +27,8 @@ export async function getBreedingKpiDelta(
 				conceptionRate: null,
 				avgDaysOpen: null,
 				avgCalvingInterval: null,
-				aiPerConception: null,
-			},
+				aiPerConception: null
+			}
 		};
 	}
 	return { month: last.month, delta: last.metrics };

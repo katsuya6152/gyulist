@@ -19,14 +19,14 @@ const isMemory = (db: unknown): db is MemoryDB =>
 
 export async function findRegistrationByEmail(
 	db: AnyD1Database | MemoryDB,
-	email: string,
+	email: string
 ) {
 	if (isMemory(db)) {
 		return db.registrations.find((r) => r.email === email) ?? null;
 	}
 	const stmt = db
 		.prepare(
-			"SELECT id, email, referral_source AS referralSource, status, locale, created_at AS createdAt, updated_at AS updatedAt FROM registrations WHERE email = ? LIMIT 1",
+			"SELECT id, email, referral_source AS referralSource, status, locale, created_at AS createdAt, updated_at AS updatedAt FROM registrations WHERE email = ? LIMIT 1"
 		)
 		.bind(email);
 	const row = await stmt.first<RegistrationRecord>();
@@ -35,7 +35,7 @@ export async function findRegistrationByEmail(
 
 export async function insertRegistration(
 	db: AnyD1Database | MemoryDB,
-	reg: RegistrationRecord,
+	reg: RegistrationRecord
 ) {
 	if (isMemory(db)) {
 		db.registrations.push(reg);
@@ -43,7 +43,7 @@ export async function insertRegistration(
 	}
 	await db
 		.prepare(
-			"INSERT INTO registrations (id,email,referral_source,status,locale,created_at,updated_at) VALUES (?,?,?,?,?,?,?)",
+			"INSERT INTO registrations (id,email,referral_source,status,locale,created_at,updated_at) VALUES (?,?,?,?,?,?,?)"
 		)
 		.bind(
 			reg.id,
@@ -52,7 +52,7 @@ export async function insertRegistration(
 			reg.status,
 			reg.locale,
 			reg.createdAt,
-			reg.updatedAt,
+			reg.updatedAt
 		)
 		.run();
 }
@@ -68,7 +68,7 @@ export type SearchParams = {
 
 export async function searchRegistrations(
 	db: AnyD1Database | MemoryDB,
-	params: SearchParams,
+	params: SearchParams
 ) {
 	if (isMemory(db)) {
 		let items = [...db.registrations];
@@ -114,7 +114,7 @@ export async function searchRegistrations(
 	const whereSql = where.length ? `WHERE ${where.join(" AND")}` : "";
 	const itemsStmt = db
 		.prepare(
-			`SELECT id, email, referral_source AS referralSource, status, locale, created_at AS createdAt, updated_at AS updatedAt FROM registrations ${whereSql} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
+			`SELECT id, email, referral_source AS referralSource, status, locale, created_at AS createdAt, updated_at AS updatedAt FROM registrations ${whereSql} ORDER BY created_at DESC LIMIT ? OFFSET ?`
 		)
 		.bind(...binds, params.limit, params.offset);
 	const items = (await itemsStmt.all<RegistrationRecord>()).results as

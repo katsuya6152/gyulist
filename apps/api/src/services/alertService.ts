@@ -4,7 +4,7 @@ import {
 	findCalvingOverdue,
 	findCalvingWithin60,
 	findEstrusOver20NotPregnant,
-	findOpenDaysOver60NoAI,
+	findOpenDaysOver60NoAI
 } from "../repositories/alertRepository";
 
 export type DerivedAlert = {
@@ -27,22 +27,22 @@ export async function getAlerts(db: AnyD1Database, ownerUserId: number) {
 	const openDaysRows: RawAlertRow[] = await findOpenDaysOver60NoAI(
 		db,
 		ownerUserId,
-		nowIso,
+		nowIso
 	);
 	const calvingSoonRows: RawAlertRow[] = await findCalvingWithin60(
 		db,
 		ownerUserId,
-		nowIso,
+		nowIso
 	);
 	const calvingOverdueRows: RawAlertRow[] = await findCalvingOverdue(
 		db,
 		ownerUserId,
-		nowIso,
+		nowIso
 	);
 	const estrusRows: RawAlertRow[] = await findEstrusOver20NotPregnant(
 		db,
 		ownerUserId,
-		nowIso,
+		nowIso
 	);
 
 	const alerts: DerivedAlert[] = [];
@@ -56,7 +56,7 @@ export async function getAlerts(db: AnyD1Database, ownerUserId: number) {
 			cattleName: r.cattleName ?? null,
 			cattleEarTagNumber: r.cattleEarTagNumber ?? null,
 			dueAt: r.dueAt ?? null,
-			message: "最終分娩から60日以上、人工授精未実施",
+			message: "最終分娩から60日以上、人工授精未実施"
 		});
 	}
 
@@ -69,7 +69,7 @@ export async function getAlerts(db: AnyD1Database, ownerUserId: number) {
 			cattleName: r.cattleName ?? null,
 			cattleEarTagNumber: r.cattleEarTagNumber ?? null,
 			dueAt: r.dueAt ?? null,
-			message: "分娩予定日まで60日以内（エサ強化）",
+			message: "分娩予定日まで60日以内（エサ強化）"
 		});
 	}
 
@@ -82,7 +82,7 @@ export async function getAlerts(db: AnyD1Database, ownerUserId: number) {
 			cattleName: r.cattleName ?? null,
 			cattleEarTagNumber: r.cattleEarTagNumber ?? null,
 			dueAt: r.dueAt ?? null,
-			message: "分娩予定日を経過",
+			message: "分娩予定日を経過"
 		});
 	}
 
@@ -95,7 +95,7 @@ export async function getAlerts(db: AnyD1Database, ownerUserId: number) {
 			cattleName: r.cattleName ?? null,
 			cattleEarTagNumber: r.cattleEarTagNumber ?? null,
 			dueAt: r.dueAt ?? null,
-			message: "発情から20日経過（再発情を確認）",
+			message: "発情から20日経過（再発情を確認）"
 		});
 	}
 
@@ -103,7 +103,7 @@ export async function getAlerts(db: AnyD1Database, ownerUserId: number) {
 	const severityOrder: Record<DerivedAlert["severity"], number> = {
 		high: 3,
 		medium: 2,
-		low: 1,
+		low: 1
 	};
 
 	alerts.sort((a, b) => {

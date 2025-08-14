@@ -72,10 +72,10 @@ describe("EventRepository", () => {
 			const result4 = eventRepository.createEvent(mockDb, {
 				cattleId: 1,
 				eventType: "VACCINATION",
-				eventDatetime: "2024-01-01T00:00:00Z",
+				eventDatetime: "2024-01-01T00:00:00Z"
 			});
 			const result5 = eventRepository.updateEvent(mockDb, 1, {
-				eventType: "VACCINATION",
+				eventType: "VACCINATION"
 			});
 			const result6 = eventRepository.deleteEvent(mockDb, 1);
 
@@ -93,7 +93,7 @@ describe("EventRepository", () => {
 				result3,
 				result4,
 				result5,
-				result6,
+				result6
 			]);
 		});
 	});

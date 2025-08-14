@@ -8,14 +8,14 @@ import {
 	getCattleStatusCounts,
 	searchCattleList,
 	updateCattleData,
-	updateStatus,
+	updateStatus
 } from "../services/cattleService";
 import type { Bindings } from "../types";
 import {
 	createCattleSchema,
 	searchCattleSchema,
 	updateCattleSchema,
-	updateStatusSchema,
+	updateStatusSchema
 } from "../validators/cattleValidator";
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -71,7 +71,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 		// ownerUserIdをJWTペイロードから設定
 		const cattleData = {
 			...data,
-			ownerUserId: userId,
+			ownerUserId: userId
 		};
 
 		const result = await createNewCattle(c.env.DB, cattleData);
@@ -117,7 +117,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 			cattleId,
 			status,
 			userId,
-			reason ?? undefined,
+			reason ?? undefined
 		);
 		return c.json(result);
 	})

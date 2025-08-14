@@ -4,7 +4,7 @@ import { createDemoResponse, isDemo } from "@/lib/api-client";
 import { verifyAndGetUserId } from "@/lib/jwt";
 import {
 	UpdateCattleDetailed,
-	type UpdateCattleInput,
+	type UpdateCattleInput
 } from "@/services/cattleService";
 import { parseWithZod } from "@conform-to/zod";
 import { redirect } from "next/navigation";
@@ -12,10 +12,10 @@ import { updateCattleSchema } from "./schema";
 
 export async function updateCattleAction(
 	prevState: unknown,
-	formData: FormData,
+	formData: FormData
 ) {
 	const submission = parseWithZod(formData, {
-		schema: updateCattleSchema,
+		schema: updateCattleSchema
 	});
 
 	if (submission.status !== "success") {
@@ -34,7 +34,7 @@ export async function updateCattleAction(
 		const cattleId = formData.get("cattleId") as string;
 		if (!cattleId) {
 			return submission.reply({
-				formErrors: ["牛のIDが見つかりません"],
+				formErrors: ["牛のIDが見つかりません"]
 			});
 		}
 
@@ -62,7 +62,7 @@ export async function updateCattleAction(
 						motherGrandFatherCattleName:
 							data.bloodline.motherGrandFatherCattleName || null,
 						motherGreatGrandFatherCattleName:
-							data.bloodline.motherGreatGrandFatherCattleName || null,
+							data.bloodline.motherGreatGrandFatherCattleName || null
 					}
 				: undefined,
 			// 繁殖状態（手動入力項目のみ）
@@ -79,9 +79,9 @@ export async function updateCattleAction(
 						daysAfterInsemination: null,
 						inseminationCount: null,
 						breedingMemo: data.breedingStatus.breedingMemo || null,
-						isDifficultBirth: data.breedingStatus.isDifficultBirth ?? null,
+						isDifficultBirth: data.breedingStatus.isDifficultBirth ?? null
 					}
-				: undefined,
+				: undefined
 		};
 
 		await UpdateCattleDetailed(cattleId, apiData);
@@ -100,7 +100,7 @@ export async function updateCattleAction(
 		}
 
 		return submission.reply({
-			formErrors: ["牛の更新に失敗しました"],
+			formErrors: ["牛の更新に失敗しました"]
 		});
 	}
 }

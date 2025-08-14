@@ -6,7 +6,7 @@ import {
 	type FakeStore,
 	createEmptyStore,
 	createFakeD1,
-	createFakeDrizzle,
+	createFakeDrizzle
 } from "./helpers/fakeDrizzle";
 
 // Mock drizzle to use in-memory store (same pattern as cattle E2E)
@@ -18,7 +18,7 @@ vi.mock("drizzle-orm/d1", async () => {
 		drizzle: (_db: AnyD1Database) => createFakeDrizzle(currentStore),
 		__setStore: (s: FakeStore) => {
 			currentStore = s;
-		},
+		}
 	};
 });
 
@@ -35,13 +35,13 @@ if (!g.btoa)
 
 const makeJwt = (payload: Record<string, unknown>) => {
 	const header = Buffer.from(
-		JSON.stringify({ alg: "none", typ: "JWT" }),
+		JSON.stringify({ alg: "none", typ: "JWT" })
 	).toString("base64");
 	const body = Buffer.from(JSON.stringify(payload)).toString("base64");
 	return `${header}.${body}.sig`;
 };
 const authHeaders = {
-	Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`,
+	Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`
 };
 
 const createTestApp = (store: FakeStore) => {
@@ -60,7 +60,7 @@ const createTestApp = (store: FakeStore) => {
 			TURNSTILE_SECRET_KEY: "",
 			ADMIN_USER: "a",
 			ADMIN_PASS: "b",
-			WEB_ORIGIN: "http://localhost:3000",
+			WEB_ORIGIN: "http://localhost:3000"
 		} as unknown as Bindings;
 		await next();
 	});
@@ -71,8 +71,8 @@ const createTestApp = (store: FakeStore) => {
 		app.route(
 			"/events",
 			(mod as { default: unknown }).default as typeof import(
-				"../../src/routes/events",
-			).default,
+				"../../src/routes/events"
+			).default
 		);
 		return app;
 	});
@@ -111,7 +111,7 @@ describe("Events API E2E (no mocks)", () => {
 			breedingValue: null,
 			notes: null,
 			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString()
 		} as (typeof store.cattle)[number]);
 		app = await createTestApp(store);
 	});
@@ -126,12 +126,12 @@ describe("Events API E2E (no mocks)", () => {
 			cattleId: 1,
 			eventType: "CALVING" as const,
 			eventDatetime: new Date().toISOString(),
-			notes: "出産",
+			notes: "出産"
 		};
 		const res = await app.request("/events", {
 			method: "POST",
 			headers: { "Content-Type": "application/json", ...authHeaders },
-			body: JSON.stringify(payload),
+			body: JSON.stringify(payload)
 		});
 		expect(res.status).toBe(201);
 		const created = await res.json();
@@ -149,7 +149,7 @@ describe("Events API E2E (no mocks)", () => {
 			eventDatetime: "2024-01-01T00:00:00Z",
 			notes: null,
 			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString()
 		} as (typeof store.events)[number]);
 		store.events.push({
 			eventId: 2,
@@ -158,7 +158,7 @@ describe("Events API E2E (no mocks)", () => {
 			eventDatetime: "2024-02-01T00:00:00Z",
 			notes: null,
 			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString()
 		} as (typeof store.events)[number]);
 
 		const res = await app.request("/events?limit=1", { headers: authHeaders });
@@ -183,14 +183,14 @@ describe("Events API E2E (no mocks)", () => {
 				cattleId: 1,
 				eventType: "ESTRUS",
 				eventDatetime: new Date().toISOString(),
-				notes: "",
-			}),
+				notes: ""
+			})
 		});
 		const created = await createRes.json();
 		const res = await app.request(`/events/${String(created.eventId)}`, {
 			method: "PATCH",
 			headers: { "Content-Type": "application/json", ...authHeaders },
-			body: JSON.stringify({ notes: "更新" }),
+			body: JSON.stringify({ notes: "更新" })
 		});
 		expect(res.status).toBe(200);
 	});
@@ -204,13 +204,13 @@ describe("Events API E2E (no mocks)", () => {
 				cattleId: 1,
 				eventType: "ESTRUS",
 				eventDatetime: new Date().toISOString(),
-				notes: "",
-			}),
+				notes: ""
+			})
 		});
 		const created = await createRes.json();
 		const delRes = await app.request(`/events/${String(created.eventId)}`, {
 			method: "DELETE",
-			headers: authHeaders,
+			headers: authHeaders
 		});
 		expect(delRes.status).toBe(200);
 	});

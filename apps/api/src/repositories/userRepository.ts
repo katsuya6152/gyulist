@@ -10,7 +10,7 @@ export async function findUserById(dbInstance: AnyD1Database, id: number) {
 
 export async function findUserByEmail(
 	dbInstance: AnyD1Database,
-	email: string,
+	email: string
 ) {
 	const db = drizzle(dbInstance);
 	const results = await db.select().from(users).where(eq(users.email, email));
@@ -20,7 +20,7 @@ export async function findUserByEmail(
 export async function createUser(
 	dbInstance: AnyD1Database,
 	email: string,
-	verificationToken: string,
+	verificationToken: string
 ) {
 	const db = drizzle(dbInstance);
 	await db.insert(users).values({
@@ -28,13 +28,13 @@ export async function createUser(
 		passwordHash: "", // 仮のパスワードハッシュ
 		isVerified: false,
 		verificationToken,
-		createdAt: new Date().toISOString(),
+		createdAt: new Date().toISOString()
 	});
 }
 
 export async function findUserByVerificationToken(
 	dbInstance: AnyD1Database,
-	token: string,
+	token: string
 ) {
 	const db = drizzle(dbInstance);
 	const result = await db
@@ -48,7 +48,7 @@ export async function completeUserRegistration(
 	dbInstance: AnyD1Database,
 	token: string,
 	name: string,
-	passwordHash: string,
+	passwordHash: string
 ) {
 	const db = drizzle(dbInstance);
 	await db
@@ -57,20 +57,20 @@ export async function completeUserRegistration(
 			userName: name,
 			passwordHash: passwordHash,
 			isVerified: true,
-			verificationToken: null,
+			verificationToken: null
 		})
 		.where(eq(users.verificationToken, token));
 }
 
 export async function updateLastLoginAt(
 	dbInstance: AnyD1Database,
-	userId: number,
+	userId: number
 ) {
 	const db = drizzle(dbInstance);
 	await db
 		.update(users)
 		.set({
-			lastLoginAt: new Date().toISOString(),
+			lastLoginAt: new Date().toISOString()
 		})
 		.where(eq(users.id, userId));
 }
@@ -78,14 +78,14 @@ export async function updateLastLoginAt(
 export async function updateUserTheme(
 	dbInstance: AnyD1Database,
 	userId: number,
-	theme: string,
+	theme: string
 ) {
 	const db = drizzle(dbInstance);
 	await db
 		.update(users)
 		.set({
 			theme,
-			updatedAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString()
 		})
 		.where(eq(users.id, userId));
 }

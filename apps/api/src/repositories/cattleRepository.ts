@@ -9,11 +9,11 @@ import {
 	breedingSummary,
 	cattle,
 	cattleStatusHistory,
-	motherInfo,
+	motherInfo
 } from "../db/schema";
 import type {
 	CreateCattleInput,
-	UpdateCattleInput,
+	UpdateCattleInput
 } from "../validators/cattleValidator";
 
 export async function findCattleList(db: AnyD1Database, ownerUserId: number) {
@@ -36,7 +36,7 @@ export async function searchCattle(
 		growth_stage?: string[];
 		gender?: string[];
 		status?: string[];
-	},
+	}
 ) {
 	const dbInstance = drizzle(db);
 	const conditions = [eq(cattle.ownerUserId, ownerUserId)];
@@ -44,7 +44,7 @@ export async function searchCattle(
 	// 検索キーワード
 	if (query.search) {
 		conditions.push(
-			sql`(${cattle.name} LIKE ${`%${query.search}%`} OR CAST(${cattle.identificationNumber} AS TEXT) LIKE ${`%${query.search}%`} OR CAST(${cattle.earTagNumber} AS TEXT) LIKE ${`%${query.search}%`})`,
+			sql`(${cattle.name} LIKE ${`%${query.search}%`} OR CAST(${cattle.identificationNumber} AS TEXT) LIKE ${`%${query.search}%`} OR CAST(${cattle.earTagNumber} AS TEXT) LIKE ${`%${query.search}%`})`
 		);
 	}
 
@@ -85,7 +85,7 @@ export async function searchCattle(
 		.orderBy(
 			query.sort_order === "desc"
 				? desc(getSortColumn(query.sort_by))
-				: asc(getSortColumn(query.sort_by)),
+				: asc(getSortColumn(query.sort_by))
 		)
 		.limit(query.limit + 1);
 
@@ -115,7 +115,7 @@ export async function findCattleById(db: AnyD1Database, cattleId: number) {
 			motherInfo: motherInfo,
 			breedingStatus: breedingStatus,
 			breedingSummary: breedingSummary,
-			events: events,
+			events: events
 		})
 		.from(cattle)
 		.leftJoin(bloodline, eq(bloodline.cattleId, cattle.cattleId))
@@ -155,7 +155,7 @@ export async function findCattleById(db: AnyD1Database, cattleId: number) {
 		motherInfo: matched.motherInfo,
 		breedingStatus: matched.breedingStatus,
 		breedingSummary: matched.breedingSummary,
-		events: sortedEvents,
+		events: sortedEvents
 	};
 }
 
@@ -173,14 +173,14 @@ export async function createBloodline(
 		motherFatherCattleName?: string | null;
 		motherGrandFatherCattleName?: string | null;
 		motherGreatGrandFatherCattleName?: string | null;
-	},
+	}
 ) {
 	const dbInstance = drizzle(db);
 	const result = await dbInstance
 		.insert(bloodline)
 		.values({
 			cattleId,
-			...bloodlineData,
+			...bloodlineData
 		})
 		.returning();
 	return result[0];
@@ -200,14 +200,14 @@ export async function createBreedingStatus(
 		inseminationCount?: number | null;
 		breedingMemo?: string | null;
 		isDifficultBirth?: boolean | null;
-	},
+	}
 ) {
 	const dbInstance = drizzle(db);
 	const result = await dbInstance
 		.insert(breedingStatus)
 		.values({
 			cattleId,
-			...breedingStatusData,
+			...breedingStatusData
 		})
 		.returning();
 	return result[0];
@@ -224,14 +224,14 @@ export async function createBreedingSummary(
 		difficultBirthCount?: number | null;
 		pregnancyHeadCount?: number | null;
 		pregnancySuccessRate?: number | null;
-	},
+	}
 ) {
 	const dbInstance = drizzle(db);
 	const result = await dbInstance
 		.insert(breedingSummary)
 		.values({
 			cattleId,
-			...breedingSummaryData,
+			...breedingSummaryData
 		})
 		.returning();
 	return result[0];
@@ -240,7 +240,7 @@ export async function createBreedingSummary(
 export async function updateCattle(
 	db: AnyD1Database,
 	cattleId: number,
-	data: UpdateCattleInput,
+	data: UpdateCattleInput
 ) {
 	const dbInstance = drizzle(db);
 	const result = await dbInstance
@@ -259,7 +259,7 @@ export async function updateBloodline(
 		motherFatherCattleName?: string | null;
 		motherGrandFatherCattleName?: string | null;
 		motherGreatGrandFatherCattleName?: string | null;
-	},
+	}
 ) {
 	const dbInstance = drizzle(db);
 	// 既存の血統情報を確認
@@ -297,7 +297,7 @@ export async function updateBreedingStatus(
 		inseminationCount?: number | null;
 		breedingMemo?: string | null;
 		isDifficultBirth?: boolean | null;
-	},
+	}
 ) {
 	const dbInstance = drizzle(db);
 	// 既存の繁殖状態を確認
@@ -332,7 +332,7 @@ export async function updateBreedingSummary(
 		difficultBirthCount?: number | null;
 		pregnancyHeadCount?: number | null;
 		pregnancySuccessRate?: number | null;
-	},
+	}
 ) {
 	const dbInstance = drizzle(db);
 	// 既存の繁殖統計を確認
@@ -359,7 +359,7 @@ export async function updateBreedingSummary(
 export async function updateCattleStatus(
 	db: AnyD1Database,
 	cattleId: number,
-	status: "HEALTHY" | "PREGNANT" | "RESTING" | "TREATING" | "SHIPPED" | "DEAD",
+	status: "HEALTHY" | "PREGNANT" | "RESTING" | "TREATING" | "SHIPPED" | "DEAD"
 ) {
 	const dbInstance = drizzle(db);
 	const result = await dbInstance
@@ -378,7 +378,7 @@ export async function createStatusHistory(
 		newStatus: string;
 		changedBy: number;
 		reason?: string | null;
-	},
+	}
 ) {
 	const dbInstance = drizzle(db);
 	const result = await dbInstance
@@ -389,7 +389,7 @@ export async function createStatusHistory(
 			newStatus: data.newStatus,
 			changedBy: data.changedBy,
 			reason: data.reason ?? null,
-			changedAt: new Date().toISOString(),
+			changedAt: new Date().toISOString()
 		} as typeof cattleStatusHistory.$inferInsert)
 		.returning();
 	return result[0];
@@ -416,13 +416,13 @@ export async function deleteCattle(db: AnyD1Database, cattleId: number) {
 // ステータス別の頭数集計
 export async function countCattleByStatus(
 	db: AnyD1Database,
-	ownerUserId: number,
+	ownerUserId: number
 ) {
 	const dbInstance = drizzle(db);
 	const rows = await dbInstance
 		.select({
 			status: cattle.status,
-			count: sql<number>`COUNT(*)`.as("count"),
+			count: sql<number>`COUNT(*)`.as("count")
 		})
 		.from(cattle)
 		.where(eq(cattle.ownerUserId, ownerUserId))

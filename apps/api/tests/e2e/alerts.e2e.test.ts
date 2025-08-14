@@ -7,7 +7,7 @@ import {
 	type FakeStore,
 	createEmptyStore,
 	createFakeD1,
-	createFakeDrizzle,
+	createFakeDrizzle
 } from "./helpers/fakeDrizzle";
 
 // Replace drizzle with in-memory
@@ -19,19 +19,19 @@ vi.mock("drizzle-orm/d1", async () => {
 		drizzle: (_db: AnyD1Database) => createFakeDrizzle(currentStore),
 		__setStore: (s: FakeStore) => {
 			currentStore = s;
-		},
+		}
 	};
 });
 
 const makeJwt = (payload: Record<string, unknown>) => {
 	const header = Buffer.from(
-		JSON.stringify({ alg: "none", typ: "JWT" }),
+		JSON.stringify({ alg: "none", typ: "JWT" })
 	).toString("base64");
 	const body = Buffer.from(JSON.stringify(payload)).toString("base64");
 	return `${header}.${body}.sig`;
 };
 const authHeaders = {
-	Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`,
+	Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`
 };
 
 describe("Alerts API E2E (no mocks)", () => {
@@ -67,12 +67,12 @@ describe("Alerts API E2E (no mocks)", () => {
 			breedingValue: null,
 			notes: null,
 			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString()
 		} as unknown as FakeStore["cattle"][number]);
 
 		// events: last CALVING 70 days ago, and no AI since then
 		const lastCalving = new Date(
-			Date.now() - 70 * 24 * 60 * 60 * 1000,
+			Date.now() - 70 * 24 * 60 * 60 * 1000
 		).toISOString();
 		store.events.push({
 			eventId: 1,
@@ -81,7 +81,7 @@ describe("Alerts API E2E (no mocks)", () => {
 			eventDatetime: lastCalving,
 			notes: null,
 			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString()
 		} as unknown as FakeStore["events"][number]);
 
 		// breeding_status: no expectedCalvingDate
@@ -91,7 +91,7 @@ describe("Alerts API E2E (no mocks)", () => {
 			isPregnant: null,
 			lastInseminationDate: null,
 			lastCalvingDate: lastCalving,
-			updatedAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString()
 		} as unknown as FakeStore["breedingStatus"][number]);
 
 		setter?.(store);
@@ -110,7 +110,7 @@ describe("Alerts API E2E (no mocks)", () => {
 				TURNSTILE_SECRET_KEY: "",
 				ADMIN_USER: "a",
 				ADMIN_PASS: "b",
-				WEB_ORIGIN: "http://localhost:3000",
+				WEB_ORIGIN: "http://localhost:3000"
 			} as unknown as Bindings;
 			await next();
 		});

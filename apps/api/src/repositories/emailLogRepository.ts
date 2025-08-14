@@ -19,7 +19,7 @@ const isMemory = (db: unknown): db is MemoryDB =>
 
 export async function insertEmailLog(
 	db: AnyD1Database | MemoryDB,
-	log: EmailLogRecord,
+	log: EmailLogRecord
 ) {
 	if (isMemory(db)) {
 		db.email_logs.push(log);
@@ -27,7 +27,7 @@ export async function insertEmailLog(
 	}
 	await db
 		.prepare(
-			"INSERT INTO email_logs (id,email,type,http_status,resend_id,error,created_at) VALUES (?,?,?,?,?,?,?)",
+			"INSERT INTO email_logs (id,email,type,http_status,resend_id,error,created_at) VALUES (?,?,?,?,?,?,?)"
 		)
 		.bind(
 			log.id,
@@ -36,7 +36,7 @@ export async function insertEmailLog(
 			log.httpStatus ?? null,
 			log.resendId ?? null,
 			log.error ?? null,
-			log.createdAt,
+			log.createdAt
 		)
 		.run();
 }

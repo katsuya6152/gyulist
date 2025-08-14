@@ -8,7 +8,7 @@ import {
 	endOfMonth,
 	format,
 	startOfDay,
-	startOfMonth,
+	startOfMonth
 } from "date-fns";
 import { HomePresentation } from "./presentational";
 
@@ -30,8 +30,8 @@ export default async function HomeContainer() {
 				GetAlerts(),
 				GetBreedingKpi({ from: monthStart, to: monthEnd }),
 				// 前月比のみ必要なので delta API を利用
-				GetBreedingKpiDelta({ month: format(today, "yyyy-MM") }),
-			],
+				GetBreedingKpiDelta({ month: format(today, "yyyy-MM") })
+			]
 		);
 		return (
 			<HomePresentation
@@ -59,14 +59,14 @@ export default async function HomeContainer() {
 					RESTING: 0,
 					TREATING: 0,
 					SHIPPED: 0,
-					DEAD: 0,
+					DEAD: 0
 				}}
 				alerts={[]}
 				breedingKpi={{
 					conceptionRate: null,
 					avgDaysOpen: null,
 					avgCalvingInterval: null,
-					aiPerConception: null,
+					aiPerConception: null
 				}}
 				kpiTrendDeltas={[]}
 				error="データ取得に失敗しました"

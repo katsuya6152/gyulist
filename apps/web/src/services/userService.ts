@@ -11,13 +11,13 @@ export async function getUserById(userId: number): Promise<GetUserResType> {
 	return fetchWithAuth<GetUserResType>((token) =>
 		client.api.v1.users[":id"].$get(
 			{
-				param: { id: userId.toString() },
+				param: { id: userId.toString() }
 			},
 			{
 				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			},
-		),
+					Authorization: `Bearer ${token}`
+				}
+			}
+		)
 	);
 }

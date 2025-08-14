@@ -3,14 +3,14 @@ import { sendCompletionEmail } from "../lib/resend";
 import { verifyTurnstile } from "../lib/turnstile";
 import {
 	type EmailLogRecord,
-	insertEmailLog,
+	insertEmailLog
 } from "../repositories/emailLogRepository";
 import {
 	type RegistrationRecord,
 	type SearchParams,
 	findRegistrationByEmail,
 	insertRegistration,
-	searchRegistrations,
+	searchRegistrations
 } from "../repositories/registrationRepository";
 import type { Bindings } from "../types";
 import type { PreRegisterInput } from "../validators/preRegisterValidator";
@@ -20,11 +20,11 @@ export async function preRegister(
 	db:
 		| AnyD1Database
 		| { registrations: RegistrationRecord[]; email_logs: EmailLogRecord[] },
-	input: PreRegisterInput,
+	input: PreRegisterInput
 ) {
 	const valid = await verifyTurnstile(
 		env.TURNSTILE_SECRET_KEY,
-		input.turnstileToken,
+		input.turnstileToken
 	);
 	if (!valid) {
 		console.error("Turnstile validation failed");
@@ -33,8 +33,8 @@ export async function preRegister(
 			body: {
 				ok: false,
 				code: "TURNSTILE_FAILED",
-				message: "Turnstile failed",
-			},
+				message: "Turnstile failed"
+			}
 		};
 	}
 	try {
@@ -50,7 +50,7 @@ export async function preRegister(
 			status: "confirmed",
 			locale: "ja",
 			createdAt: now,
-			updatedAt: now,
+			updatedAt: now
 		};
 		await insertRegistration(db, reg);
 		try {
@@ -59,7 +59,7 @@ export async function preRegister(
 				env.RESEND_API_KEY,
 				mailFrom,
 				input.email,
-				input.referralSource ?? null,
+				input.referralSource ?? null
 			);
 			await insertEmailLog(db, {
 				id: crypto.randomUUID(),
@@ -68,7 +68,7 @@ export async function preRegister(
 				httpStatus: 200,
 				resendId: result.id,
 				error: null,
-				createdAt: now,
+				createdAt: now
 			});
 		} catch (err) {
 			console.error(err);
@@ -79,11 +79,11 @@ export async function preRegister(
 				httpStatus: undefined,
 				resendId: null,
 				error: (err as Error).message,
-				createdAt: now,
+				createdAt: now
 			});
 			return {
 				status: 502,
-				body: { ok: false, code: "RESEND_FAILED", message: "Resend failed" },
+				body: { ok: false, code: "RESEND_FAILED", message: "Resend failed" }
 			};
 		}
 		return { status: 200, body: { ok: true } };
@@ -91,14 +91,14 @@ export async function preRegister(
 		console.error(err);
 		return {
 			status: 500,
-			body: { ok: false, code: "INTERNAL_ERROR", message: "Internal error" },
+			body: { ok: false, code: "INTERNAL_ERROR", message: "Internal error" }
 		};
 	}
 }
 
 export async function listRegistrations(
 	db: AnyD1Database | { registrations: RegistrationRecord[] },
-	params: SearchParams,
+	params: SearchParams
 ) {
 	return searchRegistrations(db, params);
 }

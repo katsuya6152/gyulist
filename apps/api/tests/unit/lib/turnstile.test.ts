@@ -7,8 +7,8 @@ describe("verifyTurnstile", () => {
 			"fetch",
 			vi.fn().mockResolvedValue({
 				ok: true,
-				json: async () => ({ success: true }),
-			}),
+				json: async () => ({ success: true })
+			})
 		);
 		const result = await verifyTurnstile("secret", "token");
 		expect(result).toBe(true);
@@ -17,10 +17,10 @@ describe("verifyTurnstile", () => {
 	it("throws on network error", async () => {
 		vi.stubGlobal(
 			"fetch",
-			vi.fn().mockResolvedValue({ ok: false, status: 500 }),
+			vi.fn().mockResolvedValue({ ok: false, status: 500 })
 		);
 		await expect(verifyTurnstile("secret", "token")).rejects.toThrow(
-			/turnstile/,
+			/turnstile/
 		);
 	});
 
@@ -29,8 +29,8 @@ describe("verifyTurnstile", () => {
 			"fetch",
 			vi.fn().mockResolvedValue({
 				ok: true,
-				json: async () => ({ success: false }),
-			}),
+				json: async () => ({ success: false })
+			})
 		);
 		const result = await verifyTurnstile("secret", "token");
 		expect(result).toBe(false);

@@ -8,5 +8,5 @@ export type MemoryDB = {
 
 export const createMemoryDB = (): MemoryDB => ({
 	registrations: [],
-	email_logs: [],
+	email_logs: []
 });

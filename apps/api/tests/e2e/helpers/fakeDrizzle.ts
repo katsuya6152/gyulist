@@ -7,7 +7,7 @@ import {
 	cattle,
 	cattleStatusHistory,
 	motherInfo,
-	users,
+	users
 } from "../../../src/db/schema";
 
 type CattleRow = typeof cattle.$inferSelect;
@@ -60,7 +60,7 @@ export function createEmptyStore(): FakeStore {
 		statusHistory: [],
 		users: [],
 		registrations: [],
-		emailLogs: [],
+		emailLogs: []
 	};
 }
 
@@ -105,7 +105,7 @@ export function createFakeDrizzle(store: FakeStore) {
 						breedingSummary:
 							store.breedingSummary.find((s) => s.cattleId === c.cattleId) ??
 							null,
-						events: store.events.find((e) => e.cattleId === c.cattleId) ?? null,
+						events: store.events.find((e) => e.cattleId === c.cattleId) ?? null
 					}));
 					// provide groupBy for count queries
 					const groupable: Record<string, unknown> = rows as unknown as Record<
@@ -121,7 +121,7 @@ export function createFakeDrizzle(store: FakeStore) {
 							}
 							return Object.entries(counts).map(([status, count]) => ({
 								status,
-								count,
+								count
 							}));
 						};
 					return groupable as unknown;
@@ -141,7 +141,7 @@ export function createFakeDrizzle(store: FakeStore) {
 						.sort(
 							(a, b) =>
 								new Date(b.eventDatetime).getTime() -
-								new Date(a.eventDatetime).getTime(),
+								new Date(a.eventDatetime).getTime()
 						)
 						.map((ev) => {
 							const cat = store.cattle.find((c) => c.cattleId === ev.cattleId);
@@ -155,7 +155,7 @@ export function createFakeDrizzle(store: FakeStore) {
 								updatedAt: ev.updatedAt,
 								cattleName: cat?.name ?? null,
 								cattleEarTagNumber:
-									(cat?.earTagNumber as unknown as number) ?? null,
+									(cat?.earTagNumber as unknown as number) ?? null
 							} as Record<string, unknown>;
 						});
 					// for getEventsByCattleId path, ensure we only return rows for that cattleId if possible
@@ -164,7 +164,7 @@ export function createFakeDrizzle(store: FakeStore) {
 						const cid = store.cattle[0]?.cattleId;
 						if (cid) {
 							mapped = mapped.filter(
-								(r) => (r as { cattleId: number }).cattleId === cid,
+								(r) => (r as { cattleId: number }).cattleId === cid
 							);
 						}
 					}
@@ -210,7 +210,7 @@ export function createFakeDrizzle(store: FakeStore) {
 				(chain as { orderBy: () => unknown }).orderBy = () => chain;
 				// naive cursor pagination simulation for cattle list: return a window that advances by (n-1) each call
 				(chain as { limit: (n: number) => Promise<unknown> }).limit = async (
-					n: number,
+					n: number
 				) => {
 					if (isTable(fromTable, cattle) && typeof n === "number") {
 						// module-scoped offset
@@ -222,7 +222,7 @@ export function createFakeDrizzle(store: FakeStore) {
 						: (listForTable as unknown);
 				};
 				(chain as { groupBy?: (_: unknown) => unknown[] }).groupBy = (
-					_grp: unknown,
+					_grp: unknown
 				) => {
 					// simple groupBy for cattle.status counts
 					if (isTable(fromTable, cattle)) {
@@ -233,7 +233,7 @@ export function createFakeDrizzle(store: FakeStore) {
 						}
 						return Object.entries(counts).map(([status, count]) => ({
 							status,
-							count,
+							count
 						}));
 					}
 					return [] as unknown[];
@@ -258,7 +258,7 @@ export function createFakeDrizzle(store: FakeStore) {
 				if (isTable(fromTable, cattle) && typeof n === "number") {
 					const window = getCattleWindow(
 						list as unknown as FakeStore["cattle"],
-						n,
+						n
 					);
 					return window as unknown;
 				}
@@ -277,7 +277,7 @@ export function createFakeDrizzle(store: FakeStore) {
 								const nextId = (store.cattle.at(-1)?.cattleId ?? 0) + 1;
 								const row = {
 									...(val as object),
-									cattleId: nextId,
+									cattleId: nextId
 								} as CattleRow;
 								store.cattle.push(row);
 								return [row];
@@ -307,7 +307,7 @@ export function createFakeDrizzle(store: FakeStore) {
 								const nextId = ((store.users ?? []).at(-1)?.id ?? 0) + 1;
 								const row = {
 									id: nextId,
-									...(val as object),
+									...(val as object)
 								} as unknown as UserRow;
 								if (!store.users) {
 									store.users = [];
@@ -321,9 +321,9 @@ export function createFakeDrizzle(store: FakeStore) {
 								return [row];
 							}
 							return [{}];
-						},
+						}
 					};
-				},
+				}
 			};
 		},
 		update(tbl: unknown) {
@@ -338,7 +338,7 @@ export function createFakeDrizzle(store: FakeStore) {
 										if (current) {
 											const updated = {
 												...current,
-												...(val as object),
+												...(val as object)
 											} as CattleRow;
 											store.cattle[0] = updated;
 											return [updated];
@@ -348,7 +348,7 @@ export function createFakeDrizzle(store: FakeStore) {
 										if (store.breedingStatus[0]) {
 											store.breedingStatus[0] = {
 												...store.breedingStatus[0],
-												...(val as object),
+												...(val as object)
 											} as BreedingStatusRow;
 											return [store.breedingStatus[0]];
 										}
@@ -357,7 +357,7 @@ export function createFakeDrizzle(store: FakeStore) {
 										if (store.breedingSummary[0]) {
 											store.breedingSummary[0] = {
 												...store.breedingSummary[0],
-												...(val as object),
+												...(val as object)
 											} as BreedingSummaryRow;
 											return [store.breedingSummary[0]];
 										}
@@ -366,7 +366,7 @@ export function createFakeDrizzle(store: FakeStore) {
 										if (store.bloodline[0]) {
 											store.bloodline[0] = {
 												...store.bloodline[0],
-												...(val as object),
+												...(val as object)
 											} as BloodlineRow;
 											return [store.bloodline[0]];
 										}
@@ -375,19 +375,19 @@ export function createFakeDrizzle(store: FakeStore) {
 										if (store.users?.[0]) {
 											store.users[0] = {
 												...store.users[0],
-												...(val as object),
+												...(val as object)
 											} as UserRow;
 											return [
-												store.users[0] as unknown as Record<string, unknown>,
+												store.users[0] as unknown as Record<string, unknown>
 											];
 										}
 									}
 									return [{}];
-								},
+								}
 							};
-						},
+						}
 					};
-				},
+				}
 			};
 		},
 		delete(tbl: unknown) {
@@ -411,9 +411,9 @@ export function createFakeDrizzle(store: FakeStore) {
 					if (isTable(tbl, motherInfo)) {
 						store.motherInfo = [] as MotherInfoRow[];
 					}
-				},
+				}
 			};
-		},
+		}
 	} satisfies Record<string, unknown>;
 }
 
@@ -465,21 +465,20 @@ export function createFakeD1(store?: FakeStore): AnyD1Database {
 						.filter((e) =>
 							(store?.cattle ?? []).some(
 								(c) =>
-									c.cattleId === e.cattleId && c.ownerUserId === ownerUserId,
-							),
+									c.cattleId === e.cattleId && c.ownerUserId === ownerUserId
+							)
 						)
 						.filter(
-							(e) =>
-								e.eventType === "INSEMINATION" || e.eventType === "CALVING",
+							(e) => e.eventType === "INSEMINATION" || e.eventType === "CALVING"
 						)
 						.filter((e) => {
 							const t = new Date(e.eventDatetime);
 							// emulate julianday(e) between from-500 and to+300
 							const lower = new Date(
-								windowFrom.getTime() - 500 * 24 * 60 * 60 * 1000,
+								windowFrom.getTime() - 500 * 24 * 60 * 60 * 1000
 							);
 							const upper = new Date(
-								windowTo.getTime() + 300 * 24 * 60 * 60 * 1000,
+								windowTo.getTime() + 300 * 24 * 60 * 60 * 1000
 							);
 							return t >= lower && t <= upper;
 						})
@@ -487,12 +486,12 @@ export function createFakeD1(store?: FakeStore): AnyD1Database {
 							(a, b) =>
 								a.cattleId - b.cattleId ||
 								new Date(a.eventDatetime).getTime() -
-									new Date(b.eventDatetime).getTime(),
+									new Date(b.eventDatetime).getTime()
 						)
 						.map((e) => ({
 							cattleId: e.cattleId,
 							eventType: e.eventType,
-							eventDatetime: e.eventDatetime,
+							eventDatetime: e.eventDatetime
 						})) as unknown[];
 					return { results: rows };
 				}
@@ -504,12 +503,12 @@ export function createFakeD1(store?: FakeStore): AnyD1Database {
 					const now = new Date(nowIso);
 					const results = (store?.cattle ?? [])
 						.filter(
-							(c) => c.ownerUserId === ownerUserId && c.status !== "PREGNANT",
+							(c) => c.ownerUserId === ownerUserId && c.status !== "PREGNANT"
 						)
 						.map((c) => {
 							const lastCalving = (store?.events ?? [])
 								.filter(
-									(e) => e.cattleId === c.cattleId && e.eventType === "CALVING",
+									(e) => e.cattleId === c.cattleId && e.eventType === "CALVING"
 								)
 								.map((e) => new Date(e.eventDatetime))
 								.sort((a, b) => b.getTime() - a.getTime())[0];
@@ -520,10 +519,10 @@ export function createFakeD1(store?: FakeStore): AnyD1Database {
 								(e) =>
 									e.cattleId === c.cattleId &&
 									e.eventType === "INSEMINATION" &&
-									new Date(e.eventDatetime) > lastCalving,
+									new Date(e.eventDatetime) > lastCalving
 							);
 							const bs = (store?.breedingStatus ?? []).find(
-								(s) => s.cattleId === c.cattleId,
+								(s) => s.cattleId === c.cattleId
 							);
 							const okBs =
 								!bs?.expectedCalvingDate ||
@@ -533,7 +532,7 @@ export function createFakeD1(store?: FakeStore): AnyD1Database {
 									cattleId: c.cattleId,
 									cattleName: c.name ?? null,
 									cattleEarTagNumber: String(c.earTagNumber ?? ""),
-									dueAt: lastCalving.toISOString(),
+									dueAt: lastCalving.toISOString()
 								} as unknown;
 							}
 							return null;
@@ -557,8 +556,8 @@ export function createFakeD1(store?: FakeStore): AnyD1Database {
 								bs.expectedCalvingDate &&
 								(store?.cattle ?? []).some(
 									(c) =>
-										c.cattleId === bs.cattleId && c.ownerUserId === ownerUserId,
-								),
+										c.cattleId === bs.cattleId && c.ownerUserId === ownerUserId
+								)
 						)
 						.filter((bs) => {
 							const d = new Date(String(bs.expectedCalvingDate));
@@ -566,14 +565,14 @@ export function createFakeD1(store?: FakeStore): AnyD1Database {
 						})
 						.map((bs) => {
 							const c = (store?.cattle ?? []).find(
-								(x) => x.cattleId === bs.cattleId,
+								(x) => x.cattleId === bs.cattleId
 							);
 							if (!c) return null as unknown;
 							return {
 								cattleId: c.cattleId,
 								cattleName: c.name ?? null,
 								cattleEarTagNumber: String(c.earTagNumber ?? ""),
-								dueAt: bs.expectedCalvingDate,
+								dueAt: bs.expectedCalvingDate
 							} as unknown;
 						})
 						.filter(Boolean) as unknown[];
@@ -596,20 +595,20 @@ export function createFakeD1(store?: FakeStore): AnyD1Database {
 									(c) =>
 										c.cattleId === bs.cattleId &&
 										c.ownerUserId === ownerUserId &&
-										c.status !== "RESTING",
-								),
+										c.status !== "RESTING"
+								)
 						)
 						.filter((bs) => new Date(String(bs.expectedCalvingDate)) < now)
 						.map((bs) => {
 							const c = (store?.cattle ?? []).find(
-								(x) => x.cattleId === bs.cattleId,
+								(x) => x.cattleId === bs.cattleId
 							);
 							if (!c) return null as unknown;
 							return {
 								cattleId: c.cattleId,
 								cattleName: c.name ?? null,
 								cattleEarTagNumber: String(c.earTagNumber ?? ""),
-								dueAt: bs.expectedCalvingDate,
+								dueAt: bs.expectedCalvingDate
 							} as unknown;
 						})
 						.filter(Boolean) as unknown[];
@@ -622,12 +621,12 @@ export function createFakeD1(store?: FakeStore): AnyD1Database {
 					const now = new Date(nowIso);
 					const results = (store?.cattle ?? [])
 						.filter(
-							(c) => c.ownerUserId === ownerUserId && c.status !== "PREGNANT",
+							(c) => c.ownerUserId === ownerUserId && c.status !== "PREGNANT"
 						)
 						.map((c) => {
 							const last = (store?.events ?? [])
 								.filter(
-									(e) => e.cattleId === c.cattleId && e.eventType === "ESTRUS",
+									(e) => e.cattleId === c.cattleId && e.eventType === "ESTRUS"
 								)
 								.map((e) => new Date(e.eventDatetime))
 								.sort((a, b) => b.getTime() - a.getTime())[0];
@@ -639,7 +638,7 @@ export function createFakeD1(store?: FakeStore): AnyD1Database {
 									cattleId: c.cattleId,
 									cattleName: c.name ?? null,
 									cattleEarTagNumber: String(c.earTagNumber ?? ""),
-									dueAt: last.toISOString(),
+									dueAt: last.toISOString()
 								} as unknown;
 							}
 							return null;
@@ -666,7 +665,7 @@ export function createFakeD1(store?: FakeStore): AnyD1Database {
 							status,
 							locale,
 							createdAt,
-							updatedAt,
+							updatedAt
 						] = this._binds as [
 							string,
 							string,
@@ -674,7 +673,7 @@ export function createFakeD1(store?: FakeStore): AnyD1Database {
 							string,
 							string,
 							number,
-							number,
+							number
 						];
 						if (!store.registrations) store.registrations = [];
 						store.registrations.push({
@@ -684,7 +683,7 @@ export function createFakeD1(store?: FakeStore): AnyD1Database {
 							status,
 							locale,
 							createdAt,
-							updatedAt,
+							updatedAt
 						});
 					}
 				}
@@ -698,7 +697,7 @@ export function createFakeD1(store?: FakeStore): AnyD1Database {
 								number | null,
 								string | null,
 								string | null,
-								number,
+								number
 							];
 						if (!store.emailLogs) store.emailLogs = [];
 						store.emailLogs.push({
@@ -708,12 +707,12 @@ export function createFakeD1(store?: FakeStore): AnyD1Database {
 							httpStatus: httpStatus ?? undefined,
 							resendId,
 							error,
-							createdAt,
+							createdAt
 						});
 					}
 				}
 				return { success: true };
-			},
+			}
 		};
 		return statement;
 	};
@@ -724,12 +723,12 @@ export function createFakeD1(store?: FakeStore): AnyD1Database {
 let cattleWindowOffset = 0;
 function getCattleWindow(
 	list: FakeStore["cattle"],
-	n: number,
+	n: number
 ): FakeStore["cattle"] {
 	if (n <= 0) return [] as unknown as FakeStore["cattle"];
 	const dbResults = list.slice(
 		cattleWindowOffset,
-		cattleWindowOffset + n,
+		cattleWindowOffset + n
 	) as unknown as FakeStore["cattle"];
 	if (dbResults.length >= n) {
 		// advance by (limit) because repo requests (limit+1)

@@ -6,15 +6,15 @@ import type { Bindings } from "../../src/types";
 import {
 	type FakeStore,
 	createEmptyStore,
-	createFakeD1,
+	createFakeD1
 } from "./helpers/fakeDrizzle";
 
 // Mock external services used by preRegister
 vi.mock("../../src/lib/turnstile", () => ({
-	verifyTurnstile: vi.fn().mockResolvedValue(true),
+	verifyTurnstile: vi.fn().mockResolvedValue(true)
 }));
 vi.mock("../../src/lib/resend", () => ({
-	sendCompletionEmail: vi.fn().mockResolvedValue({ id: "resend-1" }),
+	sendCompletionEmail: vi.fn().mockResolvedValue({ id: "resend-1" })
 }));
 
 describe("Pre-Register API E2E", () => {
@@ -26,7 +26,7 @@ describe("Pre-Register API E2E", () => {
 		// use MemoryDB shape for registration/email logs
 		const memoryDb = {
 			registrations: [] as unknown[],
-			email_logs: [] as unknown[],
+			email_logs: [] as unknown[]
 		} as unknown as AnyD1Database;
 
 		app = new Hono<{ Bindings: Bindings }>();
@@ -43,7 +43,7 @@ describe("Pre-Register API E2E", () => {
 				TURNSTILE_SECRET_KEY: "",
 				ADMIN_USER: "a",
 				ADMIN_PASS: "b",
-				WEB_ORIGIN: "http://localhost:3000",
+				WEB_ORIGIN: "http://localhost:3000"
 			} as unknown as Bindings;
 			await next();
 		});
@@ -54,7 +54,7 @@ describe("Pre-Register API E2E", () => {
 		const res = await app.request("/pre-register", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({}),
+			body: JSON.stringify({})
 		});
 		expect([400, 422]).toContain(res.status);
 	});
@@ -63,12 +63,12 @@ describe("Pre-Register API E2E", () => {
 		const payload = {
 			email: "foo@example.com",
 			turnstileToken: "tokentoken",
-			referralSource: "twitter",
+			referralSource: "twitter"
 		};
 		const res = await app.request("/pre-register", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(payload),
+			body: JSON.stringify(payload)
 		});
 		expect(res.status).toBe(200);
 		const body = await res.json();

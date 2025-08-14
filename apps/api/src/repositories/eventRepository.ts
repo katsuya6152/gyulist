@@ -5,14 +5,14 @@ import { events, cattle } from "../db/schema";
 import type {
 	CreateEventInput,
 	SearchEventQuery,
-	UpdateEventInput,
+	UpdateEventInput
 } from "../validators/eventValidator";
 
 // イベント一覧取得（牛IDでフィルタ）
 export async function findEventsByCattleId(
 	db: AnyD1Database,
 	cattleId: number,
-	ownerUserId: number,
+	ownerUserId: number
 ) {
 	const dbInstance = drizzle(db);
 
@@ -26,12 +26,12 @@ export async function findEventsByCattleId(
 			notes: events.notes,
 			createdAt: events.createdAt,
 			updatedAt: events.updatedAt,
-			cattleName: cattle.name,
+			cattleName: cattle.name
 		})
 		.from(events)
 		.innerJoin(cattle, eq(events.cattleId, cattle.cattleId))
 		.where(
-			and(eq(events.cattleId, cattleId), eq(cattle.ownerUserId, ownerUserId)),
+			and(eq(events.cattleId, cattleId), eq(cattle.ownerUserId, ownerUserId))
 		)
 		.orderBy(desc(events.eventDatetime));
 
@@ -42,7 +42,7 @@ export async function findEventsByCattleId(
 export async function searchEvents(
 	db: AnyD1Database,
 	ownerUserId: number,
-	query: SearchEventQuery,
+	query: SearchEventQuery
 ) {
 	const dbInstance = drizzle(db);
 
@@ -78,7 +78,7 @@ export async function searchEvents(
 			createdAt: events.createdAt,
 			updatedAt: events.updatedAt,
 			cattleName: cattle.name,
-			cattleEarTagNumber: cattle.earTagNumber,
+			cattleEarTagNumber: cattle.earTagNumber
 		})
 		.from(events)
 		.innerJoin(cattle, eq(events.cattleId, cattle.cattleId))
@@ -93,7 +93,7 @@ export async function searchEvents(
 	return {
 		results,
 		nextCursor,
-		hasNext,
+		hasNext
 	};
 }
 
@@ -101,7 +101,7 @@ export async function searchEvents(
 export async function findEventById(
 	db: AnyD1Database,
 	eventId: number,
-	ownerUserId: number,
+	ownerUserId: number
 ) {
 	const dbInstance = drizzle(db);
 
@@ -115,12 +115,12 @@ export async function findEventById(
 			createdAt: events.createdAt,
 			updatedAt: events.updatedAt,
 			cattleName: cattle.name,
-			cattleEarTagNumber: cattle.earTagNumber,
+			cattleEarTagNumber: cattle.earTagNumber
 		})
 		.from(events)
 		.innerJoin(cattle, eq(events.cattleId, cattle.cattleId))
 		.where(
-			and(eq(events.eventId, eventId), eq(cattle.ownerUserId, ownerUserId)),
+			and(eq(events.eventId, eventId), eq(cattle.ownerUserId, ownerUserId))
 		)
 		.limit(1);
 
@@ -137,7 +137,7 @@ export async function createEvent(db: AnyD1Database, data: CreateEventInput) {
 			cattleId: data.cattleId,
 			eventType: data.eventType,
 			eventDatetime: data.eventDatetime,
-			notes: data.notes,
+			notes: data.notes
 		})
 		.returning();
 
@@ -148,7 +148,7 @@ export async function createEvent(db: AnyD1Database, data: CreateEventInput) {
 export async function updateEvent(
 	db: AnyD1Database,
 	eventId: number,
-	data: UpdateEventInput,
+	data: UpdateEventInput
 ) {
 	const dbInstance = drizzle(db);
 
@@ -156,7 +156,7 @@ export async function updateEvent(
 		.update(events)
 		.set({
 			...data,
-			updatedAt: sql`(datetime('now', 'utc'))`,
+			updatedAt: sql`(datetime('now', 'utc'))`
 		})
 		.where(eq(events.eventId, eventId))
 		.returning();

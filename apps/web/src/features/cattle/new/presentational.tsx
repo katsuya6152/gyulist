@@ -25,7 +25,7 @@ const calculateAgeDisplay = (birthday: string) => {
 	return {
 		daysOld: diffDays,
 		monthsOld,
-		age,
+		age
 	};
 };
 
@@ -49,7 +49,7 @@ export function CattleNewPresentation({ error }: CattleNewPresentationProps) {
 
 	const [lastResult, action, isPending] = useActionState(
 		createCattleAction,
-		null,
+		null
 	);
 
 	const [form, fields] = useForm({
@@ -59,7 +59,7 @@ export function CattleNewPresentation({ error }: CattleNewPresentationProps) {
 			return parseWithZod(formData, { schema: createCattleSchema });
 		},
 		shouldValidate: "onBlur",
-		shouldRevalidate: "onInput",
+		shouldRevalidate: "onInput"
 	});
 
 	// 生年月日と成長段階の変更を監視
@@ -103,7 +103,7 @@ export function CattleNewPresentation({ error }: CattleNewPresentationProps) {
 			) {
 				// デモアカウントの場合はトースト通知
 				toast.info("牛の登録が完了しました", {
-					description: "デモアカウントのため、実際に登録はされていません",
+					description: "デモアカウントのため、実際に登録はされていません"
 				});
 				router.push("/cattle");
 			} else if (lastResult.status === "success") {
@@ -113,8 +113,8 @@ export function CattleNewPresentation({ error }: CattleNewPresentationProps) {
 					style: {
 						background: "#f0fdf4",
 						border: "1px solid #bbf7d0",
-						color: "#166534",
-					},
+						color: "#166534"
+					}
 				});
 				router.push("/cattle");
 			} else if (lastResult.status === "error") {
@@ -124,8 +124,8 @@ export function CattleNewPresentation({ error }: CattleNewPresentationProps) {
 					style: {
 						background: "#fef2f2",
 						border: "1px solid #fecaca",
-						color: "#dc2626",
-					},
+						color: "#dc2626"
+					}
 				});
 			}
 		}

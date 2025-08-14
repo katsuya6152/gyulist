@@ -12,7 +12,7 @@ export const basicAuthMiddleware: MiddlewareHandler<{
 		c.header("WWW-Authenticate", 'Basic realm="admin"');
 		return c.json(
 			{ ok: false, code: "UNAUTHORIZED", message: "Unauthorized" },
-			401,
+			401
 		);
 	}
 	const decoded = atob(header.slice(6));
@@ -21,7 +21,7 @@ export const basicAuthMiddleware: MiddlewareHandler<{
 		c.header("WWW-Authenticate", 'Basic realm="admin"');
 		return c.json(
 			{ ok: false, code: "UNAUTHORIZED", message: "Unauthorized" },
-			401,
+			401
 		);
 	}
 	await next();

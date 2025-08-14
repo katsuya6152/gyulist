@@ -12,15 +12,15 @@ const mockSearchParams = new URLSearchParams();
 vi.mock("next/navigation", () => ({
 	useRouter: () => ({
 		push: mockPush,
-		refresh: mockRefresh,
+		refresh: mockRefresh
 	}),
-	useSearchParams: () => mockSearchParams,
+	useSearchParams: () => mockSearchParams
 }));
 
 // Mock actions
 vi.mock("../actions", () => ({
 	updateEventAction: vi.fn(),
-	deleteEventAction: vi.fn(),
+	deleteEventAction: vi.fn()
 }));
 
 // Mock toast
@@ -28,8 +28,8 @@ vi.mock("sonner", () => ({
 	toast: {
 		success: vi.fn(),
 		error: vi.fn(),
-		info: vi.fn(),
-	},
+		info: vi.fn()
+	}
 }));
 
 // Mock Embla Carousel
@@ -45,9 +45,9 @@ vi.mock("embla-carousel-react", () => ({
 			scrollTo: mockScrollTo,
 			on: mockOn,
 			off: mockOff,
-			selectedScrollSnap: mockSelectedScrollSnap,
-		},
-	],
+			selectedScrollSnap: mockSelectedScrollSnap
+		}
+	]
 }));
 
 const mockEvents: SearchEventsResType["results"] = [
@@ -60,7 +60,7 @@ const mockEvents: SearchEventsResType["results"] = [
 		createdAt: "2024-01-15T10:30:00.000Z",
 		updatedAt: "2024-01-15T10:30:00.000Z",
 		cattleName: "テスト牛1",
-		cattleEarTagNumber: "TC001",
+		cattleEarTagNumber: "TC001"
 	},
 	{
 		eventId: 2,
@@ -71,8 +71,8 @@ const mockEvents: SearchEventsResType["results"] = [
 		createdAt: "2024-01-14T14:00:00.000Z",
 		updatedAt: "2024-01-14T14:00:00.000Z",
 		cattleName: "テスト牛2",
-		cattleEarTagNumber: "TC002",
-	},
+		cattleEarTagNumber: "TC002"
+	}
 ];
 
 describe("SchedulePresentation", () => {
@@ -154,7 +154,7 @@ describe("SchedulePresentation", () => {
 				events={mockEvents}
 				currentFilter="custom"
 				customDate="2024-01-20"
-			/>,
+			/>
 		);
 
 		const clearButton = screen.getByText("クリア");
@@ -169,7 +169,7 @@ describe("SchedulePresentation", () => {
 				events={[]}
 				currentFilter="all"
 				error="テストエラー"
-			/>,
+			/>
 		);
 
 		expect(screen.getByText("テストエラー")).toBeInTheDocument();
@@ -179,7 +179,7 @@ describe("SchedulePresentation", () => {
 		render(<SchedulePresentation events={[]} currentFilter="all" />);
 
 		expect(
-			screen.getByText("イベントが登録されていません"),
+			screen.getByText("イベントが登録されていません")
 		).toBeInTheDocument();
 	});
 
@@ -187,19 +187,19 @@ describe("SchedulePresentation", () => {
 		const eventsWithDifferentDates = [
 			{
 				...mockEvents[0],
-				eventDatetime: "2024-01-13T10:00:00.000Z",
+				eventDatetime: "2024-01-13T10:00:00.000Z"
 			},
 			{
 				...mockEvents[1],
-				eventDatetime: "2024-01-16T10:00:00.000Z",
-			},
+				eventDatetime: "2024-01-16T10:00:00.000Z"
+			}
 		];
 
 		render(
 			<SchedulePresentation
 				events={eventsWithDifferentDates}
 				currentFilter="all"
-			/>,
+			/>
 		);
 
 		const dates = screen.getAllByText(/2024\/(01)\/(\d{2})/);
@@ -213,7 +213,7 @@ describe("SchedulePresentation", () => {
 				events={mockEvents}
 				currentFilter="custom"
 				customDate="2024-01-20"
-			/>,
+			/>
 		);
 
 		expect(screen.getByText(/選択日: 1月20日/)).toBeInTheDocument();
@@ -254,18 +254,18 @@ describe("SchedulePresentation", () => {
 				...mockEvents[0],
 				eventId: 1,
 				eventDatetime: "2024-01-15T10:30:00.000Z",
-				cattleName: "テスト牛1",
+				cattleName: "テスト牛1"
 			},
 			{
 				...mockEvents[0],
 				eventId: 2,
 				eventDatetime: "2024-01-15T14:30:00.000Z",
-				cattleName: "テスト牛2",
-			},
+				cattleName: "テスト牛2"
+			}
 		];
 
 		render(
-			<SchedulePresentation events={sameDataEvents} currentFilter="all" />,
+			<SchedulePresentation events={sameDataEvents} currentFilter="all" />
 		);
 
 		// 両方のイベントが表示されることを確認
@@ -290,7 +290,7 @@ describe("SchedulePresentation", () => {
 		await user.click(searchButton);
 
 		expect(mockPush).toHaveBeenCalledWith(
-			"/schedule?filter=custom&date=2024-01-20",
+			"/schedule?filter=custom&date=2024-01-20"
 		);
 	});
 
@@ -313,12 +313,12 @@ describe("SchedulePresentation", () => {
 		const eventsWithDate = [
 			{
 				...mockEvents[0],
-				eventDatetime: "2024-01-20T10:00:00Z",
-			},
+				eventDatetime: "2024-01-20T10:00:00Z"
+			}
 		];
 
 		render(
-			<SchedulePresentation events={eventsWithDate} currentFilter="custom" />,
+			<SchedulePresentation events={eventsWithDate} currentFilter="custom" />
 		);
 
 		expect(screen.getByText("テスト牛1")).toBeInTheDocument();
@@ -358,7 +358,7 @@ describe("SchedulePresentation", () => {
 
 		vi.mocked(updateEventAction).mockResolvedValue({
 			success: true,
-			message: "demo",
+			message: "demo"
 		});
 
 		render(<SchedulePresentation events={mockEvents} currentFilter="all" />);
@@ -371,7 +371,7 @@ describe("SchedulePresentation", () => {
 
 		vi.mocked(updateEventAction).mockResolvedValue({
 			success: false,
-			error: "更新に失敗しました",
+			error: "更新に失敗しました"
 		});
 
 		render(<SchedulePresentation events={mockEvents} currentFilter="all" />);
@@ -404,7 +404,7 @@ describe("SchedulePresentation", () => {
 
 		vi.mocked(deleteEventAction).mockResolvedValue({
 			success: true,
-			message: "demo",
+			message: "demo"
 		});
 
 		render(<SchedulePresentation events={mockEvents} currentFilter="all" />);
@@ -417,7 +417,7 @@ describe("SchedulePresentation", () => {
 
 		vi.mocked(deleteEventAction).mockResolvedValue({
 			success: false,
-			error: "削除に失敗しました",
+			error: "削除に失敗しました"
 		});
 
 		render(<SchedulePresentation events={mockEvents} currentFilter="all" />);
@@ -448,11 +448,11 @@ describe("SchedulePresentation", () => {
 				events={mockEvents}
 				currentFilter="custom"
 				customDate="2024-01-20"
-			/>,
+			/>
 		);
 
 		expect(
-			screen.getByText("2件のイベントが見つかりました"),
+			screen.getByText("2件のイベントが見つかりました")
 		).toBeInTheDocument();
 	});
 

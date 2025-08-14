@@ -1,7 +1,7 @@
 import type { AnyD1Database } from "drizzle-orm/d1";
 import {
 	type RawEvent,
-	findEventsForBreedingKpi,
+	findEventsForBreedingKpi
 } from "../repositories/kpiRepository";
 
 export type TrendPoint = {
@@ -42,14 +42,14 @@ function startOfUtcMonth(d: Date): Date {
 
 function endOfUtcMonth(d: Date): Date {
 	return new Date(
-		Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0, 23, 59, 59),
+		Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0, 23, 59, 59)
 	);
 }
 
 export async function getBreedingKpiTrends(
 	db: AnyD1Database,
 	ownerUserId: number,
-	params: { fromMonth?: string; toMonth?: string; months?: number },
+	params: { fromMonth?: string; toMonth?: string; months?: number }
 ): Promise<{ series: TrendPoint[]; deltas: TrendDelta[] }> {
 	const to = params.toMonth
 		? parseMonth(params.toMonth)
@@ -62,14 +62,14 @@ export async function getBreedingKpiTrends(
 					Date.UTC(
 						to.getUTCFullYear(),
 						to.getUTCMonth() - ((months ?? 6) - 1),
-						1,
-					),
-				),
+						1
+					)
+				)
 			);
 
 	const fromIso = startOfUtcMonth(from).toISOString();
 	const toIso = endOfUtcMonth(
-		new Date(Date.UTC(to.getUTCFullYear(), to.getUTCMonth(), 1)),
+		new Date(Date.UTC(to.getUTCFullYear(), to.getUTCMonth(), 1))
 	).toISOString();
 
 	const rows = await findEventsForBreedingKpi(db, ownerUserId, fromIso, toIso);
@@ -116,7 +116,7 @@ export async function getBreedingKpiTrends(
 				if (later >= mStart && later <= mEnd) {
 					const prev = new Date(calvings[i - 1].eventDatetime);
 					calvingIntervals.push(
-						(later.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24),
+						(later.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24)
 					);
 				}
 			}
@@ -182,30 +182,30 @@ export async function getBreedingKpiTrends(
 			avgDaysOpen:
 				daysOpenPairs.length > 0
 					? round1(
-							daysOpenPairs.reduce((a, b) => a + b, 0) / daysOpenPairs.length,
+							daysOpenPairs.reduce((a, b) => a + b, 0) / daysOpenPairs.length
 						)
 					: null,
 			avgCalvingInterval:
 				calvingIntervals.length > 0
 					? round1(
 							calvingIntervals.reduce((a, b) => a + b, 0) /
-								calvingIntervals.length,
+								calvingIntervals.length
 						)
 					: null,
 			aiPerConception:
 				aiCountsPerConception.length > 0
 					? round1(
 							aiCountsPerConception.reduce((a, b) => a + b, 0) /
-								aiCountsPerConception.length,
+								aiCountsPerConception.length
 						)
-					: null,
+					: null
 		};
 
 		const counts = {
 			inseminations: inseminationsInMonth,
 			conceptions: conceptionsInMonth,
 			calvings: 0, // not displayed currently in trends card, can be added later
-			pairsForDaysOpen: daysOpenPairs.length,
+			pairsForDaysOpen: daysOpenPairs.length
 		};
 
 		return { month: monthKey(mStart), metrics, counts };
@@ -219,8 +219,8 @@ export async function getBreedingKpiTrends(
 					conceptionRate: null,
 					avgDaysOpen: null,
 					avgCalvingInterval: null,
-					aiPerConception: null,
-				},
+					aiPerConception: null
+				}
 			};
 		const prev = series[idx - 1];
 		const diff = (a: number | null, b: number | null) =>
@@ -230,18 +230,18 @@ export async function getBreedingKpiTrends(
 			metrics: {
 				conceptionRate: diff(
 					pt.metrics.conceptionRate,
-					prev.metrics.conceptionRate,
+					prev.metrics.conceptionRate
 				),
 				avgDaysOpen: diff(pt.metrics.avgDaysOpen, prev.metrics.avgDaysOpen),
 				avgCalvingInterval: diff(
 					pt.metrics.avgCalvingInterval,
-					prev.metrics.avgCalvingInterval,
+					prev.metrics.avgCalvingInterval
 				),
 				aiPerConception: diff(
 					pt.metrics.aiPerConception,
-					prev.metrics.aiPerConception,
-				),
-			},
+					prev.metrics.aiPerConception
+				)
+			}
 		};
 	});
 

@@ -23,8 +23,8 @@ export async function GetAlerts(): Promise<GetAlertsRes> {
 		client.api.v1.alerts.$get(
 			{},
 			{
-				headers: { Authorization: `Bearer ${token}` },
-			},
-		),
+				headers: { Authorization: `Bearer ${token}` }
+			}
+		)
 	);
 }

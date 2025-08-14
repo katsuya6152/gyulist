@@ -27,9 +27,9 @@ describe("kpiDeltaService.getBreedingKpiDelta", () => {
 						conceptionRate: 60,
 						avgDaysOpen: 110,
 						avgCalvingInterval: 395,
-						aiPerConception: 1.6,
+						aiPerConception: 1.6
 					},
-					counts: {} as Record<string, number>,
+					counts: {} as Record<string, number>
 				},
 				{
 					month: "2025-08",
@@ -37,10 +37,10 @@ describe("kpiDeltaService.getBreedingKpiDelta", () => {
 						conceptionRate: 62,
 						avgDaysOpen: 108,
 						avgCalvingInterval: 393,
-						aiPerConception: 1.5,
+						aiPerConception: 1.5
 					},
-					counts: {} as Record<string, number>,
-				},
+					counts: {} as Record<string, number>
+				}
 			],
 			deltas: [
 				{
@@ -49,8 +49,8 @@ describe("kpiDeltaService.getBreedingKpiDelta", () => {
 						conceptionRate: null,
 						avgDaysOpen: null,
 						avgCalvingInterval: null,
-						aiPerConception: null,
-					},
+						aiPerConception: null
+					}
 				},
 				{
 					month: "2025-08",
@@ -58,37 +58,37 @@ describe("kpiDeltaService.getBreedingKpiDelta", () => {
 						conceptionRate: 2,
 						avgDaysOpen: -2,
 						avgCalvingInterval: -2,
-						aiPerConception: -0.1,
-					},
-				},
-			],
+						aiPerConception: -0.1
+					}
+				}
+			]
 		});
 
 		const res = await getBreedingKpiDelta(d, owner, { month: "2025-08" });
 		expect(mockTrends.getBreedingKpiTrends).toHaveBeenCalledWith(d, owner, {
 			toMonth: "2025-08",
-			months: 2,
+			months: 2
 		});
 		expect(res.month).toBe("2025-08");
 		expect(res.delta).toEqual({
 			conceptionRate: 2,
 			avgDaysOpen: -2,
 			avgCalvingInterval: -2,
-			aiPerConception: -0.1,
+			aiPerConception: -0.1
 		});
 	});
 
 	it("handles empty trends by returning nulls", async () => {
 		mockTrends.getBreedingKpiTrends.mockResolvedValue({
 			series: [],
-			deltas: [],
+			deltas: []
 		});
 		const res = await getBreedingKpiDelta(d, owner, {});
 		expect(res.delta).toEqual({
 			conceptionRate: null,
 			avgDaysOpen: null,
 			avgCalvingInterval: null,
-			aiPerConception: null,
+			aiPerConception: null
 		});
 	});
 });

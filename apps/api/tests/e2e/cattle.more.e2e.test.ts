@@ -6,7 +6,7 @@ import {
 	type FakeStore,
 	createEmptyStore,
 	createFakeD1,
-	createFakeDrizzle,
+	createFakeDrizzle
 } from "./helpers/fakeDrizzle";
 
 vi.mock("drizzle-orm/d1", async () => {
@@ -17,13 +17,13 @@ vi.mock("drizzle-orm/d1", async () => {
 		drizzle: (_db: AnyD1Database) => createFakeDrizzle(currentStore),
 		__setStore: (s: FakeStore) => {
 			currentStore = s;
-		},
+		}
 	};
 });
 
 const makeJwt = (payload: Record<string, unknown>) => {
 	const header = Buffer.from(
-		JSON.stringify({ alg: "none", typ: "JWT" }),
+		JSON.stringify({ alg: "none", typ: "JWT" })
 	).toString("base64");
 	const body = Buffer.from(JSON.stringify(payload)).toString("base64");
 	return `${header}.${body}.sig`;
@@ -33,7 +33,7 @@ describe("Cattle API E2E (more cases)", () => {
 	let app: Hono<{ Bindings: Bindings }>;
 	let store: FakeStore;
 	const auth = (userId = 1) => ({
-		Authorization: `Bearer ${makeJwt({ userId, exp: Math.floor(Date.now() / 1000) + 3600 })}`,
+		Authorization: `Bearer ${makeJwt({ userId, exp: Math.floor(Date.now() / 1000) + 3600 })}`
 	});
 
 	beforeEach(async () => {
@@ -63,7 +63,7 @@ describe("Cattle API E2E (more cases)", () => {
 				breedingValue: null,
 				notes: null,
 				createdAt: new Date().toISOString(),
-				updatedAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString()
 			}) as unknown as FakeStore["cattle"][number];
 		// single owner dataset for strict scoping assertions
 		store.cattle.push(mk(1, 1));
@@ -84,7 +84,7 @@ describe("Cattle API E2E (more cases)", () => {
 				TURNSTILE_SECRET_KEY: "",
 				ADMIN_USER: "a",
 				ADMIN_PASS: "b",
-				WEB_ORIGIN: "http://localhost:3000",
+				WEB_ORIGIN: "http://localhost:3000"
 			} as unknown as Bindings;
 			await next();
 		});
@@ -92,8 +92,8 @@ describe("Cattle API E2E (more cases)", () => {
 		appInst.route(
 			"/cattle",
 			(routes as { default: unknown }).default as typeof import(
-				"../../src/routes/cattle",
-			).default,
+				"../../src/routes/cattle"
+			).default
 		);
 		app = appInst;
 	});
@@ -104,14 +104,14 @@ describe("Cattle API E2E (more cases)", () => {
 		const body = await res.json();
 		expect(
 			(body.results as Array<{ ownerUserId: number }>).every(
-				(r) => r.ownerUserId === 1,
-			),
+				(r) => r.ownerUserId === 1
+			)
 		).toBe(true);
 	});
 
 	it("GET /cattle with invalid cursor still returns 200", async () => {
 		const res = await app.request("/cattle?limit=1&cursor=@@not_base64@@", {
-			headers: auth(1),
+			headers: auth(1)
 		});
 		expect(res.status).toBe(200);
 	});
@@ -123,7 +123,7 @@ describe("Cattle API E2E (more cases)", () => {
 			fatherCattleName: null,
 			motherFatherCattleName: null,
 			motherGrandFatherCattleName: null,
-			motherGreatGrandFatherCattleName: null,
+			motherGreatGrandFatherCattleName: null
 		} as unknown as FakeStore["bloodline"][number]);
 		store.breedingStatus.push({
 			cattleId: 1,
@@ -137,7 +137,7 @@ describe("Cattle API E2E (more cases)", () => {
 			inseminationCount: null,
 			breedingMemo: null,
 			isDifficultBirth: null,
-			updatedAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString()
 		} as unknown as FakeStore["breedingStatus"][number]);
 		store.breedingSummary.push({
 			cattleId: 1,
@@ -148,7 +148,7 @@ describe("Cattle API E2E (more cases)", () => {
 			difficultBirthCount: 0,
 			pregnancyHeadCount: 0,
 			pregnancySuccessRate: 0,
-			updatedAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString()
 		} as unknown as FakeStore["breedingSummary"][number]);
 		store.events.push({
 			eventId: 1,
@@ -157,12 +157,12 @@ describe("Cattle API E2E (more cases)", () => {
 			eventDatetime: new Date().toISOString(),
 			notes: null,
 			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString()
 		} as unknown as FakeStore["events"][number]);
 
 		const del = await app.request("/cattle/1", {
 			method: "DELETE",
-			headers: auth(1),
+			headers: auth(1)
 		});
 		expect([200, 204]).toContain(del.status);
 		expect(store.cattle.find((c) => c.cattleId === 1)).toBeUndefined();
@@ -192,13 +192,13 @@ describe("Cattle API E2E (more cases)", () => {
 				daysAfterInsemination: null,
 				inseminationCount: null,
 				breedingMemo: null,
-				isDifficultBirth: null,
-			},
+				isDifficultBirth: null
+			}
 		};
 		const res = await app.request("/cattle", {
 			method: "POST",
 			headers: { "Content-Type": "application/json", ...auth(1) },
-			body: JSON.stringify(payload),
+			body: JSON.stringify(payload)
 		});
 		expect(res.status).toBe(201);
 		// breedingStatus should be created for the new cattle id (last one)
@@ -229,7 +229,7 @@ describe("Cattle API E2E (more cases)", () => {
 				breed: null,
 				notes: null,
 				createdAt: new Date().toISOString(),
-				updatedAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString()
 			} as (typeof store.cattle)[number],
 			{
 				...(store.cattle[1] ?? ({} as Partial<(typeof store.cattle)[number]>)),
@@ -248,7 +248,7 @@ describe("Cattle API E2E (more cases)", () => {
 				breed: null,
 				notes: null,
 				createdAt: new Date().toISOString(),
-				updatedAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString()
 			} as (typeof store.cattle)[number],
 			{
 				cattleId: 13,
@@ -266,8 +266,8 @@ describe("Cattle API E2E (more cases)", () => {
 				breed: null,
 				notes: null,
 				createdAt: new Date().toISOString(),
-				updatedAt: new Date().toISOString(),
-			} as (typeof store.cattle)[number],
+				updatedAt: new Date().toISOString()
+			} as (typeof store.cattle)[number]
 		];
 
 		// ensure current array is pre-sorted by daysOld desc to match fake orderBy behaviour
@@ -275,12 +275,12 @@ describe("Cattle API E2E (more cases)", () => {
 
 		const res = await app.request(
 			"/cattle?limit=10&sort_by=days_old&sort_order=desc",
-			{ headers: auth(1) },
+			{ headers: auth(1) }
 		);
 		expect(res.status).toBe(200);
 		const body = await res.json();
 		const days = (body.results as Array<{ daysOld: number | null }>).map(
-			(r) => r.daysOld ?? 0,
+			(r) => r.daysOld ?? 0
 		);
 		const sorted = [...days].sort((a, b) => b - a);
 		expect(days).toEqual(sorted);
@@ -310,9 +310,9 @@ describe("Cattle API E2E (more cases)", () => {
 					daysAfterInsemination: null,
 					inseminationCount: null,
 					breedingMemo: null,
-					isDifficultBirth: null,
-				},
-			}),
+					isDifficultBirth: null
+				}
+			})
 		});
 		expect(create.status).toBe(201);
 		const created = await create.json();
@@ -336,15 +336,15 @@ describe("Cattle API E2E (more cases)", () => {
 					daysAfterInsemination: null,
 					inseminationCount: null,
 					breedingMemo: null,
-					isDifficultBirth: null,
-				},
-			}),
+					isDifficultBirth: null
+				}
+			})
 		});
 		expect(upd.status).toBe(200);
 
 		// breedingStatus in store should reflect recalculation (pregnancyDays ~= 10)
 		const bs = store.breedingStatus.find(
-			(s) => s.cattleId === created.cattleId,
+			(s) => s.cattleId === created.cattleId
 		);
 		expect(bs).toBeTruthy();
 		expect(typeof bs?.pregnancyDays).toBe("number");

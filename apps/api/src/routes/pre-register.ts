@@ -10,7 +10,7 @@ const app = new Hono<{ Bindings: Bindings }>().post("/", async (c) => {
 		console.error(parsed.error); // validation error
 		return c.json(
 			{ ok: false, code: "VALIDATION_FAILED", message: "Validation failed" },
-			400,
+			400
 		);
 	}
 	const result = await preRegister(c.env, c.env.DB, parsed.data);

@@ -27,7 +27,7 @@ export function formatDate(iso: string): string {
 		minute: "numeric",
 		second: "numeric",
 		hour12: false,
-		timeZone: "UTC",
+		timeZone: "UTC"
 	});
 }
 

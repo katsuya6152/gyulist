@@ -12,7 +12,7 @@ import {
 	SheetFooter,
 	SheetHeader,
 	SheetTitle,
-	SheetTrigger,
+	SheetTrigger
 } from "@/components/ui/sheet";
 import { ArrowDown01, ArrowDown10, ArrowDownUp } from "lucide-react";
 import { memo } from "react";
@@ -102,7 +102,7 @@ export const SortSheet = memo(
 				</SheetContent>
 			</Sheet>
 		);
-	},
+	}
 );
 
 SortSheet.displayName = "SortSheet";

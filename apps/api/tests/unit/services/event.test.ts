@@ -10,19 +10,19 @@ import {
 	getEventById,
 	getEventsByCattleId,
 	searchEventList,
-	updateEventData,
+	updateEventData
 } from "../../../src/services/eventService";
 import type {
 	CreateEventInput,
 	SearchEventQuery,
-	UpdateEventInput,
+	UpdateEventInput
 } from "../../../src/validators/eventValidator";
 import {
 	createMockDB,
 	mockCattle,
 	mockCreatedEvent,
 	mockEvent,
-	mockEvents,
+	mockEvents
 } from "../../fixtures/database";
 
 // Mock the repository modules
@@ -59,12 +59,12 @@ describe("EventService", () => {
 			// Assert
 			expect(mockCattleRepository.findCattleById).toHaveBeenCalledWith(
 				mockDB,
-				cattleId,
+				cattleId
 			);
 			expect(mockEventRepository.findEventsByCattleId).toHaveBeenCalledWith(
 				mockDB,
 				cattleId,
-				userId,
+				userId
 			);
 			expect(result).toEqual(mockEvents);
 		});
@@ -75,7 +75,7 @@ describe("EventService", () => {
 
 			// Act & Assert
 			await expect(
-				getEventsByCattleId(mockDB, cattleId, userId),
+				getEventsByCattleId(mockDB, cattleId, userId)
 			).rejects.toThrow("牛が見つからないか、アクセス権限がありません");
 		});
 
@@ -86,7 +86,7 @@ describe("EventService", () => {
 
 			// Act & Assert
 			await expect(
-				getEventsByCattleId(mockDB, cattleId, userId),
+				getEventsByCattleId(mockDB, cattleId, userId)
 			).rejects.toThrow("牛が見つからないか、アクセス権限がありません");
 		});
 	});
@@ -98,7 +98,7 @@ describe("EventService", () => {
 			const mockSearchResult = {
 				results: mockEvents,
 				nextCursor: null,
-				hasNext: false,
+				hasNext: false
 			};
 			mockEventRepository.searchEvents.mockResolvedValue(mockSearchResult);
 
@@ -109,7 +109,7 @@ describe("EventService", () => {
 			expect(mockEventRepository.searchEvents).toHaveBeenCalledWith(
 				mockDB,
 				userId,
-				query,
+				query
 			);
 			expect(result).toEqual(mockSearchResult);
 		});
@@ -127,7 +127,7 @@ describe("EventService", () => {
 			expect(mockEventRepository.findEventById).toHaveBeenCalledWith(
 				mockDB,
 				eventId,
-				userId,
+				userId
 			);
 			expect(result).toEqual(mockEvent);
 		});
@@ -139,12 +139,12 @@ describe("EventService", () => {
 
 			// Act & Assert
 			await expect(getEventById(mockDB, eventId, userId)).rejects.toThrow(
-				"イベントが見つからないか、アクセス権限がありません",
+				"イベントが見つからないか、アクセス権限がありません"
 			);
 			expect(mockEventRepository.findEventById).toHaveBeenCalledWith(
 				mockDB,
 				eventId,
-				userId,
+				userId
 			);
 		});
 	});
@@ -156,7 +156,7 @@ describe("EventService", () => {
 				cattleId: 1,
 				eventType: "ESTRUS",
 				eventDatetime: "2024-01-01T10:00:00Z",
-				notes: "テストイベント",
+				notes: "テストイベント"
 			};
 
 			mockCattleRepository.findCattleById.mockResolvedValue(mockCattle);
@@ -169,16 +169,16 @@ describe("EventService", () => {
 			// Assert
 			expect(mockCattleRepository.findCattleById).toHaveBeenCalledWith(
 				mockDB,
-				eventData.cattleId,
+				eventData.cattleId
 			);
 			expect(mockEventRepository.createEvent).toHaveBeenCalledWith(
 				mockDB,
-				eventData,
+				eventData
 			);
 			expect(mockEventRepository.findEventById).toHaveBeenCalledWith(
 				mockDB,
 				mockCreatedEvent.eventId,
-				userId,
+				userId
 			);
 			expect(result).toEqual(mockEvent);
 		});
@@ -188,7 +188,7 @@ describe("EventService", () => {
 				cattleId: 1,
 				eventType: "SHIPMENT",
 				eventDatetime: "2024-01-01T10:00:00Z",
-				notes: "出荷",
+				notes: "出荷"
 			};
 			mockCattleRepository.findCattleById.mockResolvedValue(mockCattle);
 			mockEventRepository.createEvent.mockResolvedValue(mockCreatedEvent);
@@ -200,7 +200,7 @@ describe("EventService", () => {
 				mockDB,
 				eventData.cattleId,
 				"SHIPPED",
-				userId,
+				userId
 			);
 		});
 
@@ -209,7 +209,7 @@ describe("EventService", () => {
 				cattleId: 1,
 				eventType: "CALVING",
 				eventDatetime: "2024-01-01T10:00:00Z",
-				notes: "分娩",
+				notes: "分娩"
 			};
 			mockCattleRepository.findCattleById.mockResolvedValue(mockCattle);
 			mockEventRepository.createEvent.mockResolvedValue(mockCreatedEvent);
@@ -221,7 +221,7 @@ describe("EventService", () => {
 				mockDB,
 				eventData.cattleId,
 				"RESTING",
-				userId,
+				userId
 			);
 		});
 
@@ -231,13 +231,13 @@ describe("EventService", () => {
 				cattleId: 1,
 				eventType: "ESTRUS",
 				eventDatetime: "2024-01-01T10:00:00Z",
-				notes: "テストイベント",
+				notes: "テストイベント"
 			};
 			mockCattleRepository.findCattleById.mockResolvedValue(null);
 
 			// Act & Assert
 			await expect(createNewEvent(mockDB, eventData, userId)).rejects.toThrow(
-				"牛が見つからないか、アクセス権限がありません",
+				"牛が見つからないか、アクセス権限がありません"
 			);
 		});
 	});
@@ -246,7 +246,7 @@ describe("EventService", () => {
 		it("should update event successfully", async () => {
 			// Arrange
 			const updateData: UpdateEventInput = {
-				notes: "更新されたメモ",
+				notes: "更新されたメモ"
 			};
 			const updatedEvent = mockCreatedEvent;
 
@@ -254,7 +254,7 @@ describe("EventService", () => {
 			mockEventRepository.updateEvent.mockResolvedValue(updatedEvent);
 			mockEventRepository.findEventById.mockResolvedValueOnce({
 				...mockEvent,
-				notes: "更新されたメモ",
+				notes: "更新されたメモ"
 			});
 
 			// Act
@@ -264,12 +264,12 @@ describe("EventService", () => {
 			expect(mockEventRepository.findEventById).toHaveBeenCalledWith(
 				mockDB,
 				eventId,
-				userId,
+				userId
 			);
 			expect(mockEventRepository.updateEvent).toHaveBeenCalledWith(
 				mockDB,
 				eventId,
-				updateData,
+				updateData
 			);
 			expect(result.notes).toBe("更新されたメモ");
 		});
@@ -277,19 +277,19 @@ describe("EventService", () => {
 		it("should throw error when event not found", async () => {
 			// Arrange
 			const updateData: UpdateEventInput = {
-				notes: "更新されたメモ",
+				notes: "更新されたメモ"
 			};
 			// @ts-expect-error: Repository can return null for not found
 			mockEventRepository.findEventById.mockResolvedValue(null);
 
 			// Act & Assert
 			await expect(
-				updateEventData(mockDB, eventId, updateData, userId),
+				updateEventData(mockDB, eventId, updateData, userId)
 			).rejects.toThrow("イベントが見つからないか、アクセス権限がありません");
 			expect(mockEventRepository.findEventById).toHaveBeenCalledWith(
 				mockDB,
 				eventId,
-				userId,
+				userId
 			);
 		});
 	});
@@ -307,11 +307,11 @@ describe("EventService", () => {
 			expect(mockEventRepository.findEventById).toHaveBeenCalledWith(
 				mockDB,
 				eventId,
-				userId,
+				userId
 			);
 			expect(mockEventRepository.deleteEvent).toHaveBeenCalledWith(
 				mockDB,
-				eventId,
+				eventId
 			);
 		});
 
@@ -322,12 +322,12 @@ describe("EventService", () => {
 
 			// Act & Assert
 			await expect(deleteEventData(mockDB, eventId, userId)).rejects.toThrow(
-				"イベントが見つからないか、アクセス権限がありません",
+				"イベントが見つからないか、アクセス権限がありません"
 			);
 			expect(mockEventRepository.findEventById).toHaveBeenCalledWith(
 				mockDB,
 				eventId,
-				userId,
+				userId
 			);
 		});
 	});

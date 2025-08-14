@@ -7,7 +7,7 @@ import {
 	type FakeStore,
 	createEmptyStore,
 	createFakeD1,
-	createFakeDrizzle,
+	createFakeDrizzle
 } from "./helpers/fakeDrizzle";
 
 // Mock drizzle-orm/d1 to return our in-memory implementation
@@ -20,7 +20,7 @@ vi.mock("drizzle-orm/d1", async () => {
 		drizzle: (_db: AnyD1Database) => createFakeDrizzle(currentStore),
 		__setStore: (s: FakeStore) => {
 			currentStore = s;
-		},
+		}
 	};
 });
 
@@ -60,7 +60,7 @@ const createTestApp = (store: FakeStore) => {
 			TURNSTILE_SECRET_KEY: "",
 			ADMIN_USER: "a",
 			ADMIN_PASS: "b",
-			WEB_ORIGIN: "http://localhost:3000",
+			WEB_ORIGIN: "http://localhost:3000"
 		} as unknown as Bindings;
 		await next();
 	});
@@ -71,14 +71,14 @@ const createTestApp = (store: FakeStore) => {
 
 const makeJwt = (payload: Record<string, unknown>) => {
 	const header = Buffer.from(
-		JSON.stringify({ alg: "none", typ: "JWT" }),
+		JSON.stringify({ alg: "none", typ: "JWT" })
 	).toString("base64");
 	const body = Buffer.from(JSON.stringify(payload)).toString("base64");
 	return `${header}.${body}.sig`;
 };
 
 const authHeaders = {
-	Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`,
+	Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`
 };
 
 describe("Cattle API E2E (no mocks)", () => {
@@ -115,7 +115,7 @@ describe("Cattle API E2E (no mocks)", () => {
 			breedingValue: null,
 			notes: null,
 			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString()
 		} as (typeof store.cattle)[number]);
 		app = createTestApp(store);
 	});
@@ -142,12 +142,12 @@ describe("Cattle API E2E (no mocks)", () => {
 			birthday: "2024-01-01",
 			growthStage: "CALF",
 			breed: null,
-			notes: null,
+			notes: null
 		};
 		const res = await app.request("/cattle", {
 			method: "POST",
 			headers: { "Content-Type": "application/json", ...authHeaders },
-			body: JSON.stringify(payload),
+			body: JSON.stringify(payload)
 		});
 		expect(res.status).toBe(201);
 		const created = await res.json();
@@ -160,7 +160,7 @@ describe("Cattle API E2E (no mocks)", () => {
 		const res = await app.request("/cattle/1", {
 			method: "PATCH",
 			headers: { "Content-Type": "application/json", ...authHeaders },
-			body: JSON.stringify({ name: "更新後", birthday: "2020-01-01" }),
+			body: JSON.stringify({ name: "更新後", birthday: "2020-01-01" })
 		});
 		expect(res.status).toBe(200);
 		const updated = await res.json();
@@ -171,7 +171,7 @@ describe("Cattle API E2E (no mocks)", () => {
 		const res = await app.request("/cattle/1/status", {
 			method: "PATCH",
 			headers: { "Content-Type": "application/json", ...authHeaders },
-			body: JSON.stringify({ status: "PREGNANT" }),
+			body: JSON.stringify({ status: "PREGNANT" })
 		});
 		expect(res.status).toBe(200);
 		const updated = await res.json();
@@ -182,7 +182,7 @@ describe("Cattle API E2E (no mocks)", () => {
 	it("DELETE /cattle/:id removes cattle", async () => {
 		const res = await app.request("/cattle/1", {
 			method: "DELETE",
-			headers: authHeaders,
+			headers: authHeaders
 		});
 		expect(res.status).toBe(200);
 

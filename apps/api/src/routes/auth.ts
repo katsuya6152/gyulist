@@ -4,14 +4,14 @@ import {
 	completeRegistration,
 	login,
 	register,
-	verifyToken,
+	verifyToken
 } from "../services/authService";
 import type { Bindings } from "../types";
 import {
 	CompleteSchema,
 	LoginSchema,
 	RegisterSchema,
-	VerifySchema,
+	VerifySchema
 } from "../validators/authValidator";
 
 const app = new Hono<{ Bindings: Bindings }>()

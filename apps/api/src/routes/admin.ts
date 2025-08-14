@@ -12,7 +12,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 			console.error(parsed.error);
 			return c.json(
 				{ ok: false, code: "VALIDATION_FAILED", message: "Validation failed" },
-				400,
+				400
 			);
 		}
 		const data = await listRegistrations(c.env.DB, parsed.data);
@@ -24,7 +24,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 			console.error(parsed.error);
 			return c.json(
 				{ ok: false, code: "VALIDATION_FAILED", message: "Validation failed" },
-				400,
+				400
 			);
 		}
 		const data = await listRegistrations(c.env.DB, parsed.data);
@@ -38,9 +38,9 @@ const app = new Hono<{ Bindings: Bindings }>()
 					r.status,
 					r.locale,
 					r.createdAt,
-					r.updatedAt,
-				].join(","),
-			),
+					r.updatedAt
+				].join(",")
+			)
 		];
 		const encoder = new TextEncoder();
 		const content = encoder.encode(rows.join("\n"));
@@ -49,7 +49,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 		c.header("Content-Type", "text/csv");
 		c.header(
 			"Content-Disposition",
-			`attachment; filename="registrations_${date}.csv"`,
+			`attachment; filename="registrations_${date}.csv"`
 		);
 		return c.body(csv);
 	});

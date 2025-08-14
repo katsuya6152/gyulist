@@ -7,7 +7,7 @@ import {
 	completeRegistration,
 	login,
 	register,
-	verifyToken,
+	verifyToken
 } from "../../../src/services/authService";
 import type { Bindings } from "../../../src/types";
 import { createMockDB, mockUser } from "../../fixtures/database";
@@ -29,7 +29,7 @@ describe("AuthService", () => {
 		DB: mockDB,
 		JWT_SECRET: "test-secret",
 		ENVIRONMENT: "test",
-		APP_URL: "http://localhost:3000",
+		APP_URL: "http://localhost:3000"
 	};
 
 	beforeEach(() => {
@@ -38,7 +38,7 @@ describe("AuthService", () => {
 
 	describe("register", () => {
 		const registerInput = {
-			email: "test@example.com",
+			email: "test@example.com"
 		};
 
 		it("should register new user successfully", async () => {
@@ -55,22 +55,22 @@ describe("AuthService", () => {
 			// Assert
 			expect(result).toEqual({
 				success: true,
-				message: "仮登録が完了しました。メールを確認してください。",
+				message: "仮登録が完了しました。メールを確認してください。"
 			});
 			expect(mockUserRepository.findUserByEmail).toHaveBeenCalledWith(
 				mockDB,
-				registerInput.email,
+				registerInput.email
 			);
 			expect(mockTokenLib.generateToken).toHaveBeenCalled();
 			expect(mockUserRepository.createUser).toHaveBeenCalledWith(
 				mockDB,
 				registerInput.email,
-				"verification-token",
+				"verification-token"
 			);
 			expect(mockMailerLib.sendVerificationEmail).toHaveBeenCalledWith(
 				mockEnv,
 				registerInput.email,
-				"verification-token",
+				"verification-token"
 			);
 		});
 
@@ -84,7 +84,7 @@ describe("AuthService", () => {
 			// Assert
 			expect(result).toEqual({
 				success: true,
-				message: "仮登録が完了しました。メールを確認してください。",
+				message: "仮登録が完了しました。メールを確認してください。"
 			});
 			expect(mockTokenLib.generateToken).not.toHaveBeenCalled();
 			expect(mockUserRepository.createUser).not.toHaveBeenCalled();
@@ -99,7 +99,7 @@ describe("AuthService", () => {
 			// Arrange
 			mockUserRepository.findUserByVerificationToken.mockResolvedValue({
 				...mockUser,
-				isVerified: false,
+				isVerified: false
 			});
 
 			// Act
@@ -108,7 +108,7 @@ describe("AuthService", () => {
 			// Assert
 			expect(result).toEqual({
 				success: true,
-				message: "トークンは有効です。本登録を完了してください。",
+				message: "トークンは有効です。本登録を完了してください。"
 			});
 		});
 
@@ -123,7 +123,7 @@ describe("AuthService", () => {
 			// Assert
 			expect(result).toEqual({
 				success: false,
-				message: "無効なトークンです。",
+				message: "無効なトークンです。"
 			});
 		});
 
@@ -131,7 +131,7 @@ describe("AuthService", () => {
 			// Arrange
 			mockUserRepository.findUserByVerificationToken.mockResolvedValue({
 				...mockUser,
-				isVerified: true,
+				isVerified: true
 			});
 
 			// Act
@@ -140,7 +140,7 @@ describe("AuthService", () => {
 			// Assert
 			expect(result).toEqual({
 				success: false,
-				message: "既に本登録が完了しています。",
+				message: "既に本登録が完了しています。"
 			});
 		});
 	});
@@ -149,14 +149,14 @@ describe("AuthService", () => {
 		const completeInput = {
 			token: "valid-token",
 			name: "Test User",
-			password: "StrongPassword123!",
+			password: "StrongPassword123!"
 		};
 
 		it("should complete registration successfully", async () => {
 			// Arrange
 			mockUserRepository.findUserByVerificationToken.mockResolvedValue({
 				...mockUser,
-				isVerified: false,
+				isVerified: false
 			});
 			mockTokenLib.hashPassword.mockResolvedValue("hashed-password");
 			mockUserRepository.completeUserRegistration.mockResolvedValue(undefined);
@@ -167,16 +167,16 @@ describe("AuthService", () => {
 			// Assert
 			expect(result).toEqual({
 				success: true,
-				message: "本登録が完了しました。ログインしてください。",
+				message: "本登録が完了しました。ログインしてください。"
 			});
 			expect(mockTokenLib.hashPassword).toHaveBeenCalledWith(
-				completeInput.password,
+				completeInput.password
 			);
 			expect(mockUserRepository.completeUserRegistration).toHaveBeenCalledWith(
 				mockDB,
 				completeInput.token,
 				completeInput.name,
-				"hashed-password",
+				"hashed-password"
 			);
 		});
 
@@ -191,7 +191,7 @@ describe("AuthService", () => {
 			// Assert
 			expect(result).toEqual({
 				success: false,
-				message: "無効なトークンです。",
+				message: "無効なトークンです。"
 			});
 		});
 
@@ -199,7 +199,7 @@ describe("AuthService", () => {
 			// Arrange
 			mockUserRepository.findUserByVerificationToken.mockResolvedValue({
 				...mockUser,
-				isVerified: true,
+				isVerified: true
 			});
 
 			// Act
@@ -208,7 +208,7 @@ describe("AuthService", () => {
 			// Assert
 			expect(result).toEqual({
 				success: false,
-				message: "既に本登録が完了しています。",
+				message: "既に本登録が完了しています。"
 			});
 		});
 	});
@@ -216,7 +216,7 @@ describe("AuthService", () => {
 	describe("login", () => {
 		const loginInput = {
 			email: "test@example.com",
-			password: "StrongPassword123!",
+			password: "StrongPassword123!"
 		};
 
 		it("should login successfully", async () => {
@@ -232,23 +232,23 @@ describe("AuthService", () => {
 			// Assert
 			expect(result).toEqual({
 				success: true,
-				token: "jwt-token",
+				token: "jwt-token"
 			});
 			expect(mockUserRepository.findUserByEmail).toHaveBeenCalledWith(
 				mockDB,
-				loginInput.email,
+				loginInput.email
 			);
 			expect(mockAuthLib.verifyPassword).toHaveBeenCalledWith(
 				loginInput.password,
-				mockUser.passwordHash,
+				mockUser.passwordHash
 			);
 			expect(mockAuthLib.signToken).toHaveBeenCalledWith(
 				{ userId: mockUser.id },
-				"jwt-secret",
+				"jwt-secret"
 			);
 			expect(mockUserRepository.updateLastLoginAt).toHaveBeenCalledWith(
 				mockDB,
-				mockUser.id,
+				mockUser.id
 			);
 		});
 
@@ -263,7 +263,7 @@ describe("AuthService", () => {
 			// Assert
 			expect(result).toEqual({
 				success: false,
-				message: "メールアドレスまたはパスワードが正しくありません",
+				message: "メールアドレスまたはパスワードが正しくありません"
 			});
 		});
 
@@ -278,7 +278,7 @@ describe("AuthService", () => {
 			// Assert
 			expect(result).toEqual({
 				success: false,
-				message: "メールアドレスまたはパスワードが正しくありません",
+				message: "メールアドレスまたはパスワードが正しくありません"
 			});
 		});
 	});

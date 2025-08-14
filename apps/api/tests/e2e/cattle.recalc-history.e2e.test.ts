@@ -6,7 +6,7 @@ import {
 	type FakeStore,
 	createEmptyStore,
 	createFakeD1,
-	createFakeDrizzle,
+	createFakeDrizzle
 } from "./helpers/fakeDrizzle";
 
 vi.mock("drizzle-orm/d1", async () => {
@@ -17,13 +17,13 @@ vi.mock("drizzle-orm/d1", async () => {
 		drizzle: (_db: AnyD1Database) => createFakeDrizzle(currentStore),
 		__setStore: (s: FakeStore) => {
 			currentStore = s;
-		},
+		}
 	};
 });
 
 const makeJwt = (payload: Record<string, unknown>) => {
 	const header = Buffer.from(
-		JSON.stringify({ alg: "none", typ: "JWT" }),
+		JSON.stringify({ alg: "none", typ: "JWT" })
 	).toString("base64");
 	const body = Buffer.from(JSON.stringify(payload)).toString("base64");
 	return `${header}.${body}.sig`;
@@ -33,7 +33,7 @@ describe("Cattle API E2E (recalc & history)", () => {
 	let app: Hono<{ Bindings: Bindings }>;
 	let store: FakeStore;
 	const auth = () => ({
-		Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`,
+		Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`
 	});
 
 	beforeEach(async () => {
@@ -64,7 +64,7 @@ describe("Cattle API E2E (recalc & history)", () => {
 			breedingValue: null,
 			notes: null,
 			createdAt: now,
-			updatedAt: now,
+			updatedAt: now
 		} as unknown as FakeStore["cattle"][number]);
 		store.breedingStatus.push({
 			cattleId: 1,
@@ -78,7 +78,7 @@ describe("Cattle API E2E (recalc & history)", () => {
 			inseminationCount: null,
 			breedingMemo: null,
 			isDifficultBirth: null,
-			updatedAt: now,
+			updatedAt: now
 		} as unknown as FakeStore["breedingStatus"][number]);
 		set?.(store);
 
@@ -96,7 +96,7 @@ describe("Cattle API E2E (recalc & history)", () => {
 				TURNSTILE_SECRET_KEY: "",
 				ADMIN_USER: "a",
 				ADMIN_PASS: "b",
-				WEB_ORIGIN: "http://localhost:3000",
+				WEB_ORIGIN: "http://localhost:3000"
 			} as unknown as Bindings;
 			await next();
 		});
@@ -104,8 +104,8 @@ describe("Cattle API E2E (recalc & history)", () => {
 		appInst.route(
 			"/cattle",
 			(routes as { default: unknown }).default as typeof import(
-				"../../src/routes/cattle",
-			).default,
+				"../../src/routes/cattle"
+			).default
 		);
 		app = appInst;
 	});
@@ -114,7 +114,7 @@ describe("Cattle API E2E (recalc & history)", () => {
 		const res = await app.request("/cattle/1", {
 			method: "PATCH",
 			headers: { "Content-Type": "application/json", ...auth() },
-			body: JSON.stringify({ birthday: "2020-01-01" }),
+			body: JSON.stringify({ birthday: "2020-01-01" })
 		});
 		expect(res.status).toBe(200);
 		const body = await res.json();
@@ -127,7 +127,7 @@ describe("Cattle API E2E (recalc & history)", () => {
 		const res = await app.request("/cattle/1/status", {
 			method: "PATCH",
 			headers: { "Content-Type": "application/json", ...auth() },
-			body: JSON.stringify({ status: "PREGNANT", reason: "test" }),
+			body: JSON.stringify({ status: "PREGNANT", reason: "test" })
 		});
 		expect(res.status).toBe(200);
 		expect(store.statusHistory.length).toBeGreaterThan(0);

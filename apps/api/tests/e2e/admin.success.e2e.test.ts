@@ -6,7 +6,7 @@ import type { Bindings } from "../../src/types";
 import {
 	type FakeStore,
 	createEmptyStore,
-	createFakeD1,
+	createFakeD1
 } from "./helpers/fakeDrizzle";
 
 const basic = (u: string, p: string) =>
@@ -30,7 +30,7 @@ describe("Admin API E2E (success)", () => {
 			status: "confirmed",
 			locale: "ja",
 			createdAt: now,
-			updatedAt: now,
+			updatedAt: now
 		});
 		store.registrations.push({
 			id: "2",
@@ -39,7 +39,7 @@ describe("Admin API E2E (success)", () => {
 			status: "confirmed",
 			locale: "ja",
 			createdAt: now,
-			updatedAt: now,
+			updatedAt: now
 		});
 
 		app = new Hono<{ Bindings: Bindings }>();
@@ -56,7 +56,7 @@ describe("Admin API E2E (success)", () => {
 				TURNSTILE_SECRET_KEY: "",
 				ADMIN_USER: "a",
 				ADMIN_PASS: "b",
-				WEB_ORIGIN: "http://localhost:3000",
+				WEB_ORIGIN: "http://localhost:3000"
 			} as unknown as Bindings;
 			await next();
 		});
@@ -65,7 +65,7 @@ describe("Admin API E2E (success)", () => {
 
 	it("GET /admin/registrations returns items with basic auth", async () => {
 		const res = await app.request("/admin/registrations?limit=10&offset=0", {
-			headers: { Authorization: basic("a", "b") },
+			headers: { Authorization: basic("a", "b") }
 		});
 		expect(res.status).toBe(200);
 		const body = await res.json();
@@ -77,8 +77,8 @@ describe("Admin API E2E (success)", () => {
 		const res = await app.request(
 			"/admin/registrations.csv?limit=10&offset=0",
 			{
-				headers: { Authorization: basic("a", "b") },
-			},
+				headers: { Authorization: basic("a", "b") }
+			}
 		);
 		expect(res.status).toBe(200);
 		expect(res.headers.get("content-type")?.includes("text/csv")).toBe(true);

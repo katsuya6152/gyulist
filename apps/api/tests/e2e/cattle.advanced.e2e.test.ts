@@ -6,7 +6,7 @@ import {
 	type FakeStore,
 	createEmptyStore,
 	createFakeD1,
-	createFakeDrizzle,
+	createFakeDrizzle
 } from "./helpers/fakeDrizzle";
 
 // Mock drizzle to use in-memory store
@@ -18,13 +18,13 @@ vi.mock("drizzle-orm/d1", async () => {
 		drizzle: (_db: AnyD1Database) => createFakeDrizzle(currentStore),
 		__setStore: (s: FakeStore) => {
 			currentStore = s;
-		},
+		}
 	};
 });
 
 const makeJwt = (payload: Record<string, unknown>) => {
 	const header = Buffer.from(
-		JSON.stringify({ alg: "none", typ: "JWT" }),
+		JSON.stringify({ alg: "none", typ: "JWT" })
 	).toString("base64");
 	const body = Buffer.from(JSON.stringify(payload)).toString("base64");
 	return `${header}.${body}.sig`;
@@ -34,7 +34,7 @@ describe("Cattle API E2E (advanced)", () => {
 	let app: Hono<{ Bindings: Bindings }>;
 	let store: FakeStore;
 	const auth = () => ({
-		Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`,
+		Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`
 	});
 
 	// Polyfill atob/btoa for Node
@@ -76,7 +76,7 @@ describe("Cattle API E2E (advanced)", () => {
 			breedingValue: null,
 			notes: null,
 			createdAt: nowIso,
-			updatedAt: nowIso,
+			updatedAt: nowIso
 		} as unknown as FakeStore["cattle"][number]);
 		store.cattle.push({
 			cattleId: 2,
@@ -99,7 +99,7 @@ describe("Cattle API E2E (advanced)", () => {
 			breedingValue: null,
 			notes: null,
 			createdAt: nowIso,
-			updatedAt: nowIso,
+			updatedAt: nowIso
 		} as unknown as FakeStore["cattle"][number]);
 		store.cattle.push({
 			cattleId: 3,
@@ -122,7 +122,7 @@ describe("Cattle API E2E (advanced)", () => {
 			breedingValue: null,
 			notes: null,
 			createdAt: nowIso,
-			updatedAt: nowIso,
+			updatedAt: nowIso
 		} as unknown as FakeStore["cattle"][number]);
 		store.cattle.push({
 			cattleId: 4,
@@ -145,7 +145,7 @@ describe("Cattle API E2E (advanced)", () => {
 			breedingValue: null,
 			notes: null,
 			createdAt: nowIso,
-			updatedAt: nowIso,
+			updatedAt: nowIso
 		} as unknown as FakeStore["cattle"][number]);
 
 		// reflect seeded store to mocked drizzle
@@ -165,7 +165,7 @@ describe("Cattle API E2E (advanced)", () => {
 				TURNSTILE_SECRET_KEY: "",
 				ADMIN_USER: "a",
 				ADMIN_PASS: "b",
-				WEB_ORIGIN: "http://localhost:3000",
+				WEB_ORIGIN: "http://localhost:3000"
 			} as unknown as Bindings;
 			await next();
 		});
@@ -173,8 +173,8 @@ describe("Cattle API E2E (advanced)", () => {
 		appInst.route(
 			"/cattle",
 			(routes as { default: unknown }).default as typeof import(
-				"../../src/routes/cattle",
-			).default,
+				"../../src/routes/cattle"
+			).default
 		);
 		app = appInst;
 	});
@@ -188,7 +188,7 @@ describe("Cattle API E2E (advanced)", () => {
 		// since repo requests limit+1, service sets has_next true
 		expect(body.has_next).toBeTypeOf("boolean");
 		expect(
-			body.next_cursor === null || typeof body.next_cursor === "string",
+			body.next_cursor === null || typeof body.next_cursor === "string"
 		).toBe(true);
 	});
 
@@ -209,7 +209,7 @@ describe("Cattle API E2E (advanced)", () => {
 		const res = await app.request("/cattle", {
 			method: "POST",
 			headers: { "Content-Type": "application/json", ...auth() },
-			body: JSON.stringify({}),
+			body: JSON.stringify({})
 		});
 		expect(res.status).toBe(400);
 	});
@@ -218,7 +218,7 @@ describe("Cattle API E2E (advanced)", () => {
 		const res = await app.request("/cattle/1", {
 			method: "PATCH",
 			headers: { "Content-Type": "application/json", ...auth() },
-			body: JSON.stringify({ name: 123 }),
+			body: JSON.stringify({ name: 123 })
 		});
 		expect(res.status).toBe(400);
 	});
@@ -227,7 +227,7 @@ describe("Cattle API E2E (advanced)", () => {
 		const res = await app.request("/cattle/1/status", {
 			method: "PATCH",
 			headers: { "Content-Type": "application/json", ...auth() },
-			body: JSON.stringify({ status: "RESTING" }),
+			body: JSON.stringify({ status: "RESTING" })
 		});
 		expect(res.status).toBe(200);
 		const body = await res.json();
@@ -237,7 +237,7 @@ describe("Cattle API E2E (advanced)", () => {
 	it("DELETE /cattle/:id 403 for other owner's cattle", async () => {
 		const res = await app.request("/cattle/4", {
 			method: "DELETE",
-			headers: auth(),
+			headers: auth()
 		});
 		expect(res.status).toBe(403);
 	});

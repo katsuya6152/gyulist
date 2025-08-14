@@ -4,7 +4,7 @@ import {
 	type RegistrationRecord,
 	findRegistrationByEmail,
 	insertRegistration,
-	searchRegistrations,
+	searchRegistrations
 } from "../../../src/repositories/registrationRepository";
 
 const createFakeD1 = () => {
@@ -25,11 +25,11 @@ const createFakeD1 = () => {
 						},
 						async all<T>() {
 							return { results: [] as unknown as T[] };
-						},
+						}
 					};
-				},
+				}
 			} as const;
-		},
+		}
 	} as const;
 	return api;
 };
@@ -39,7 +39,7 @@ describe("registrationRepository (D1 path)", () => {
 		const db = createFakeD1();
 		const row = await findRegistrationByEmail(
 			db as unknown as AnyD1Database,
-			"a@b.com",
+			"a@b.com"
 		);
 		expect(row?.email).toBe("a@b.com");
 		expect(db.calls[0].sql).toMatch(/SELECT .* FROM registrations/);
@@ -56,7 +56,7 @@ describe("registrationRepository (D1 path)", () => {
 			status: "confirmed",
 			locale: "ja",
 			createdAt: now,
-			updatedAt: now,
+			updatedAt: now
 		};
 		await insertRegistration(db as unknown as AnyD1Database, rec);
 		expect(db.calls[0].sql).toMatch(/INSERT INTO registrations/);
@@ -67,7 +67,7 @@ describe("registrationRepository (D1 path)", () => {
 			rec.status,
 			rec.locale,
 			rec.createdAt,
-			rec.updatedAt,
+			rec.updatedAt
 		]);
 	});
 
@@ -79,7 +79,7 @@ describe("registrationRepository (D1 path)", () => {
 			to: 10,
 			source: "search",
 			limit: 5,
-			offset: 10,
+			offset: 10
 		} as const;
 		await searchRegistrations(db as unknown as AnyD1Database, params);
 		// first prepared statement is for SELECT ... LIMIT ? OFFSET ?
@@ -95,14 +95,14 @@ describe("registrationRepository (D1 path)", () => {
 		const db = createFakeD1();
 		await searchRegistrations(db as unknown as AnyD1Database, {
 			limit: 10,
-			offset: 0,
+			offset: 0
 		});
 		expect(db.calls[0].sql).toMatch(
-			/SELECT .* FROM registrations\s+ORDER BY created_at DESC LIMIT \? OFFSET \?/,
+			/SELECT .* FROM registrations\s+ORDER BY created_at DESC LIMIT \? OFFSET \?/
 		);
 		expect(db.calls[0].binds).toEqual([10, 0]);
 		expect(db.calls[1].sql).toMatch(
-			/SELECT COUNT\(\*\) as count FROM registrations\s*$/,
+			/SELECT COUNT\(\*\) as count FROM registrations\s*$/
 		);
 		expect(db.calls[1].binds).toEqual([]);
 	});

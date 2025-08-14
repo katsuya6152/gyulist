@@ -69,7 +69,7 @@ describe("CattleRepository", () => {
 			const searchQuery = {
 				limit: 10,
 				sort_by: "id" as const,
-				sort_order: "asc" as const,
+				sort_order: "asc" as const
 			};
 
 			// 基本的な牛データ
@@ -80,7 +80,7 @@ describe("CattleRepository", () => {
 				earTagNumber: 54321,
 				birthday: "2023-01-01",
 				gender: "雌",
-				growthStage: "CALF" as const,
+				growthStage: "CALF" as const
 			};
 
 			// これらの関数は全てPromiseを返すはず
@@ -89,7 +89,7 @@ describe("CattleRepository", () => {
 			const result3 = cattleRepository.findCattleById(mockDb, 1);
 			const result4 = cattleRepository.createCattle(mockDb, cattleData);
 			const result5 = cattleRepository.updateCattle(mockDb, 1, {
-				name: "Updated Name",
+				name: "Updated Name"
 			});
 			const result6 = cattleRepository.deleteCattle(mockDb, 1);
 
@@ -107,7 +107,7 @@ describe("CattleRepository", () => {
 				result3,
 				result4,
 				result5,
-				result6,
+				result6
 			]);
 		});
 	});
@@ -119,14 +119,14 @@ describe("CattleRepository", () => {
 			const sortOptions = [
 				{ sort_by: "id" as const, sort_order: "asc" as const },
 				{ sort_by: "name" as const, sort_order: "desc" as const },
-				{ sort_by: "days_old" as const, sort_order: "asc" as const },
+				{ sort_by: "days_old" as const, sort_order: "asc" as const }
 			];
 
 			const promises = sortOptions.map((sortOption) =>
 				cattleRepository.searchCattle(mockDb, 1, {
 					limit: 10,
-					...sortOption,
-				}),
+					...sortOption
+				})
 			);
 
 			for (const promise of promises) {
@@ -144,30 +144,30 @@ describe("CattleRepository", () => {
 					limit: 10,
 					sort_by: "id" as const,
 					sort_order: "asc" as const,
-					search: "test",
+					search: "test"
 				},
 				{
 					limit: 10,
 					sort_by: "name" as const,
 					sort_order: "desc" as const,
-					growth_stage: ["CALF", "GROWING"],
+					growth_stage: ["CALF", "GROWING"]
 				},
 				{
 					limit: 10,
 					sort_by: "days_old" as const,
 					sort_order: "asc" as const,
-					gender: ["雌", "雄"],
+					gender: ["雌", "雄"]
 				},
 				{
 					limit: 10,
 					sort_by: "id" as const,
 					sort_order: "desc" as const,
-					cursor: { id: 1, value: 10 },
-				},
+					cursor: { id: 1, value: 10 }
+				}
 			];
 
 			const promises = searchQueries.map((query) =>
-				cattleRepository.searchCattle(mockDb, 1, query),
+				cattleRepository.searchCattle(mockDb, 1, query)
 			);
 
 			for (const promise of promises) {
@@ -190,7 +190,7 @@ describe("CattleRepository", () => {
 					earTagNumber: 54321,
 					birthday: "2023-01-01",
 					gender: "雌",
-					growthStage: "CALF" as const,
+					growthStage: "CALF" as const
 				},
 				{
 					ownerUserId: 2,
@@ -199,12 +199,12 @@ describe("CattleRepository", () => {
 					earTagNumber: 98765,
 					birthday: "2022-06-15",
 					gender: "雄",
-					growthStage: "GROWING" as const,
-				},
+					growthStage: "GROWING" as const
+				}
 			];
 
 			const promises = cattleDataSets.map((data) =>
-				cattleRepository.createCattle(mockDb, data),
+				cattleRepository.createCattle(mockDb, data)
 			);
 
 			for (const promise of promises) {
@@ -220,11 +220,11 @@ describe("CattleRepository", () => {
 			const updateDataSets = [
 				{ name: "Updated Name 1" },
 				{ growthStage: "FATTENING" as const },
-				{ name: "Updated Name 2", growthStage: "MULTI_PAROUS" as const },
+				{ name: "Updated Name 2", growthStage: "MULTI_PAROUS" as const }
 			];
 
 			const promises = updateDataSets.map((data, index) =>
-				cattleRepository.updateCattle(mockDb, index + 1, data),
+				cattleRepository.updateCattle(mockDb, index + 1, data)
 			);
 
 			for (const promise of promises) {

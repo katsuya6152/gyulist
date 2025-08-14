@@ -4,5 +4,5 @@ export const corsMiddleware = cors({
 	origin: ["http://localhost:3000", "https://gyulist.com"],
 	allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 	allowHeaders: ["Content-Type", "Authorization"],
-	credentials: true,
+	credentials: true
 });

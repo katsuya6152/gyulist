@@ -1,6 +1,6 @@
 export async function verifyTurnstile(
 	secret: string,
-	token: string,
+	token: string
 ): Promise<boolean> {
 	const body = new URLSearchParams({ secret, response: token });
 	const res = await fetch(
@@ -8,8 +8,8 @@ export async function verifyTurnstile(
 		{
 			method: "POST",
 			headers: { "Content-Type": "application/x-www-form-urlencoded" },
-			body,
-		},
+			body
+		}
 	);
 	if (!res.ok) {
 		throw new Error(`turnstile error: ${res.status}`);

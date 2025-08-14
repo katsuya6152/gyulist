@@ -6,12 +6,12 @@ import {
 	findEventById,
 	findEventsByCattleId,
 	searchEvents,
-	updateEvent,
+	updateEvent
 } from "../repositories/eventRepository";
 import type {
 	CreateEventInput,
 	SearchEventQuery,
-	UpdateEventInput,
+	UpdateEventInput
 } from "../validators/eventValidator";
 import { updateStatus } from "./cattleService";
 
@@ -19,7 +19,7 @@ import { updateStatus } from "./cattleService";
 export async function getEventsByCattleId(
 	db: AnyD1Database,
 	cattleId: number,
-	ownerUserId: number,
+	ownerUserId: number
 ) {
 	// 牛の存在確認と所有者チェック
 	const cattle = await findCattleById(db, cattleId);
@@ -34,7 +34,7 @@ export async function getEventsByCattleId(
 export async function searchEventList(
 	db: AnyD1Database,
 	ownerUserId: number,
-	query: SearchEventQuery,
+	query: SearchEventQuery
 ) {
 	return await searchEvents(db, ownerUserId, query);
 }
@@ -43,7 +43,7 @@ export async function searchEventList(
 export async function getEventById(
 	db: AnyD1Database,
 	eventId: number,
-	ownerUserId: number,
+	ownerUserId: number
 ) {
 	const event = await findEventById(db, eventId, ownerUserId);
 	if (!event) {
@@ -56,7 +56,7 @@ export async function getEventById(
 export async function createNewEvent(
 	db: AnyD1Database,
 	data: CreateEventInput,
-	ownerUserId: number,
+	ownerUserId: number
 ) {
 	// 牛の存在確認と所有者チェック
 	const cattle = await findCattleById(db, data.cattleId);
@@ -83,7 +83,7 @@ export async function updateEventData(
 	db: AnyD1Database,
 	eventId: number,
 	data: UpdateEventInput,
-	ownerUserId: number,
+	ownerUserId: number
 ) {
 	// イベントの存在確認と所有者チェック
 	const existingEvent = await findEventById(db, eventId, ownerUserId);
@@ -102,7 +102,7 @@ export async function updateEventData(
 export async function deleteEventData(
 	db: AnyD1Database,
 	eventId: number,
-	ownerUserId: number,
+	ownerUserId: number
 ) {
 	// イベントの存在確認と所有者チェック
 	const existingEvent = await findEventById(db, eventId, ownerUserId);

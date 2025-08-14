@@ -17,7 +17,7 @@ describe("UserService", () => {
 			mockUserRepository.findUserById.mockResolvedValue(
 				mockUser as Parameters<
 					typeof mockUserRepository.findUserById.mockResolvedValue
-				>[0],
+				>[0]
 			);
 
 			// Act
@@ -44,7 +44,7 @@ describe("UserService", () => {
 		it("should throw error when database fails", async () => {
 			// Arrange
 			mockUserRepository.findUserById.mockRejectedValue(
-				new Error("Database error"),
+				new Error("Database error")
 			);
 
 			// Act & Assert
@@ -66,7 +66,7 @@ describe("UserService", () => {
 			expect(mockUserRepository.updateUserTheme).toHaveBeenCalledWith(
 				mockDB,
 				1,
-				"dark",
+				"dark"
 			);
 		});
 
@@ -82,7 +82,7 @@ describe("UserService", () => {
 			expect(mockUserRepository.updateUserTheme).toHaveBeenCalledWith(
 				mockDB,
 				1,
-				"light",
+				"light"
 			);
 		});
 
@@ -98,24 +98,24 @@ describe("UserService", () => {
 			expect(mockUserRepository.updateUserTheme).toHaveBeenCalledWith(
 				mockDB,
 				1,
-				"system",
+				"system"
 			);
 		});
 
 		it("should throw error when update fails", async () => {
 			// Arrange
 			mockUserRepository.updateUserTheme.mockRejectedValue(
-				new Error("Database update error"),
+				new Error("Database update error")
 			);
 
 			// Act & Assert
 			await expect(updateTheme(mockDB, 1, "dark")).rejects.toThrow(
-				"Database update error",
+				"Database update error"
 			);
 			expect(mockUserRepository.updateUserTheme).toHaveBeenCalledWith(
 				mockDB,
 				1,
-				"dark",
+				"dark"
 			);
 		});
 
@@ -132,7 +132,7 @@ describe("UserService", () => {
 			expect(mockUserRepository.updateUserTheme).toHaveBeenCalledWith(
 				mockDB,
 				999,
-				"dark",
+				"dark"
 			);
 		});
 	});

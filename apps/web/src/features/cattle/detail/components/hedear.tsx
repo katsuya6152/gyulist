@@ -10,7 +10,7 @@ import {
 	DrawerFooter,
 	DrawerHeader,
 	DrawerTitle,
-	DrawerTrigger,
+	DrawerTrigger
 } from "@/components/ui/drawer";
 import { getGrowthStage } from "@/lib/utils";
 import type { GetCattleDetailResType } from "@/services/cattleService";
@@ -50,7 +50,7 @@ export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 			if (result.success) {
 				if ("message" in result && result.message === "demo") {
 					toast.info("牛の削除が完了しました", {
-						description: "デモアカウントのため、実際に削除はされていません",
+						description: "デモアカウントのため、実際に削除はされていません"
 					});
 				} else {
 					// 削除成功時のトースト表示
@@ -60,8 +60,8 @@ export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 						style: {
 							background: "#f0fdf4",
 							border: "1px solid #bbf7d0",
-							color: "#166534",
-						},
+							color: "#166534"
+						}
 					});
 				}
 				// 牛一覧ページにリダイレクト
@@ -73,8 +73,8 @@ export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 					style: {
 						background: "#fef2f2",
 						border: "1px solid #fecaca",
-						color: "#dc2626",
-					},
+						color: "#dc2626"
+					}
 				});
 			}
 		} catch (error) {
@@ -84,8 +84,8 @@ export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 				style: {
 					background: "#fef2f2",
 					border: "1px solid #fecaca",
-					color: "#dc2626",
-				},
+					color: "#dc2626"
+				}
 			});
 		} finally {
 			setIsDeleting(false);
@@ -102,7 +102,7 @@ export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 						<span
 							className={classNames("font-semibold", {
 								"text-blue-500": cattle.gender === "オス",
-								"text-red-500": cattle.gender === "メス",
+								"text-red-500": cattle.gender === "メス"
 							})}
 						>
 							{cattle.gender}

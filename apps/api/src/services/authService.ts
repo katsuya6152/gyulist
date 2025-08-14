@@ -7,18 +7,18 @@ import {
 	createUser,
 	findUserByEmail,
 	findUserByVerificationToken,
-	updateLastLoginAt,
+	updateLastLoginAt
 } from "../repositories/userRepository";
 import type { Bindings } from "../types";
 import type {
 	CompleteInput,
 	LoginInput,
-	RegisterInput,
+	RegisterInput
 } from "../validators/authValidator";
 export async function register(
 	env: Bindings,
 	dbInstance: AnyD1Database,
-	input: RegisterInput,
+	input: RegisterInput
 ) {
 	const existingUser = await findUserByEmail(dbInstance, input.email);
 	if (existingUser) {
@@ -26,7 +26,7 @@ export async function register(
 		console.error("このメールアドレスは既に登録されています。");
 		return {
 			success: true,
-			message: "仮登録が完了しました。メールを確認してください。",
+			message: "仮登録が完了しました。メールを確認してください。"
 		};
 	}
 
@@ -35,14 +35,14 @@ export async function register(
 	await sendVerificationEmail(env, input.email, token);
 	return {
 		success: true,
-		message: "仮登録が完了しました。メールを確認してください。",
+		message: "仮登録が完了しました。メールを確認してください。"
 	};
 }
 
 export async function verifyToken(
 	env: Bindings,
 	dbInstance: AnyD1Database,
-	token: string,
+	token: string
 ) {
 	const user = await findUserByVerificationToken(dbInstance, token);
 	if (!user) {
@@ -53,14 +53,14 @@ export async function verifyToken(
 	}
 	return {
 		success: true,
-		message: "トークンは有効です。本登録を完了してください。",
+		message: "トークンは有効です。本登録を完了してください。"
 	};
 }
 
 export async function completeRegistration(
 	env: Bindings,
 	dbInstance: AnyD1Database,
-	input: CompleteInput,
+	input: CompleteInput
 ) {
 	const user = await findUserByVerificationToken(dbInstance, input.token);
 	if (!user) {
@@ -74,25 +74,25 @@ export async function completeRegistration(
 		dbInstance,
 		input.token,
 		input.name,
-		passwordHash,
+		passwordHash
 	);
 	return {
 		success: true,
-		message: "本登録が完了しました。ログインしてください。",
+		message: "本登録が完了しました。ログインしてください。"
 	};
 }
 
 export async function login(
 	dbInstance: AnyD1Database,
 	jwtSecret: string,
-	input: LoginInput,
+	input: LoginInput
 ) {
 	const user = await findUserByEmail(dbInstance, input.email);
 
 	if (!user) {
 		return {
 			success: false,
-			message: "メールアドレスまたはパスワードが正しくありません",
+			message: "メールアドレスまたはパスワードが正しくありません"
 		};
 	}
 
@@ -100,7 +100,7 @@ export async function login(
 	if (user.passwordHash?.startsWith("oauth_dummy_")) {
 		return {
 			success: false,
-			message: "このアカウントはGoogleログインでご利用ください",
+			message: "このアカウントはGoogleログインでご利用ください"
 		};
 	}
 
@@ -109,7 +109,7 @@ export async function login(
 		return {
 			success: false,
 			message:
-				"メールアドレスまたはパスワードもしくはログイン方法が正しくありません",
+				"メールアドレスまたはパスワードもしくはログイン方法が正しくありません"
 		};
 	}
 
@@ -117,7 +117,7 @@ export async function login(
 	if (!valid) {
 		return {
 			success: false,
-			message: "メールアドレスまたはパスワードが正しくありません",
+			message: "メールアドレスまたはパスワードが正しくありません"
 		};
 	}
 

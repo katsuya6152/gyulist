@@ -7,7 +7,7 @@ export const createMockDB = (): AnyD1Database => {
 		prepare: vi.fn(),
 		dump: vi.fn(),
 		batch: vi.fn(),
-		exec: vi.fn(),
+		exec: vi.fn()
 	} as unknown as AnyD1Database;
 };
 
@@ -21,7 +21,7 @@ export const mockUser = {
 	verificationToken: null,
 	lastLoginAt: null,
 	createdAt: "2024-01-01T00:00:00Z",
-	updatedAt: "2024-01-01T00:00:00Z",
+	updatedAt: "2024-01-01T00:00:00Z"
 };
 
 // Mock cattle data that matches findCattleById return type
@@ -51,7 +51,7 @@ export const mockCattle = {
 	motherInfo: null,
 	breedingStatus: null,
 	breedingSummary: null,
-	events: [],
+	events: []
 };
 
 // Mock event data that matches findEventById return type
@@ -64,7 +64,7 @@ export const mockEvent = {
 	createdAt: "2024-01-01T00:00:00Z",
 	updatedAt: "2024-01-01T00:00:00Z",
 	cattleName: "テスト牛",
-	cattleEarTagNumber: 1234,
+	cattleEarTagNumber: 1234
 };
 
 export const mockEvents = [
@@ -78,8 +78,8 @@ export const mockEvents = [
 		createdAt: "2024-01-02T00:00:00Z",
 		updatedAt: "2024-01-02T00:00:00Z",
 		cattleName: "テスト牛",
-		cattleEarTagNumber: 1234,
-	},
+		cattleEarTagNumber: 1234
+	}
 ];
 
 // Mock created event data that matches createEvent return type
@@ -90,5 +90,5 @@ export const mockCreatedEvent = {
 	eventDatetime: "2024-01-01T10:00:00Z",
 	notes: "テストイベント",
 	createdAt: "2024-01-01T00:00:00Z",
-	updatedAt: "2024-01-01T00:00:00Z",
+	updatedAt: "2024-01-01T00:00:00Z"
 };

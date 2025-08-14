@@ -5,7 +5,7 @@ import {
 	findCalvingOverdue,
 	findCalvingWithin60,
 	findEstrusOver20NotPregnant,
-	findOpenDaysOver60NoAI,
+	findOpenDaysOver60NoAI
 } from "../../../src/repositories/alertRepository";
 
 type Cattle = {
@@ -71,7 +71,7 @@ class FakeDB implements AnyD1Database {
 			}
 			const results: RawAlertRow[] = [];
 			for (const c of this.cattle.filter(
-				(c) => c.ownerUserId === ownerUserId,
+				(c) => c.ownerUserId === ownerUserId
 			)) {
 				const lastCalving = lastCalvingMap.get(c.cattleId);
 				if (!lastCalving) continue;
@@ -92,14 +92,14 @@ class FakeDB implements AnyD1Database {
 					(e) =>
 						e.cattleId === c.cattleId &&
 						e.eventType === "INSEMINATION" &&
-						new Date(e.eventDatetime) > new Date(lastCalving),
+						new Date(e.eventDatetime) > new Date(lastCalving)
 				);
 				if (hasInseminationAfter) continue;
 				results.push({
 					cattleId: c.cattleId,
 					cattleName: c.name,
 					cattleEarTagNumber: c.earTagNumber?.toString() ?? null,
-					dueAt: lastCalving,
+					dueAt: lastCalving
 				});
 			}
 			return results;
@@ -113,7 +113,7 @@ class FakeDB implements AnyD1Database {
 			for (const bs of this.breeding) {
 				if (!bs.expectedCalvingDate) continue;
 				const c = this.cattle.find(
-					(x) => x.cattleId === bs.cattleId && x.ownerUserId === ownerUserId,
+					(x) => x.cattleId === bs.cattleId && x.ownerUserId === ownerUserId
 				);
 				if (!c) continue;
 				const date = new Date(bs.expectedCalvingDate);
@@ -122,7 +122,7 @@ class FakeDB implements AnyD1Database {
 						cattleId: c.cattleId,
 						cattleName: c.name,
 						cattleEarTagNumber: c.earTagNumber?.toString() ?? null,
-						dueAt: bs.expectedCalvingDate,
+						dueAt: bs.expectedCalvingDate
 					});
 				}
 			}
@@ -139,7 +139,7 @@ class FakeDB implements AnyD1Database {
 			for (const bs of this.breeding) {
 				if (!bs.expectedCalvingDate) continue;
 				const c = this.cattle.find(
-					(x) => x.cattleId === bs.cattleId && x.ownerUserId === ownerUserId,
+					(x) => x.cattleId === bs.cattleId && x.ownerUserId === ownerUserId
 				);
 				if (!c) continue;
 				if (c.status === "RESTING") continue;
@@ -149,7 +149,7 @@ class FakeDB implements AnyD1Database {
 						cattleId: c.cattleId,
 						cattleName: c.name,
 						cattleEarTagNumber: c.earTagNumber?.toString() ?? null,
-						dueAt: bs.expectedCalvingDate,
+						dueAt: bs.expectedCalvingDate
 					});
 				}
 			}
@@ -168,7 +168,7 @@ class FakeDB implements AnyD1Database {
 			}
 			const results: RawAlertRow[] = [];
 			for (const c of this.cattle.filter(
-				(c) => c.ownerUserId === ownerUserId,
+				(c) => c.ownerUserId === ownerUserId
 			)) {
 				if (c.status === "PREGNANT") continue;
 				const last = lastEstrusMap.get(c.cattleId);
@@ -180,7 +180,7 @@ class FakeDB implements AnyD1Database {
 						cattleId: c.cattleId,
 						cattleName: c.name,
 						cattleEarTagNumber: c.earTagNumber?.toString() ?? null,
-						dueAt: last,
+						dueAt: last
 					});
 				}
 			}
@@ -201,29 +201,29 @@ describe("alertRepository logic extraction with mock data", () => {
 			ownerUserId: owner,
 			name: "A",
 			earTagNumber: 111,
-			status: "HEALTHY",
+			status: "HEALTHY"
 		},
 		{
 			cattleId: 2,
 			ownerUserId: owner,
 			name: "B",
 			earTagNumber: 222,
-			status: "PREGNANT",
+			status: "PREGNANT"
 		},
 		{
 			cattleId: 3,
 			ownerUserId: owner,
 			name: "C",
 			earTagNumber: 333,
-			status: "RESTING",
+			status: "RESTING"
 		},
 		{
 			cattleId: 4,
 			ownerUserId: owner,
 			name: "D",
 			earTagNumber: 444,
-			status: "HEALTHY",
-		},
+			status: "HEALTHY"
+		}
 	];
 
 	const events: Event[] = [
@@ -231,13 +231,13 @@ describe("alertRepository logic extraction with mock data", () => {
 		{
 			cattleId: 1,
 			eventType: "CALVING",
-			eventDatetime: "2024-10-01T00:00:00Z",
+			eventDatetime: "2024-10-01T00:00:00Z"
 		},
 		// Insemination for cow1 BEFORE calving (should not exclude)
 		{
 			cattleId: 1,
 			eventType: "INSEMINATION",
-			eventDatetime: "2024-09-01T00:00:00Z",
+			eventDatetime: "2024-09-01T00:00:00Z"
 		},
 		// Estrus for cow1 25 days before now
 		{ cattleId: 1, eventType: "ESTRUS", eventDatetime: "2024-11-15T00:00:00Z" },
@@ -249,14 +249,14 @@ describe("alertRepository logic extraction with mock data", () => {
 		{
 			cattleId: 4,
 			eventType: "CALVING",
-			eventDatetime: "2024-01-01T00:00:00Z",
-		},
+			eventDatetime: "2024-01-01T00:00:00Z"
+		}
 	];
 
 	const breeding: BreedingStatus[] = [
 		{ cattleId: 2, expectedCalvingDate: "2025-03-01T00:00:00Z" }, // within 60d if now is 2025-01-10 (not our now)
 		{ cattleId: 3, expectedCalvingDate: "2024-12-01T00:00:00Z" }, // overdue but RESTING
-		{ cattleId: 4, expectedCalvingDate: "2024-10-15T00:00:00Z" }, // before last calving -> ignore in open-days, but overdue overall
+		{ cattleId: 4, expectedCalvingDate: "2024-10-15T00:00:00Z" } // before last calving -> ignore in open-days, but overdue overall
 	];
 
 	const db = new FakeDB(cattle, events, breeding) as unknown as AnyD1Database;

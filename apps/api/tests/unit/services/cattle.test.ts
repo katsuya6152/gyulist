@@ -7,7 +7,7 @@ import {
 	getCattleById,
 	searchCattleList,
 	updateCattleData,
-	updateStatus,
+	updateStatus
 } from "../../../src/services/cattleService";
 import * as dateUtils from "../../../src/utils/date";
 import { mockCattle } from "../../fixtures/database";
@@ -26,13 +26,13 @@ vi.mock("../../../src/repositories/cattleRepository", () => ({
 	updateBreedingStatus: vi.fn(),
 	updateBreedingSummary: vi.fn(),
 	updateCattleStatus: vi.fn(),
-	createStatusHistory: vi.fn(),
+	createStatusHistory: vi.fn()
 }));
 const mockCattleRepository = vi.mocked(cattleRepository);
 
 // utilsをモック
 vi.mock("../../../src/utils/date", () => ({
-	calculateAge: vi.fn(),
+	calculateAge: vi.fn()
 }));
 
 describe("CattleService", () => {
@@ -101,17 +101,17 @@ describe("CattleService", () => {
 				earTagNumber: 54321,
 				birthday: "2022-01-01",
 				gender: "雌",
-				growthStage: "GROWING" as const,
+				growthStage: "GROWING" as const
 			};
 
 			const searchQuery = {
 				limit: 10,
 				sort_by: "id" as const,
-				sort_order: "asc" as const,
+				sort_order: "asc" as const
 			};
 
 			const updateData = {
-				name: "Updated Cattle",
+				name: "Updated Cattle"
 			};
 
 			const result1 = getCattleById(mockDb, 1);
@@ -136,7 +136,7 @@ describe("CattleService", () => {
 				"CALF",
 				"GROWING",
 				"FATTENING",
-				"MULTI_PAROUS",
+				"MULTI_PAROUS"
 			] as const;
 
 			const promises = growthStages.map((growthStage) => {
@@ -147,7 +147,7 @@ describe("CattleService", () => {
 					earTagNumber: 54321,
 					birthday: "2022-01-01",
 					gender: "雌",
-					growthStage,
+					growthStage
 				};
 				return createNewCattle(mockDb, cattleData);
 			});
@@ -167,7 +167,7 @@ describe("CattleService", () => {
 					identificationNumber: 12345,
 					earTagNumber: 54321,
 					gender: "雌",
-					growthStage: "GROWING" as const,
+					growthStage: "GROWING" as const
 				},
 				{
 					ownerUserId: 1,
@@ -176,7 +176,7 @@ describe("CattleService", () => {
 					earTagNumber: 54322,
 					birthday: "2022-01-01",
 					gender: "雄",
-					growthStage: "CALF" as const,
+					growthStage: "CALF" as const
 				},
 				{
 					ownerUserId: 1,
@@ -187,13 +187,13 @@ describe("CattleService", () => {
 					gender: "雌",
 					growthStage: "FATTENING" as const,
 					bloodline: {
-						fatherCattleName: "Father Bull",
-					},
-				},
+						fatherCattleName: "Father Bull"
+					}
+				}
 			];
 
 			const promises = cattleDataSets.map((data) =>
-				createNewCattle(mockDb, data),
+				createNewCattle(mockDb, data)
 			);
 
 			for (const promise of promises) {
@@ -208,13 +208,13 @@ describe("CattleService", () => {
 				{
 					limit: 10,
 					sort_by: "id" as const,
-					sort_order: "asc" as const,
+					sort_order: "asc" as const
 				},
 				{
 					limit: 20,
 					sort_by: "name" as const,
 					sort_order: "desc" as const,
-					search: "test",
+					search: "test"
 				},
 				{
 					limit: 15,
@@ -226,12 +226,12 @@ describe("CattleService", () => {
 						| "FATTENING"
 						| "MULTI_PAROUS"
 					)[],
-					gender: ["メス"] as ("メス" | "オス")[],
-				},
+					gender: ["メス"] as ("メス" | "オス")[]
+				}
 			];
 
 			const promises = searchQueries.map((query) =>
-				searchCattleList(mockDb, 1, query),
+				searchCattleList(mockDb, 1, query)
 			);
 
 			for (const promise of promises) {
@@ -247,16 +247,16 @@ describe("CattleService", () => {
 				{ birthday: "2021-01-01" },
 				{
 					name: "Updated with bloodline",
-					bloodline: { fatherCattleName: "New Father" },
+					bloodline: { fatherCattleName: "New Father" }
 				},
 				{
 					name: "Updated with breeding",
-					breedingStatus: { breedingMemo: "Test memo" },
-				},
+					breedingStatus: { breedingMemo: "Test memo" }
+				}
 			];
 
 			const promises = updateDataSets.map((data, index) =>
-				updateCattleData(mockDb, index + 1, data),
+				updateCattleData(mockDb, index + 1, data)
 			);
 
 			for (const promise of promises) {
@@ -271,11 +271,11 @@ describe("CattleService", () => {
 		it("should update status and create history", async () => {
 			mockCattleRepository.findCattleById.mockResolvedValue({
 				...mockCattle,
-				status: "HEALTHY",
+				status: "HEALTHY"
 			});
 			mockCattleRepository.updateCattleStatus.mockResolvedValue({
 				...mockCattle,
-				status: "PREGNANT",
+				status: "PREGNANT"
 			});
 			mockCattleRepository.createStatusHistory.mockResolvedValue({
 				cattleId: 1,
@@ -284,7 +284,7 @@ describe("CattleService", () => {
 				newStatus: "PREGNANT",
 				changedAt: new Date().toISOString(),
 				changedBy: 1,
-				reason: "reason",
+				reason: "reason"
 			} as unknown as Awaited<
 				ReturnType<typeof cattleRepository.createStatusHistory>
 			>);
@@ -293,12 +293,12 @@ describe("CattleService", () => {
 
 			expect(mockCattleRepository.findCattleById).toHaveBeenCalledWith(
 				mockDb,
-				1,
+				1
 			);
 			expect(mockCattleRepository.updateCattleStatus).toHaveBeenCalledWith(
 				mockDb,
 				1,
-				"PREGNANT",
+				"PREGNANT"
 			);
 			expect(mockCattleRepository.createStatusHistory).toHaveBeenCalledWith(
 				mockDb,
@@ -307,8 +307,8 @@ describe("CattleService", () => {
 					oldStatus: "HEALTHY",
 					newStatus: "PREGNANT",
 					changedBy: 1,
-					reason: "reason",
-				},
+					reason: "reason"
+				}
 			);
 			expect(result.status).toBe("PREGNANT");
 		});
@@ -316,11 +316,11 @@ describe("CattleService", () => {
 		it("should allow status change from final status", async () => {
 			mockCattleRepository.findCattleById.mockResolvedValue({
 				...mockCattle,
-				status: "SHIPPED",
+				status: "SHIPPED"
 			});
 			mockCattleRepository.updateCattleStatus.mockResolvedValue({
 				...mockCattle,
-				status: "PREGNANT",
+				status: "PREGNANT"
 			});
 			mockCattleRepository.createStatusHistory.mockResolvedValue({
 				cattleId: 1,
@@ -329,7 +329,7 @@ describe("CattleService", () => {
 				newStatus: "PREGNANT",
 				changedAt: new Date().toISOString(),
 				changedBy: 1,
-				reason: null,
+				reason: null
 			} as unknown as Awaited<
 				ReturnType<typeof cattleRepository.createStatusHistory>
 			>);
@@ -338,12 +338,12 @@ describe("CattleService", () => {
 
 			expect(mockCattleRepository.findCattleById).toHaveBeenCalledWith(
 				mockDb,
-				1,
+				1
 			);
 			expect(mockCattleRepository.updateCattleStatus).toHaveBeenCalledWith(
 				mockDb,
 				1,
-				"PREGNANT",
+				"PREGNANT"
 			);
 			expect(mockCattleRepository.createStatusHistory).toHaveBeenCalledWith(
 				mockDb,
@@ -352,8 +352,8 @@ describe("CattleService", () => {
 					oldStatus: "SHIPPED",
 					newStatus: "PREGNANT",
 					changedBy: 1,
-					reason: null,
-				},
+					reason: null
+				}
 			);
 			expect(result.status).toBe("PREGNANT");
 		});
@@ -363,17 +363,17 @@ describe("CattleService", () => {
 			it("createNewCattle computes derived fields and persists related entities", async () => {
 				mockCattleRepository.createCattle.mockResolvedValue({
 					cattleId: 10,
-					birthday: "2022-01-01",
+					birthday: "2022-01-01"
 				} as unknown as Awaited<
 					ReturnType<typeof cattleRepository.createCattle>
 				>);
 				mockCattleRepository.createBreedingStatus.mockResolvedValue({
-					id: 1,
+					id: 1
 				} as unknown as Awaited<
 					ReturnType<typeof cattleRepository.createBreedingStatus>
 				>);
 				mockCattleRepository.createBreedingSummary.mockResolvedValue({
-					id: 1,
+					id: 1
 				} as unknown as Awaited<
 					ReturnType<typeof cattleRepository.createBreedingSummary>
 				>);
@@ -396,9 +396,9 @@ describe("CattleService", () => {
 					bloodline: { fatherCattleName: "Bull" },
 					breedingStatus: {
 						expectedCalvingDate: "2025-01-01",
-						scheduledPregnancyCheckDate: "2024-01-01",
+						scheduledPregnancyCheckDate: "2024-01-01"
 					},
-					breedingSummary: { totalInseminationCount: 3 },
+					breedingSummary: { totalInseminationCount: 3 }
 				} as unknown as Parameters<typeof createNewCattle>[1]);
 
 				expect(mockCattleRepository.createCattle).toHaveBeenCalled();
@@ -407,25 +407,25 @@ describe("CattleService", () => {
 					10,
 					expect.objectContaining({
 						parity: expect.any(Number),
-						pregnancyDays: expect.any(Number),
-					}),
+						pregnancyDays: expect.any(Number)
+					})
 				);
 				expect(mockCattleRepository.createBreedingSummary).toHaveBeenCalled();
 			});
 
 			it("updateCattleData recalculates age when birthday provided and updates related entities", async () => {
 				mockCattleRepository.updateCattle.mockResolvedValue({
-					cattleId: 11,
+					cattleId: 11
 				} as unknown as Awaited<
 					ReturnType<typeof cattleRepository.updateCattle>
 				>);
 				mockCattleRepository.updateBreedingStatus.mockResolvedValue({
-					id: 1,
+					id: 1
 				} as unknown as Awaited<
 					ReturnType<typeof cattleRepository.updateBreedingStatus>
 				>);
 				mockCattleRepository.updateBreedingSummary.mockResolvedValue({
-					id: 1,
+					id: 1
 				} as unknown as Awaited<
 					ReturnType<typeof cattleRepository.updateBreedingSummary>
 				>);
@@ -438,7 +438,7 @@ describe("CattleService", () => {
 					birthday: "2020-01-01",
 					bloodline: { fatherCattleName: "New Father" },
 					breedingStatus: { breedingMemo: "memo" },
-					breedingSummary: { totalInseminationCount: 5 },
+					breedingSummary: { totalInseminationCount: 5 }
 				} as unknown as Parameters<typeof updateCattleData>[2]);
 
 				expect(mockCattleRepository.updateCattle).toHaveBeenCalled();
@@ -451,13 +451,13 @@ describe("CattleService", () => {
 				mockCattleRepository.searchCattle.mockResolvedValueOnce(
 					[] as unknown as Awaited<
 						ReturnType<typeof cattleRepository.searchCattle>
-					>,
+					>
 				);
 				await searchCattleList(mockDb, 1, {
 					limit: 1,
 					sort_by: "id",
 					sort_order: "asc",
-					cursor: "invalid!",
+					cursor: "invalid!"
 				} as unknown as Parameters<typeof searchCattleList>[2]);
 				expect(spy).toHaveBeenCalled();
 				spy.mockRestore();
@@ -466,11 +466,11 @@ describe("CattleService", () => {
 			it("searchCattleList builds nextCursor for days_old sort", async () => {
 				const items: Array<{ cattleId: number; birthday: string }> = [
 					{ cattleId: 1, birthday: "2024-01-01" },
-					{ cattleId: 2, birthday: "2023-01-01" },
+					{ cattleId: 2, birthday: "2023-01-01" }
 				];
 				mockCattleRepository.searchCattle.mockResolvedValueOnce([
 					...items,
-					{ cattleId: 999 },
+					{ cattleId: 999 }
 				] as Array<{
 					cattleId: number;
 					birthday?: string;
@@ -480,7 +480,7 @@ describe("CattleService", () => {
 				const res = await searchCattleList(mockDb, 1, {
 					limit: 2,
 					sort_by: "days_old",
-					sort_order: "asc",
+					sort_order: "asc"
 				} as unknown as Parameters<typeof searchCattleList>[2]);
 				expect(res.has_next).toBe(true);
 				expect(res.next_cursor).not.toBeNull();
@@ -494,7 +494,7 @@ describe("CattleService", () => {
 				mockCattleRepository.findCattleById.mockResolvedValueOnce(
 					null as unknown as Awaited<
 						ReturnType<typeof cattleRepository.findCattleById>
-					>,
+					>
 				);
 				await expect(updateStatus(mockDb, 1, "HEALTHY", 99)).rejects.toThrow();
 			});

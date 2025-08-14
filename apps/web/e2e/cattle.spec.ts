@@ -103,7 +103,7 @@ test.describe("牛の管理機能", () => {
 
 		// イベント追加ボタンが表示されることを確認
 		await expect(
-			page.getByRole("button", { name: "イベント登録" }),
+			page.getByRole("button", { name: "イベント登録" })
 		).toBeVisible();
 
 		// 戻るボタンの動作確認

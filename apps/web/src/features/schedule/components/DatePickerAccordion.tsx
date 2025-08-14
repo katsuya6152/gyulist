@@ -4,7 +4,7 @@ import {
 	Accordion,
 	AccordionContent,
 	AccordionItem,
-	AccordionTrigger,
+	AccordionTrigger
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +24,7 @@ export const DatePickerAccordion = memo(
 		selectedDate,
 		onDateChange,
 		onSearchClick,
-		onClearDate,
+		onClearDate
 	}: DatePickerAccordionProps) => (
 		<div className="mb-6">
 			<Accordion type="single" collapsible className="w-full">
@@ -77,7 +77,7 @@ export const DatePickerAccordion = memo(
 				</AccordionItem>
 			</Accordion>
 		</div>
-	),
+	)
 );
 
 DatePickerAccordion.displayName = "DatePickerAccordion";

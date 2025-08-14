@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	Popover,
 	PopoverContent,
-	PopoverTrigger,
+	PopoverTrigger
 } from "@/components/ui/popover";
 import { eventTypeColors } from "@/constants/events";
 import { statusLabelMap, statusOptions } from "@/features/cattle/constants";
@@ -28,7 +28,7 @@ import {
 	Skull,
 	Syringe,
 	TrendingUp,
-	Truck,
+	Truck
 } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -38,7 +38,7 @@ const STATUS_ICON_MAP: Record<CattleStatus, ReactNode> = {
 	RESTING: <Bed className="h-4 w-4 text-green-500" />,
 	TREATING: <Syringe className="h-4 w-4 text-red-500" />,
 	SHIPPED: <Truck className="h-4 w-4 text-gray-500" />,
-	DEAD: <Skull className="h-4 w-4 text-red-600" />,
+	DEAD: <Skull className="h-4 w-4 text-red-600" />
 };
 
 const STATUS_TEXT_CLASS_MAP: Record<CattleStatus, string> = {
@@ -47,7 +47,7 @@ const STATUS_TEXT_CLASS_MAP: Record<CattleStatus, string> = {
 	RESTING: "text-green-500",
 	TREATING: "text-red-500",
 	SHIPPED: "text-gray-500",
-	DEAD: "text-red-600",
+	DEAD: "text-red-600"
 };
 
 const STATUS_BORDER_CLASS_MAP: Record<CattleStatus, string> = {
@@ -56,7 +56,7 @@ const STATUS_BORDER_CLASS_MAP: Record<CattleStatus, string> = {
 	RESTING: "border-green-500",
 	TREATING: "border-red-500",
 	SHIPPED: "border-gray-500",
-	DEAD: "border-red-600",
+	DEAD: "border-red-600"
 };
 
 //
@@ -109,18 +109,18 @@ export function HomePresentation({
 	alerts,
 	breedingKpi,
 	kpiTrendDeltas,
-	error,
+	error
 }: HomePresentationProps) {
 	const SEVERITY_ICON_MAP: Record<"high" | "medium" | "low", ReactNode> = {
 		high: <AlertTriangle className="h-4 w-4" />,
 		medium: <Bell className="h-4 w-4" />,
-		low: <Info className="h-4 w-4" />,
+		low: <Info className="h-4 w-4" />
 	};
 
 	const SEVERITY_TEXT_CLASS_MAP: Record<"high" | "medium" | "low", string> = {
 		high: "text-red-600",
 		medium: "text-amber-600",
-		low: "text-blue-600",
+		low: "text-blue-600"
 	};
 
 	// KPIトレンド（前月比のみ表示）
@@ -132,7 +132,7 @@ export function HomePresentation({
 				avgCalvingInterval: number | null;
 				aiPerConception: number | null;
 			};
-		}>,
+		}>
 	) => (Array.isArray(arr) && arr.length > 0 ? arr[arr.length - 1] : undefined);
 	const latestDelta = latest(kpiTrendDeltas);
 	const rateDelta: number | null = latestDelta?.metrics?.conceptionRate ?? null;
@@ -293,7 +293,7 @@ export function HomePresentation({
 									breedingKpi.conceptionRate != null
 										? `${breedingKpi.conceptionRate}%`
 										: "-",
-								tip: "今月のAI本数に対する、今月に分娩で受胎確定できた割合",
+								tip: "今月のAI本数に対する、今月に分娩で受胎確定できた割合"
 							},
 							{
 								key: "平均空胎日数",
@@ -301,7 +301,7 @@ export function HomePresentation({
 									breedingKpi.avgDaysOpen != null
 										? `${breedingKpi.avgDaysOpen}日`
 										: "-",
-								tip: "前回分娩から受胎AIまでの日数の平均（今月に受胎AIがあったケース）",
+								tip: "前回分娩から受胎AIまでの日数の平均（今月に受胎AIがあったケース）"
 							},
 							{
 								key: "分娩間隔",
@@ -309,7 +309,7 @@ export function HomePresentation({
 									breedingKpi.avgCalvingInterval != null
 										? `${breedingKpi.avgCalvingInterval}日`
 										: "-",
-								tip: "同一個体の連続分娩の間隔の平均（後側分娩が今月のもの）",
+								tip: "同一個体の連続分娩の間隔の平均（後側分娩が今月のもの）"
 							},
 							{
 								key: "AI回数/受胎",
@@ -317,8 +317,8 @@ export function HomePresentation({
 									breedingKpi.aiPerConception != null
 										? `${breedingKpi.aiPerConception}回`
 										: "-",
-								tip: "受胎成立までに要したAI本数の平均（今月に受胎成立したケース）",
-							},
+								tip: "受胎成立までに要したAI本数の平均（今月に受胎成立したケース）"
+							}
 						].map((kpi) => (
 							<div key={kpi.key} className="rounded-md border p-3">
 								<div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">

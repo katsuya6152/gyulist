@@ -10,7 +10,7 @@ export const preRegisterSchema = z.object({
 	referralSource: z.string().optional(),
 	turnstileToken: z
 		.string({ required_error: "必須項目です" })
-		.min(10, "無効な検証トークンです"),
+		.min(10, "無効な検証トークンです")
 });
 
 export type PreRegisterInput = z.infer<typeof preRegisterSchema>;
@@ -29,10 +29,10 @@ export type PreRegisterError = {
 export type PreRegisterResponse = PreRegisterSuccess | PreRegisterError;
 
 export async function preRegister(
-	data: PreRegisterInput,
+	data: PreRegisterInput
 ): Promise<PreRegisterResponse> {
 	const res = await client.api.v1["pre-register"].$post({
-		json: data,
+		json: data
 	});
 	const json = (await res.json()) as PreRegisterResponse;
 	return json;
@@ -65,7 +65,7 @@ export type ListRegistrationsResponse = {
 
 export async function listRegistrations(
 	query: RegistrationsQuery,
-	basicAuthToken: string,
+	basicAuthToken: string
 ): Promise<ListRegistrationsResponse> {
 	const res = await client.api.v1.admin.registrations.$get(
 		{
@@ -79,14 +79,14 @@ export async function listRegistrations(
 					: undefined,
 				source: query.source,
 				limit: query.limit?.toString(),
-				offset: query.offset?.toString(),
-			},
+				offset: query.offset?.toString()
+			}
 		},
 		{
 			headers: {
-				Authorization: `Basic ${basicAuthToken}`,
-			},
-		},
+				Authorization: `Basic ${basicAuthToken}`
+			}
+		}
 	);
 	const data = (await res.json()) as unknown;
 	// Narrow to expected shape
@@ -99,7 +99,7 @@ export async function listRegistrations(
 
 export async function downloadRegistrationsCsv(
 	query: RegistrationsQuery,
-	basicAuthToken: string,
+	basicAuthToken: string
 ): Promise<Blob> {
 	const res = await client.api.v1.admin["registrations.csv"].$get(
 		{
@@ -113,15 +113,15 @@ export async function downloadRegistrationsCsv(
 					: undefined,
 				source: query.source,
 				limit: query.limit?.toString(),
-				offset: query.offset?.toString(),
-			},
+				offset: query.offset?.toString()
+			}
 		},
 		{
 			headers: {
 				Authorization: `Basic ${basicAuthToken}`,
-				Accept: "text/csv",
-			},
-		},
+				Accept: "text/csv"
+			}
+		}
 	);
 	return await res.blob();
 }

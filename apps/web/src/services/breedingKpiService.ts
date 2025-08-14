@@ -22,12 +22,12 @@ export async function GetBreedingKpi(params?: {
 			{
 				query: {
 					from: params?.from,
-					to: params?.to,
-				},
+					to: params?.to
+				}
 			},
 			{
-				headers: { Authorization: `Bearer ${token}` },
-			},
-		),
+				headers: { Authorization: `Bearer ${token}` }
+			}
+		)
 	);
 }

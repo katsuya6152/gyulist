@@ -6,7 +6,7 @@ import {
 	type FakeStore,
 	createEmptyStore,
 	createFakeD1,
-	createFakeDrizzle,
+	createFakeDrizzle
 } from "./helpers/fakeDrizzle";
 
 vi.mock("drizzle-orm/d1", async () => {
@@ -17,13 +17,13 @@ vi.mock("drizzle-orm/d1", async () => {
 		drizzle: (_db: AnyD1Database) => createFakeDrizzle(currentStore),
 		__setStore: (s: FakeStore) => {
 			currentStore = s;
-		},
+		}
 	};
 });
 
 const makeJwt = (payload: Record<string, unknown>) => {
 	const header = Buffer.from(
-		JSON.stringify({ alg: "none", typ: "JWT" }),
+		JSON.stringify({ alg: "none", typ: "JWT" })
 	).toString("base64");
 	const body = Buffer.from(JSON.stringify(payload)).toString("base64");
 	return `${header}.${body}.sig`;
@@ -33,7 +33,7 @@ describe("Cattle API E2E (cursor pagination)", () => {
 	let app: Hono<{ Bindings: Bindings }>;
 	let store: FakeStore;
 	const auth = () => ({
-		Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`,
+		Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`
 	});
 	// Polyfill atob/btoa for cursor encode/decode
 	const g = globalThis as unknown as {
@@ -72,7 +72,7 @@ describe("Cattle API E2E (cursor pagination)", () => {
 				breedingValue: null,
 				notes: null,
 				createdAt: new Date().toISOString(),
-				updatedAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString()
 			}) as unknown as FakeStore["cattle"][number];
 		for (let i = 1; i <= 5; i++) store.cattle.push(mk(i));
 		set?.(store);
@@ -91,7 +91,7 @@ describe("Cattle API E2E (cursor pagination)", () => {
 				TURNSTILE_SECRET_KEY: "",
 				ADMIN_USER: "a",
 				ADMIN_PASS: "b",
-				WEB_ORIGIN: "http://localhost:3000",
+				WEB_ORIGIN: "http://localhost:3000"
 			} as unknown as Bindings;
 			await next();
 		});
@@ -99,8 +99,8 @@ describe("Cattle API E2E (cursor pagination)", () => {
 		appInst.route(
 			"/cattle",
 			(routes as { default: unknown }).default as typeof import(
-				"../../src/routes/cattle",
-			).default,
+				"../../src/routes/cattle"
+			).default
 		);
 		app = appInst;
 	});

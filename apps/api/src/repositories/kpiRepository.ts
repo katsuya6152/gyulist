@@ -10,7 +10,7 @@ export async function findEventsForBreedingKpi(
 	db: AnyD1Database,
 	ownerUserId: number,
 	fromIso?: string,
-	toIso?: string,
+	toIso?: string
 ): Promise<RawEvent[]> {
 	// 受胎判定と分娩間隔算出のため、期間前後も広めに取得
 	// - 受胎: INSEMINATION→CALVING は最大 ~300 日を見る

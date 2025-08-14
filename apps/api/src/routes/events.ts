@@ -7,13 +7,13 @@ import {
 	getEventById,
 	getEventsByCattleId,
 	searchEventList,
-	updateEventData,
+	updateEventData
 } from "../services/eventService";
 import type { Bindings } from "../types";
 import {
 	createEventSchema,
 	searchEventSchema,
-	updateEventSchema,
+	updateEventSchema
 } from "../validators/eventValidator";
 
 const app = new Hono<{ Bindings: Bindings }>()

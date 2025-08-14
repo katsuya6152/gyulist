@@ -6,14 +6,14 @@ export const createEventSchema = z.object({
 	cattleId: z.number().int().positive(),
 	eventType: z.enum(EVENT_TYPES_TUPLE),
 	eventDatetime: z.string().datetime(),
-	notes: z.string().optional(),
+	notes: z.string().optional()
 });
 
 // イベント更新用のスキーマ
 export const updateEventSchema = z.object({
 	eventType: z.enum(EVENT_TYPES_TUPLE).optional(),
 	eventDatetime: z.string().datetime().optional(),
-	notes: z.string().optional(),
+	notes: z.string().optional()
 });
 
 // イベント検索用のスキーマ
@@ -23,7 +23,7 @@ export const searchEventSchema = z.object({
 	startDate: z.string().datetime().optional(),
 	endDate: z.string().datetime().optional(),
 	limit: z.coerce.number().int().positive().max(100).default(20),
-	cursor: z.coerce.number().int().positive().optional(),
+	cursor: z.coerce.number().int().positive().optional()
 });
 
 // 型定義

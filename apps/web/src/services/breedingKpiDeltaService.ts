@@ -18,12 +18,12 @@ export async function GetBreedingKpiDelta(params?: {
 		client.api.v1.kpi.breeding.delta.$get(
 			{
 				query: {
-					month: params?.month,
-				},
+					month: params?.month
+				}
 			},
 			{
-				headers: { Authorization: `Bearer ${token}` },
-			},
-		),
+				headers: { Authorization: `Bearer ${token}` }
+			}
+		)
 	);
 }

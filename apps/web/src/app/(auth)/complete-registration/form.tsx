@@ -23,7 +23,7 @@ export default function CompleteRegistrationForm() {
 		setLoading(true);
 		try {
 			const res = await client.api.v1.auth.complete.$post({
-				json: { token, name, password },
+				json: { token, name, password }
 			});
 			const data = await res.json();
 			setMessage(data.message);

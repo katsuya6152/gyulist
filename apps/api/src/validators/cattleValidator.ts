@@ -3,7 +3,7 @@ import type {
 	bloodline,
 	breedingStatus,
 	breedingSummary,
-	cattle,
+	cattle
 } from "../db/schema";
 
 // データベース用のスキーマ
@@ -20,7 +20,7 @@ export const cattleSchema = z.object({
 		"GROWING",
 		"FATTENING",
 		"FIRST_CALVED",
-		"MULTI_PAROUS",
+		"MULTI_PAROUS"
 	]),
 	breed: z.string().nullable(),
 	notes: z.string().nullable(),
@@ -28,7 +28,7 @@ export const cattleSchema = z.object({
 	monthsOld: z.number().nullable(),
 	daysOld: z.number().nullable(),
 	createdAt: z.string(),
-	updatedAt: z.string(),
+	updatedAt: z.string()
 });
 
 // 血統情報のスキーマ
@@ -38,7 +38,7 @@ export const bloodlineSchema = z.object({
 	fatherCattleName: z.string().nullable(),
 	motherFatherCattleName: z.string().nullable(),
 	motherGrandFatherCattleName: z.string().nullable(),
-	motherGreatGrandFatherCattleName: z.string().nullable(),
+	motherGreatGrandFatherCattleName: z.string().nullable()
 });
 
 // 繁殖状態のスキーマ
@@ -56,7 +56,7 @@ export const breedingStatusSchema = z.object({
 	breedingMemo: z.string().nullable(),
 	isDifficultBirth: z.boolean().nullable(),
 	createdAt: z.string().optional(),
-	updatedAt: z.string().optional(),
+	updatedAt: z.string().optional()
 });
 
 // 繁殖統計のスキーマ
@@ -71,7 +71,7 @@ export const breedingSummarySchema = z.object({
 	pregnancyHeadCount: z.number().nullable(),
 	pregnancySuccessRate: z.number().nullable(),
 	createdAt: z.string().optional(),
-	updatedAt: z.string().optional(),
+	updatedAt: z.string().optional()
 });
 
 // 新規作成用のスキーマ（血統・繁殖情報を含む）
@@ -87,7 +87,7 @@ export const createCattleSchema = z.object({
 		"GROWING",
 		"FATTENING",
 		"FIRST_CALVED",
-		"MULTI_PAROUS",
+		"MULTI_PAROUS"
 	]),
 	score: z.number().nullable().optional(),
 	breed: z.string().nullable(),
@@ -99,7 +99,7 @@ export const createCattleSchema = z.object({
 	bloodline: bloodlineSchema.optional(),
 	// 繁殖情報
 	breedingStatus: breedingStatusSchema.optional(),
-	breedingSummary: breedingSummarySchema.optional(),
+	breedingSummary: breedingSummarySchema.optional()
 });
 
 // 更新用のスキーマ
@@ -112,9 +112,9 @@ export const updateStatusSchema = z.object({
 		"RESTING",
 		"TREATING",
 		"SHIPPED",
-		"DEAD",
+		"DEAD"
 	]),
-	reason: z.string().nullable().optional(),
+	reason: z.string().nullable().optional()
 });
 
 export type UpdateStatusInput = z.infer<typeof updateStatusSchema>;
@@ -140,7 +140,7 @@ export const searchCattleSchema = z.object({
 			z
 				.enum(["CALF", "GROWING", "FATTENING", "FIRST_CALVED", "MULTI_PAROUS"])
 				.array()
-				.optional(),
+				.optional()
 		)
 		.optional(),
 	gender: z
@@ -155,9 +155,9 @@ export const searchCattleSchema = z.object({
 			z
 				.enum(["HEALTHY", "PREGNANT", "RESTING", "TREATING", "SHIPPED", "DEAD"])
 				.array()
-				.optional(),
+				.optional()
 		)
-		.optional(),
+		.optional()
 });
 
 export type SearchCattleQuery = z.infer<typeof searchCattleSchema>;

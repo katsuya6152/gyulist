@@ -15,19 +15,19 @@ export type UpdateThemeResType = InferResponseType<
 
 export async function updateTheme(
 	userId: number,
-	theme: Theme,
+	theme: Theme
 ): Promise<UpdateThemeResType> {
 	return fetchWithAuth<UpdateThemeResType>((token) =>
 		client.api.v1.users[":id"].theme.$patch(
 			{
 				param: { id: userId.toString() },
-				json: { theme },
+				json: { theme }
 			},
 			{
 				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			},
-		),
+					Authorization: `Bearer ${token}`
+				}
+			}
+		)
 	);
 }

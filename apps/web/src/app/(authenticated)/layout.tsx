@@ -9,7 +9,7 @@ import { redirect } from "next/navigation";
 import { Toaster } from "sonner";
 
 export default async function AuthenticatedLayout({
-	children,
+	children
 }: {
 	children: React.ReactNode;
 }) {

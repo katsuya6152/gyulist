@@ -11,7 +11,7 @@ export type RawAlertRow = {
 export async function findOpenDaysOver60NoAI(
 	db: AnyD1Database,
 	ownerUserId: number,
-	nowIso: string = new Date().toISOString(),
+	nowIso: string = new Date().toISOString()
 ): Promise<RawAlertRow[]> {
 	const stmt = db
 		.prepare(`
@@ -44,7 +44,7 @@ export async function findOpenDaysOver60NoAI(
 export async function findCalvingWithin60(
 	db: AnyD1Database,
 	ownerUserId: number,
-	nowIso: string = new Date().toISOString(),
+	nowIso: string = new Date().toISOString()
 ): Promise<RawAlertRow[]> {
 	const stmt = db
 		.prepare(`
@@ -65,7 +65,7 @@ export async function findCalvingWithin60(
 export async function findCalvingOverdue(
 	db: AnyD1Database,
 	ownerUserId: number,
-	nowIso: string = new Date().toISOString(),
+	nowIso: string = new Date().toISOString()
 ): Promise<RawAlertRow[]> {
 	const stmt = db
 		.prepare(`
@@ -86,7 +86,7 @@ export async function findCalvingOverdue(
 export async function findEstrusOver20NotPregnant(
 	db: AnyD1Database,
 	ownerUserId: number,
-	nowIso: string = new Date().toISOString(),
+	nowIso: string = new Date().toISOString()
 ): Promise<RawAlertRow[]> {
 	const stmt = db
 		.prepare(`

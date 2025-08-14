@@ -9,7 +9,7 @@ import type { Bindings } from "../types";
 
 const querySchema = z.object({
 	from: z.string().datetime().optional(),
-	to: z.string().datetime().optional(),
+	to: z.string().datetime().optional()
 });
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -30,7 +30,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 		const month = c.req.query("month");
 		try {
 			const result = await getBreedingKpiDelta(c.env.DB, userId, {
-				month: month ?? undefined,
+				month: month ?? undefined
 			});
 			return c.json(result);
 		} catch (e) {
@@ -47,7 +47,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 			const result = await getBreedingKpiTrends(c.env.DB, userId, {
 				fromMonth: fromMonth ?? undefined,
 				toMonth: toMonth ?? undefined,
-				months: months ? Number(months) : undefined,
+				months: months ? Number(months) : undefined
 			});
 			return c.json(result);
 		} catch (e) {

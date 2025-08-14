@@ -5,7 +5,7 @@ import type { Bindings } from "../../src/types";
 import {
 	type FakeStore,
 	createEmptyStore,
-	createFakeD1,
+	createFakeD1
 } from "./helpers/fakeDrizzle";
 
 // Mock external Google OAuth client and session creation
@@ -15,8 +15,8 @@ vi.mock("../../src/lib/oauth", () => ({
 			new URL("https://accounts.google.com/o/oauth2/auth?dummy"),
 		validateAuthorizationCode: vi
 			.fn()
-			.mockResolvedValue({ accessToken: "token" }),
-	}),
+			.mockResolvedValue({ accessToken: "token" })
+	})
 }));
 
 // drizzleはこのテスト経路では未使用のためモック不要
@@ -33,20 +33,20 @@ vi.stubGlobal(
 					email: "g@example.com",
 					name: "G",
 					picture: "x",
-					verified_email: true,
+					verified_email: true
 				}),
 				text: async () => "",
 				status: 200,
-				statusText: "OK",
+				statusText: "OK"
 			} as unknown as Response;
 		}
 		return {
 			ok: true,
 			json: async () => ({}),
 			status: 200,
-			statusText: "OK",
+			statusText: "OK"
 		} as unknown as Response;
-	}),
+	})
 );
 
 describe("OAuth API E2E", () => {
@@ -69,7 +69,7 @@ describe("OAuth API E2E", () => {
 				TURNSTILE_SECRET_KEY: "",
 				ADMIN_USER: "a",
 				ADMIN_PASS: "b",
-				WEB_ORIGIN: "http://localhost:3000",
+				WEB_ORIGIN: "http://localhost:3000"
 			} as unknown as Bindings;
 			await next();
 		});

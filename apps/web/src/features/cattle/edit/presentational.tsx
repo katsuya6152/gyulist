@@ -26,7 +26,7 @@ const calculateAgeDisplay = (birthday: string) => {
 	return {
 		daysOld: diffDays,
 		monthsOld,
-		age,
+		age
 	};
 };
 
@@ -37,7 +37,7 @@ interface CattleEditPresentationProps {
 
 const CattleEditPresentation = ({
 	cattle,
-	error,
+	error
 }: CattleEditPresentationProps) => {
 	if (error) {
 		return <div className="p-4">{error}</div>;
@@ -51,7 +51,7 @@ const CattleEditPresentation = ({
 		age: number;
 	} | null>(null);
 	const [growthStage, setGrowthStage] = useState<string>(
-		cattle.growthStage || "",
+		cattle.growthStage || ""
 	);
 
 	const [lastResult, action, isPending] = useActionState(
@@ -60,7 +60,7 @@ const CattleEditPresentation = ({
 			formData.append("cattleId", cattle.cattleId.toString());
 			return updateCattleAction(prevState, formData);
 		},
-		null,
+		null
 	);
 
 	const [form, fields] = useForm({
@@ -91,7 +91,7 @@ const CattleEditPresentation = ({
 				motherGrandFatherCattleName:
 					cattle.bloodline?.motherGrandFatherCattleName || "",
 				motherGreatGrandFatherCattleName:
-					cattle.bloodline?.motherGreatGrandFatherCattleName || "",
+					cattle.bloodline?.motherGreatGrandFatherCattleName || ""
 			},
 			// 繁殖状態の初期値
 			breedingStatus: {
@@ -100,9 +100,9 @@ const CattleEditPresentation = ({
 					cattle.breedingStatus?.scheduledPregnancyCheckDate || "",
 				breedingMemo: cattle.breedingStatus?.breedingMemo || "",
 				isDifficultBirth:
-					cattle.breedingStatus?.isDifficultBirth?.toString() || "",
-			},
-		},
+					cattle.breedingStatus?.isDifficultBirth?.toString() || ""
+			}
+		}
 	});
 
 	// 生年月日と成長段階の変更を監視
@@ -148,7 +148,7 @@ const CattleEditPresentation = ({
 			if (lastResult.status === "success") {
 				if ("message" in lastResult && lastResult.message === "demo") {
 					toast.info("牛の更新が完了しました", {
-						description: "デモアカウントのため、実際に更新はされていません",
+						description: "デモアカウントのため、実際に更新はされていません"
 					});
 				} else {
 					toast.success("牛の更新が完了しました", {
@@ -157,8 +157,8 @@ const CattleEditPresentation = ({
 						style: {
 							background: "#f0fdf4",
 							border: "1px solid #bbf7d0",
-							color: "#166534",
-						},
+							color: "#166534"
+						}
 					});
 				}
 				router.push(`/cattle/${cattle.cattleId}`);
@@ -169,8 +169,8 @@ const CattleEditPresentation = ({
 					style: {
 						background: "#fef2f2",
 						border: "1px solid #fecaca",
-						color: "#dc2626",
-					},
+						color: "#dc2626"
+					}
 				});
 			}
 		}

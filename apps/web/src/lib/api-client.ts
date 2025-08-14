@@ -14,7 +14,7 @@ export async function getAuthToken(): Promise<string> {
 }
 
 export async function fetchWithAuth<T>(
-	fetchFn: (token: string) => Promise<Response>,
+	fetchFn: (token: string) => Promise<Response>
 ): Promise<T> {
 	const token = await getAuthToken();
 	const res = await fetchFn(token);
@@ -42,7 +42,7 @@ export function createDemoResponse(type: true): {
 	message: "demo";
 };
 export function createDemoResponse(
-	type: "success" | true,
+	type: "success" | true
 ): { status: "success"; message: "demo" } | { success: true; message: "demo" } {
 	if (type === "success") {
 		return { status: "success" as const, message: "demo" };

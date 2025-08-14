@@ -6,13 +6,13 @@ import type { Bindings } from "../../src/types";
 
 const makeJwt = (payload: Record<string, unknown>) => {
 	const header = Buffer.from(
-		JSON.stringify({ alg: "none", typ: "JWT" }),
+		JSON.stringify({ alg: "none", typ: "JWT" })
 	).toString("base64");
 	const body = Buffer.from(JSON.stringify(payload)).toString("base64");
 	return `${header}.${body}.sig`;
 };
 const authHeaders = {
-	Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`,
+	Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`
 };
 
 describe("Users API E2E (no mocks)", () => {
@@ -33,7 +33,7 @@ describe("Users API E2E (no mocks)", () => {
 				TURNSTILE_SECRET_KEY: "",
 				ADMIN_USER: "a",
 				ADMIN_PASS: "b",
-				WEB_ORIGIN: "http://localhost:3000",
+				WEB_ORIGIN: "http://localhost:3000"
 			} as unknown as Bindings;
 			await next();
 		});
@@ -49,7 +49,7 @@ describe("Users API E2E (no mocks)", () => {
 		const res = await app.request("/users/2/theme", {
 			method: "PATCH",
 			headers: { "Content-Type": "application/json", ...authHeaders },
-			body: JSON.stringify({ theme: "dark" }),
+			body: JSON.stringify({ theme: "dark" })
 		});
 		expect(res.status).toBe(403);
 	});

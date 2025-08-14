@@ -7,7 +7,7 @@ export const emailLogs = sqliteTable("email_logs", {
 	httpStatus: integer("http_status"),
 	resendId: text("resend_id"),
 	error: text("error"),
-	createdAt: integer("created_at").notNull(),
+	createdAt: integer("created_at").notNull()
 });
 
 export type EmailLog = typeof emailLogs.$inferSelect;

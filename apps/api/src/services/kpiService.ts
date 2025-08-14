@@ -1,7 +1,7 @@
 import type { AnyD1Database } from "drizzle-orm/d1";
 import {
 	type RawEvent,
-	findEventsForBreedingKpi,
+	findEventsForBreedingKpi
 } from "../repositories/kpiRepository";
 
 export type BreedingKpi = {
@@ -15,7 +15,7 @@ export async function getBreedingKpi(
 	db: AnyD1Database,
 	ownerUserId: number,
 	fromIso?: string,
-	toIso?: string,
+	toIso?: string
 ): Promise<{ metrics: BreedingKpi; counts: Record<string, number> }> {
 	const rows = await findEventsForBreedingKpi(db, ownerUserId, fromIso, toIso);
 
@@ -124,23 +124,23 @@ export async function getBreedingKpi(
 		avgDaysOpen:
 			daysOpenPairs.length > 0
 				? round1(
-						daysOpenPairs.reduce((a, b) => a + b, 0) / daysOpenPairs.length,
+						daysOpenPairs.reduce((a, b) => a + b, 0) / daysOpenPairs.length
 					)
 				: null,
 		avgCalvingInterval:
 			calvingIntervals.length > 0
 				? round1(
 						calvingIntervals.reduce((a, b) => a + b, 0) /
-							calvingIntervals.length,
+							calvingIntervals.length
 					)
 				: null,
 		aiPerConception:
 			aiCountsPerConception.length > 0
 				? round1(
 						aiCountsPerConception.reduce((a, b) => a + b, 0) /
-							aiCountsPerConception.length,
+							aiCountsPerConception.length
 					)
-				: null,
+				: null
 	};
 
 	const counts = {
@@ -150,9 +150,9 @@ export async function getBreedingKpi(
 			(e) =>
 				e.eventType === "CALVING" &&
 				new Date(e.eventDatetime) >= from &&
-				new Date(e.eventDatetime) <= to,
+				new Date(e.eventDatetime) <= to
 		).length,
-		pairsForDaysOpen: daysOpenPairs.length,
+		pairsForDaysOpen: daysOpenPairs.length
 	};
 
 	return { metrics, counts };

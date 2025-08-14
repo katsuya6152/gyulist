@@ -16,12 +16,12 @@ export const EVENT_TYPES = [
 	"TREATMENT_COMPLETED", // 治療完了
 	"HOOF_TRIMMING", // 削蹄
 	"SHIPMENT", // 出荷
-	"OTHER", // その他
+	"OTHER" // その他
 ] as const;
 
 export const EVENT_TYPES_TUPLE = EVENT_TYPES as unknown as [
 	string,
-	...string[],
+	...string[]
 ];
 
 export type EventType = (typeof EVENT_TYPES)[number];
@@ -35,7 +35,7 @@ export const EVENT_GROUP_ORDER = [
 	"MEASUREMENT",
 	"HEALTH",
 	"LOGISTICS",
-	"OTHER",
+	"OTHER"
 ] as const;
 
 export const EVENT_GROUP_LABELS: Record<
@@ -49,7 +49,7 @@ export const EVENT_GROUP_LABELS: Record<
 	MEASUREMENT: "計測",
 	HEALTH: "健康・治療",
 	LOGISTICS: "ロジ",
-	OTHER: "その他",
+	OTHER: "その他"
 };
 
 export const EVENT_TYPE_GROUPS: Record<
@@ -67,10 +67,10 @@ export const EVENT_TYPE_GROUPS: Record<
 		"MEDICATION",
 		"TREATMENT_STARTED",
 		"TREATMENT_COMPLETED",
-		"HOOF_TRIMMING",
+		"HOOF_TRIMMING"
 	],
 	LOGISTICS: ["SHIPMENT"],
-	OTHER: ["OTHER"],
+	OTHER: ["OTHER"]
 };
 
 export const EVENT_TYPE_LABELS: Record<EventType, string> = {
@@ -91,5 +91,5 @@ export const EVENT_TYPE_LABELS: Record<EventType, string> = {
 	TREATMENT_COMPLETED: "治療完了",
 	HOOF_TRIMMING: "削蹄",
 	SHIPMENT: "出荷",
-	OTHER: "その他",
+	OTHER: "その他"
 };

@@ -6,7 +6,7 @@ interface CattleEditContainerProps {
 }
 
 export default async function CattleEditContainer({
-	id,
+	id
 }: CattleEditContainerProps) {
 	const cattle = await GetCattleDetail(id);
 	return <CattleEditPresentation cattle={cattle} />;

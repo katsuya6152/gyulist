@@ -2,7 +2,7 @@ import type { AnyD1Database } from "drizzle-orm/d1";
 import { describe, expect, it } from "vitest";
 import {
 	type EmailLogRecord,
-	insertEmailLog,
+	insertEmailLog
 } from "../../../src/repositories/emailLogRepository";
 
 const createFakeD1 = () => {
@@ -16,11 +16,11 @@ const createFakeD1 = () => {
 					return {
 						async run() {
 							return { success: true } as const;
-						},
+						}
 					};
-				},
+				}
 			} as const;
-		},
+		}
 	} as const;
 	return api;
 };
@@ -35,7 +35,7 @@ describe("emailLogRepository (D1 path)", () => {
 			httpStatus: 200,
 			resendId: "rid",
 			error: null,
-			createdAt: 123,
+			createdAt: 123
 		};
 		await insertEmailLog(db as unknown as AnyD1Database, log);
 		expect(db.calls[0].sql).toMatch(/INSERT INTO email_logs/);
@@ -46,7 +46,7 @@ describe("emailLogRepository (D1 path)", () => {
 			log.httpStatus,
 			log.resendId,
 			log.error,
-			log.createdAt,
+			log.createdAt
 		]);
 	});
 
@@ -56,7 +56,7 @@ describe("emailLogRepository (D1 path)", () => {
 			id: "e2",
 			email: "user2@example.com",
 			type: "completed",
-			createdAt: 124,
+			createdAt: 124
 		} as unknown as EmailLogRecord;
 		await insertEmailLog(db as unknown as AnyD1Database, log);
 		expect(db.calls[0].binds[3]).toBeNull();

@@ -22,7 +22,7 @@ describe("UserRepository", () => {
 		it("should export findUserByVerificationToken function", () => {
 			expect(userRepository.findUserByVerificationToken).toBeDefined();
 			expect(typeof userRepository.findUserByVerificationToken).toBe(
-				"function",
+				"function"
 			);
 		});
 
@@ -80,22 +80,22 @@ describe("UserRepository", () => {
 			const result1 = userRepository.findUserById(mockDb, 1);
 			const result2 = userRepository.findUserByEmail(
 				mockDb,
-				"test@example.com",
+				"test@example.com"
 			);
 			const result3 = userRepository.createUser(
 				mockDb,
 				"test@example.com",
-				"token123",
+				"token123"
 			);
 			const result4 = userRepository.findUserByVerificationToken(
 				mockDb,
-				"token123",
+				"token123"
 			);
 			const result5 = userRepository.completeUserRegistration(
 				mockDb,
 				"token123",
 				"John Doe",
-				"hashedPassword",
+				"hashedPassword"
 			);
 			const result6 = userRepository.updateLastLoginAt(mockDb, 1);
 			const result7 = userRepository.updateUserTheme(mockDb, 1, "dark");
@@ -116,7 +116,7 @@ describe("UserRepository", () => {
 				result4,
 				result5,
 				result6,
-				result7,
+				result7
 			]);
 		});
 	});
@@ -127,7 +127,7 @@ describe("UserRepository", () => {
 
 			const userIds = [1, 999, 123456];
 			const promises = userIds.map((id) =>
-				userRepository.findUserById(mockDb, id),
+				userRepository.findUserById(mockDb, id)
 			);
 
 			for (const promise of promises) {
@@ -143,11 +143,11 @@ describe("UserRepository", () => {
 			const emails = [
 				"test@example.com",
 				"user+tag@domain.co.jp",
-				"simple@domain.org",
+				"simple@domain.org"
 			];
 
 			const promises = emails.map((email) =>
-				userRepository.findUserByEmail(mockDb, email),
+				userRepository.findUserByEmail(mockDb, email)
 			);
 
 			for (const promise of promises) {
@@ -162,7 +162,7 @@ describe("UserRepository", () => {
 
 			const themes = ["light", "dark", "system"];
 			const promises = themes.map((theme) =>
-				userRepository.updateUserTheme(mockDb, 1, theme),
+				userRepository.updateUserTheme(mockDb, 1, theme)
 			);
 
 			for (const promise of promises) {

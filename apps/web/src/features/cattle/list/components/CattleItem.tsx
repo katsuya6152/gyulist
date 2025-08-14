@@ -53,8 +53,8 @@ export const CattleItem = memo(
 										"font-semibold transition-colors duration-200",
 										{
 											"text-blue-500": cattle.gender === "オス",
-											"text-red-500": cattle.gender === "メス",
-										},
+											"text-red-500": cattle.gender === "メス"
+										}
 									)}
 								>
 									{cattle.gender}
@@ -82,8 +82,8 @@ export const CattleItem = memo(
 												cattle.status === "TREATING",
 											"border-gray-500 text-gray-500":
 												cattle.status === "SHIPPED",
-											"border-red-600 text-red-600": cattle.status === "DEAD",
-										},
+											"border-red-600 text-red-600": cattle.status === "DEAD"
+										}
 									)}
 								>
 									{statusLabelMap[cattle.status]}
@@ -114,7 +114,7 @@ export const CattleItem = memo(
 				<Separator className="opacity-50" />
 			</div>
 		);
-	},
+	}
 );
 
 CattleItem.displayName = "CattleItem";

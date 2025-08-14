@@ -6,7 +6,7 @@ describe("preRegisterSchema", () => {
 		const parsed = preRegisterSchema.parse({
 			email: "  User@Example.com ",
 			referralSource: " search ",
-			turnstileToken: "1234567890",
+			turnstileToken: "1234567890"
 		});
 		expect(parsed.email).toBe("user@example.com");
 		expect(parsed.referralSource).toBe("search");
@@ -15,7 +15,7 @@ describe("preRegisterSchema", () => {
 	it("handles optional referral", () => {
 		const parsed = preRegisterSchema.parse({
 			email: "a@b.com",
-			turnstileToken: "1234567890",
+			turnstileToken: "1234567890"
 		});
 		expect(parsed.referralSource).toBeNull();
 	});

@@ -7,7 +7,7 @@ import {
 	type FakeStore,
 	createEmptyStore,
 	createFakeD1,
-	createFakeDrizzle,
+	createFakeDrizzle
 } from "./helpers/fakeDrizzle";
 
 vi.mock("drizzle-orm/d1", async () => {
@@ -18,13 +18,13 @@ vi.mock("drizzle-orm/d1", async () => {
 		drizzle: (_db: AnyD1Database) => createFakeDrizzle(currentStore),
 		__setStore: (s: FakeStore) => {
 			currentStore = s;
-		},
+		}
 	};
 });
 
 const makeJwt = (payload: Record<string, unknown>) => {
 	const header = Buffer.from(
-		JSON.stringify({ alg: "none", typ: "JWT" }),
+		JSON.stringify({ alg: "none", typ: "JWT" })
 	).toString("base64");
 	const body = Buffer.from(JSON.stringify(payload)).toString("base64");
 	return `${header}.${body}.sig`;
@@ -34,7 +34,7 @@ describe("Users API E2E (success)", () => {
 	let app: Hono<{ Bindings: Bindings }>;
 	let store: FakeStore;
 	const auth = () => ({
-		Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`,
+		Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`
 	});
 
 	beforeEach(async () => {
@@ -57,13 +57,13 @@ describe("Users API E2E (success)", () => {
 			oauthProvider: "email",
 			avatarUrl: null,
 			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString()
 		} as unknown as (typeof store.users)[number]);
 
 		// ensure mocked drizzle sees latest store
 		const mod = await import("drizzle-orm/d1");
 		(mod as unknown as { __setStore?: (s: FakeStore) => void }).__setStore?.(
-			store,
+			store
 		);
 
 		app = new Hono<{ Bindings: Bindings }>();
@@ -80,7 +80,7 @@ describe("Users API E2E (success)", () => {
 				TURNSTILE_SECRET_KEY: "",
 				ADMIN_USER: "a",
 				ADMIN_PASS: "b",
-				WEB_ORIGIN: "http://localhost:3000",
+				WEB_ORIGIN: "http://localhost:3000"
 			} as unknown as Bindings;
 			await next();
 		});
@@ -88,8 +88,8 @@ describe("Users API E2E (success)", () => {
 		app.route(
 			"/users",
 			(modRoutes as { default: unknown }).default as typeof import(
-				"../../src/routes/users",
-			).default,
+				"../../src/routes/users"
+			).default
 		);
 	});
 
@@ -104,7 +104,7 @@ describe("Users API E2E (success)", () => {
 		const res = await app.request("/users/1/theme", {
 			method: "PATCH",
 			headers: { "Content-Type": "application/json", ...auth() },
-			body: JSON.stringify({ theme: "dark" }),
+			body: JSON.stringify({ theme: "dark" })
 		});
 		expect(res.status).toBe(200);
 		const body = await res.json();

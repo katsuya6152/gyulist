@@ -8,13 +8,13 @@ import {
 	CommandGroup,
 	CommandInput,
 	CommandItem,
-	CommandList,
+	CommandList
 } from "@/components/ui/command";
 import { Form } from "@/components/ui/form";
 import {
 	Popover,
 	PopoverContent,
-	PopoverTrigger,
+	PopoverTrigger
 } from "@/components/ui/popover";
 import {
 	Sheet,
@@ -23,7 +23,7 @@ import {
 	SheetDescription,
 	SheetHeader,
 	SheetTitle,
-	SheetTrigger,
+	SheetTrigger
 } from "@/components/ui/sheet";
 import { zodResolver } from "@hookform/resolvers/zod";
 import classNames from "classnames";
@@ -34,7 +34,7 @@ import {
 	type FilterFormData,
 	FormSchema,
 	filterOptions,
-	statusOptions,
+	statusOptions
 } from "../constants";
 
 interface FilterSheetProps {
@@ -51,7 +51,7 @@ export const FilterSheet = memo(
 		initialGender,
 		initialStatus,
 		onSubmit,
-		onClear,
+		onClear
 	}: FilterSheetProps) => {
 		const [growthStageOpen, setGrowthStageOpen] = useState(false);
 		const [genderOpen, setGenderOpen] = useState(false);
@@ -62,8 +62,8 @@ export const FilterSheet = memo(
 			defaultValues: {
 				growth_stage: initialGrowthStage,
 				gender: initialGender,
-				status: initialStatus,
-			},
+				status: initialStatus
+			}
 		});
 
 		const addGrowthStage = (stage: string) => {
@@ -77,7 +77,7 @@ export const FilterSheet = memo(
 			const currentValues = form.getValues("growth_stage");
 			form.setValue(
 				"growth_stage",
-				currentValues.filter((s) => s !== stage),
+				currentValues.filter((s) => s !== stage)
 			);
 		};
 
@@ -92,7 +92,7 @@ export const FilterSheet = memo(
 			const currentValues = form.getValues("gender");
 			form.setValue(
 				"gender",
-				currentValues.filter((g) => g !== gender),
+				currentValues.filter((g) => g !== gender)
 			);
 		};
 
@@ -107,7 +107,7 @@ export const FilterSheet = memo(
 			const currentValues = form.getValues("status");
 			form.setValue(
 				"status",
-				currentValues.filter((s) => s !== status),
+				currentValues.filter((s) => s !== status)
 			);
 		};
 
@@ -115,7 +115,7 @@ export const FilterSheet = memo(
 			form.reset({
 				growth_stage: [],
 				gender: [],
-				status: [],
+				status: []
 			});
 			onClear();
 		};
@@ -198,7 +198,7 @@ export const FilterSheet = memo(
 														<CommandGroup>
 															{filterOptions
 																.filter(
-																	(item) => !["オス", "メス"].includes(item.id),
+																	(item) => !["オス", "メス"].includes(item.id)
 																)
 																.map((item) => {
 																	const isSelected = form
@@ -221,7 +221,7 @@ export const FilterSheet = memo(
 																					"mr-2 h-4 w-4",
 																					isSelected
 																						? "opacity-100"
-																						: "opacity-0",
+																						: "opacity-0"
 																				)}
 																			/>
 																			{item.label}
@@ -238,7 +238,7 @@ export const FilterSheet = memo(
 											<div className="flex flex-wrap gap-2">
 												{form.watch("growth_stage").map((stage) => {
 													const option = filterOptions.find(
-														(opt) => opt.id === stage,
+														(opt) => opt.id === stage
 													);
 													return (
 														<Badge
@@ -284,7 +284,7 @@ export const FilterSheet = memo(
 														<CommandGroup>
 															{filterOptions
 																.filter((item) =>
-																	["オス", "メス"].includes(item.id),
+																	["オス", "メス"].includes(item.id)
 																)
 																.map((item) => {
 																	const isSelected = form
@@ -307,7 +307,7 @@ export const FilterSheet = memo(
 																					"mr-2 h-4 w-4",
 																					isSelected
 																						? "opacity-100"
-																						: "opacity-0",
+																						: "opacity-0"
 																				)}
 																			/>
 																			{item.label}
@@ -324,7 +324,7 @@ export const FilterSheet = memo(
 											<div className="flex flex-wrap gap-2">
 												{form.watch("gender").map((gender) => {
 													const option = filterOptions.find(
-														(opt) => opt.id === gender,
+														(opt) => opt.id === gender
 													);
 													return (
 														<Badge
@@ -387,9 +387,7 @@ export const FilterSheet = memo(
 																		<Check
 																			className={classNames(
 																				"mr-2 h-4 w-4",
-																				isSelected
-																					? "opacity-100"
-																					: "opacity-0",
+																				isSelected ? "opacity-100" : "opacity-0"
 																			)}
 																		/>
 																		{item.label}
@@ -406,7 +404,7 @@ export const FilterSheet = memo(
 											<div className="flex flex-wrap gap-2">
 												{form.watch("status").map((status) => {
 													const option = statusOptions.find(
-														(opt) => opt.value === status,
+														(opt) => opt.value === status
 													);
 													return (
 														<Badge
@@ -451,7 +449,7 @@ export const FilterSheet = memo(
 				</SheetContent>
 			</Sheet>
 		);
-	},
+	}
 );
 
 FilterSheet.displayName = "FilterSheet";

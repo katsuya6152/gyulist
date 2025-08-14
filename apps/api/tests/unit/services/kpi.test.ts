@@ -29,34 +29,34 @@ describe("kpiService.getBreedingKpi", () => {
 			{
 				cattleId: 1,
 				eventType: "CALVING",
-				eventDatetime: "2024-03-01T00:00:00Z",
+				eventDatetime: "2024-03-01T00:00:00Z"
 			},
 			{
 				cattleId: 1,
 				eventType: "INSEMINATION",
-				eventDatetime: "2024-03-10T00:00:00Z",
+				eventDatetime: "2024-03-10T00:00:00Z"
 			},
 			{
 				cattleId: 1,
 				eventType: "INSEMINATION",
-				eventDatetime: "2024-11-15T00:00:00Z",
+				eventDatetime: "2024-11-15T00:00:00Z"
 			},
 			{
 				cattleId: 1,
 				eventType: "CALVING",
-				eventDatetime: "2024-12-01T00:00:00Z",
+				eventDatetime: "2024-12-01T00:00:00Z"
 			},
 
 			{
 				cattleId: 2,
 				eventType: "CALVING",
-				eventDatetime: "2024-06-01T00:00:00Z",
+				eventDatetime: "2024-06-01T00:00:00Z"
 			},
 			{
 				cattleId: 2,
 				eventType: "CALVING",
-				eventDatetime: "2024-12-10T00:00:00Z",
-			},
+				eventDatetime: "2024-12-10T00:00:00Z"
+			}
 		]);
 
 		const { metrics, counts } = await getBreedingKpi(db, owner, from, to);
@@ -86,7 +86,7 @@ describe("kpiService.getBreedingKpi", () => {
 			inseminations: 0,
 			conceptions: 0,
 			calvings: 0,
-			pairsForDaysOpen: 0,
+			pairsForDaysOpen: 0
 		});
 	});
 });

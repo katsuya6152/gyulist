@@ -4,7 +4,7 @@ import type { Bindings } from "../types";
 
 export const jwtMiddleware: MiddlewareHandler<{ Bindings: Bindings }> = async (
 	c,
-	next,
+	next
 ) => {
 	const authHeader = c.req.header("Authorization");
 	if (!authHeader) {

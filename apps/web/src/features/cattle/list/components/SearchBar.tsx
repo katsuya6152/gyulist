@@ -68,7 +68,7 @@ export const SearchBar = memo(
 				</Button>
 			</form>
 		);
-	},
+	}
 );
 
 SearchBar.displayName = "SearchBar";

@@ -5,7 +5,7 @@ import { getUserById, updateTheme } from "../services/userService";
 import type { Bindings } from "../types";
 import {
 	UpdateThemeSchema,
-	UserIdParamSchema,
+	UserIdParamSchema
 } from "../validators/usersValidator";
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -47,7 +47,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 				console.error(e);
 				return c.json({ error: "Internal Server Error" }, 500);
 			}
-		},
+		}
 	);
 
 export default app;

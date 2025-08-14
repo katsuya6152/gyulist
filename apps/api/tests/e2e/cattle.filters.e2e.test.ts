@@ -6,7 +6,7 @@ import {
 	type FakeStore,
 	createEmptyStore,
 	createFakeD1,
-	createFakeDrizzle,
+	createFakeDrizzle
 } from "./helpers/fakeDrizzle";
 
 vi.mock("drizzle-orm/d1", async () => {
@@ -17,13 +17,13 @@ vi.mock("drizzle-orm/d1", async () => {
 		drizzle: (_db: AnyD1Database) => createFakeDrizzle(currentStore),
 		__setStore: (s: FakeStore) => {
 			currentStore = s;
-		},
+		}
 	};
 });
 
 const makeJwt = (payload: Record<string, unknown>) => {
 	const header = Buffer.from(
-		JSON.stringify({ alg: "none", typ: "JWT" }),
+		JSON.stringify({ alg: "none", typ: "JWT" })
 	).toString("base64");
 	const body = Buffer.from(JSON.stringify(payload)).toString("base64");
 	return `${header}.${body}.sig`;
@@ -33,7 +33,7 @@ describe("Cattle API E2E (filters & sort)", () => {
 	let app: Hono<{ Bindings: Bindings }>;
 	let store: FakeStore;
 	const auth = () => ({
-		Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`,
+		Authorization: `Bearer ${makeJwt({ userId: 1, exp: Math.floor(Date.now() / 1000) + 3600 })}`
 	});
 	const g = globalThis as unknown as {
 		atob?: (s: string) => string;
@@ -62,7 +62,7 @@ describe("Cattle API E2E (filters & sort)", () => {
 				| "TREATING"
 				| "SHIPPED"
 				| "DEAD",
-			birthday: string,
+			birthday: string
 		) =>
 			({
 				cattleId: id,
@@ -85,14 +85,14 @@ describe("Cattle API E2E (filters & sort)", () => {
 				breedingValue: null,
 				notes: null,
 				createdAt: new Date().toISOString(),
-				updatedAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString()
 			}) as unknown as FakeStore["cattle"][number];
 		store.cattle.push(base(1, "AAA", "CALF", "メス", "HEALTHY", "2024-01-01"));
 		store.cattle.push(
-			base(2, "BBB", "GROWING", "オス", "PREGNANT", "2023-01-01"),
+			base(2, "BBB", "GROWING", "オス", "PREGNANT", "2023-01-01")
 		);
 		store.cattle.push(
-			base(3, "CCC", "FATTENING", "メス", "RESTING", "2022-01-01"),
+			base(3, "CCC", "FATTENING", "メス", "RESTING", "2022-01-01")
 		);
 		set?.(store);
 
@@ -110,7 +110,7 @@ describe("Cattle API E2E (filters & sort)", () => {
 				TURNSTILE_SECRET_KEY: "",
 				ADMIN_USER: "a",
 				ADMIN_PASS: "b",
-				WEB_ORIGIN: "http://localhost:3000",
+				WEB_ORIGIN: "http://localhost:3000"
 			} as unknown as Bindings;
 			await next();
 		});
@@ -118,8 +118,8 @@ describe("Cattle API E2E (filters & sort)", () => {
 		appInst.route(
 			"/cattle",
 			(routes as { default: unknown }).default as typeof import(
-				"../../src/routes/cattle",
-			).default,
+				"../../src/routes/cattle"
+			).default
 		);
 		app = appInst;
 	});
@@ -127,7 +127,7 @@ describe("Cattle API E2E (filters & sort)", () => {
 	it("GET /cattle with combined filters responds 200 and expected count", async () => {
 		const res = await app.request(
 			"/cattle?growth_stage=CALF,GROWING&gender=メス&status=HEALTHY&search=A",
-			{ headers: auth() },
+			{ headers: auth() }
 		);
 		expect(res.status).toBe(200);
 		const body = await res.json();
@@ -139,13 +139,13 @@ describe("Cattle API E2E (filters & sort)", () => {
 	it("GET /cattle sort by name asc returns array and next_cursor shape", async () => {
 		const res = await app.request(
 			"/cattle?sort_by=name&sort_order=asc&limit=2",
-			{ headers: auth() },
+			{ headers: auth() }
 		);
 		expect(res.status).toBe(200);
 		const body = await res.json();
 		expect(Array.isArray(body.results)).toBe(true);
 		expect(
-			body.next_cursor === null || typeof body.next_cursor === "string",
+			body.next_cursor === null || typeof body.next_cursor === "string"
 		).toBe(true);
 	});
 });

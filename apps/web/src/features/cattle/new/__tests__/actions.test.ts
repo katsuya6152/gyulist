@@ -3,23 +3,23 @@ import { createCattleAction } from "../actions";
 
 // Mock the cattle service
 vi.mock("@/services/cattleService", () => ({
-	CreateCattle: vi.fn(),
+	CreateCattle: vi.fn()
 }));
 
 // Mock JWT verification
 vi.mock("@/lib/jwt", () => ({
-	verifyAndGetUserId: vi.fn(),
+	verifyAndGetUserId: vi.fn()
 }));
 
 // Mock next/navigation
 vi.mock("next/navigation", () => ({
-	redirect: vi.fn(),
+	redirect: vi.fn()
 }));
 
 // Mock api-client
 vi.mock("@/lib/api-client", () => ({
 	isDemo: vi.fn(),
-	createDemoResponse: vi.fn(),
+	createDemoResponse: vi.fn()
 }));
 
 describe("createCattleAction", () => {
@@ -75,7 +75,7 @@ describe("createCattleAction", () => {
 			notes: null,
 			status: "HEALTHY",
 			bloodline: undefined,
-			breedingStatus: undefined,
+			breedingStatus: undefined
 		});
 	});
 
@@ -88,7 +88,7 @@ describe("createCattleAction", () => {
 		vi.mocked(isDemo).mockReturnValue(true);
 		vi.mocked(createDemoResponse).mockReturnValue({
 			success: true,
-			message: "demo",
+			message: "demo"
 		});
 
 		const formData = createValidFormData();
@@ -96,7 +96,7 @@ describe("createCattleAction", () => {
 
 		expect(result).toEqual({
 			success: true,
-			message: "demo",
+			message: "demo"
 		});
 	});
 
@@ -131,7 +131,7 @@ describe("createCattleAction", () => {
 			notes: "テスト用のメモ",
 			status: "HEALTHY",
 			bloodline: undefined,
-			breedingStatus: undefined,
+			breedingStatus: undefined
 		});
 	});
 
@@ -171,9 +171,9 @@ describe("createCattleAction", () => {
 				fatherCattleName: "父牛",
 				motherFatherCattleName: "母父牛",
 				motherGrandFatherCattleName: "母祖父牛",
-				motherGreatGrandFatherCattleName: "母曽祖父牛",
+				motherGreatGrandFatherCattleName: "母曽祖父牛"
 			},
-			breedingStatus: undefined,
+			breedingStatus: undefined
 		});
 	});
 
@@ -199,11 +199,11 @@ describe("createCattleAction", () => {
 					fatherCattleName: "父牛",
 					motherFatherCattleName: null,
 					motherGrandFatherCattleName: null,
-					motherGreatGrandFatherCattleName: null,
+					motherGreatGrandFatherCattleName: null
 				},
 				status: "HEALTHY",
-				breedingStatus: undefined,
-			}),
+				breedingStatus: undefined
+			})
 		);
 	});
 
@@ -237,11 +237,11 @@ describe("createCattleAction", () => {
 					daysAfterInsemination: null,
 					inseminationCount: null,
 					breedingMemo: "繁殖メモ",
-					isDifficultBirth: true,
+					isDifficultBirth: true
 				},
 				status: "HEALTHY",
-				bloodline: undefined,
-			}),
+				bloodline: undefined
+			})
 		);
 	});
 
@@ -282,7 +282,7 @@ describe("createCattleAction", () => {
 			"GROWING",
 			"FATTENING",
 			"FIRST_CALVED",
-			"MULTI_PAROUS",
+			"MULTI_PAROUS"
 		];
 
 		for (const growthStage of growthStages) {
@@ -333,7 +333,7 @@ describe("createCattleAction", () => {
 		expect(result.status).toBe("error");
 		if (result.status === "error") {
 			expect(result.error).toEqual({
-				"": ["牛の登録に失敗しました"],
+				"": ["牛の登録に失敗しました"]
 			});
 		}
 
@@ -349,7 +349,7 @@ describe("createCattleAction", () => {
 		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
 		vi.mocked(isDemo).mockReturnValue(false);
 		vi.mocked(CreateCattle).mockRejectedValue(
-			new Error("API request failed: 401 Unauthorized"),
+			new Error("API request failed: 401 Unauthorized")
 		);
 
 		const formData = createValidFormData();
@@ -367,7 +367,7 @@ describe("createCattleAction", () => {
 		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
 		vi.mocked(isDemo).mockReturnValue(false);
 		vi.mocked(CreateCattle).mockRejectedValue(
-			new Error("API request failed: 403 Forbidden"),
+			new Error("API request failed: 403 Forbidden")
 		);
 
 		const formData = createValidFormData();
@@ -389,7 +389,7 @@ describe("createCattleAction", () => {
 		expect(result.status).toBe("error");
 		if (result.status === "error") {
 			expect(result.error).toEqual({
-				"": ["牛の登録に失敗しました"],
+				"": ["牛の登録に失敗しました"]
 			});
 		}
 
@@ -418,8 +418,8 @@ describe("createCattleAction", () => {
 				notes: null,
 				status: "HEALTHY",
 				bloodline: undefined,
-				breedingStatus: undefined,
-			}),
+				breedingStatus: undefined
+			})
 		);
 	});
 });

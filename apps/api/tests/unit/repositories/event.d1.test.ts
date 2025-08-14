@@ -19,15 +19,15 @@ describe("eventRepository (D1 path)", () => {
 			select: () => ({
 				from: () => ({
 					innerJoin: () => ({
-						where: () => ({ orderBy: async () => rows }),
-					}),
-				}),
-			}),
+						where: () => ({ orderBy: async () => rows })
+					})
+				})
+			})
 		};
 		const result = await repo.findEventsByCattleId(
 			{} as unknown as AnyD1Database,
 			1,
-			10,
+			10
 		);
 		expect(result).toEqual(rows);
 	});
@@ -39,14 +39,14 @@ describe("eventRepository (D1 path)", () => {
 				from: () => ({
 					innerJoin: () => ({
 						where: () => ({
-							orderBy: () => ({ limit: async () => rows }),
-						}),
-					}),
-				}),
-			}),
+							orderBy: () => ({ limit: async () => rows })
+						})
+					})
+				})
+			})
 		};
 		const res = await repo.searchEvents({} as unknown as AnyD1Database, 10, {
-			limit: 1,
+			limit: 1
 		} as unknown as Parameters<typeof repo.searchEvents>[2]);
 		expect(res.results).toEqual(rows);
 		expect(res.hasNext).toBe(false);
@@ -60,11 +60,11 @@ describe("eventRepository (D1 path)", () => {
 				from: () => ({
 					innerJoin: () => ({
 						where: () => ({
-							orderBy: () => ({ limit: async () => rows }),
-						}),
-					}),
-				}),
-			}),
+							orderBy: () => ({ limit: async () => rows })
+						})
+					})
+				})
+			})
 		};
 		const res = await repo.searchEvents({} as unknown as AnyD1Database, 5, {
 			cattleId: 1,
@@ -72,7 +72,7 @@ describe("eventRepository (D1 path)", () => {
 			startDate: "2024-01-01",
 			endDate: "2024-12-31",
 			cursor: 1,
-			limit: 1,
+			limit: 1
 		} as unknown as Parameters<typeof repo.searchEvents>[2]);
 		expect(res.hasNext).toBe(true);
 		expect(res.nextCursor).toBe(1);
@@ -83,9 +83,9 @@ describe("eventRepository (D1 path)", () => {
 		currentDb = {
 			select: () => ({
 				from: () => ({
-					innerJoin: () => ({ where: () => ({ limit: async () => [] }) }),
-				}),
-			}),
+					innerJoin: () => ({ where: () => ({ limit: async () => [] }) })
+				})
+			})
 		};
 		const row = await repo.findEventById({} as unknown as AnyD1Database, 99, 1);
 		expect(row).toBeNull();
@@ -96,10 +96,10 @@ describe("eventRepository (D1 path)", () => {
 			select: () => ({
 				from: () => ({
 					innerJoin: () => ({
-						where: () => ({ limit: async () => [{ eventId: 7 }] }),
-					}),
-				}),
-			}),
+						where: () => ({ limit: async () => [{ eventId: 7 }] })
+					})
+				})
+			})
 		};
 		const row = await repo.findEventById({} as unknown as AnyD1Database, 7, 1);
 		expect(row?.eventId).toBe(7);

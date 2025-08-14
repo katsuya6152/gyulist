@@ -16,21 +16,21 @@ import {
 	updateBreedingStatus,
 	updateBreedingSummary,
 	updateCattle,
-	updateCattleStatus,
+	updateCattleStatus
 } from "../repositories/cattleRepository";
 import { calculateAge } from "../utils/date";
 import type {
 	Cattle,
 	CreateCattleInput,
 	SearchCattleQuery,
-	UpdateCattleInput,
+	UpdateCattleInput
 } from "../validators/cattleValidator";
 
 // 繁殖情報の自動計算ロジック
 function calculateBreedingValues(
 	birthday: string | null,
 	expectedCalvingDate: string | null,
-	scheduledPregnancyCheckDate: string | null,
+	scheduledPregnancyCheckDate: string | null
 ) {
 	const today = new Date();
 
@@ -39,7 +39,7 @@ function calculateBreedingValues(
 	if (birthday) {
 		const birthDate = new Date(birthday);
 		const ageInYears = Math.floor(
-			(today.getTime() - birthDate.getTime()) / (1000 * 60 * 60 * 24 * 365),
+			(today.getTime() - birthDate.getTime()) / (1000 * 60 * 60 * 24 * 365)
 		);
 		// 初産は通常2-3歳、その後は年1回の分娩を想定
 		parity = Math.max(0, ageInYears - 2);
@@ -50,7 +50,7 @@ function calculateBreedingValues(
 	if (scheduledPregnancyCheckDate) {
 		const checkDate = new Date(scheduledPregnancyCheckDate);
 		pregnancyDays = Math.floor(
-			(today.getTime() - checkDate.getTime()) / (1000 * 60 * 60 * 24),
+			(today.getTime() - checkDate.getTime()) / (1000 * 60 * 60 * 24)
 		);
 	}
 
@@ -59,14 +59,14 @@ function calculateBreedingValues(
 	if (expectedCalvingDate) {
 		const calvingDate = new Date(expectedCalvingDate);
 		daysUntilCalving = Math.floor(
-			(calvingDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+			(calvingDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
 		);
 	}
 
 	return {
 		parity,
 		pregnancyDays,
-		daysUntilCalving,
+		daysUntilCalving
 	};
 }
 
@@ -104,7 +104,7 @@ export async function createNewCattle(
 			pregnancyHeadCount?: number | null;
 			pregnancySuccessRate?: number | null;
 		};
-	},
+	}
 ) {
 	// 生年月日から年齢を計算
 	const age = data.birthday ? calculateAge(new Date(data.birthday)) : null;
@@ -121,7 +121,7 @@ export async function createNewCattle(
 		age,
 		monthsOld,
 		daysOld,
-		status: "HEALTHY", // デフォルトで健康ステータスを設定
+		status: "HEALTHY" // デフォルトで健康ステータスを設定
 	};
 
 	// 牛の基本情報を保存
@@ -136,7 +136,7 @@ export async function createNewCattle(
 	const breedingCalculations = calculateBreedingValues(
 		data.birthday || null,
 		data.breedingStatus?.expectedCalvingDate || null,
-		data.breedingStatus?.scheduledPregnancyCheckDate || null,
+		data.breedingStatus?.scheduledPregnancyCheckDate || null
 	);
 
 	// 繁殖状態を保存（自動計算値を含む）
@@ -149,7 +149,7 @@ export async function createNewCattle(
 		scheduledPregnancyCheckDate:
 			data.breedingStatus?.scheduledPregnancyCheckDate || null,
 		breedingMemo: data.breedingStatus?.breedingMemo || null,
-		isDifficultBirth: data.breedingStatus?.isDifficultBirth || null,
+		isDifficultBirth: data.breedingStatus?.isDifficultBirth || null
 	};
 
 	await createBreedingStatus(db, cattle.cattleId, breedingStatusData);
@@ -163,7 +163,7 @@ export async function createNewCattle(
 		difficultBirthCount: 0,
 		pregnancyHeadCount: 0,
 		pregnancySuccessRate: 0,
-		...data.breedingSummary, // 手動入力値があれば上書き
+		...data.breedingSummary // 手動入力値があれば上書き
 	};
 
 	await createBreedingSummary(db, cattle.cattleId, breedingSummaryData);
@@ -202,7 +202,7 @@ export async function updateCattleData(
 			pregnancyHeadCount?: number | null;
 			pregnancySuccessRate?: number | null;
 		};
-	},
+	}
 ) {
 	// 生年月日が更新された場合、年齢を再計算
 	let age = null;
@@ -221,8 +221,8 @@ export async function updateCattleData(
 		...(age !== null && {
 			age,
 			monthsOld,
-			daysOld,
-		}),
+			daysOld
+		})
 	};
 
 	// 牛の基本情報を更新
@@ -237,7 +237,7 @@ export async function updateCattleData(
 	const breedingCalculations = calculateBreedingValues(
 		data.birthday || null,
 		data.breedingStatus?.expectedCalvingDate || null,
-		data.breedingStatus?.scheduledPregnancyCheckDate || null,
+		data.breedingStatus?.scheduledPregnancyCheckDate || null
 	);
 
 	// 繁殖状態を更新（自動計算値を含む）
@@ -250,7 +250,7 @@ export async function updateCattleData(
 		scheduledPregnancyCheckDate:
 			data.breedingStatus?.scheduledPregnancyCheckDate || null,
 		breedingMemo: data.breedingStatus?.breedingMemo || null,
-		isDifficultBirth: data.breedingStatus?.isDifficultBirth || null,
+		isDifficultBirth: data.breedingStatus?.isDifficultBirth || null
 	};
 
 	await updateBreedingStatus(db, cattleId, breedingStatusData);
@@ -274,7 +274,7 @@ export async function updateStatus(
 		| "SHIPPED"
 		| "DEAD",
 	changedBy: number,
-	reason?: string,
+	reason?: string
 ) {
 	const current = await findCattleById(db, cattleId);
 	if (!current) {
@@ -287,7 +287,7 @@ export async function updateStatus(
 		oldStatus: current.status ?? null,
 		newStatus,
 		changedBy,
-		reason: reason ?? null,
+		reason: reason ?? null
 	});
 	return { ...current, status: newStatus };
 }
@@ -299,7 +299,7 @@ export async function deleteCattleData(db: AnyD1Database, cattleId: number) {
 export async function searchCattleList(
 	db: AnyD1Database,
 	ownerUserId: number,
-	query: SearchCattleQuery,
+	query: SearchCattleQuery
 ) {
 	// カーソルのデコード
 	let decodedCursor: { id: number; value: string | number } | undefined;
@@ -314,7 +314,7 @@ export async function searchCattleList(
 	// リポジトリの呼び出し
 	const results = await searchCattle(db, ownerUserId, {
 		...query,
-		cursor: decodedCursor,
+		cursor: decodedCursor
 	});
 
 	// 次のページの有無を確認
@@ -330,25 +330,25 @@ export async function searchCattleList(
 				? Math.floor(
 						(new Date().getTime() -
 							new Date(lastItem.birthday ?? "").getTime()) /
-							(1000 * 60 * 60 * 24),
+							(1000 * 60 * 60 * 24)
 					)
 				: lastItem[getSortColumnKey(query.sort_by)];
 		nextCursor = btoa(
-			JSON.stringify({ id: lastItem.cattleId, value: cursorValue }),
+			JSON.stringify({ id: lastItem.cattleId, value: cursorValue })
 		);
 	}
 
 	return {
 		results: items,
 		next_cursor: nextCursor,
-		has_next: hasNext,
+		has_next: hasNext
 	};
 }
 
 // ステータス別の頭数集計
 export async function getCattleStatusCounts(
 	db: AnyD1Database,
-	ownerUserId: number,
+	ownerUserId: number
 ) {
 	const rows = await countCattleByStatus(db, ownerUserId);
 	const result: Record<string, number> = {
@@ -357,7 +357,7 @@ export async function getCattleStatusCounts(
 		RESTING: 0,
 		TREATING: 0,
 		SHIPPED: 0,
-		DEAD: 0,
+		DEAD: 0
 	};
 	for (const r of rows) {
 		if (r.status) {
