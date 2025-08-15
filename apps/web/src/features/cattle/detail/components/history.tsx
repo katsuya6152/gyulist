@@ -9,13 +9,13 @@ import { parseISO } from "date-fns";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-type CattleEvent = NonNullable<GetCattleDetailResType["events"][number]>;
+type CattleEvent = NonNullable<GetCattleDetailResType["events"]>[number];
 
 export function History({ cattle }: { cattle: GetCattleDetailResType }) {
 	const router = useRouter();
 
 	const sortedEvents = (
-		events: (GetCattleDetailResType["events"][number] | null)[] | undefined
+		events: GetCattleDetailResType["events"]
 	): CattleEvent[] => {
 		const safeEvents: CattleEvent[] = (events ?? []).filter(
 			(e): e is CattleEvent => e != null

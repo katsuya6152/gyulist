@@ -19,7 +19,7 @@ import { search as searchEventsUC } from "../contexts/events/domain/services/sea
 import { update as updateEventUC } from "../contexts/events/domain/services/update";
 import { jwtMiddleware } from "../middleware/jwt";
 import { makeDeps } from "../shared/config/di";
-import { toHttpStatus } from "../shared/http/error-mapper";
+import { executeUseCase } from "../shared/http/route-helpers";
 import type { Bindings } from "../types";
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -28,34 +28,22 @@ const app = new Hono<{ Bindings: Bindings }>()
 	// イベント一覧・検索（FDM repoへ委譲、契約維持）
 	.get("/", zValidator("query", searchEventSchema), async (c) => {
 		const userId = c.get("jwtPayload").userId;
-		try {
+
+		return executeUseCase(c, async () => {
 			const q = c.req.valid("query");
 			const deps = makeDeps(c.env.DB, { now: () => new Date() });
 			const result = await searchEventsUC({ repo: deps.eventsRepo })(
 				userId as unknown as import("../shared/brand").UserId,
 				q
 			);
-			if (!result.ok) {
-				c.status(
-					toHttpStatus(result.error) as
-						| 200
-						| 201
-						| 400
-						| 401
-						| 403
-						| 404
-						| 409
-						| 500
-				);
-				return c.json({ error: result.error });
-			}
-			return c.json(eventsSearchResponseSchema.parse(result.value));
-		} catch (e) {
-			console.error(e);
-			const message =
-				e instanceof Error ? e.message : "内部サーバーエラーが発生しました";
-			return c.json({ message }, 500);
-		}
+
+			if (!result.ok) return result;
+
+			return {
+				ok: true,
+				value: eventsSearchResponseSchema.parse(result.value)
+			};
+		});
 	})
 
 	// 特定の牛のイベント一覧（FDM repoへ委譲、契約維持）
@@ -64,42 +52,26 @@ const app = new Hono<{ Bindings: Bindings }>()
 		const userId = c.get("jwtPayload").userId;
 
 		if (Number.isNaN(cattleId)) {
-			return c.json({ message: "無効な牛IDです" }, 400);
+			return executeUseCase(c, async () => ({
+				ok: false,
+				error: { type: "ValidationError", message: "無効な牛IDです" }
+			}));
 		}
 
-		try {
+		return executeUseCase(c, async () => {
 			const deps = makeDeps(c.env.DB, { now: () => new Date() });
 			const res = await listEventsByCattleUC({ repo: deps.eventsRepo })(
 				cattleId as unknown as import("../shared/brand").CattleId,
 				userId as unknown as import("../shared/brand").UserId
 			);
-			if (!res.ok) {
-				c.status(
-					toHttpStatus(res.error) as
-						| 200
-						| 201
-						| 400
-						| 401
-						| 403
-						| 404
-						| 409
-						| 500
-				);
-				return c.json({ error: res.error });
-			}
-			return c.json(eventsOfCattleResponseSchema.parse({ results: res.value }));
-		} catch (e) {
-			console.error(e);
-			const message =
-				e instanceof Error ? e.message : "内部サーバーエラーが発生しました";
-			if (message.includes("見つからない")) {
-				return c.json({ message }, 404);
-			}
-			if (message.includes("アクセス権限")) {
-				return c.json({ message }, 403);
-			}
-			return c.json({ message }, 500);
-		}
+
+			if (!res.ok) return res;
+
+			return {
+				ok: true,
+				value: eventsOfCattleResponseSchema.parse({ results: res.value })
+			};
+		});
 	})
 
 	// イベント詳細
@@ -108,34 +80,26 @@ const app = new Hono<{ Bindings: Bindings }>()
 		const userId = c.get("jwtPayload").userId;
 
 		if (Number.isNaN(eventId)) {
-			return c.json({ message: "無効なイベントIDです" }, 400);
+			return executeUseCase(c, async () => ({
+				ok: false,
+				error: { type: "ValidationError", message: "無効なイベントIDです" }
+			}));
 		}
 
-		try {
+		return executeUseCase(c, async () => {
 			const deps = makeDeps(c.env.DB, { now: () => new Date() });
 			const res = await getEventByIdUC({ repo: deps.eventsRepo })(
 				eventId as unknown as import("../contexts/events/ports").EventId,
 				userId as unknown as import("../contexts/events/ports").UserId
 			);
-			if (!res.ok) {
-				c.status(
-					toHttpStatus(res.error) as
-						| 200
-						| 201
-						| 400
-						| 401
-						| 403
-						| 404
-						| 409
-						| 500
-				);
-				return c.json({ error: res.error });
-			}
-			return c.json(eventResponseSchema.parse(res.value));
-		} catch (e) {
-			console.error(e);
-			return c.json({ message: "内部サーバーエラーが発生しました" }, 500);
-		}
+
+			if (!res.ok) return res;
+
+			return {
+				ok: true,
+				value: eventResponseSchema.parse(res.value)
+			};
+		});
 	})
 
 	// イベント新規作成
@@ -143,68 +107,42 @@ const app = new Hono<{ Bindings: Bindings }>()
 		const data = c.req.valid("json");
 		const userId = c.get("jwtPayload").userId;
 
-		try {
-			const deps = makeDeps(c.env.DB, { now: () => new Date() });
-			const createdRes = await createEventUC({ repo: deps.eventsRepo })(data);
-			if (!createdRes.ok) {
-				c.status(
-					toHttpStatus(createdRes.error) as
-						| 200
-						| 201
-						| 400
-						| 401
-						| 403
-						| 404
-						| 409
-						| 500
-				);
-				return c.json({ error: createdRes.error });
-			}
-			const created = createdRes.value;
+		return executeUseCase(
+			c,
+			async () => {
+				const deps = makeDeps(c.env.DB, { now: () => new Date() });
+				const createdRes = await createEventUC({ repo: deps.eventsRepo })(data);
+				if (!createdRes.ok) return createdRes;
 
-			// 副作用: CALVING -> RESTING, SHIPMENT -> SHIPPED（契約維持）
-			if (data.eventType === "SHIPMENT" || data.eventType === "CALVING") {
-				const newStatus = data.eventType === "SHIPMENT" ? "SHIPPED" : "RESTING";
-				const res = await updateCattleStatusUC({
-					repo: deps.cattleRepo,
-					clock: deps.clock
-				})({
-					requesterUserId: userId as unknown as number,
-					id: data.cattleId as unknown as number,
-					newStatus,
-					reason: null
-				} as unknown as Parameters<ReturnType<typeof updateCattleStatusUC>>[0]);
-				if (!res.ok) {
-					c.status(
-						toHttpStatus(res.error) as
-							| 200
-							| 201
-							| 400
-							| 401
-							| 403
-							| 404
-							| 409
-							| 500
-					);
-					return c.json({ error: res.error });
+				const created = createdRes.value;
+
+				// 副作用: CALVING -> RESTING, SHIPMENT -> SHIPPED（契約維持）
+				if (data.eventType === "SHIPMENT" || data.eventType === "CALVING") {
+					const newStatus =
+						data.eventType === "SHIPMENT" ? "SHIPPED" : "RESTING";
+					const res = await updateCattleStatusUC({
+						repo: deps.cattleRepo,
+						clock: deps.clock
+					})({
+						requesterUserId: userId as unknown as number,
+						id: data.cattleId as unknown as number,
+						newStatus,
+						reason: null
+					} as unknown as Parameters<
+						ReturnType<typeof updateCattleStatusUC>
+					>[0]);
+
+					if (!res.ok) return res;
 				}
-			}
-			{
+
 				const parsed = eventResponseSchema.safeParse(created);
-				return c.json(parsed.success ? parsed.data : created, 201);
-			}
-		} catch (e) {
-			console.error(e);
-			const message =
-				e instanceof Error ? e.message : "内部サーバーエラーが発生しました";
-			if (message.includes("見つからない")) {
-				return c.json({ message }, 404);
-			}
-			if (message.includes("アクセス権限")) {
-				return c.json({ message }, 403);
-			}
-			return c.json({ message }, 500);
-		}
+				return {
+					ok: true,
+					value: parsed.success ? parsed.data : created
+				};
+			},
+			{ successStatus: 201 }
+		);
 	})
 
 	// イベント更新
@@ -214,10 +152,13 @@ const app = new Hono<{ Bindings: Bindings }>()
 		const userId = c.get("jwtPayload").userId;
 
 		if (Number.isNaN(eventId)) {
-			return c.json({ message: "無効なイベントIDです" }, 400);
+			return executeUseCase(c, async () => ({
+				ok: false,
+				error: { type: "ValidationError", message: "無効なイベントIDです" }
+			}));
 		}
 
-		try {
+		return executeUseCase(c, async () => {
 			const deps = makeDeps(c.env.DB, { now: () => new Date() });
 			const updatedRes = await updateEventUC({ repo: deps.eventsRepo })(
 				eventId as unknown as import("../shared/brand").Brand<
@@ -226,36 +167,15 @@ const app = new Hono<{ Bindings: Bindings }>()
 				>,
 				data
 			);
-			if (!updatedRes.ok) {
-				c.status(
-					toHttpStatus(updatedRes.error) as
-						| 200
-						| 201
-						| 400
-						| 401
-						| 403
-						| 404
-						| 409
-						| 500
-				);
-				return c.json({ error: updatedRes.error });
-			}
-			{
-				const parsed = eventResponseSchema.safeParse(updatedRes.value);
-				return c.json(parsed.success ? parsed.data : updatedRes.value);
-			}
-		} catch (e) {
-			console.error(e);
-			const message =
-				e instanceof Error ? e.message : "内部サーバーエラーが発生しました";
-			if (message.includes("見つからない")) {
-				return c.json({ message }, 404);
-			}
-			if (message.includes("アクセス権限")) {
-				return c.json({ message }, 403);
-			}
-			return c.json({ message }, 500);
-		}
+
+			if (!updatedRes.ok) return updatedRes;
+
+			const parsed = eventResponseSchema.safeParse(updatedRes.value);
+			return {
+				ok: true,
+				value: parsed.success ? parsed.data : updatedRes.value
+			};
+		});
 	})
 
 	// イベント削除
@@ -264,41 +184,25 @@ const app = new Hono<{ Bindings: Bindings }>()
 		const userId = c.get("jwtPayload").userId;
 
 		if (Number.isNaN(eventId)) {
-			return c.json({ message: "無効なイベントIDです" }, 400);
+			return executeUseCase(c, async () => ({
+				ok: false,
+				error: { type: "ValidationError", message: "無効なイベントIDです" }
+			}));
 		}
 
-		try {
+		return executeUseCase(c, async () => {
 			const deps = makeDeps(c.env.DB, { now: () => new Date() });
 			const del = await deleteEventUC({ repo: deps.eventsRepo })(
 				eventId as unknown as import("../shared/brand").Brand<number, "EventId">
 			);
-			if (!del.ok) {
-				c.status(
-					toHttpStatus(del.error) as
-						| 200
-						| 201
-						| 400
-						| 401
-						| 403
-						| 404
-						| 409
-						| 500
-				);
-				return c.json({ error: del.error });
-			}
-			return c.json({ message: "イベントが正常に削除されました" });
-		} catch (e) {
-			console.error(e);
-			const message =
-				e instanceof Error ? e.message : "内部サーバーエラーが発生しました";
-			if (message.includes("見つからない")) {
-				return c.json({ message }, 404);
-			}
-			if (message.includes("アクセス権限")) {
-				return c.json({ message }, 403);
-			}
-			return c.json({ message }, 500);
-		}
+
+			if (!del.ok) return del;
+
+			return {
+				ok: true,
+				value: { message: "イベントが正常に削除されました" }
+			};
+		});
 	});
 
 export default app;

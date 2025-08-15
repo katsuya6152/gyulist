@@ -7,6 +7,7 @@ import { users } from "../db/schema";
 import { generateOAuthDummyPasswordHash } from "../lib/auth";
 import { type GoogleUser, createGoogleOAuth } from "../lib/oauth";
 import { createSession, generateSessionToken } from "../lib/session";
+import { executeUseCase } from "../shared/http/route-helpers";
 import { getLogger } from "../shared/logging/logger";
 import type { Bindings } from "../types";
 
@@ -45,11 +46,23 @@ const app = new Hono<{ Bindings: Bindings }>()
 
 			return c.redirect(url.toString());
 		} catch (error) {
-			console.error("Error in Google OAuth start:", error);
+			const logger = getLogger(c);
+			logger.unexpectedError(
+				"Error in Google OAuth start",
+				error instanceof Error ? error : new Error(String(error)),
+				{ endpoint: "/oauth/google" }
+			);
+			// 本番環境では詳細なエラー情報を隠す
+			const isProduction = c.env.ENVIRONMENT === "production";
 			return c.json(
 				{
 					error: "OAuth initialization failed",
-					details: error instanceof Error ? error.message : "Unknown error"
+					...(isProduction
+						? {}
+						: {
+								details:
+									error instanceof Error ? error.message : "Unknown error"
+							})
 				},
 				500
 			);

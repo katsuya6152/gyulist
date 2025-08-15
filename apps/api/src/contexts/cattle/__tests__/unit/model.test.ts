@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { UserId } from "../../../shared/brand";
+import type { UserId } from "../../../../shared/brand";
 import { createCattle } from "../../domain/model/cattle";
 import type { IdentificationNumber } from "../../domain/model/cattle";
 
@@ -11,7 +11,7 @@ describe("Cattle model", () => {
 			earTagNumber: null,
 			name: "test",
 			gender: "メス",
-			birthday: new Date(Date.now() + 86400000).toISOString(),
+			birthday: new Date(Date.now() + 86400000),
 			growthStage: "CALF",
 			breed: null,
 			status: "HEALTHY",
@@ -30,7 +30,7 @@ describe("Cattle model", () => {
 			earTagNumber: null,
 			name: "test",
 			gender: "メス",
-			birthday: new Date(Date.now() - 10 * 24 * 3600 * 1000).toISOString(),
+			birthday: new Date(Date.now() - 10 * 24 * 3600 * 1000),
 			growthStage: "CALF",
 			breed: null,
 			status: "HEALTHY",

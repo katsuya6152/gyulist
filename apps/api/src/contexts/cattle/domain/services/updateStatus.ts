@@ -32,8 +32,7 @@ export const updateStatus =
 			return err({ type: "Forbidden", message: "You do not own this cattle" });
 		}
 		const updated = await deps.repo.update(cmd.id, {
-			status: cmd.newStatus,
-			updatedAt: deps.clock.now().toISOString()
+			status: cmd.newStatus
 		});
 		await deps.repo.appendStatusHistory({
 			cattleId: cmd.id,

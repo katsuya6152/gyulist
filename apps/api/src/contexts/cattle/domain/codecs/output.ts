@@ -1,5 +1,10 @@
 import { z } from "zod";
 import { eventSchema } from "../../../events/domain/codecs/output";
+import {
+	CATTLE_GENDERS,
+	CATTLE_GROWTH_STAGES,
+	CATTLE_STATUS
+} from "../constants";
 
 // 血統情報スキーマ
 const bloodlineSchema = z.object({
@@ -35,8 +40,8 @@ const breedingStatusSchema = z.object({
 	inseminationCount: z.number().nullable(),
 	breedingMemo: z.string().nullable(),
 	isDifficultBirth: z.boolean().nullable(),
-	createdAt: z.string(),
-	updatedAt: z.string()
+	createdAt: z.date().transform((date) => date.toISOString()),
+	updatedAt: z.date().transform((date) => date.toISOString())
 });
 
 // 繁殖統計スキーマ
@@ -50,8 +55,8 @@ const breedingSummarySchema = z.object({
 	difficultBirthCount: z.number().nullable(),
 	pregnancyHeadCount: z.number().nullable(),
 	pregnancySuccessRate: z.number().nullable(),
-	createdAt: z.string(),
-	updatedAt: z.string()
+	createdAt: z.date().transform((date) => date.toISOString()),
+	updatedAt: z.date().transform((date) => date.toISOString())
 });
 
 const cattleSchema = z.object({
@@ -60,20 +65,25 @@ const cattleSchema = z.object({
 	identificationNumber: z.number().optional(),
 	earTagNumber: z.number().nullable(),
 	name: z.string().nullable(),
-	gender: z.string().nullable(),
-	birthday: z.string().nullable(),
-	growthStage: z.string().nullable(),
+	gender: z.enum(CATTLE_GENDERS).nullable(),
+	birthday: z
+		.date()
+		.nullable()
+		.transform((date) => date?.toISOString() ?? null),
+	growthStage: z.enum(CATTLE_GROWTH_STAGES).nullable(),
 	age: z.number().nullable(),
 	monthsOld: z.number().nullable(),
 	daysOld: z.number().nullable(),
 	breed: z.string().nullable(),
-	status: z.string().nullable(),
+	status: z.enum(CATTLE_STATUS).nullable(),
 	producerName: z.string().nullable(),
 	barn: z.string().nullable(),
 	breedingValue: z.string().nullable(),
 	notes: z.string().nullable(),
-	createdAt: z.string(),
-	updatedAt: z.string()
+	weight: z.number().nullable(),
+	score: z.number().nullable(),
+	createdAt: z.date().transform((date) => date.toISOString()),
+	updatedAt: z.date().transform((date) => date.toISOString())
 });
 
 export const cattleListResponseSchema = z.object({
@@ -95,3 +105,14 @@ export const cattleResponseSchema = cattleSchema.extend({
 	breedingSummary: breedingSummarySchema.nullable().optional()
 });
 export const cattleStatusUpdateResponseSchema = cattleSchema;
+
+// ===== Type Exports (for consumers like apps/web) =====
+export type CattleOutput = z.infer<typeof cattleSchema>;
+export type CattleListResponse = z.infer<typeof cattleListResponseSchema>;
+export type CattleStatusCountsResponse = z.infer<
+	typeof cattleStatusCountsResponseSchema
+>;
+export type CattleResponse = z.infer<typeof cattleResponseSchema>;
+export type CattleStatusUpdateResponse = z.infer<
+	typeof cattleStatusUpdateResponseSchema
+>;

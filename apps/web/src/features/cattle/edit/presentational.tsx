@@ -72,7 +72,7 @@ const CattleEditPresentation = ({
 		shouldValidate: "onBlur",
 		shouldRevalidate: "onInput",
 		defaultValue: {
-			identificationNumber: cattle.identificationNumber.toString(),
+			identificationNumber: cattle.identificationNumber?.toString() || "",
 			earTagNumber: cattle.earTagNumber?.toString() || "",
 			name: cattle.name || "",
 			gender: cattle.gender || "",

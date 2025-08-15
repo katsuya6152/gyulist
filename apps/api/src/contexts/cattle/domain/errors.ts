@@ -1,6 +1,7 @@
 export type ValidationError = {
 	type: "ValidationError";
 	message: string;
+	field?: string;
 	issues?: Array<{ path: string; message: string }>;
 };
 
@@ -24,6 +25,7 @@ export type NotFound = {
 export type Conflict = {
 	type: "Conflict";
 	message: string;
+	conflictingField?: string;
 };
 
 export type InfraError = {

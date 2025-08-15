@@ -1,4 +1,4 @@
-import type { GetCattleListResType } from "@/services/cattleService";
+import type { CattleOutput } from "@repo/api";
 import {
 	CATTLE_GENDERS,
 	CATTLE_GENDER_LABELS,
@@ -8,7 +8,7 @@ import {
 import { z } from "zod";
 import { statusOptions } from "../constants";
 
-export type CattleListItem = GetCattleListResType["results"][0];
+export type CattleListItem = CattleOutput;
 
 export const filterOptions = [
 	...CATTLE_GROWTH_STAGES.map((id) => ({

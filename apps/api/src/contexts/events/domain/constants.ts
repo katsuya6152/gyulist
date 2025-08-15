@@ -24,11 +24,6 @@ export const EVENT_TYPES = [
 	"OTHER" // その他
 ] as const;
 
-export const EVENT_TYPES_TUPLE = EVENT_TYPES as unknown as [
-	string,
-	...string[]
-];
-
 export type EventType = (typeof EVENT_TYPES)[number];
 
 // イベントの分類グループ（順序付き）

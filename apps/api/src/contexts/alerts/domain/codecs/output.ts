@@ -1,14 +1,10 @@
 import { z } from "zod";
+import { ALERT_SEVERITIES, ALERT_TYPES } from "../constants";
 
 export const alertSchema = z.object({
 	alertId: z.string(),
-	type: z.enum([
-		"OPEN_DAYS_OVER60_NO_AI",
-		"CALVING_WITHIN_60",
-		"CALVING_OVERDUE",
-		"ESTRUS_OVER20_NOT_PREGNANT"
-	]),
-	severity: z.enum(["high", "medium", "low"]),
+	type: z.enum(ALERT_TYPES),
+	severity: z.enum(ALERT_SEVERITIES),
 	cattleId: z.number(),
 	cattleName: z.string().nullable(),
 	cattleEarTagNumber: z.string().nullable(),

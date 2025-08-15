@@ -1,17 +1,12 @@
 import type { CattleStatus } from "@/features/cattle/constants";
 import { fetchWithAuth } from "@/lib/api-client";
 import { client } from "@/lib/rpc";
+import type { CattleListResponse, CattleResponse } from "@repo/api";
 import type { InferResponseType } from "hono";
 
-export type GetCattleListResType = InferResponseType<
-	typeof client.api.v1.cattle.$get,
-	200
->;
+export type GetCattleListResType = CattleListResponse;
 
-export type GetCattleDetailResType = InferResponseType<
-	(typeof client.api.v1.cattle)[":id"]["$get"],
-	200
->;
+export type GetCattleDetailResType = CattleResponse;
 
 export type CattleListQueryParams = {
 	cursor?: string;
@@ -108,7 +103,7 @@ export async function UpdateCattle(
 		identificationNumber: number;
 		earTagNumber: number;
 		name: string;
-		gender: string;
+		gender: "オス" | "メス";
 		birthday: string;
 		growthStage:
 			| "CALF"
@@ -139,7 +134,7 @@ export type CreateCattleInput = {
 	identificationNumber: number;
 	earTagNumber: number;
 	name: string;
-	gender: string;
+	gender: "オス" | "メス";
 	birthday: string;
 	growthStage:
 		| "CALF"

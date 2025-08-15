@@ -43,7 +43,7 @@ export async function updateCattleAction(
 			identificationNumber: data.identificationNumber,
 			earTagNumber: data.earTagNumber,
 			name: data.name,
-			gender: data.gender,
+			gender: data.gender as UpdateCattleInput["gender"],
 			birthday: data.birthday,
 			growthStage: data.growthStage as UpdateCattleInput["growthStage"],
 			...(data.weight != null ? { weight: data.weight } : {}),

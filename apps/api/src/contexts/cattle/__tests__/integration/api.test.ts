@@ -134,8 +134,9 @@ describe("Cattle API E2E (no mocks)", () => {
 	});
 
 	it("POST /cattle creates new cattle", async () => {
+		const uniqueId = Date.now() + Math.floor(Math.random() * 1000); // Generate truly unique ID
 		const payload = {
-			identificationNumber: 2001,
+			identificationNumber: uniqueId,
 			earTagNumber: 5678,
 			name: "新規牛",
 			gender: "オス",
@@ -149,6 +150,9 @@ describe("Cattle API E2E (no mocks)", () => {
 			headers: { "Content-Type": "application/json", ...authHeaders },
 			body: JSON.stringify(payload)
 		});
+		if (res.status !== 201) {
+			console.log("Error response:", await res.text());
+		}
 		expect(res.status).toBe(201);
 		const created = await res.json();
 		expect(created.cattleId).toBeDefined();

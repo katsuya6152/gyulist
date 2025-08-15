@@ -7,7 +7,7 @@ import { getGrowthStage } from "@/lib/utils";
 import classNames from "classnames";
 import { CalendarPlus, ChevronRight } from "lucide-react";
 import { memo } from "react";
-import { statusLabelMap } from "../../constants";
+import { type CattleStatus, statusLabelMap } from "../../constants";
 import type { CattleListItem } from "../constants";
 
 interface CattleItemProps {
@@ -86,7 +86,7 @@ export const CattleItem = memo(
 										}
 									)}
 								>
-									{statusLabelMap[cattle.status]}
+									{statusLabelMap[cattle.status as CattleStatus]}
 								</Badge>
 							)}
 						</div>

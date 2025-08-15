@@ -7,11 +7,23 @@ const app = new Hono<{ Bindings: Bindings }>();
 
 const routes = createRoutes(app);
 
+// Hono RPC型定義
 export type AppType = typeof routes;
-export * from "./contexts/events/domain/constants";
+
+// 🎯 共通定数 (値と型の両方をエクスポート)
 export * from "./contexts/cattle/domain/constants";
-export * from "./contexts/cattle/domain/codecs/input";
-export * from "./contexts/events/domain/codecs/input";
+export * from "./contexts/events/domain/constants";
+export * from "./contexts/alerts/domain/constants";
+
+// 🔒 型のみエクスポート (Tree Shaking対応)
+export type * from "./contexts/cattle/domain/codecs/input";
+export type * from "./contexts/cattle/domain/codecs/output";
+export type * from "./contexts/events/domain/codecs/input";
+export type * from "./contexts/events/domain/codecs/output";
+export type * from "./contexts/alerts/domain/codecs/output";
+
+// 🛠️ 必要に応じて個別の型をエクスポート
+export type { Bindings } from "./types";
 
 type ClientType = typeof hc<AppType>;
 

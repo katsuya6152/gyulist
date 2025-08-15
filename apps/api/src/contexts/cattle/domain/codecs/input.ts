@@ -1,4 +1,9 @@
 import { z } from "zod";
+import {
+	CATTLE_GENDERS,
+	CATTLE_GROWTH_STAGES,
+	CATTLE_STATUS
+} from "../constants";
 import type { Gender, GrowthStage, Status } from "../model/cattle";
 
 // 血統情報のスキーマ
@@ -49,15 +54,17 @@ export const newCattleSchema = z.object({
 	identificationNumber: z.number(),
 	earTagNumber: z.number().nullable().optional(),
 	name: z.string().nullable().optional(),
-	gender: z.custom<Gender>().nullable().optional(),
+	gender: z.enum(CATTLE_GENDERS).nullable().optional(),
 	birthday: z.string().nullable().optional(),
-	growthStage: z.custom<GrowthStage>().nullable().optional(),
+	growthStage: z.enum(CATTLE_GROWTH_STAGES).nullable().optional(),
 	breed: z.string().nullable().optional(),
-	status: z.custom<Status>().nullable().optional(),
+	status: z.enum(CATTLE_STATUS).nullable().optional(),
 	producerName: z.string().nullable().optional(),
 	barn: z.string().nullable().optional(),
 	breedingValue: z.string().nullable().optional(),
-	notes: z.string().nullable().optional()
+	notes: z.string().nullable().optional(),
+	weight: z.number().nullable().optional(),
+	score: z.number().nullable().optional()
 });
 
 // 新規作成用のスキーマ（血統・繁殖情報を含む）
@@ -66,15 +73,10 @@ export const createCattleSchema = z.object({
 	identificationNumber: z.number(),
 	earTagNumber: z.number(),
 	name: z.string(),
-	gender: z.string(),
+	gender: z.enum(CATTLE_GENDERS),
 	birthday: z.string(),
-	growthStage: z.enum([
-		"CALF",
-		"GROWING",
-		"FATTENING",
-		"FIRST_CALVED",
-		"MULTI_PAROUS"
-	]),
+	growthStage: z.enum(CATTLE_GROWTH_STAGES),
+	weight: z.number().nullable().optional(),
 	score: z.number().nullable().optional(),
 	breed: z.string().nullable(),
 	producerName: z.string().nullable().optional(),
@@ -92,14 +94,7 @@ export const createCattleSchema = z.object({
 export const updateCattleSchema = createCattleSchema.partial();
 
 export const updateStatusSchema = z.object({
-	status: z.enum([
-		"HEALTHY",
-		"PREGNANT",
-		"RESTING",
-		"TREATING",
-		"SHIPPED",
-		"DEAD"
-	]),
+	status: z.enum(CATTLE_STATUS),
 	reason: z.string().nullable().optional()
 });
 
@@ -113,27 +108,17 @@ export const searchCattleSchema = z.object({
 	growth_stage: z
 		.string()
 		.transform((val) => val?.split(","))
-		.pipe(
-			z
-				.enum(["CALF", "GROWING", "FATTENING", "FIRST_CALVED", "MULTI_PAROUS"])
-				.array()
-				.optional()
-		)
+		.pipe(z.enum(CATTLE_GROWTH_STAGES).array().optional())
 		.optional(),
 	gender: z
 		.string()
 		.transform((val) => val?.split(","))
-		.pipe(z.enum(["オス", "メス"]).array().optional())
+		.pipe(z.enum(CATTLE_GENDERS).array().optional())
 		.optional(),
 	status: z
 		.string()
 		.transform((val) => val?.split(","))
-		.pipe(
-			z
-				.enum(["HEALTHY", "PREGNANT", "RESTING", "TREATING", "SHIPPED", "DEAD"])
-				.array()
-				.optional()
-		)
+		.pipe(z.enum(CATTLE_STATUS).array().optional())
 		.optional()
 });
 

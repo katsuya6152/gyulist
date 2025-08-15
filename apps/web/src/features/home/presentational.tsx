@@ -68,8 +68,8 @@ type HomePresentationProps = {
 		eventType: string;
 		eventDatetime: string;
 		notes: string | null;
-		cattleName: string;
-		cattleEarTagNumber: string;
+		cattleName?: string | null;
+		cattleEarTagNumber?: number | null;
 	}>;
 	statusCounts: Record<
 		"HEALTHY" | "PREGNANT" | "RESTING" | "TREATING" | "SHIPPED" | "DEAD",

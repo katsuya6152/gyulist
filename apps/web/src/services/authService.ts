@@ -1,15 +1,27 @@
 import { client } from "@/lib/rpc";
+import type { InferRequestType, InferResponseType } from "hono";
 import { cookies } from "next/headers";
 
-export type LoginInput = {
-	email: string;
-	password: string;
-};
+// 🎯 Hono RPCからの型推論
+export type LoginInput = InferRequestType<
+	typeof client.api.v1.auth.login.$post
+>["json"];
 
-export type RegisterInput = {
-	email: string;
-};
+export type RegisterInput = InferRequestType<
+	typeof client.api.v1.auth.register.$post
+>["json"];
 
+export type LoginResponseType = InferResponseType<
+	typeof client.api.v1.auth.login.$post,
+	200
+>;
+
+export type RegisterResponseType = InferResponseType<
+	typeof client.api.v1.auth.register.$post,
+	200
+>;
+
+// 🔄 フロントエンド用のラッパー型
 export type LoginResult = {
 	success: boolean;
 	message: string;
@@ -40,7 +52,7 @@ export async function login(data: LoginInput): Promise<LoginResult> {
 			};
 		}
 
-		const resData = await res.json();
+		const resData = (await res.json()) as { token?: string };
 		if (!resData.token) {
 			return {
 				success: false,
@@ -67,7 +79,7 @@ export async function register(data: RegisterInput): Promise<RegisterResult> {
 		const res = await client.api.v1.auth.register.$post({
 			json: data
 		});
-		const responseData = await res.json();
+		const responseData = (await res.json()) as { message?: string };
 
 		return {
 			success: true,

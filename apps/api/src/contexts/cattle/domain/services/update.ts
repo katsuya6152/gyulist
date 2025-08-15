@@ -66,10 +66,11 @@ export const update =
 		) {
 			return err({ type: "Forbidden", message: "You do not own this cattle" });
 		}
-		// birthday が変わる場合は年齢派生値を再計算
-		const patch = { ...cmd.patch } as Partial<Cattle>;
-		if (typeof patch.birthday === "string") {
-			const birth = new Date(patch.birthday);
+		// birthday が変わる場合は年齢派生値を再計算（readonlyを直接代入しない）
+		const basePatch = { ...cmd.patch } as Partial<Cattle>;
+		let updatesForRepo: Partial<Cattle> = basePatch;
+		if (typeof basePatch.birthday === "string") {
+			const birth = new Date(basePatch.birthday);
 			if (Number.isNaN(birth.getTime())) {
 				return err({
 					type: "ValidationError",
@@ -78,14 +79,19 @@ export const update =
 			}
 			const now = deps.clock.now();
 			const diffMs = now.getTime() - birth.getTime();
-			patch.age = Math.floor(diffMs / (1000 * 60 * 60 * 24 * 365));
-			patch.monthsOld = Math.floor(diffMs / (1000 * 60 * 60 * 24 * 30));
-			patch.daysOld = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+			updatesForRepo = {
+				...basePatch,
+				age: Math.floor(diffMs / (1000 * 60 * 60 * 24 * 365)),
+				monthsOld: Math.floor(diffMs / (1000 * 60 * 60 * 24 * 30)),
+				daysOld: Math.floor(diffMs / (1000 * 60 * 60 * 24))
+			};
 		}
-		const updated = await deps.repo.update(cmd.id, {
-			...patch,
-			updatedAt: deps.clock.now().toISOString()
-		});
+		const updated = await deps.repo.update(
+			cmd.id,
+			updatesForRepo as unknown as Partial<
+				import("../model/cattle").NewCattleProps
+			>
+		);
 		// breeding upserts when provided
 		if (cmd.patch.breedingStatus) {
 			const bs = cmd.patch.breedingStatus;

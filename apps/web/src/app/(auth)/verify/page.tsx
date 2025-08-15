@@ -16,11 +16,10 @@ export default async function VerifyPage({ searchParams }: Props) {
 	}
 
 	const res = await client.api.v1.auth.verify.$post({ json: { token } });
-	const data = await res.json();
-
-	if (!data.success) {
-		return <div className="p-6 text-center">{data.message}</div>;
+	if (!res.ok) {
+		return <div className="p-6 text-center">{res.statusText}</div>;
 	}
+	const data = await res.json();
 
 	redirect(`/complete-registration?token=${token}`);
 }

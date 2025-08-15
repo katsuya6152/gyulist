@@ -32,7 +32,7 @@ export async function createCattleAction(
 			identificationNumber: data.identificationNumber,
 			earTagNumber: data.earTagNumber,
 			name: data.name,
-			gender: data.gender,
+			gender: data.gender as CreateCattleInput["gender"],
 			birthday: data.birthday,
 			growthStage: data.growthStage as CreateCattleInput["growthStage"],
 			score: data.score ?? null,

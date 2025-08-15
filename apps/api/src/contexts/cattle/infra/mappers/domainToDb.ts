@@ -21,6 +21,8 @@ export function toDbInsert(c: Cattle): InferInsertModel<typeof CattleTable> {
 		barn: c.barn ?? null,
 		breedingValue: c.breedingValue ?? null,
 		notes: c.notes ?? null,
+		weight: c.weight ?? null,
+		score: c.score ?? null,
 		createdAt: c.createdAt,
 		updatedAt: c.updatedAt
 	};

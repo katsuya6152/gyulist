@@ -23,3 +23,11 @@ export const eventsOfCattleResponseSchema = z.object({
 });
 
 export const eventResponseSchema = eventSchema;
+
+// Export inferred types for consumers
+export type EventOutput = z.infer<typeof eventSchema>;
+export type EventsSearchResponse = z.infer<typeof eventsSearchResponseSchema>;
+export type EventsOfCattleResponse = z.infer<
+	typeof eventsOfCattleResponseSchema
+>;
+export type EventResponse = z.infer<typeof eventResponseSchema>;

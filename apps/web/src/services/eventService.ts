@@ -1,40 +1,21 @@
 import { fetchWithAuth, getAuthToken } from "@/lib/api-client";
 import { client } from "@/lib/rpc";
+import type { EventType, EventsSearchResponse } from "@repo/api";
+import type { InferRequestType, InferResponseType } from "hono";
 import { redirect } from "next/navigation";
 
-type EventType =
-	| "ESTRUS"
-	| "INSEMINATION"
-	| "CALVING"
-	| "VACCINATION"
-	| "SHIPMENT"
-	| "HOOF_TRIMMING"
-	| "PREGNANCY_CHECK"
-	| "ABORTION"
-	| "STILLBIRTH"
-	| "DIAGNOSIS"
-	| "TREATMENT_STARTED"
-	| "TREATMENT_COMPLETED"
-	| "MEDICATION"
-	| "ARRIVAL"
-	| "WEIGHT_MEASURED"
-	| "WEANING"
-	| "START_FATTENING"
-	| "OTHER";
+// 🎯 Hono RPCからの型推論
+export type SearchEventsResType = EventsSearchResponse;
 
-export type CreateEventInput = {
-	cattleId: number;
-	eventType: EventType;
-	eventDatetime: string;
-	notes?: string;
-};
+export type CreateEventInput = InferRequestType<
+	typeof client.api.v1.events.$post
+>["json"];
 
-export type UpdateEventInput = {
-	eventType: EventType;
-	eventDatetime: string;
-	notes?: string;
-};
+export type UpdateEventInput = InferRequestType<
+	(typeof client.api.v1.events)[":id"]["$patch"]
+>["json"];
 
+// 🔍 クエリパラメータ型
 export type SearchEventsQuery = {
 	cattleId?: number;
 	eventType?: string;
@@ -44,22 +25,8 @@ export type SearchEventsQuery = {
 	cursor?: number;
 };
 
-// API response type for search events
-export type SearchEventsResType = {
-	results: Array<{
-		eventId: number;
-		cattleId: number;
-		eventType: string;
-		eventDatetime: string;
-		notes: string | null;
-		createdAt: string;
-		updatedAt: string;
-		cattleName: string;
-		cattleEarTagNumber: string;
-	}>;
-	nextCursor: number | null;
-	hasNext: boolean;
-};
+// 🔄 共通型の再エクスポート
+export type { EventType } from "@repo/api";
 
 export async function CreateEvent(data: CreateEventInput): Promise<void> {
 	return fetchWithAuth<void>((token) =>

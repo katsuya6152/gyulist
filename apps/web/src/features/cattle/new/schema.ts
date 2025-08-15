@@ -1,4 +1,4 @@
-import { CATTLE_GROWTH_STAGES_TUPLE } from "@repo/api";
+import { CATTLE_GROWTH_STAGES } from "@repo/api";
 import { z } from "zod";
 
 const preprocessOptional = (v: unknown) =>
@@ -27,7 +27,7 @@ export const createCattleSchema = z.object({
 	name: z.string().min(1, "名号は必須です"),
 	gender: z.string().min(1, "性別は必須です"),
 	birthday: z.string().min(1, "生年月日は必須です"),
-	growthStage: z.enum(CATTLE_GROWTH_STAGES_TUPLE, {
+	growthStage: z.enum(CATTLE_GROWTH_STAGES, {
 		required_error: "成長段階は必須です"
 	}),
 	weight: z.preprocess(preprocessOptional, z.coerce.number().min(0).optional()),

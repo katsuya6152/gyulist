@@ -1,6 +1,6 @@
 import type { UserId } from "../../../../shared/brand";
 import type { Result } from "../../../../shared/result";
-import { ok } from "../../../../shared/result";
+import { err, ok } from "../../../../shared/result";
 import type { CattleRepoPort } from "../../../cattle/ports";
 import type { DomainError } from "../errors";
 import type { Cattle } from "../model/cattle";
@@ -22,6 +22,14 @@ export type SearchCattleCmd = {
 export const search =
 	(deps: Deps) =>
 	async (cmd: SearchCattleCmd): Promise<Result<Cattle[], DomainError>> => {
-		const list = await deps.repo.search(cmd);
-		return ok(list);
+		try {
+			const list = await deps.repo.search(cmd);
+			return ok(list);
+		} catch (error) {
+			return err({
+				type: "InfraError",
+				message: "Failed to search cattle",
+				cause: error
+			});
+		}
 	};
