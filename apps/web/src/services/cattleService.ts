@@ -1,8 +1,13 @@
 import type { CattleStatus } from "@/features/cattle/constants";
 import { fetchWithAuth } from "@/lib/api-client";
 import { client } from "@/lib/rpc";
-import type { CattleListResponse, CattleResponse } from "@repo/api";
-import type { InferResponseType } from "hono";
+import type {
+	CattleListResponse,
+	CattleResponse,
+	CattleStatusCountsResponse,
+	CreateCattleInput,
+	UpdateCattleInput
+} from "@repo/api";
 
 export type GetCattleListResType = CattleListResponse;
 
@@ -130,56 +135,7 @@ export async function UpdateCattle(
 	);
 }
 
-export type CreateCattleInput = {
-	identificationNumber: number;
-	earTagNumber: number;
-	name: string;
-	gender: "オス" | "メス";
-	birthday: string;
-	growthStage:
-		| "CALF"
-		| "GROWING"
-		| "FATTENING"
-		| "FIRST_CALVED"
-		| "MULTI_PAROUS";
-	weight?: number | null;
-	score?: number | null;
-	breed: string | null;
-	producerName?: string | null;
-	barn?: string | null;
-	breedingValue?: string | null;
-	notes: string | null;
-	status?: "HEALTHY" | "PREGNANT" | "RESTING" | "TREATING" | "SHIPPED" | "DEAD";
-	bloodline?: {
-		fatherCattleName: string | null;
-		motherFatherCattleName: string | null;
-		motherGrandFatherCattleName: string | null;
-		motherGreatGrandFatherCattleName: string | null;
-	};
-	breedingStatus?: {
-		parity: number | null;
-		expectedCalvingDate: string | null;
-		scheduledPregnancyCheckDate: string | null;
-		daysAfterCalving: number | null;
-		daysOpen: number | null;
-		pregnancyDays: number | null;
-		daysAfterInsemination: number | null;
-		inseminationCount: number | null;
-		breedingMemo: string | null;
-		isDifficultBirth: boolean | null;
-	};
-	breedingSummary?: {
-		totalInseminationCount: number | null;
-		averageDaysOpen: number | null;
-		averagePregnancyPeriod: number | null;
-		averageCalvingInterval: number | null;
-		difficultBirthCount: number | null;
-		pregnancyHeadCount: number | null;
-		pregnancySuccessRate: number | null;
-	};
-};
-
-export type UpdateCattleInput = CreateCattleInput;
+// 型は @repo/api の共有型を使用する
 
 export async function CreateCattle(data: CreateCattleInput): Promise<void> {
 	return fetchWithAuth<void>((token) =>
@@ -216,12 +172,7 @@ export async function UpdateCattleDetailed(
 }
 
 // ステータス別頭数取得
-export type GetCattleStatusCountsRes = {
-	counts: Record<
-		"HEALTHY" | "PREGNANT" | "RESTING" | "TREATING" | "SHIPPED" | "DEAD",
-		number
-	>;
-};
+export type GetCattleStatusCountsRes = CattleStatusCountsResponse;
 
 export async function GetCattleStatusCounts(): Promise<GetCattleStatusCountsRes> {
 	return fetchWithAuth<GetCattleStatusCountsRes>((token) =>

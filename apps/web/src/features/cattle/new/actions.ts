@@ -2,8 +2,9 @@
 
 import { createDemoResponse, isDemo } from "@/lib/api-client";
 import { verifyAndGetUserId } from "@/lib/jwt";
-import { CreateCattle, type CreateCattleInput } from "@/services/cattleService";
+import { CreateCattle } from "@/services/cattleService";
 import { parseWithZod } from "@conform-to/zod";
+import type { CreateCattleInput } from "@repo/api";
 import { redirect } from "next/navigation";
 import { createCattleSchema } from "./schema";
 
@@ -41,7 +42,6 @@ export async function createCattleAction(
 			barn: data.barn ?? null,
 			breedingValue: data.breedingValue ?? null,
 			notes: data.notes || null,
-			status: "HEALTHY", // デフォルトで健康ステータスを設定
 			...(data.weight != null ? { weight: data.weight } : {})
 		};
 

@@ -1,15 +1,8 @@
 import { fetchWithAuth } from "@/lib/api-client";
 import { client } from "@/lib/rpc";
+import type { BreedingKpiDeltaResponse } from "@repo/api";
 
-export type BreedingKpiDeltaRes = {
-	month: string | null;
-	delta: {
-		conceptionRate: number | null;
-		avgDaysOpen: number | null;
-		avgCalvingInterval: number | null;
-		aiPerConception: number | null;
-	};
-};
+export type BreedingKpiDeltaRes = BreedingKpiDeltaResponse;
 
 export async function GetBreedingKpiDelta(params?: {
 	month?: string; // YYYY-MM

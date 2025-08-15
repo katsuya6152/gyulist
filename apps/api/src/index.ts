@@ -21,6 +21,10 @@ export type * from "./contexts/cattle/domain/codecs/output";
 export type * from "./contexts/events/domain/codecs/input";
 export type * from "./contexts/events/domain/codecs/output";
 export type * from "./contexts/alerts/domain/codecs/output";
+export type * from "./contexts/kpi/domain/codecs/output";
+export type * from "./contexts/registration/domain/codecs/input";
+export type * from "./contexts/registration/domain/codecs/output";
+export type * from "./contexts/auth/domain/codecs/output";
 
 // 🛠️ 必要に応じて個別の型をエクスポート
 export type { Bindings } from "./types";

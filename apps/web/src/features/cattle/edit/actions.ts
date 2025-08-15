@@ -2,11 +2,9 @@
 
 import { createDemoResponse, isDemo } from "@/lib/api-client";
 import { verifyAndGetUserId } from "@/lib/jwt";
-import {
-	UpdateCattleDetailed,
-	type UpdateCattleInput
-} from "@/services/cattleService";
+import { UpdateCattleDetailed } from "@/services/cattleService";
 import { parseWithZod } from "@conform-to/zod";
+import type { UpdateCattleInput } from "@repo/api";
 import { redirect } from "next/navigation";
 import { updateCattleSchema } from "./schema";
 

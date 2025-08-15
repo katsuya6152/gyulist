@@ -47,3 +47,7 @@ export const breedingKpiTrendsSchema = z.object({
 		})
 	)
 });
+
+// ===== Type Exports (for consumers like apps/web) =====
+export type BreedingKpiDeltaResponse = z.infer<typeof breedingKpiDeltaSchema>;
+export type BreedingKpiTrendsResponse = z.infer<typeof breedingKpiTrendsSchema>;

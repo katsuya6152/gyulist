@@ -1,10 +1,17 @@
 {
 	"name": "@repo/api",
-	"main": "index.js",
+	"main": "./dist/index.js",
 	"type": "module",
 	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
 	"scripts": {
 		"build": "tsup ./src/index.ts --dts --format esm",
+		"build:watch": "tsup ./src/index.ts --dts --format esm --watch",
 		"dev": "wrangler dev",
 		"deploy": "wrangler deploy --minify --env production",
 		"cf-typegen": "wrangler types --env-interface CloudflareBindings",

@@ -1,5 +1,6 @@
 import { fetchWithAuth } from "@/lib/api-client";
 import { client } from "@/lib/rpc";
+import type { UpdateThemeResponse } from "@repo/api";
 import type { InferResponseType } from "hono";
 
 export type Theme = "light" | "dark" | "system";
@@ -8,10 +9,7 @@ export type UpdateThemeInput = {
 	theme: Theme;
 };
 
-export type UpdateThemeResType = InferResponseType<
-	(typeof client.api.v1.users)[":id"]["theme"]["$patch"],
-	200
->;
+export type UpdateThemeResType = UpdateThemeResponse;
 
 export async function updateTheme(
 	userId: number,
