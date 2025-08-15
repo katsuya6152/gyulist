@@ -7,6 +7,7 @@ import { users } from "../db/schema";
 import { generateOAuthDummyPasswordHash } from "../lib/auth";
 import { type GoogleUser, createGoogleOAuth } from "../lib/oauth";
 import { createSession, generateSessionToken } from "../lib/session";
+import { getLogger } from "../shared/logging/logger";
 import type { Bindings } from "../types";
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -61,42 +62,42 @@ const app = new Hono<{ Bindings: Bindings }>()
 		const code = url.searchParams.get("code");
 		const state = url.searchParams.get("state");
 
-		console.log("=== OAuth Callback Debug ===");
-		console.log("URL:", c.req.url);
-		console.log("Code present:", !!code);
-		console.log("State present:", !!state);
-		console.log("State value:", state);
+		const logger = getLogger(c);
+		logger.debug("OAuth callback received", {
+			url: c.req.url,
+			hasCode: !!code,
+			hasState: !!state,
+			stateValue: state,
+			endpoint: "/oauth/google/callback"
+		});
 
 		// Honoの組み込みCookie取得を使用
 		const storedState = getCookie(c, "google_oauth_state");
 		const storedCodeVerifier = getCookie(c, "google_oauth_code_verifier");
 
-		console.log("Stored state present:", !!storedState);
-		console.log("Stored code verifier present:", !!storedCodeVerifier);
-		console.log("Stored state value:", storedState);
-		console.log(
-			"All cookies:",
-			Object.fromEntries(
-				Object.entries(c.req.header()).filter(
-					([key]) => key.toLowerCase() === "cookie"
-				)
-			)
-		);
+		logger.debug("OAuth callback cookie validation", {
+			hasStoredState: !!storedState,
+			hasStoredCodeVerifier: !!storedCodeVerifier,
+			storedStateValue: storedState,
+			endpoint: "/oauth/google/callback"
+		});
 
 		if (!code || !state || !storedState || !storedCodeVerifier) {
-			console.error("Missing required parameters:", {
-				code: !!code,
-				state: !!state,
-				storedState: !!storedState,
-				storedCodeVerifier: !!storedCodeVerifier
+			logger.error("OAuth callback missing required parameters", {
+				hasCode: !!code,
+				hasState: !!state,
+				hasStoredState: !!storedState,
+				hasStoredCodeVerifier: !!storedCodeVerifier,
+				endpoint: "/oauth/google/callback"
 			});
 			return c.json({ error: "Invalid request parameters" }, 400);
 		}
 
 		if (state !== storedState) {
-			console.error("State mismatch:", {
-				received: state,
-				stored: storedState
+			logger.error("OAuth state mismatch", {
+				receivedState: state,
+				storedState: storedState,
+				endpoint: "/oauth/google/callback"
 			});
 			return c.json({ error: "Invalid state parameter" }, 400);
 		}

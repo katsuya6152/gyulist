@@ -1,57 +1,131 @@
 import { Hono } from "hono";
+import { registrationQuerySchema } from "../contexts/registration/domain/codecs/input";
+import { registrationsListResponseSchema } from "../contexts/registration/domain/codecs/output";
+import { list as listUC } from "../contexts/registration/domain/services/list";
+import { makeRegistrationRepo } from "../contexts/registration/infra/drizzle/repo";
 import { basicAuthMiddleware } from "../middleware/basicAuth";
-import { listRegistrations } from "../services/registrationService";
+import {
+	executeUseCase,
+	handleValidationError
+} from "../shared/http/route-helpers";
+import { getLogger } from "../shared/logging/logger";
+import {
+	CsvBuilder,
+	formatDateForFilename
+} from "../shared/utils/data-helpers";
+import { setCsvHeaders, setJsonHeaders } from "../shared/utils/request-helpers";
 import type { Bindings } from "../types";
-import { registrationQuerySchema } from "../validators/adminValidator";
 
 const app = new Hono<{ Bindings: Bindings }>()
 	.use("*", basicAuthMiddleware)
 	.get("/registrations", async (c) => {
 		const parsed = registrationQuerySchema.safeParse(c.req.query());
 		if (!parsed.success) {
-			console.error(parsed.error);
-			return c.json(
-				{ ok: false, code: "VALIDATION_FAILED", message: "Validation failed" },
-				400
-			);
+			return handleValidationError(c, parsed.error);
 		}
-		const data = await listRegistrations(c.env.DB, parsed.data);
-		return c.json({ items: data.items, total: data.total });
+
+		const logger = getLogger(c);
+		logger.info("Admin registrations list request", {
+			queryParams: parsed.data,
+			endpoint: "/admin/registrations"
+		});
+
+		setJsonHeaders(c);
+
+		return executeUseCase(c, async () => {
+			const repo = makeRegistrationRepo(c.env.DB);
+			const res = await listUC({ repo })(parsed.data);
+			if (!res.ok) return res;
+			return {
+				ok: true,
+				value: registrationsListResponseSchema.parse({
+					items: res.value.items,
+					total: res.value.total
+				})
+			} as const;
+		});
 	})
 	.get("/registrations.csv", async (c) => {
 		const parsed = registrationQuerySchema.safeParse(c.req.query());
 		if (!parsed.success) {
-			console.error(parsed.error);
-			return c.json(
-				{ ok: false, code: "VALIDATION_FAILED", message: "Validation failed" },
-				400
-			);
+			return handleValidationError(c, parsed.error);
 		}
-		const data = await listRegistrations(c.env.DB, parsed.data);
-		const rows = [
-			"id,email,referral_source,status,locale,created_at,updated_at",
-			...data.items.map((r) =>
-				[
-					r.id,
-					r.email,
-					r.referralSource ?? "",
-					r.status,
-					r.locale,
-					r.createdAt,
-					r.updatedAt
-				].join(",")
-			)
-		];
-		const encoder = new TextEncoder();
-		const content = encoder.encode(rows.join("\n"));
-		const csv = new Uint8Array([0xef, 0xbb, 0xbf, ...content]);
-		const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-		c.header("Content-Type", "text/csv");
-		c.header(
-			"Content-Disposition",
-			`attachment; filename="registrations_${date}.csv"`
-		);
-		return c.body(csv);
+
+		const logger = getLogger(c);
+		logger.info("Admin registrations CSV export request", {
+			queryParams: parsed.data,
+			endpoint: "/admin/registrations.csv"
+		});
+
+		try {
+			const repo = makeRegistrationRepo(c.env.DB);
+			const res = await listUC({ repo })(parsed.data);
+			if (!res.ok) {
+				logger.error("Registration list error for CSV export", {
+					error: res.error,
+					endpoint: "/admin/registrations.csv"
+				});
+				return c.json(
+					{
+						ok: false,
+						code: "INTERNAL_ERROR",
+						message: "Internal error",
+						error: res.error
+					},
+					500
+				);
+			}
+
+			const parsedList = registrationsListResponseSchema.parse({
+				items: res.value.items,
+				total: res.value.total
+			});
+
+			// CSVBuilderを使用してCSVを生成
+			const csvBuilder = new CsvBuilder([
+				"id",
+				"email",
+				"referral_source",
+				"status",
+				"locale",
+				"created_at",
+				"updated_at"
+			]);
+
+			for (const item of parsedList.items) {
+				csvBuilder.addRow([
+					item.id,
+					item.email,
+					item.referralSource ?? "",
+					item.status,
+					item.locale,
+					item.createdAt,
+					item.updatedAt
+				]);
+			}
+
+			const filename = `registrations_${formatDateForFilename()}.csv`;
+			const csv = csvBuilder.buildWithBom();
+
+			setCsvHeaders(c, filename);
+
+			logger.info("CSV export completed", {
+				recordCount: parsedList.items.length,
+				filename,
+				endpoint: "/admin/registrations.csv"
+			});
+
+			return c.body(csv);
+		} catch (error) {
+			logger.unexpectedError(
+				"CSV generation failed",
+				error instanceof Error ? error : new Error(String(error)),
+				{
+					endpoint: "/admin/registrations.csv"
+				}
+			);
+			return c.json({ error: "Internal Server Error" }, 500);
+		}
 	});
 
 export default app;

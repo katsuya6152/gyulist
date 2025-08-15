@@ -15,5 +15,6 @@ export async function sendVerificationEmail(
 		);
 		return;
 	}
-	// TODO: SendGrid実装予定
+	// FUTURE: SendGrid or similar email service implementation for production
+	// Current: Development mode only (console logging)
 }

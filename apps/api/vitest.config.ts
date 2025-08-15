@@ -35,8 +35,7 @@ export default defineConfig({
 				"src/db/migrations/**",
 				"src/db/dummy/**",
 
-				// モックファイル
-				"tests/fixtures/**",
+				// モックファイル (削除済み)
 
 				// 型定義のみのファイル
 				"src/types.ts",
