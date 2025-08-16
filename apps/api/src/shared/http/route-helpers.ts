@@ -1,4 +1,5 @@
 import type { Context } from "hono";
+import type { JSONValue } from "hono/utils/types";
 import { getLogger } from "../logging/logger";
 import type { Result } from "../result";
 import { getAuthenticatedUser, getRequestInfo } from "../utils/request-helpers";
@@ -7,12 +8,12 @@ import { type HttpMappableDomainError, toHttpStatus } from "./error-mapper";
 /**
  * FDMのResult型を統一的にHTTPレスポンスに変換するヘルパー
  */
-export async function handleResult<T, E>(
+export async function handleResult<T extends JSONValue, E>(
 	c: Context,
 	result: Result<T, E>,
 	options?: {
 		successStatus?: 200 | 201;
-		transform?: (value: T) => unknown;
+		transform?: (value: T) => T;
 	}
 ): Promise<Response> {
 	if (!result.ok) {
@@ -21,17 +22,14 @@ export async function handleResult<T, E>(
 		const status =
 			(typeof errorObj === "object" && (errorObj?.httpStatus as number)) ??
 			toHttpStatus(result.error as HttpMappableDomainError);
-		c.status(status as 200 | 201 | 400 | 401 | 403 | 404 | 409 | 500);
+		c.status(status as 400 | 401 | 403 | 404 | 409 | 500);
 		return c.json({ error: result.error });
 	}
 
 	const responseData = options?.transform
 		? options.transform(result.value)
 		: result.value;
-	return c.json(
-		responseData as Record<string, unknown>,
-		options?.successStatus ?? 200
-	);
+	return c.json<T>(responseData, options?.successStatus ?? 200);
 }
 
 /**
@@ -73,12 +71,12 @@ export function handleValidationError(c: Context, error: unknown): Response {
 /**
  * FDMユースケースを実行し、統一的にHTTPレスポンスを返すヘルパー
  */
-export async function executeUseCase<T, E>(
+export async function executeUseCase<T extends JSONValue, E>(
 	c: Context,
 	useCase: () => Promise<Result<T, E>>,
 	options?: {
 		successStatus?: 200 | 201;
-		transform?: (value: T) => unknown;
+		transform?: (value: T) => T;
 	}
 ): Promise<Response> {
 	try {
