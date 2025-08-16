@@ -15,7 +15,7 @@ export async function updateTheme(
 	userId: number,
 	theme: Theme
 ): Promise<UpdateThemeResType> {
-	return fetchWithAuth<UpdateThemeResType>((token) =>
+	return fetchWithAuth<{ data: UpdateThemeResType }>((token) =>
 		client.api.v1.users[":id"].theme.$patch(
 			{
 				param: { id: userId.toString() },
@@ -27,5 +27,5 @@ export async function updateTheme(
 				}
 			}
 		)
-	);
+	).then((r) => r.data);
 }

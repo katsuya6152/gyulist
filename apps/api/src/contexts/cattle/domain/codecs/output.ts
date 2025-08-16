@@ -22,7 +22,7 @@ const motherInfoSchema = z.object({
 	cattleId: z.number(),
 	motherCattleId: z.number(),
 	motherName: z.string().nullable(),
-	motherIdentificationNumber: z.number().nullable(),
+	motherIdentificationNumber: z.string().nullable(),
 	motherScore: z.number().nullable()
 });
 

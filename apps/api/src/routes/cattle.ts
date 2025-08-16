@@ -19,12 +19,14 @@ import {
 import { createCattleUseCase as createUC } from "../contexts/cattle/domain/services/createCattle";
 import { remove as deleteUC } from "../contexts/cattle/domain/services/delete";
 
+import { getDetail as getDetailUC } from "../contexts/cattle/domain/services/getDetail";
 import { search as searchUC } from "../contexts/cattle/domain/services/search";
 import { update as updateUC } from "../contexts/cattle/domain/services/update";
 import { updateStatus as updateStatusUC } from "../contexts/cattle/domain/services/updateStatus";
 import type { CattleId, UserId } from "../shared/brand";
 import { makeDeps } from "../shared/config/di";
 import { executeUseCase } from "../shared/http/route-helpers";
+import { decodeBase64Utf8, encodeBase64Utf8 } from "../shared/utils/base64";
 
 const app = new Hono<{ Bindings: Bindings }>()
 	.use("*", jwtMiddleware)
@@ -37,7 +39,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 		const safeDecodeCursor = (s: string | undefined) => {
 			try {
 				if (!s) return undefined;
-				const decoded = Buffer.from(s, "base64").toString("utf8");
+				const decoded = decodeBase64Utf8(s);
 				const parsed = JSON.parse(decoded);
 				if (
 					parsed &&
@@ -52,167 +54,113 @@ const app = new Hono<{ Bindings: Bindings }>()
 			}
 		};
 
-		return executeUseCase(c, async () => {
-			const deps = makeDeps(c.env.DB, { now: () => new Date() });
-			const q = c.req.valid("query");
+		return executeUseCase(
+			c,
+			async () => {
+				const deps = makeDeps(c.env.DB, { now: () => new Date() });
+				const q = c.req.valid("query");
 
-			const result = await searchUC({ repo: deps.cattleRepo })({
-				ownerUserId: userId as unknown as UserId,
-				cursor: safeDecodeCursor(q.cursor),
-				limit: q.limit,
-				sortBy: q.sort_by,
-				sortOrder: q.sort_order,
-				search: q.search,
-				growthStage: q.growth_stage,
-				gender: q.gender,
-				status: q.status
-			});
+				const result = await searchUC({ repo: deps.cattleRepo })({
+					ownerUserId: userId as unknown as UserId,
+					cursor: safeDecodeCursor(q.cursor),
+					limit: q.limit,
+					sortBy: q.sort_by,
+					sortOrder: q.sort_order,
+					search: q.search,
+					growthStage: q.growth_stage,
+					gender: q.gender,
+					status: q.status
+				});
 
-			if (!result.ok) return result;
+				if (!result.ok) return result;
 
-			const hasNext = result.value.length > q.limit;
-			const items = hasNext ? result.value.slice(0, -1) : result.value;
-			let nextCursor: string | null = null;
-			if (hasNext && items.length > 0) {
-				const lastItem = items[items.length - 1] as unknown as {
-					cattleId: number;
-					name: string | null;
-					birthday: string | null;
+				const hasNext = result.value.length > q.limit;
+				const items = hasNext ? result.value.slice(0, -1) : result.value;
+				let nextCursor: string | null = null;
+				if (hasNext && items.length > 0) {
+					const lastItem = items[items.length - 1] as unknown as {
+						cattleId: number;
+						name: string | null;
+						birthday: string | null;
+					};
+					const cursorValue =
+						q.sort_by === "days_old"
+							? Math.floor(
+									(new Date().getTime() -
+										new Date(lastItem.birthday ?? "").getTime()) /
+										(1000 * 60 * 60 * 24)
+								)
+							: q.sort_by === "id"
+								? lastItem.cattleId
+								: lastItem.name;
+					nextCursor = encodeBase64Utf8(
+						JSON.stringify({ id: lastItem.cattleId, value: cursorValue })
+					);
+				}
+
+				return {
+					ok: true,
+					value: cattleListResponseSchema.parse({
+						results: items,
+						next_cursor: nextCursor,
+						has_next: hasNext
+					})
 				};
-				const cursorValue =
-					q.sort_by === "days_old"
-						? Math.floor(
-								(new Date().getTime() -
-									new Date(lastItem.birthday ?? "").getTime()) /
-									(1000 * 60 * 60 * 24)
-							)
-						: q.sort_by === "id"
-							? lastItem.cattleId
-							: lastItem.name;
-				nextCursor = Buffer.from(
-					JSON.stringify({ id: lastItem.cattleId, value: cursorValue }),
-					"utf8"
-				).toString("base64");
-			}
-
-			return {
-				ok: true,
-				value: cattleListResponseSchema.parse({
-					results: items,
-					next_cursor: nextCursor,
-					has_next: hasNext
-				})
-			};
-		});
+			},
+			{ envelope: "data" }
+		);
 	})
 
 	// ステータス別頭数（詳細より先に定義して/:idに食われないように）
 	.get("/status-counts", async (c) => {
 		const userId = c.get("jwtPayload").userId as unknown as UserId;
 
-		return executeUseCase(c, async () => {
-			const deps = makeDeps(c.env.DB, { now: () => new Date() });
-			const rows = await deps.cattleRepo.countByStatus(userId);
-			const result: Record<string, number> = {
-				HEALTHY: 0,
-				PREGNANT: 0,
-				RESTING: 0,
-				TREATING: 0,
-				SHIPPED: 0,
-				DEAD: 0
-			};
-			for (const r of rows) {
-				if (r.status) result[r.status as string] = r.count;
-			}
-			return {
-				ok: true,
-				value: cattleStatusCountsResponseSchema.parse({ counts: result })
-			};
-		});
+		return executeUseCase(
+			c,
+			async () => {
+				const deps = makeDeps(c.env.DB, { now: () => new Date() });
+				const rows = await deps.cattleRepo.countByStatus(userId);
+				const result: Record<string, number> = {
+					HEALTHY: 0,
+					PREGNANT: 0,
+					RESTING: 0,
+					TREATING: 0,
+					SHIPPED: 0,
+					DEAD: 0
+				};
+				for (const r of rows) {
+					if (r.status) result[r.status as string] = r.count;
+				}
+				return {
+					ok: true,
+					value: cattleStatusCountsResponseSchema.parse({ counts: result })
+				};
+			},
+			{ envelope: "data" }
+		);
 	})
 
-	// 牛の詳細（FDMリポジトリへ委譲）+ イベントデータを含める
-	// TODO: 将来的にはgetCattleDetailユースケースに移動すべき
+	// 牛の詳細（FDMユースケースへ移譲）+ イベント/血統/繁殖データを含める
 	.get("/:id", async (c) => {
 		const id = Number.parseInt(c.req.param("id")) as unknown as CattleId;
 		const userId = c.get("jwtPayload").userId as unknown as UserId;
 
-		return executeUseCase(c, async () => {
-			const deps = makeDeps(c.env.DB, { now: () => new Date() });
+		return executeUseCase(
+			c,
+			async () => {
+				const deps = makeDeps(c.env.DB, { now: () => new Date() });
+				const result = await getDetailUC({
+					repo: deps.cattleRepo,
+					eventsRepo: deps.eventsRepo
+				})({ id, requesterUserId: userId });
 
-			// 牛の基本情報を取得
-			const found = await deps.cattleRepo.findById(id);
-			if (!found) {
-				return {
-					ok: false,
-					error: { type: "NotFound", message: "Cattle not found" }
-				};
-			}
-			if (
-				(found.ownerUserId as unknown as number) !==
-				(userId as unknown as number)
-			) {
-				return {
-					ok: false,
-					error: { type: "Forbidden", message: "Unauthorized" }
-				};
-			}
+				if (!result.ok) return result;
 
-			// 関連データを取得（将来的にはユースケース層に移動）
-			const events = await deps.eventsRepo.listByCattleId(id, userId);
-
-			// Temporary: Get all related data directly from database until FDM refactor is complete
-			const db = makeDeps(c.env.DB, { now: () => new Date() });
-			const { drizzle } = await import("drizzle-orm/d1");
-			const { bloodline, motherInfo, breedingStatus, breedingSummary } =
-				await import("../db/schema");
-			const { eq } = await import("drizzle-orm");
-			const d = drizzle(c.env.DB);
-
-			const bloodlineRows = await d
-				.select()
-				.from(bloodline)
-				.where(eq(bloodline.cattleId, id as unknown as number));
-			const bloodlineData = bloodlineRows.length > 0 ? bloodlineRows[0] : null;
-
-			const motherInfoRows = await d
-				.select()
-				.from(motherInfo)
-				.where(eq(motherInfo.cattleId, id as unknown as number));
-			const motherInfoData =
-				motherInfoRows.length > 0 ? motherInfoRows[0] : null;
-
-			const breedingStatusRows = await d
-				.select()
-				.from(breedingStatus)
-				.where(eq(breedingStatus.cattleId, id as unknown as number));
-			const breedingStatusData =
-				breedingStatusRows.length > 0 ? breedingStatusRows[0] : null;
-
-			const breedingSummaryRows = await d
-				.select()
-				.from(breedingSummary)
-				.where(eq(breedingSummary.cattleId, id as unknown as number));
-			const breedingSummaryData =
-				breedingSummaryRows.length > 0 ? breedingSummaryRows[0] : null;
-
-			// レスポンスに全ての関連データを含める
-			const responseData = {
-				...found,
-				events: events,
-				// Include all related data fetched from database
-				bloodline: bloodlineData,
-				motherInfo: motherInfoData,
-				breedingStatus: breedingStatusData,
-				breedingSummary: breedingSummaryData
-			};
-
-			const parsed = cattleResponseSchema.safeParse(responseData);
-			return {
-				ok: true,
-				value: parsed.success ? parsed.data : responseData
-			};
-		});
+				const parsed = cattleResponseSchema.parse(result.value);
+				return { ok: true, value: parsed };
+			},
+			{ envelope: "data" }
+		);
 	})
 
 	// 牛を新規登録（FDMユースケースへ完全移行。契約は維持）
@@ -266,7 +214,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 					value: parsed.success ? parsed.data : result.value
 				};
 			},
-			{ successStatus: 201 }
+			{ successStatus: 201, envelope: "data" }
 		);
 	})
 
@@ -276,61 +224,65 @@ const app = new Hono<{ Bindings: Bindings }>()
 		const patch = c.req.valid("json");
 		const userId = c.get("jwtPayload").userId as unknown as UserId;
 
-		return executeUseCase(c, async () => {
-			const deps = makeDeps(c.env.DB, { now: () => new Date() });
-			const result = await updateUC({
-				repo: deps.cattleRepo,
-				clock: deps.clock
-			})({
-				requesterUserId: userId,
-				id,
-				patch: patch as Partial<
-					Pick<
-						import("../contexts/cattle/domain/model/cattle").Cattle,
-						| "name"
-						| "gender"
-						| "birthday"
-						| "growthStage"
-						| "breed"
-						| "status"
-						| "producerName"
-						| "barn"
-						| "breedingValue"
-						| "notes"
-					>
-				> & {
-					breedingStatus?: {
-						parity?: number | null;
-						expectedCalvingDate?: string | null;
-						scheduledPregnancyCheckDate?: string | null;
-						daysAfterCalving?: number | null;
-						daysOpen?: number | null;
-						pregnancyDays?: number | null;
-						daysAfterInsemination?: number | null;
-						inseminationCount?: number | null;
-						breedingMemo?: string | null;
-						isDifficultBirth?: boolean | null;
-					};
-					breedingSummary?: {
-						totalInseminationCount?: number | null;
-						averageDaysOpen?: number | null;
-						averagePregnancyPeriod?: number | null;
-						averageCalvingInterval?: number | null;
-						difficultBirthCount?: number | null;
-						pregnancyHeadCount?: number | null;
-						pregnancySuccessRate?: number | null;
-					};
-				}
-			});
+		return executeUseCase(
+			c,
+			async () => {
+				const deps = makeDeps(c.env.DB, { now: () => new Date() });
+				const result = await updateUC({
+					repo: deps.cattleRepo,
+					clock: deps.clock
+				})({
+					requesterUserId: userId,
+					id,
+					patch: patch as Partial<
+						Pick<
+							import("../contexts/cattle/domain/model/cattle").Cattle,
+							| "name"
+							| "gender"
+							| "birthday"
+							| "growthStage"
+							| "breed"
+							| "status"
+							| "producerName"
+							| "barn"
+							| "breedingValue"
+							| "notes"
+						>
+					> & {
+						breedingStatus?: {
+							parity?: number | null;
+							expectedCalvingDate?: string | null;
+							scheduledPregnancyCheckDate?: string | null;
+							daysAfterCalving?: number | null;
+							daysOpen?: number | null;
+							pregnancyDays?: number | null;
+							daysAfterInsemination?: number | null;
+							inseminationCount?: number | null;
+							breedingMemo?: string | null;
+							isDifficultBirth?: boolean | null;
+						};
+						breedingSummary?: {
+							totalInseminationCount?: number | null;
+							averageDaysOpen?: number | null;
+							averagePregnancyPeriod?: number | null;
+							averageCalvingInterval?: number | null;
+							difficultBirthCount?: number | null;
+							pregnancyHeadCount?: number | null;
+							pregnancySuccessRate?: number | null;
+						};
+					}
+				});
 
-			if (!result.ok) return result;
+				if (!result.ok) return result;
 
-			const parsed = cattleResponseSchema.safeParse(result.value);
-			return {
-				ok: true,
-				value: parsed.success ? parsed.data : result.value
-			};
-		});
+				const parsed = cattleResponseSchema.safeParse(result.value);
+				return {
+					ok: true,
+					value: parsed.success ? parsed.data : result.value
+				};
+			},
+			{ envelope: "data" }
+		);
 	})
 
 	// ステータス更新
@@ -339,26 +291,30 @@ const app = new Hono<{ Bindings: Bindings }>()
 		const { status, reason } = c.req.valid("json");
 		const userId = c.get("jwtPayload").userId as unknown as UserId;
 
-		return executeUseCase(c, async () => {
-			const deps = makeDeps(c.env.DB, { now: () => new Date() });
-			const result = await updateStatusUC({
-				repo: deps.cattleRepo,
-				clock: deps.clock
-			})({
-				requesterUserId: userId,
-				id,
-				newStatus: status,
-				reason: reason ?? null
-			});
+		return executeUseCase(
+			c,
+			async () => {
+				const deps = makeDeps(c.env.DB, { now: () => new Date() });
+				const result = await updateStatusUC({
+					repo: deps.cattleRepo,
+					clock: deps.clock
+				})({
+					requesterUserId: userId,
+					id,
+					newStatus: status,
+					reason: reason ?? null
+				});
 
-			if (!result.ok) return result;
+				if (!result.ok) return result;
 
-			const parsed = cattleStatusUpdateResponseSchema.safeParse(result.value);
-			return {
-				ok: true,
-				value: parsed.success ? parsed.data : result.value
-			};
-		});
+				const parsed = cattleStatusUpdateResponseSchema.safeParse(result.value);
+				return {
+					ok: true,
+					value: parsed.success ? parsed.data : result.value
+				};
+			},
+			{ envelope: "data" }
+		);
 	})
 
 	// 牛を削除
@@ -366,20 +322,24 @@ const app = new Hono<{ Bindings: Bindings }>()
 		const id = Number.parseInt(c.req.param("id")) as unknown as CattleId;
 		const userId = c.get("jwtPayload").userId as unknown as UserId;
 
-		return executeUseCase(c, async () => {
-			const deps = makeDeps(c.env.DB, { now: () => new Date() });
-			const result = await deleteUC({ repo: deps.cattleRepo })({
-				requesterUserId: userId,
-				id
-			});
+		return executeUseCase(
+			c,
+			async () => {
+				const deps = makeDeps(c.env.DB, { now: () => new Date() });
+				const result = await deleteUC({ repo: deps.cattleRepo })({
+					requesterUserId: userId,
+					id
+				});
 
-			if (!result.ok) return result;
+				if (!result.ok) return result;
 
-			return {
-				ok: true,
-				value: { message: "Cattle deleted successfully" }
-			};
-		});
+				return {
+					ok: true,
+					value: { message: "Cattle deleted successfully" }
+				};
+			},
+			{ successStatus: 204, envelope: "none" }
+		);
 	});
 
 export default app;

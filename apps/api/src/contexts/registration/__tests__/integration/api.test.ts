@@ -72,6 +72,6 @@ describe("Pre-Register API E2E", () => {
 		});
 		expect(res.status).toBe(200);
 		const body = await res.json();
-		expect(body.ok).toBe(true);
+		expect(body.data.ok).toBe(true);
 	});
 });

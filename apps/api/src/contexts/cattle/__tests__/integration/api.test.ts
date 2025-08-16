@@ -129,8 +129,8 @@ describe("Cattle API E2E (no mocks)", () => {
 		const res = await app.request("/cattle?limit=20", { headers: authHeaders });
 		expect(res.status).toBe(200);
 		const body = await res.json();
-		expect(Array.isArray(body.results)).toBe(true);
-		expect(body.results[0].name).toBe("テスト牛");
+		expect(Array.isArray(body.data.results)).toBe(true);
+		expect(body.data.results[0].name).toBe("テスト牛");
 	});
 
 	it("POST /cattle creates new cattle", async () => {
@@ -155,9 +155,9 @@ describe("Cattle API E2E (no mocks)", () => {
 		}
 		expect(res.status).toBe(201);
 		const created = await res.json();
-		expect(created.cattleId).toBeDefined();
+		expect(created.data.cattleId).toBeDefined();
 
-		expect(created.ownerUserId).toBe(1);
+		expect(created.data.ownerUserId).toBe(1);
 	});
 
 	it("PATCH /cattle/:id updates name and birthday (age recalculation path)", async () => {
@@ -168,7 +168,7 @@ describe("Cattle API E2E (no mocks)", () => {
 		});
 		expect(res.status).toBe(200);
 		const updated = await res.json();
-		expect(updated.name).toBe("更新後");
+		expect(updated.data.name).toBe("更新後");
 	});
 
 	it("PATCH /cattle/:id/status updates status and creates history", async () => {
@@ -179,7 +179,7 @@ describe("Cattle API E2E (no mocks)", () => {
 		});
 		expect(res.status).toBe(200);
 		const updated = await res.json();
-		expect(updated.status).toBe("PREGNANT");
+		expect(updated.data.status).toBe("PREGNANT");
 		expect(store.statusHistory.length).toBeGreaterThan(0);
 	});
 
@@ -257,13 +257,13 @@ describe("Cattle API E2E (no mocks)", () => {
 		const data = await res.json();
 
 		// イベントが含まれているかを確認
-		expect(data).toHaveProperty("events");
-		expect(Array.isArray(data.events)).toBe(true);
-		expect(data.events.length).toBe(1);
+		expect(data.data).toHaveProperty("events");
+		expect(Array.isArray(data.data.events)).toBe(true);
+		expect(data.data.events.length).toBe(1);
 
 		// 血統情報が含まれているかを確認
-		expect(data).toHaveProperty("bloodline");
-		expect(data.bloodline).toMatchObject({
+		expect(data.data).toHaveProperty("bloodline");
+		expect(data.data.bloodline).toMatchObject({
 			bloodlineId: 1,
 			cattleId: 1,
 			fatherCattleName: "テスト父牛",
@@ -271,8 +271,8 @@ describe("Cattle API E2E (no mocks)", () => {
 		});
 
 		// 母情報が含まれているかを確認
-		expect(data).toHaveProperty("motherInfo");
-		expect(data.motherInfo).toMatchObject({
+		expect(data.data).toHaveProperty("motherInfo");
+		expect(data.data.motherInfo).toMatchObject({
 			motherInfoId: 1,
 			cattleId: 1,
 			motherName: "テスト母牛",
@@ -281,8 +281,8 @@ describe("Cattle API E2E (no mocks)", () => {
 		});
 
 		// 繁殖状態が含まれているかを確認
-		expect(data).toHaveProperty("breedingStatus");
-		expect(data.breedingStatus).toMatchObject({
+		expect(data.data).toHaveProperty("breedingStatus");
+		expect(data.data.breedingStatus).toMatchObject({
 			breedingStatusId: 1,
 			cattleId: 1,
 			parity: 2,
@@ -290,8 +290,8 @@ describe("Cattle API E2E (no mocks)", () => {
 		});
 
 		// 繁殖統計が含まれているかを確認
-		expect(data).toHaveProperty("breedingSummary");
-		expect(data.breedingSummary).toMatchObject({
+		expect(data.data).toHaveProperty("breedingSummary");
+		expect(data.data.breedingSummary).toMatchObject({
 			breedingSummaryId: 1,
 			cattleId: 1,
 			totalInseminationCount: 5,
@@ -304,7 +304,7 @@ describe("Cattle API E2E (no mocks)", () => {
 			method: "DELETE",
 			headers: authHeaders
 		});
-		expect(res.status).toBe(200);
+		expect(res.status).toBe(204);
 
 		const getRes = await app.request("/cattle/1", { headers: authHeaders });
 		expect(getRes.status).toBe(404);

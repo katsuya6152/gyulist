@@ -103,7 +103,7 @@ describe("Cattle API E2E (more cases)", () => {
 		expect(res.status).toBe(200);
 		const body = await res.json();
 		expect(
-			(body.results as Array<{ ownerUserId: number }>).every(
+			(body.data.results as Array<{ ownerUserId: number }>).every(
 				(r) => r.ownerUserId === 1
 			)
 		).toBe(true);
@@ -204,14 +204,9 @@ describe("Cattle API E2E (more cases)", () => {
 		expect(res.status).toBe(201);
 		const created = await res.json();
 
-		// Note: In the test environment, breeding status creation is mocked differently
-		// The actual API works correctly, but the test mock doesn't reflect the database changes
-		// This is a limitation of the current test setup, not the actual functionality
-
 		// Verify that the API responded successfully (which means breeding data was processed)
-		// In a real environment, this would create the breeding status correctly
-		expect(created.cattleId).toBeTruthy();
-		expect(created.name).toBe("New");
+		expect(created.data.cattleId).toBeTruthy();
+		expect(created.data.name).toBe("New");
 	});
 
 	it("GET /cattle sorted by days_old desc has strictly non-increasing daysOld", async () => {
@@ -288,7 +283,7 @@ describe("Cattle API E2E (more cases)", () => {
 		);
 		expect(res.status).toBe(200);
 		const body = await res.json();
-		const days = (body.results as Array<{ daysOld: number | null }>).map(
+		const days = (body.data.results as Array<{ daysOld: number | null }>).map(
 			(r) => r.daysOld ?? 0
 		);
 		const sorted = [...days].sort((a, b) => b - a);
@@ -330,7 +325,7 @@ describe("Cattle API E2E (more cases)", () => {
 		const tenDaysAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000)
 			.toISOString()
 			.slice(0, 10);
-		const upd = await app.request(`/cattle/${created.cattleId}`, {
+		const upd = await app.request(`/cattle/${created.data.cattleId}`, {
 			method: "PATCH",
 			headers: { "Content-Type": "application/json", ...auth(1) },
 			body: JSON.stringify({
@@ -353,7 +348,7 @@ describe("Cattle API E2E (more cases)", () => {
 
 		// breedingStatus in store should reflect recalculation (pregnancyDays ~= 10)
 		const bs = store.breedingStatus.find(
-			(s) => s.cattleId === created.cattleId
+			(s) => s.cattleId === created.data.cattleId
 		);
 		expect(bs).toBeTruthy();
 		expect(typeof bs?.pregnancyDays).toBe("number");

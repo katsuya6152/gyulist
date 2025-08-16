@@ -69,8 +69,8 @@ describe("Admin API E2E (success)", () => {
 		});
 		expect(res.status).toBe(200);
 		const body = await res.json();
-		expect(Array.isArray(body.items)).toBe(true);
-		expect(body.total).toBeGreaterThan(0);
+		expect(Array.isArray(body.data.items)).toBe(true);
+		expect(body.data.total).toBeGreaterThan(0);
 	});
 
 	it("GET /admin/registrations.csv returns CSV", async () => {

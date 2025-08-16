@@ -88,7 +88,7 @@ describe("Users API E2E (success)", () => {
 		app.route(
 			"/users",
 			(modRoutes as { default: unknown }).default as typeof import(
-				"../../src/routes/users"
+				"../../../../../src/routes/users"
 			).default
 		);
 	});
@@ -97,7 +97,7 @@ describe("Users API E2E (success)", () => {
 		const res = await app.request("/users/1", { headers: auth() });
 		expect(res.status).toBe(200);
 		const body = await res.json();
-		expect(body.email).toBe("u@example.com");
+		expect(body.data.email).toBe("u@example.com");
 	});
 
 	it("PATCH /users/:id/theme updates own theme", async () => {
@@ -108,7 +108,7 @@ describe("Users API E2E (success)", () => {
 		});
 		expect(res.status).toBe(200);
 		const body = await res.json();
-		expect(body.success).toBe(true);
-		expect(body.theme).toBe("dark");
+		expect(body.data.success).toBe(true);
+		expect(body.data.theme).toBe("dark");
 	});
 });

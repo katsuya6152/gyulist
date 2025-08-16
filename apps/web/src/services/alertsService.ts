@@ -12,12 +12,12 @@ export type Alert = GetAlertsRes;
 export type { AlertType, AlertSeverity } from "@repo/api";
 
 export async function GetAlerts(): Promise<GetAlertsRes> {
-	return fetchWithAuth<GetAlertsRes>((token) =>
+	return fetchWithAuth<{ data: GetAlertsRes }>((token) =>
 		client.api.v1.alerts.$get(
 			{},
 			{
 				headers: { Authorization: `Bearer ${token}` }
 			}
 		)
-	);
+	).then((r) => r.data);
 }

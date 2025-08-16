@@ -7,7 +7,7 @@ export type BreedingKpiDeltaRes = BreedingKpiDeltaResponse;
 export async function GetBreedingKpiDelta(params?: {
 	month?: string; // YYYY-MM
 }): Promise<BreedingKpiDeltaRes> {
-	return fetchWithAuth<BreedingKpiDeltaRes>((token) =>
+	return fetchWithAuth<{ data: BreedingKpiDeltaRes }>((token) =>
 		client.api.v1.kpi.breeding.delta.$get(
 			{
 				query: {
@@ -18,5 +18,5 @@ export async function GetBreedingKpiDelta(params?: {
 				headers: { Authorization: `Bearer ${token}` }
 			}
 		)
-	);
+	).then((r) => r.data);
 }

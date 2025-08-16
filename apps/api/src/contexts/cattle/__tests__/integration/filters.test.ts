@@ -118,7 +118,7 @@ describe("Cattle API E2E (filters & sort)", () => {
 		appInst.route(
 			"/cattle",
 			(routes as { default: unknown }).default as typeof import(
-				"../../src/routes/cattle"
+				"../../../../../src/routes/cattle"
 			).default
 		);
 		app = appInst;
@@ -131,9 +131,9 @@ describe("Cattle API E2E (filters & sort)", () => {
 		);
 		expect(res.status).toBe(200);
 		const body = await res.json();
-		expect(Array.isArray(body.results)).toBe(true);
+		expect(Array.isArray(body.data.results)).toBe(true);
 		// fakeDrizzleのwhere実装は形状重視のため件数は実SQLと異なる可能性あり
-		expect(body.results.length).toBeGreaterThan(0);
+		expect(body.data.results.length).toBeGreaterThan(0);
 	});
 
 	it("GET /cattle sort by name asc returns array and next_cursor shape", async () => {
@@ -143,9 +143,10 @@ describe("Cattle API E2E (filters & sort)", () => {
 		);
 		expect(res.status).toBe(200);
 		const body = await res.json();
-		expect(Array.isArray(body.results)).toBe(true);
+		expect(Array.isArray(body.data.results)).toBe(true);
 		expect(
-			body.next_cursor === null || typeof body.next_cursor === "string"
+			body.data.next_cursor === null ||
+				typeof body.data.next_cursor === "string"
 		).toBe(true);
 	});
 });

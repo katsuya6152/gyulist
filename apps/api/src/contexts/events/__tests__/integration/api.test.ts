@@ -71,7 +71,7 @@ const createTestApp = (store: FakeStore) => {
 		app.route(
 			"/events",
 			(mod as { default: unknown }).default as typeof import(
-				"../../src/routes/events"
+				"../../../../../src/routes/events"
 			).default
 		);
 		return app;
@@ -135,7 +135,7 @@ describe("Events API E2E (no mocks)", () => {
 		});
 		expect(res.status).toBe(201);
 		const created = await res.json();
-		expect(created.eventId).toBeDefined();
+		expect(created.data.eventId).toBeDefined();
 		// ensure a row is inserted
 		expect(store.events.length).toBe(1);
 	});
@@ -164,14 +164,14 @@ describe("Events API E2E (no mocks)", () => {
 		const res = await app.request("/events?limit=1", { headers: authHeaders });
 		expect(res.status).toBe(200);
 		const body = await res.json();
-		expect(Array.isArray(body.results)).toBe(true);
+		expect(Array.isArray(body.data.results)).toBe(true);
 	});
 
 	it("GET /events/cattle/:cattleId filters by cattle", async () => {
 		const res = await app.request("/events/cattle/1", { headers: authHeaders });
 		expect(res.status).toBe(200);
 		const body = await res.json();
-		expect(Array.isArray(body.results)).toBe(true);
+		expect(Array.isArray(body.data.results)).toBe(true);
 	});
 
 	it("PATCH /events/:id updates", async () => {
@@ -187,7 +187,7 @@ describe("Events API E2E (no mocks)", () => {
 			})
 		});
 		const created = await createRes.json();
-		const res = await app.request(`/events/${String(created.eventId)}`, {
+		const res = await app.request(`/events/${String(created.data.eventId)}`, {
 			method: "PATCH",
 			headers: { "Content-Type": "application/json", ...authHeaders },
 			body: JSON.stringify({ notes: "更新" })
@@ -208,10 +208,13 @@ describe("Events API E2E (no mocks)", () => {
 			})
 		});
 		const created = await createRes.json();
-		const delRes = await app.request(`/events/${String(created.eventId)}`, {
-			method: "DELETE",
-			headers: authHeaders
-		});
-		expect(delRes.status).toBe(200);
+		const delRes = await app.request(
+			`/events/${String(created.data.eventId)}`,
+			{
+				method: "DELETE",
+				headers: authHeaders
+			}
+		);
+		expect(delRes.status).toBe(204);
 	});
 });

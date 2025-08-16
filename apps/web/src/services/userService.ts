@@ -8,7 +8,7 @@ export type GetUserResType = InferResponseType<
 >;
 
 export async function getUserById(userId: number): Promise<GetUserResType> {
-	return fetchWithAuth<GetUserResType>((token) =>
+	return fetchWithAuth<{ data: GetUserResType }>((token) =>
 		client.api.v1.users[":id"].$get(
 			{
 				param: { id: userId.toString() }
@@ -19,5 +19,5 @@ export async function getUserById(userId: number): Promise<GetUserResType> {
 				}
 			}
 		)
-	);
+	).then((r) => r.data);
 }

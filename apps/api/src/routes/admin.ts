@@ -32,18 +32,22 @@ const app = new Hono<{ Bindings: Bindings }>()
 
 		setJsonHeaders(c);
 
-		return executeUseCase(c, async () => {
-			const repo = makeRegistrationRepo(c.env.DB);
-			const res = await listUC({ repo })(parsed.data);
-			if (!res.ok) return res;
-			return {
-				ok: true,
-				value: registrationsListResponseSchema.parse({
-					items: res.value.items,
-					total: res.value.total
-				})
-			} as const;
-		});
+		return executeUseCase(
+			c,
+			async () => {
+				const repo = makeRegistrationRepo(c.env.DB);
+				const res = await listUC({ repo })(parsed.data);
+				if (!res.ok) return res;
+				return {
+					ok: true,
+					value: registrationsListResponseSchema.parse({
+						items: res.value.items,
+						total: res.value.total
+					})
+				} as const;
+			},
+			{ envelope: "data" }
+		);
 	})
 	.get("/registrations.csv", async (c) => {
 		const parsed = registrationQuerySchema.safeParse(c.req.query());

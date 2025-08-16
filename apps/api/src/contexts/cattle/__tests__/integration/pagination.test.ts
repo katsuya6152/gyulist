@@ -99,7 +99,7 @@ describe("Cattle API E2E (cursor pagination)", () => {
 		appInst.route(
 			"/cattle",
 			(routes as { default: unknown }).default as typeof import(
-				"../../src/routes/cattle"
+				"../../../../../src/routes/cattle"
 			).default
 		);
 		app = appInst;
@@ -116,13 +116,13 @@ describe("Cattle API E2E (cursor pagination)", () => {
 			const res = await app.request(url, { headers: auth() });
 			expect(res.status).toBe(200);
 			const body = await res.json();
-			for (const item of body.results as Array<{ cattleId: number }>) {
+			for (const item of body.data.results as Array<{ cattleId: number }>) {
 				// joinにより重複が混じる可能性は低いが、安全のため重複はスキップ
 				if (!seen.has(item.cattleId)) {
 					seen.add(item.cattleId);
 				}
 			}
-			cursor = body.next_cursor;
+			cursor = body.data.next_cursor;
 			loops += 1;
 			// safety to avoid infinite loop in case of bug (allow a few more loops for robustness)
 			expect(loops).toBeLessThanOrEqual(20);

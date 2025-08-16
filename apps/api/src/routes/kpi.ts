@@ -25,31 +25,39 @@ const app = new Hono<{ Bindings: Bindings }>()
 		const userId = c.get("jwtPayload").userId;
 		const { from, to } = c.req.valid("query");
 
-		return executeUseCase(c, async () => {
-			const repo = makeKpiRepo(c.env.DB);
-			const result = await getBreedingKpiUC(repo)(userId, from, to);
-			if (!result.ok) return result;
-			return {
-				ok: true,
-				value: breedingKpiSchema.parse(result.value)
-			} as const;
-		});
+		return executeUseCase(
+			c,
+			async () => {
+				const repo = makeKpiRepo(c.env.DB);
+				const result = await getBreedingKpiUC(repo)(userId, from, to);
+				if (!result.ok) return result;
+				return {
+					ok: true,
+					value: breedingKpiSchema.parse(result.value)
+				} as const;
+			},
+			{ envelope: "data" }
+		);
 	})
 	.get("/breeding/delta", async (c) => {
 		const userId = c.get("jwtPayload").userId;
 		const month = c.req.query("month");
 
-		return executeUseCase(c, async () => {
-			const repo = makeKpiRepo(c.env.DB);
-			const result = await getBreedingKpiDeltaUC(repo)(userId, {
-				month: month ?? undefined
-			});
-			if (!result.ok) return result;
-			return {
-				ok: true,
-				value: breedingKpiDeltaSchema.parse(result.value)
-			} as const;
-		});
+		return executeUseCase(
+			c,
+			async () => {
+				const repo = makeKpiRepo(c.env.DB);
+				const result = await getBreedingKpiDeltaUC(repo)(userId, {
+					month: month ?? undefined
+				});
+				if (!result.ok) return result;
+				return {
+					ok: true,
+					value: breedingKpiDeltaSchema.parse(result.value)
+				} as const;
+			},
+			{ envelope: "data" }
+		);
 	})
 	.get("/breeding/trends", async (c) => {
 		const userId = c.get("jwtPayload").userId;
@@ -57,19 +65,23 @@ const app = new Hono<{ Bindings: Bindings }>()
 		const toMonth = c.req.query("to");
 		const months = c.req.query("months");
 
-		return executeUseCase(c, async () => {
-			const repo = makeKpiRepo(c.env.DB);
-			const result = await getBreedingKpiTrendsUC(repo)(userId, {
-				fromMonth: fromMonth ?? undefined,
-				toMonth: toMonth ?? undefined,
-				months: months ? Number(months) : undefined
-			});
-			if (!result.ok) return result;
-			return {
-				ok: true,
-				value: breedingKpiTrendsSchema.parse(result.value)
-			} as const;
-		});
+		return executeUseCase(
+			c,
+			async () => {
+				const repo = makeKpiRepo(c.env.DB);
+				const result = await getBreedingKpiTrendsUC(repo)(userId, {
+					fromMonth: fromMonth ?? undefined,
+					toMonth: toMonth ?? undefined,
+					months: months ? Number(months) : undefined
+				});
+				if (!result.ok) return result;
+				return {
+					ok: true,
+					value: breedingKpiTrendsSchema.parse(result.value)
+				} as const;
+			},
+			{ envelope: "data" }
+		);
 	});
 
 export default app;

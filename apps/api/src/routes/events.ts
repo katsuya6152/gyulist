@@ -29,21 +29,25 @@ const app = new Hono<{ Bindings: Bindings }>()
 	.get("/", zValidator("query", searchEventSchema), async (c) => {
 		const userId = c.get("jwtPayload").userId;
 
-		return executeUseCase(c, async () => {
-			const q = c.req.valid("query");
-			const deps = makeDeps(c.env.DB, { now: () => new Date() });
-			const result = await searchEventsUC({ repo: deps.eventsRepo })(
-				userId as unknown as import("../shared/brand").UserId,
-				q
-			);
+		return executeUseCase(
+			c,
+			async () => {
+				const q = c.req.valid("query");
+				const deps = makeDeps(c.env.DB, { now: () => new Date() });
+				const result = await searchEventsUC({ repo: deps.eventsRepo })(
+					userId as unknown as import("../shared/brand").UserId,
+					q
+				);
 
-			if (!result.ok) return result;
+				if (!result.ok) return result;
 
-			return {
-				ok: true,
-				value: eventsSearchResponseSchema.parse(result.value)
-			};
-		});
+				return {
+					ok: true,
+					value: eventsSearchResponseSchema.parse(result.value)
+				};
+			},
+			{ envelope: "data" }
+		);
 	})
 
 	// 特定の牛のイベント一覧（FDM repoへ委譲、契約維持）
@@ -58,20 +62,24 @@ const app = new Hono<{ Bindings: Bindings }>()
 			}));
 		}
 
-		return executeUseCase(c, async () => {
-			const deps = makeDeps(c.env.DB, { now: () => new Date() });
-			const res = await listEventsByCattleUC({ repo: deps.eventsRepo })(
-				cattleId as unknown as import("../shared/brand").CattleId,
-				userId as unknown as import("../shared/brand").UserId
-			);
+		return executeUseCase(
+			c,
+			async () => {
+				const deps = makeDeps(c.env.DB, { now: () => new Date() });
+				const res = await listEventsByCattleUC({ repo: deps.eventsRepo })(
+					cattleId as unknown as import("../shared/brand").CattleId,
+					userId as unknown as import("../shared/brand").UserId
+				);
 
-			if (!res.ok) return res;
+				if (!res.ok) return res;
 
-			return {
-				ok: true,
-				value: eventsOfCattleResponseSchema.parse({ results: res.value })
-			};
-		});
+				return {
+					ok: true,
+					value: eventsOfCattleResponseSchema.parse({ results: res.value })
+				};
+			},
+			{ envelope: "data" }
+		);
 	})
 
 	// イベント詳細
@@ -86,20 +94,24 @@ const app = new Hono<{ Bindings: Bindings }>()
 			}));
 		}
 
-		return executeUseCase(c, async () => {
-			const deps = makeDeps(c.env.DB, { now: () => new Date() });
-			const res = await getEventByIdUC({ repo: deps.eventsRepo })(
-				eventId as unknown as import("../contexts/events/ports").EventId,
-				userId as unknown as import("../contexts/events/ports").UserId
-			);
+		return executeUseCase(
+			c,
+			async () => {
+				const deps = makeDeps(c.env.DB, { now: () => new Date() });
+				const res = await getEventByIdUC({ repo: deps.eventsRepo })(
+					eventId as unknown as import("../contexts/events/ports").EventId,
+					userId as unknown as import("../contexts/events/ports").UserId
+				);
 
-			if (!res.ok) return res;
+				if (!res.ok) return res;
 
-			return {
-				ok: true,
-				value: eventResponseSchema.parse(res.value)
-			};
-		});
+				return {
+					ok: true,
+					value: eventResponseSchema.parse(res.value)
+				};
+			},
+			{ envelope: "data" }
+		);
 	})
 
 	// イベント新規作成
@@ -141,7 +153,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 					value: parsed.success ? parsed.data : created
 				};
 			},
-			{ successStatus: 201 }
+			{ successStatus: 201, envelope: "data" }
 		);
 	})
 
@@ -158,24 +170,28 @@ const app = new Hono<{ Bindings: Bindings }>()
 			}));
 		}
 
-		return executeUseCase(c, async () => {
-			const deps = makeDeps(c.env.DB, { now: () => new Date() });
-			const updatedRes = await updateEventUC({ repo: deps.eventsRepo })(
-				eventId as unknown as import("../shared/brand").Brand<
-					number,
-					"EventId"
-				>,
-				data
-			);
+		return executeUseCase(
+			c,
+			async () => {
+				const deps = makeDeps(c.env.DB, { now: () => new Date() });
+				const updatedRes = await updateEventUC({ repo: deps.eventsRepo })(
+					eventId as unknown as import("../shared/brand").Brand<
+						number,
+						"EventId"
+					>,
+					data
+				);
 
-			if (!updatedRes.ok) return updatedRes;
+				if (!updatedRes.ok) return updatedRes;
 
-			const parsed = eventResponseSchema.safeParse(updatedRes.value);
-			return {
-				ok: true,
-				value: parsed.success ? parsed.data : updatedRes.value
-			};
-		});
+				const parsed = eventResponseSchema.safeParse(updatedRes.value);
+				return {
+					ok: true,
+					value: parsed.success ? parsed.data : updatedRes.value
+				};
+			},
+			{ envelope: "data" }
+		);
 	})
 
 	// イベント削除
@@ -190,19 +206,26 @@ const app = new Hono<{ Bindings: Bindings }>()
 			}));
 		}
 
-		return executeUseCase(c, async () => {
-			const deps = makeDeps(c.env.DB, { now: () => new Date() });
-			const del = await deleteEventUC({ repo: deps.eventsRepo })(
-				eventId as unknown as import("../shared/brand").Brand<number, "EventId">
-			);
+		return executeUseCase(
+			c,
+			async () => {
+				const deps = makeDeps(c.env.DB, { now: () => new Date() });
+				const del = await deleteEventUC({ repo: deps.eventsRepo })(
+					eventId as unknown as import("../shared/brand").Brand<
+						number,
+						"EventId"
+					>
+				);
 
-			if (!del.ok) return del;
+				if (!del.ok) return del;
 
-			return {
-				ok: true,
-				value: { message: "イベントが正常に削除されました" }
-			};
-		});
+				return {
+					ok: true,
+					value: { message: "イベントが正常に削除されました" }
+				};
+			},
+			{ successStatus: 204, envelope: "none" }
+		);
 	});
 
 export default app;

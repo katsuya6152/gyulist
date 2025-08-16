@@ -89,7 +89,7 @@ describe("Events API E2E (success flows)", () => {
 		app.route(
 			"/events",
 			(mod2 as { default: unknown }).default as typeof import(
-				"../../src/routes/events"
+				"../../../../../src/routes/events"
 			).default
 		);
 	});
@@ -108,22 +108,22 @@ describe("Events API E2E (success flows)", () => {
 		expect(create.status).toBe(201);
 		const created = await create.json();
 
-		const get = await app.request(`/events/${String(created.eventId)}`, {
+		const get = await app.request(`/events/${String(created.data.eventId)}`, {
 			headers: auth()
 		});
 		expect(get.status).toBe(200);
 
-		const patch = await app.request(`/events/${String(created.eventId)}`, {
+		const patch = await app.request(`/events/${String(created.data.eventId)}`, {
 			method: "PATCH",
 			headers: { "Content-Type": "application/json", ...auth() },
 			body: JSON.stringify({ notes: "x" })
 		});
 		expect(patch.status).toBe(200);
 
-		const del = await app.request(`/events/${String(created.eventId)}`, {
+		const del = await app.request(`/events/${String(created.data.eventId)}`, {
 			method: "DELETE",
 			headers: auth()
 		});
-		expect(del.status).toBe(200);
+		expect(del.status).toBe(204);
 	});
 });

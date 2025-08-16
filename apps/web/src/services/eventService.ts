@@ -46,7 +46,7 @@ export async function CreateEvent(data: CreateEventInput): Promise<void> {
 export async function SearchEvents(
 	query: SearchEventsQuery = {}
 ): Promise<SearchEventsResType> {
-	return fetchWithAuth<SearchEventsResType>((token) =>
+	return fetchWithAuth<{ data: SearchEventsResType }>((token) =>
 		client.api.v1.events.$get(
 			{
 				query: {
@@ -64,7 +64,7 @@ export async function SearchEvents(
 				}
 			}
 		)
-	);
+	).then((r) => r.data);
 }
 
 // Server Actions用の関数

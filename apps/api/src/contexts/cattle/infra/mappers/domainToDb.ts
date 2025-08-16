@@ -18,7 +18,8 @@ function toIsoOrUndefined(value: unknown): string | undefined {
 
 export function toDbInsert(c: Cattle): InferInsertModel<typeof CattleTable> {
 	return {
-		cattleId: c.cattleId as unknown as number,
+		// Omit primary key to allow auto-increment
+		cattleId: undefined,
 		ownerUserId: c.ownerUserId as unknown as number,
 		identificationNumber: c.identificationNumber as unknown as number,
 		earTagNumber: c.earTagNumber ?? null,
@@ -30,7 +31,7 @@ export function toDbInsert(c: Cattle): InferInsertModel<typeof CattleTable> {
 		monthsOld: c.monthsOld ?? null,
 		daysOld: c.daysOld ?? null,
 		breed: c.breed ?? null,
-		status: c.status ?? null,
+		status: c.status ?? undefined,
 		producerName: c.producerName ?? null,
 		barn: c.barn ?? null,
 		breedingValue: c.breedingValue ?? null,

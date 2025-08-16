@@ -28,17 +28,21 @@ const app = new Hono<{ Bindings: Bindings }>()
 			endpoint: `/users/${id}`
 		});
 
-		return executeUseCase(c, async () => {
-			const deps = makeAuthDeps(c.env.DB, c.env.JWT_SECRET);
-			const user = await deps.repo.findUserById(targetUserId);
-			if (!user) {
-				return {
-					ok: false,
-					error: { type: "NotFound", message: "User not found" }
-				} as const;
-			}
-			return { ok: true, value: user } as const;
-		});
+		return executeUseCase(
+			c,
+			async () => {
+				const deps = makeAuthDeps(c.env.DB, c.env.JWT_SECRET);
+				const user = await deps.repo.findUserById(targetUserId);
+				if (!user) {
+					return {
+						ok: false,
+						error: { type: "NotFound", message: "User not found" }
+					} as const;
+				}
+				return { ok: true, value: user } as const;
+			},
+			{ envelope: "data" }
+		);
 	})
 	.patch(
 		"/:id/theme",
@@ -67,28 +71,32 @@ const app = new Hono<{ Bindings: Bindings }>()
 				endpoint: `/users/${id}/theme`
 			});
 
-			return executeUseCase(c, async () => {
-				const deps = makeAuthDeps(c.env.DB, c.env.JWT_SECRET);
-				const result = await updateThemeUseCase({ repo: deps.repo })({
-					requestingUserId,
-					targetUserId,
-					theme,
-					nowIso: new Date().toISOString()
-				});
-				if (!result.ok) {
-					if (result.error.type === "Forbidden") {
-						return {
-							ok: false,
-							error: { ...result.error, httpStatus: 403 }
-						} as const;
+			return executeUseCase(
+				c,
+				async () => {
+					const deps = makeAuthDeps(c.env.DB, c.env.JWT_SECRET);
+					const result = await updateThemeUseCase({ repo: deps.repo })({
+						requestingUserId,
+						targetUserId,
+						theme,
+						nowIso: new Date().toISOString()
+					});
+					if (!result.ok) {
+						if (result.error.type === "Forbidden") {
+							return {
+								ok: false,
+								error: { ...result.error, httpStatus: 403 }
+							} as const;
+						}
+						return result;
 					}
-					return result;
-				}
-				return {
-					ok: true,
-					value: updateThemeResponseSchema.parse(result.value)
-				} as const;
-			});
+					return {
+						ok: true,
+						value: updateThemeResponseSchema.parse(result.value)
+					} as const;
+				},
+				{ envelope: "data" }
+			);
 		}
 	);
 

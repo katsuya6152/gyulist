@@ -95,6 +95,6 @@ describe("KPI Trends API E2E", () => {
 		});
 		expect(res.status).toBe(200);
 		const body = await res.json();
-		expect(Array.isArray(body.deltas)).toBe(true);
+		expect(Array.isArray(body.data.deltas)).toBe(true);
 	});
 });

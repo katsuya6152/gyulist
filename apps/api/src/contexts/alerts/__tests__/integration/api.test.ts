@@ -126,8 +126,8 @@ describe("Alerts API E2E (no mocks)", () => {
 		const res = await app.request("/alerts", { headers: authHeaders });
 		expect(res.status).toBe(200);
 		const body = await res.json();
-		expect(Array.isArray(body.results)).toBe(true);
-		expect(body.results.length).toBeGreaterThan(0);
-		expect(body.results[0]).toHaveProperty("type");
+		expect(Array.isArray(body.data.results)).toBe(true);
+		expect(body.data.results.length).toBeGreaterThan(0);
+		expect(body.data.results[0]).toHaveProperty("type");
 	});
 });

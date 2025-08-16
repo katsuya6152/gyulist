@@ -133,8 +133,8 @@ describe("KPI API E2E (no mocks)", () => {
 		);
 		expect(res.status).toBe(200);
 		const body = await res.json();
-		expect(body.metrics).toBeDefined();
-		expect(body.counts).toBeDefined();
+		expect(body.data.metrics).toBeDefined();
+		expect(body.data.counts).toBeDefined();
 	});
 
 	it("GET /kpi/breeding/delta returns shape", async () => {
@@ -143,8 +143,8 @@ describe("KPI API E2E (no mocks)", () => {
 		});
 		expect(res.status).toBe(200);
 		const body = await res.json();
-		expect(body).toHaveProperty("month");
-		expect(body).toHaveProperty("delta");
+		expect(body.data).toHaveProperty("month");
+		expect(body.data).toHaveProperty("delta");
 	});
 
 	it("GET /kpi/breeding/trends returns array", async () => {
@@ -153,6 +153,6 @@ describe("KPI API E2E (no mocks)", () => {
 		});
 		expect(res.status).toBe(200);
 		const body = await res.json();
-		expect(Array.isArray(body.deltas)).toBe(true);
+		expect(Array.isArray(body.data.deltas)).toBe(true);
 	});
 });

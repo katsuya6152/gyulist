@@ -115,6 +115,6 @@ describe("KPI API E2E (success)", () => {
 		);
 		expect(res.status).toBe(200);
 		const body = await res.json();
-		expect(body.metrics.conceptionRate).not.toBeNull();
+		expect(body.data.metrics.conceptionRate).not.toBeNull();
 	});
 });

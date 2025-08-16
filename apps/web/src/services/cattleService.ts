@@ -27,7 +27,7 @@ export type CattleListQueryParams = {
 export async function GetCattleList(
 	queryParams: CattleListQueryParams = {}
 ): Promise<GetCattleListResType> {
-	return fetchWithAuth<GetCattleListResType>((token) =>
+	return fetchWithAuth<{ data: GetCattleListResType }>((token) =>
 		client.api.v1.cattle.$get(
 			{
 				query: {
@@ -47,13 +47,13 @@ export async function GetCattleList(
 				}
 			}
 		)
-	);
+	).then((r) => r.data);
 }
 
 export async function GetCattleDetail(
 	id: number | string
 ): Promise<GetCattleDetailResType> {
-	return fetchWithAuth<GetCattleDetailResType>((token) =>
+	return fetchWithAuth<{ data: GetCattleDetailResType }>((token) =>
 		client.api.v1.cattle[":id"].$get(
 			{
 				param: { id: id.toString() }
@@ -64,7 +64,7 @@ export async function GetCattleDetail(
 				}
 			}
 		)
-	);
+	).then((r) => r.data);
 }
 
 export async function DeleteCattle(id: number | string): Promise<void> {
@@ -175,12 +175,12 @@ export async function UpdateCattleDetailed(
 export type GetCattleStatusCountsRes = CattleStatusCountsResponse;
 
 export async function GetCattleStatusCounts(): Promise<GetCattleStatusCountsRes> {
-	return fetchWithAuth<GetCattleStatusCountsRes>((token) =>
+	return fetchWithAuth<{ data: GetCattleStatusCountsRes }>((token) =>
 		client.api.v1.cattle["status-counts"].$get(
 			{},
 			{
 				headers: { Authorization: `Bearer ${token}` }
 			}
 		)
-	);
+	).then((r) => r.data);
 }

@@ -15,7 +15,7 @@ export async function GetBreedingKpi(params?: {
 	from?: string;
 	to?: string;
 }): Promise<GetBreedingKpiRes> {
-	return fetchWithAuth<GetBreedingKpiRes>((token) =>
+	return fetchWithAuth<{ data: GetBreedingKpiRes }>((token) =>
 		client.api.v1.kpi.breeding.$get(
 			{
 				query: {
@@ -27,5 +27,5 @@ export async function GetBreedingKpi(params?: {
 				headers: { Authorization: `Bearer ${token}` }
 			}
 		)
-	);
+	).then((r) => r.data);
 }

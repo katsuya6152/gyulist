@@ -12,8 +12,10 @@ export async function handleResult<T extends JSONValue, E>(
 	c: Context,
 	result: Result<T, E>,
 	options?: {
-		successStatus?: 200 | 201;
+		successStatus?: 200 | 201 | 204;
 		transform?: (value: T) => T;
+		// Success payload envelope policy
+		envelope?: "none" | "result" | "data";
 	}
 ): Promise<Response> {
 	if (!result.ok) {
@@ -26,10 +28,24 @@ export async function handleResult<T extends JSONValue, E>(
 		return c.json({ error: result.error });
 	}
 
-	const responseData = options?.transform
+	const successStatus = options?.successStatus ?? 200;
+	if (successStatus === 204) {
+		// No Content
+		return c.body(null, 204);
+	}
+
+	const raw = options?.transform
 		? options.transform(result.value)
 		: result.value;
-	return c.json<T>(responseData, options?.successStatus ?? 200);
+	const envelope = options?.envelope ?? "none";
+	const payload =
+		envelope === "result"
+			? ({ ok: true, value: raw } as unknown)
+			: envelope === "data"
+				? ({ data: raw } as unknown)
+				: (raw as unknown);
+
+	return c.json(payload as T, successStatus);
 }
 
 /**
@@ -62,8 +78,27 @@ export function handleValidationError(c: Context, error: unknown): Response {
 
 	logger.validationError(requestInfo.endpoint, error, user?.userId);
 
+	// Attempt to extract zod-like issues for client-side display
+	type IssueShape = { path?: unknown; message?: unknown };
+	const maybeIssues = (error as { issues?: unknown })?.issues;
+	const issues = Array.isArray(maybeIssues)
+		? (maybeIssues as IssueShape[]).map((i) => ({
+				path: Array.isArray(i.path)
+					? i.path.map((p) => String(p)).join(".")
+					: typeof i.path === "string"
+						? i.path
+						: undefined,
+				message: typeof i.message === "string" ? i.message : "Invalid value"
+			}))
+		: undefined;
+
 	return c.json(
-		{ ok: false, code: "VALIDATION_FAILED", message: "Validation failed" },
+		{
+			ok: false,
+			code: "VALIDATION_FAILED",
+			message: "Validation failed",
+			...(issues ? { issues } : {})
+		},
 		400
 	);
 }
@@ -75,8 +110,9 @@ export async function executeUseCase<T extends JSONValue, E>(
 	c: Context,
 	useCase: () => Promise<Result<T, E>>,
 	options?: {
-		successStatus?: 200 | 201;
+		successStatus?: 200 | 201 | 204;
 		transform?: (value: T) => T;
+		envelope?: "none" | "result" | "data";
 	}
 ): Promise<Response> {
 	try {

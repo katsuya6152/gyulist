@@ -26,6 +26,19 @@ export async function fetchWithAuth<T>(
 		throw new Error(`API request failed: ${res.status} ${res.statusText}`);
 	}
 
+	// Handle 204 No Content and empty bodies gracefully
+	if (res.status === 204) {
+		return undefined as unknown as T;
+	}
+	const contentLength = res.headers.get("content-length");
+	if (contentLength === "0" || contentLength === null) {
+		try {
+			return (await res.json()) as T;
+		} catch {
+			return undefined as unknown as T;
+		}
+	}
+
 	return res.json();
 }
 

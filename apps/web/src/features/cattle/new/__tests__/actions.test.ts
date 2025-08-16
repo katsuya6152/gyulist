@@ -73,7 +73,6 @@ describe("createCattleAction", () => {
 			barn: "A棟",
 			breedingValue: "120",
 			notes: null,
-			status: "HEALTHY",
 			bloodline: undefined,
 			breedingStatus: undefined
 		});
@@ -129,7 +128,6 @@ describe("createCattleAction", () => {
 			barn: "A棟",
 			breedingValue: "120",
 			notes: "テスト用のメモ",
-			status: "HEALTHY",
 			bloodline: undefined,
 			breedingStatus: undefined
 		});
@@ -166,7 +164,6 @@ describe("createCattleAction", () => {
 			barn: "A棟",
 			breedingValue: "120",
 			notes: null,
-			status: "HEALTHY",
 			bloodline: {
 				fatherCattleName: "父牛",
 				motherFatherCattleName: "母父牛",
@@ -201,7 +198,6 @@ describe("createCattleAction", () => {
 					motherGrandFatherCattleName: null,
 					motherGreatGrandFatherCattleName: null
 				},
-				status: "HEALTHY",
 				breedingStatus: undefined
 			})
 		);
@@ -239,7 +235,6 @@ describe("createCattleAction", () => {
 					breedingMemo: "繁殖メモ",
 					isDifficultBirth: true
 				},
-				status: "HEALTHY",
 				bloodline: undefined
 			})
 		);
@@ -416,7 +411,6 @@ describe("createCattleAction", () => {
 			expect.objectContaining({
 				breed: null,
 				notes: null,
-				status: "HEALTHY",
 				bloodline: undefined,
 				breedingStatus: undefined
 			})

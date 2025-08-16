@@ -11,15 +11,19 @@ const app = new Hono<{ Bindings: Bindings }>()
 	.get("/", async (c) => {
 		const userId = c.get("jwtPayload").userId;
 
-		return executeUseCase(c, async () => {
-			const repo = makeAlertsRepo(c.env.DB);
-			const result = await getAlertsUC(repo)(userId, () => new Date());
-			if (!result.ok) return result;
-			return {
-				ok: true,
-				value: alertsResponseSchema.parse(result.value)
-			} as const;
-		});
+		return executeUseCase(
+			c,
+			async () => {
+				const repo = makeAlertsRepo(c.env.DB);
+				const result = await getAlertsUC(repo)(userId, () => new Date());
+				if (!result.ok) return result;
+				return {
+					ok: true,
+					value: alertsResponseSchema.parse(result.value)
+				} as const;
+			},
+			{ envelope: "data" }
+		);
 	});
 
 export default app;

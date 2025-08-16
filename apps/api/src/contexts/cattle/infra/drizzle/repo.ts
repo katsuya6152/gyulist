@@ -312,6 +312,83 @@ export function makeCattleRepo(db: AnyD1Database): CattleRepoPort {
 					.values({ cattleId: cid, ...data })
 					.returning();
 			}
+		},
+
+		async getBloodline(id) {
+			const rows = await d
+				.select()
+				.from(bloodline)
+				.where(eq(bloodline.cattleId, id as unknown as number))
+				.limit(1);
+			return rows[0] ?? null;
+		},
+
+		async getMotherInfo(id) {
+			const rows = await d
+				.select()
+				.from(motherInfo)
+				.where(eq(motherInfo.cattleId, id as unknown as number))
+				.limit(1);
+			const row = rows[0];
+			if (!row) return null;
+			return {
+				motherInfoId: row.motherInfoId as number,
+				cattleId: row.cattleId as number,
+				motherCattleId: row.motherCattleId as number,
+				motherName: row.motherName ?? null,
+				motherIdentificationNumber: row.motherIdentificationNumber ?? null,
+				motherScore: row.motherScore ?? null
+			};
+		},
+
+		async getBreedingStatus(id) {
+			const rows = await d
+				.select()
+				.from(breedingStatus)
+				.where(eq(breedingStatus.cattleId, id as unknown as number))
+				.limit(1);
+			const row = rows[0];
+			if (!row) return null;
+			return {
+				breedingStatusId: row.breedingStatusId as number,
+				cattleId: row.cattleId as number,
+				parity: row.parity ?? null,
+				expectedCalvingDate: row.expectedCalvingDate ?? null,
+				scheduledPregnancyCheckDate: row.scheduledPregnancyCheckDate ?? null,
+				daysAfterCalving: row.daysAfterCalving ?? null,
+				daysOpen: row.daysOpen ?? null,
+				pregnancyDays: row.pregnancyDays ?? null,
+				daysAfterInsemination: row.daysAfterInsemination ?? null,
+				inseminationCount: row.inseminationCount ?? null,
+				breedingMemo: row.breedingMemo ?? null,
+				isDifficultBirth:
+					(row.isDifficultBirth as unknown as boolean | null) ?? null,
+				createdAt: (row.createdAt ?? new Date().toISOString()) as string,
+				updatedAt: (row.updatedAt ?? new Date().toISOString()) as string
+			};
+		},
+
+		async getBreedingSummary(id) {
+			const rows = await d
+				.select()
+				.from(breedingSummary)
+				.where(eq(breedingSummary.cattleId, id as unknown as number))
+				.limit(1);
+			const row = rows[0];
+			if (!row) return null;
+			return {
+				breedingSummaryId: row.breedingSummaryId as number,
+				cattleId: row.cattleId as number,
+				totalInseminationCount: row.totalInseminationCount ?? null,
+				averageDaysOpen: row.averageDaysOpen ?? null,
+				averagePregnancyPeriod: row.averagePregnancyPeriod ?? null,
+				averageCalvingInterval: row.averageCalvingInterval ?? null,
+				difficultBirthCount: row.difficultBirthCount ?? null,
+				pregnancyHeadCount: row.pregnancyHeadCount ?? null,
+				pregnancySuccessRate: row.pregnancySuccessRate ?? null,
+				createdAt: (row.createdAt ?? new Date().toISOString()) as string,
+				updatedAt: (row.updatedAt ?? new Date().toISOString()) as string
+			};
 		}
 	};
 }

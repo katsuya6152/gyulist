@@ -173,7 +173,7 @@ describe("Cattle API E2E (advanced)", () => {
 		appInst.route(
 			"/cattle",
 			(routes as { default: unknown }).default as typeof import(
-				"../../src/routes/cattle"
+				"../../../../../src/routes/cattle"
 			).default
 		);
 		app = appInst;
@@ -183,12 +183,13 @@ describe("Cattle API E2E (advanced)", () => {
 		const res = await app.request("/cattle?limit=2", { headers: auth() });
 		expect(res.status).toBe(200);
 		const body = await res.json();
-		expect(Array.isArray(body.results)).toBe(true);
-		expect(body.results.length).toBe(2);
+		expect(Array.isArray(body.data.results)).toBe(true);
+		expect(body.data.results.length).toBe(2);
 		// since repo requests limit+1, service sets has_next true
-		expect(body.has_next).toBeTypeOf("boolean");
+		expect(body.data.has_next).toBeTypeOf("boolean");
 		expect(
-			body.next_cursor === null || typeof body.next_cursor === "string"
+			body.data.next_cursor === null ||
+				typeof body.data.next_cursor === "string"
 		).toBe(true);
 	});
 
@@ -196,8 +197,8 @@ describe("Cattle API E2E (advanced)", () => {
 		const res = await app.request("/cattle/status-counts", { headers: auth() });
 		expect(res.status).toBe(200);
 		const body = await res.json();
-		expect(body.counts).toHaveProperty("HEALTHY");
-		expect(body.counts).toHaveProperty("PREGNANT");
+		expect(body.data.counts).toHaveProperty("HEALTHY");
+		expect(body.data.counts).toHaveProperty("PREGNANT");
 	});
 
 	it("GET /cattle/:id returns 403 for other owner's cattle", async () => {
@@ -231,7 +232,7 @@ describe("Cattle API E2E (advanced)", () => {
 		});
 		expect(res.status).toBe(200);
 		const body = await res.json();
-		expect(body.status).toBe("RESTING");
+		expect(body.data.status).toBe("RESTING");
 	});
 
 	it("DELETE /cattle/:id 403 for other owner's cattle", async () => {
