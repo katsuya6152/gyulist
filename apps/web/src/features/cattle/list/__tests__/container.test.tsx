@@ -31,7 +31,7 @@ describe("CattleListContainer", () => {
 				breedingValue: "AAAAAA",
 				notes: "テスト用の牛",
 				createdAt: "2024-01-01T00:00:00Z",
-				updatedAt: "2024-01-01T00:00:00Z",
+				updatedAt: "2024-01-01T00:00:00Z"
 			},
 			{
 				cattleId: 2,
@@ -55,11 +55,11 @@ describe("CattleListContainer", () => {
 				breedingValue: "AAAAAA",
 				notes: "テスト用の牛",
 				createdAt: "2024-01-01T00:00:00Z",
-				updatedAt: "2024-01-01T00:00:00Z",
-			},
+				updatedAt: "2024-01-01T00:00:00Z"
+			}
 		],
 		next_cursor: null,
-		has_next: false,
+		has_next: false
 	};
 
 	it("should render cattle list correctly", async () => {
@@ -79,13 +79,13 @@ describe("CattleListContainer", () => {
 			search: undefined,
 			growth_stage: undefined,
 			gender: undefined,
-			status: undefined,
+			status: undefined
 		});
 	});
 
 	it("should handle API error correctly", async () => {
 		vi.mocked(cattleService.GetCattleList).mockRejectedValue(
-			new Error("API Error"),
+			new Error("API Error")
 		);
 
 		// エラーをキャッチして期待する動作を確認

@@ -9,7 +9,7 @@ const geistSans = Geist({
 	subsets: ["latin"],
 	display: "swap",
 	preload: true,
-	fallback: ["system-ui", "arial"],
+	fallback: ["system-ui", "arial"]
 });
 
 const geistMono = Geist_Mono({
@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 	subsets: ["latin"],
 	display: "swap",
 	preload: true,
-	fallback: ["monospace"],
+	fallback: ["monospace"]
 });
 
 export const metadata: Metadata = {
@@ -30,13 +30,13 @@ export const metadata: Metadata = {
 		"繁殖管理",
 		"健康管理",
 		"牧場経営",
-		"データ管理",
+		"データ管理"
 	],
 	openGraph: {
 		title: "ギュウリスト - 畜産経営をデータで支える",
 		description:
 			"個体・繁殖・健康のデータを一元管理。紙とExcelから卒業し、効率的な牧場経営を実現します。",
-		type: "website",
+		type: "website"
 	},
 	robots: {
 		index: true,
@@ -46,13 +46,13 @@ export const metadata: Metadata = {
 			follow: true,
 			"max-video-preview": -1,
 			"max-image-preview": "large",
-			"max-snippet": -1,
-		},
-	},
+			"max-snippet": -1
+		}
+	}
 };
 
 export default function RootLayout({
-	children,
+	children
 }: Readonly<{
 	children: React.ReactNode;
 }>) {

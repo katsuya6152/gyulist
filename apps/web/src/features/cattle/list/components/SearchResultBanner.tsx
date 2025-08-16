@@ -26,7 +26,7 @@ export const SearchResultBanner = memo(
 				</Button>
 			</div>
 		</div>
-	),
+	)
 );
 
 SearchResultBanner.displayName = "SearchResultBanner";

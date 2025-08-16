@@ -1,4 +1,4 @@
-import { CATTLE_GROWTH_STAGES_TUPLE } from "@repo/api";
+import { CATTLE_GROWTH_STAGES } from "@repo/api";
 import { z } from "zod";
 
 const preprocessOptional = (v: unknown) =>
@@ -9,7 +9,7 @@ export const bloodlineSchema = z.object({
 	fatherCattleName: z.string().optional(),
 	motherFatherCattleName: z.string().optional(),
 	motherGrandFatherCattleName: z.string().optional(),
-	motherGreatGrandFatherCattleName: z.string().optional(),
+	motherGreatGrandFatherCattleName: z.string().optional()
 });
 
 // 繁殖状態のスキーマ
@@ -17,7 +17,7 @@ export const breedingStatusSchema = z.object({
 	expectedCalvingDate: z.string().optional(),
 	scheduledPregnancyCheckDate: z.string().optional(),
 	breedingMemo: z.string().optional(),
-	isDifficultBirth: z.coerce.boolean().optional(),
+	isDifficultBirth: z.coerce.boolean().optional()
 });
 
 // 新規作成用のスキーマ（UI前処理 -> API仕様にパイプ）
@@ -27,8 +27,8 @@ export const createCattleSchema = z.object({
 	name: z.string().min(1, "名号は必須です"),
 	gender: z.string().min(1, "性別は必須です"),
 	birthday: z.string().min(1, "生年月日は必須です"),
-	growthStage: z.enum(CATTLE_GROWTH_STAGES_TUPLE, {
-		required_error: "成長段階は必須です",
+	growthStage: z.enum(CATTLE_GROWTH_STAGES, {
+		required_error: "成長段階は必須です"
 	}),
 	weight: z.preprocess(preprocessOptional, z.coerce.number().min(0).optional()),
 	score: z.preprocess(preprocessOptional, z.coerce.number().optional()),
@@ -38,5 +38,5 @@ export const createCattleSchema = z.object({
 	breedingValue: z.preprocess(preprocessOptional, z.string().optional()),
 	notes: z.preprocess(preprocessOptional, z.string().optional()),
 	bloodline: bloodlineSchema.optional(),
-	breedingStatus: breedingStatusSchema.optional(),
+	breedingStatus: breedingStatusSchema.optional()
 });

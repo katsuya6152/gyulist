@@ -16,5 +16,5 @@ export const users = sqliteTable("users", {
 	oauthProvider: text("oauth_provider"), // 'email', 'google', 'line'
 	avatarUrl: text("avatar_url"),
 	createdAt: text().default(sql`(CURRENT_TIMESTAMP)`),
-	updatedAt: text().default(sql`(CURRENT_TIMESTAMP)`),
+	updatedAt: text().default(sql`(CURRENT_TIMESTAMP)`)
 });

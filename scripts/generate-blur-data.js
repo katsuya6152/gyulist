@@ -25,7 +25,7 @@ async function generateAllBlurDataURLs() {
 		"hero-bg-pc.png",
 		"hero-bg-sp.png",
 		"app-shot.png",
-		"icon-horizontal.png",
+		"icon-horizontal.png"
 	];
 
 	for (const imageName of images) {

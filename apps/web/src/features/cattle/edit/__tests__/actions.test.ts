@@ -3,17 +3,17 @@ import { updateCattleAction } from "../actions";
 
 // Mock the cattle service
 vi.mock("@/services/cattleService", () => ({
-	UpdateCattleDetailed: vi.fn(),
+	UpdateCattleDetailed: vi.fn()
 }));
 
 // Mock JWT verification
 vi.mock("@/lib/jwt", () => ({
-	verifyAndGetUserId: vi.fn(),
+	verifyAndGetUserId: vi.fn()
 }));
 
 // Mock next/navigation
 vi.mock("next/navigation", () => ({
-	redirect: vi.fn(),
+	redirect: vi.fn()
 }));
 
 describe("updateCattleAction", () => {
@@ -44,7 +44,7 @@ describe("updateCattleAction", () => {
 		formData.append("bloodline.motherGrandFatherCattleName", "更新母祖父牛");
 		formData.append(
 			"bloodline.motherGreatGrandFatherCattleName",
-			"更新母曾祖父牛",
+			"更新母曾祖父牛"
 		);
 
 		// 繁殖状態
@@ -88,7 +88,7 @@ describe("updateCattleAction", () => {
 				fatherCattleName: "更新父牛",
 				motherFatherCattleName: "更新母父牛",
 				motherGrandFatherCattleName: "更新母祖父牛",
-				motherGreatGrandFatherCattleName: "更新母曾祖父牛",
+				motherGreatGrandFatherCattleName: "更新母曾祖父牛"
 			},
 			breedingStatus: {
 				parity: null,
@@ -100,8 +100,8 @@ describe("updateCattleAction", () => {
 				daysAfterInsemination: null,
 				inseminationCount: null,
 				breedingMemo: "更新繁殖メモ",
-				isDifficultBirth: true,
-			},
+				isDifficultBirth: true
+			}
 		});
 	});
 
@@ -116,7 +116,7 @@ describe("updateCattleAction", () => {
 
 		expect(result).toEqual({
 			status: "success",
-			message: "demo",
+			message: "demo"
 		});
 	});
 
@@ -152,7 +152,7 @@ describe("updateCattleAction", () => {
 			producerName: null,
 			barn: null,
 			breedingValue: null,
-			notes: null,
+			notes: null
 		});
 	});
 
@@ -185,7 +185,7 @@ describe("updateCattleAction", () => {
 		expect(result.status).toBe("error");
 		if (result.status === "error") {
 			expect(result.error).toEqual({
-				"": ["牛のIDが見つかりません"],
+				"": ["牛のIDが見つかりません"]
 			});
 		}
 	});
@@ -212,7 +212,7 @@ describe("updateCattleAction", () => {
 
 		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
 		vi.mocked(UpdateCattleDetailed).mockRejectedValue(
-			new Error("API request failed: 401 Unauthorized"),
+			new Error("API request failed: 401 Unauthorized")
 		);
 
 		const formData = createValidFormData();
@@ -228,7 +228,7 @@ describe("updateCattleAction", () => {
 
 		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
 		vi.mocked(UpdateCattleDetailed).mockRejectedValue(
-			new Error("API request failed: 403 Forbidden"),
+			new Error("API request failed: 403 Forbidden")
 		);
 
 		const formData = createValidFormData();
@@ -243,7 +243,7 @@ describe("updateCattleAction", () => {
 
 		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
 		vi.mocked(UpdateCattleDetailed).mockRejectedValue(
-			new Error("API request failed: 400 Bad Request"),
+			new Error("API request failed: 400 Bad Request")
 		);
 
 		const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
@@ -254,7 +254,7 @@ describe("updateCattleAction", () => {
 		expect(result.status).toBe("error");
 		if (result.status === "error") {
 			expect(result.error).toEqual({
-				"": ["牛の更新に失敗しました"],
+				"": ["牛の更新に失敗しました"]
 			});
 		}
 
@@ -267,7 +267,7 @@ describe("updateCattleAction", () => {
 
 		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
 		vi.mocked(UpdateCattleDetailed).mockRejectedValue(
-			new Error("Network error"),
+			new Error("Network error")
 		);
 
 		const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
@@ -278,7 +278,7 @@ describe("updateCattleAction", () => {
 		expect(result.status).toBe("error");
 		if (result.status === "error") {
 			expect(result.error).toEqual({
-				"": ["牛の更新に失敗しました"],
+				"": ["牛の更新に失敗しました"]
 			});
 		}
 
@@ -295,7 +295,7 @@ describe("updateCattleAction", () => {
 		const booleanValues = [
 			{ input: "true", expected: true },
 			{ input: "false", expected: false },
-			{ input: "", expected: null },
+			{ input: "", expected: null }
 		];
 
 		for (const { input } of booleanValues) {

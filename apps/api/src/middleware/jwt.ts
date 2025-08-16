@@ -1,10 +1,10 @@
 import type { MiddlewareHandler } from "hono";
-import { verify } from "hono/jwt";
+import { createHonoJwtTokenPort } from "../contexts/auth/infra/token";
 import type { Bindings } from "../types";
 
 export const jwtMiddleware: MiddlewareHandler<{ Bindings: Bindings }> = async (
 	c,
-	next,
+	next
 ) => {
 	const authHeader = c.req.header("Authorization");
 	if (!authHeader) {
@@ -13,39 +13,37 @@ export const jwtMiddleware: MiddlewareHandler<{ Bindings: Bindings }> = async (
 
 	const token = authHeader.replace("Bearer ", "");
 
-	try {
-		// 通常のJWT検証を試す
-		const decodedPayload = await verify(token, c.env.JWT_SECRET);
-		c.set("jwtPayload", decodedPayload);
-		await next();
-	} catch (e) {
-		// 通常のJWT検証が失敗した場合、OAuth用の簡易JWT形式を試す
+	const tokenPort = createHonoJwtTokenPort(c.env.JWT_SECRET);
+	const payload = await tokenPort.verify(token);
+	if (!payload) {
+		// Preserve previous logging behavior for JWT failure + OAuth fallback
+		console.error("JWT verification failed");
 		try {
-			// JWT形式かチェック（3つの部分がドットで区切られているか）
 			const parts = token.split(".");
 			if (parts.length !== 3) {
 				return c.json({ error: "Invalid token format" }, 401);
 			}
-
-			// ペイロード部分をデコード
-			const payload = JSON.parse(atob(parts[1]));
-
-			// 有効期限をチェック
-			if (payload.exp && payload.exp < Date.now() / 1000) {
+			const parsed = JSON.parse(atob(parts[1]));
+			if (parsed.exp && parsed.exp < Date.now() / 1000) {
 				return c.json({ error: "Token expired" }, 401);
 			}
-
-			// userIdが存在するかチェック
-			if (!payload.userId) {
+			if (!parsed.userId) {
 				return c.json({ error: "Invalid token payload" }, 401);
 			}
-
-			c.set("jwtPayload", payload);
+			c.set("jwtPayload", parsed);
 			await next();
+			return;
 		} catch (oauthError) {
-			console.error("JWT verification failed:", e);
 			console.error("OAuth JWT verification failed:", oauthError);
 			return c.json({ error: "Invalid token" }, 401);
 		}
 	}
+	if (payload.exp && payload.exp < Date.now() / 1000) {
+		return c.json({ error: "Token expired" }, 401);
+	}
+	if (!payload.userId) {
+		return c.json({ error: "Invalid token payload" }, 401);
+	}
+	c.set("jwtPayload", payload);
+	await next();
 };

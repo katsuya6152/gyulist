@@ -7,7 +7,7 @@ import { DeleteEventServer, UpdateEventServer } from "@/services/eventService";
 
 export async function updateEventAction(
 	eventId: number,
-	data: UpdateEventInput,
+	data: UpdateEventInput
 ) {
 	const userId = await verifyAndGetUserId();
 	if (isDemo(userId)) {

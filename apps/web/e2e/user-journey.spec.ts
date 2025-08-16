@@ -31,7 +31,7 @@ test.describe("ユーザージャーニー", () => {
 		// 4. スケジュールページの確認
 		await expect(page.locator("h1")).toContainText("予定");
 		await expect(page.getByRole("button", { name: /今日/ })).toHaveClass(
-			/bg-gradient-primary/,
+			/bg-gradient-primary/
 		);
 
 		// 5. 牛の一覧ページに移動
@@ -76,7 +76,7 @@ test.describe("ユーザージャーニー", () => {
 		// 2. 今日の予定を確認
 		await expect(page.locator("h1")).toContainText("予定");
 		await expect(page.getByRole("button", { name: /今日/ })).toHaveClass(
-			/bg-gradient-primary/,
+			/bg-gradient-primary/
 		);
 
 		// イベント件数の確認
@@ -164,16 +164,16 @@ test.describe("ユーザージャーニー", () => {
 		// 3. フッターナビゲーションの確認
 		await expect(page.locator(".fixed.bottom-0")).toBeVisible();
 		await expect(
-			page.locator(".fixed.bottom-0").locator("text=予定"),
+			page.locator(".fixed.bottom-0").locator("text=予定")
 		).toBeVisible();
 		await expect(
-			page.locator(".fixed.bottom-0").locator("text=一覧"),
+			page.locator(".fixed.bottom-0").locator("text=一覧")
 		).toBeVisible();
 		await expect(
-			page.locator(".fixed.bottom-0").locator("text=個体登録"),
+			page.locator(".fixed.bottom-0").locator("text=個体登録")
 		).toBeVisible();
 		await expect(
-			page.locator(".fixed.bottom-0").locator("text=設定"),
+			page.locator(".fixed.bottom-0").locator("text=設定")
 		).toBeVisible();
 
 		// 4. モバイルでの牛一覧表示

@@ -8,7 +8,7 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
+	DialogTrigger
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,7 +16,7 @@ import {
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
-	SelectValue,
+	SelectValue
 } from "@/components/ui/select";
 import classNames from "classnames";
 import { useState } from "react";
@@ -24,7 +24,7 @@ import { toast } from "sonner";
 import {
 	type CattleStatus,
 	statusLabelMap,
-	statusOptions,
+	statusOptions
 } from "../../constants";
 import { updateCattleStatusAction } from "../actions";
 
@@ -51,11 +51,11 @@ export function StatusBadge({ cattleId, status }: StatusBadgeProps) {
 			const result = await updateCattleStatusAction(
 				cattleId,
 				newStatus,
-				reason || undefined,
+				reason || undefined
 			);
 			if ("message" in result && result.message === "demo") {
 				toast.info("ステータスを更新しました", {
-					description: "デモアカウントのため、実際には更新されていません",
+					description: "デモアカウントのため、実際には更新されていません"
 				});
 			} else if (result.success) {
 				toast.success("ステータスを更新しました");
@@ -119,8 +119,8 @@ export function StatusBadge({ cattleId, status }: StatusBadgeProps) {
 							"text-gray-500 border-gray-500 hover:bg-gray-50 hover:border-gray-600 active:bg-gray-100":
 								currentStatus === "SHIPPED",
 							"text-red-600 border-red-600 hover:bg-red-50 hover:border-red-700 active:bg-red-100":
-								currentStatus === "DEAD",
-						},
+								currentStatus === "DEAD"
+						}
 					)}
 					aria-label={`ステータスを変更: ${statusLabelMap[currentStatus]}`}
 				>

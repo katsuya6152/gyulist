@@ -7,6 +7,8 @@ import { users } from "../db/schema";
 import { generateOAuthDummyPasswordHash } from "../lib/auth";
 import { type GoogleUser, createGoogleOAuth } from "../lib/oauth";
 import { createSession, generateSessionToken } from "../lib/session";
+import { executeUseCase } from "../shared/http/route-helpers";
+import { getLogger } from "../shared/logging/logger";
 import type { Bindings } from "../types";
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -19,7 +21,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 			const url = google.createAuthorizationURL(state, codeVerifier, [
 				"openid",
 				"profile",
-				"email",
+				"email"
 			]);
 
 			// 開発環境かどうかを判定
@@ -31,7 +33,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 				secure: isProduction,
 				sameSite: isProduction ? "None" : "Lax",
 				maxAge: 600,
-				path: "/",
+				path: "/"
 			});
 
 			setCookie(c, "google_oauth_code_verifier", codeVerifier, {
@@ -39,18 +41,30 @@ const app = new Hono<{ Bindings: Bindings }>()
 				secure: isProduction,
 				sameSite: isProduction ? "None" : "Lax",
 				maxAge: 600,
-				path: "/",
+				path: "/"
 			});
 
 			return c.redirect(url.toString());
 		} catch (error) {
-			console.error("Error in Google OAuth start:", error);
+			const logger = getLogger(c);
+			logger.unexpectedError(
+				"Error in Google OAuth start",
+				error instanceof Error ? error : new Error(String(error)),
+				{ endpoint: "/oauth/google" }
+			);
+			// 本番環境では詳細なエラー情報を隠す
+			const isProduction = c.env.ENVIRONMENT === "production";
 			return c.json(
 				{
 					error: "OAuth initialization failed",
-					details: error instanceof Error ? error.message : "Unknown error",
+					...(isProduction
+						? {}
+						: {
+								details:
+									error instanceof Error ? error.message : "Unknown error"
+							})
 				},
-				500,
+				500
 			);
 		}
 	})
@@ -61,42 +75,42 @@ const app = new Hono<{ Bindings: Bindings }>()
 		const code = url.searchParams.get("code");
 		const state = url.searchParams.get("state");
 
-		console.log("=== OAuth Callback Debug ===");
-		console.log("URL:", c.req.url);
-		console.log("Code present:", !!code);
-		console.log("State present:", !!state);
-		console.log("State value:", state);
+		const logger = getLogger(c);
+		logger.debug("OAuth callback received", {
+			url: c.req.url,
+			hasCode: !!code,
+			hasState: !!state,
+			stateValue: state,
+			endpoint: "/oauth/google/callback"
+		});
 
 		// Honoの組み込みCookie取得を使用
 		const storedState = getCookie(c, "google_oauth_state");
 		const storedCodeVerifier = getCookie(c, "google_oauth_code_verifier");
 
-		console.log("Stored state present:", !!storedState);
-		console.log("Stored code verifier present:", !!storedCodeVerifier);
-		console.log("Stored state value:", storedState);
-		console.log(
-			"All cookies:",
-			Object.fromEntries(
-				Object.entries(c.req.header()).filter(
-					([key]) => key.toLowerCase() === "cookie",
-				),
-			),
-		);
+		logger.debug("OAuth callback cookie validation", {
+			hasStoredState: !!storedState,
+			hasStoredCodeVerifier: !!storedCodeVerifier,
+			storedStateValue: storedState,
+			endpoint: "/oauth/google/callback"
+		});
 
 		if (!code || !state || !storedState || !storedCodeVerifier) {
-			console.error("Missing required parameters:", {
-				code: !!code,
-				state: !!state,
-				storedState: !!storedState,
-				storedCodeVerifier: !!storedCodeVerifier,
+			logger.error("OAuth callback missing required parameters", {
+				hasCode: !!code,
+				hasState: !!state,
+				hasStoredState: !!storedState,
+				hasStoredCodeVerifier: !!storedCodeVerifier,
+				endpoint: "/oauth/google/callback"
 			});
 			return c.json({ error: "Invalid request parameters" }, 400);
 		}
 
 		if (state !== storedState) {
-			console.error("State mismatch:", {
-				received: state,
-				stored: storedState,
+			logger.error("OAuth state mismatch", {
+				receivedState: state,
+				storedState: storedState,
+				endpoint: "/oauth/google/callback"
 			});
 			return c.json({ error: "Invalid state parameter" }, 400);
 		}
@@ -105,7 +119,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 			const google = createGoogleOAuth(c.env);
 			const tokens = await google.validateAuthorizationCode(
 				code,
-				storedCodeVerifier,
+				storedCodeVerifier
 			);
 
 			// アクセストークンを安全に取得
@@ -134,9 +148,9 @@ const app = new Hono<{ Bindings: Bindings }>()
 					{
 						headers: {
 							Authorization: `Bearer ${accessToken}`,
-							"User-Agent": "Gyulist/1.0",
-						},
-					},
+							"User-Agent": "Gyulist/1.0"
+						}
+					}
 				);
 
 				if (!googleUserResponse.ok) {
@@ -144,12 +158,12 @@ const app = new Hono<{ Bindings: Bindings }>()
 					console.error(
 						"Failed to fetch user info:",
 						googleUserResponse.status,
-						googleUserResponse.statusText,
+						googleUserResponse.statusText
 					);
 					console.error("Google API error response:", errorText);
 					return c.json(
 						{ error: "Failed to fetch user info from Google" },
-						500,
+						500
 					);
 				}
 
@@ -183,7 +197,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 					.set({
 						userName: googleUser.name,
 						avatarUrl: googleUser.picture,
-						lastLoginAt: new Date().toISOString(),
+						lastLoginAt: new Date().toISOString()
 					})
 					.where(eq(users.id, userId));
 			} else {
@@ -198,7 +212,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 						oauthProvider: "google",
 						avatarUrl: googleUser.picture,
 						isVerified: true, // Google認証済みなのでtrueに設定
-						lastLoginAt: new Date().toISOString(),
+						lastLoginAt: new Date().toISOString()
 					})
 					.returning({ id: users.id });
 
@@ -216,7 +230,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 			const jwtPayload = {
 				userId: userId,
 				exp: Math.floor(session.expiresAt.getTime() / 1000), // UNIX timestamp
-				iat: Math.floor(Date.now() / 1000),
+				iat: Math.floor(Date.now() / 1000)
 			};
 
 			// 簡単なJWT形式のトークンを作成（ヘッダー.ペイロード.署名）
@@ -241,9 +255,9 @@ const app = new Hono<{ Bindings: Bindings }>()
 			return c.json(
 				{
 					error: "Authentication failed",
-					details: error instanceof Error ? error.message : "Unknown error",
+					details: error instanceof Error ? error.message : "Unknown error"
 				},
-				500,
+				500
 			);
 		}
 	});

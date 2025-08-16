@@ -5,7 +5,7 @@ import { beforeEach, vi } from "vitest";
 global.ResizeObserver = vi.fn().mockImplementation(() => ({
 	observe: vi.fn(),
 	unobserve: vi.fn(),
-	disconnect: vi.fn(),
+	disconnect: vi.fn()
 }));
 
 global.DataTransfer = vi.fn().mockImplementation(() => ({
@@ -17,7 +17,7 @@ global.DataTransfer = vi.fn().mockImplementation(() => ({
 	clearData: vi.fn(),
 	getData: vi.fn(),
 	setData: vi.fn(),
-	setDragImage: vi.fn(),
+	setDragImage: vi.fn()
 }));
 
 // Mock window.matchMedia
@@ -31,8 +31,8 @@ Object.defineProperty(window, "matchMedia", {
 		removeListener: vi.fn(), // deprecated
 		addEventListener: vi.fn(),
 		removeEventListener: vi.fn(),
-		dispatchEvent: vi.fn(),
-	})),
+		dispatchEvent: vi.fn()
+	}))
 });
 
 // Next.js router mock
@@ -50,10 +50,10 @@ vi.mock("next/navigation", () => ({
 		back: mockBack,
 		forward: mockForward,
 		refresh: mockRefresh,
-		prefetch: mockPrefetch,
+		prefetch: mockPrefetch
 	}),
 	useSearchParams: () => new URLSearchParams(),
-	usePathname: () => "/schedule",
+	usePathname: () => "/schedule"
 }));
 
 // Date mocking for consistent test results
@@ -73,31 +73,31 @@ vi.mock("@repo/api", async (importOriginal) => {
 						":id": {
 							$get: vi.fn(),
 							$patch: vi.fn(),
-							$delete: vi.fn(),
-						},
+							$delete: vi.fn()
+						}
 					},
 					events: {
 						$get: vi.fn(),
 						":id": {
 							$get: vi.fn(),
 							$patch: vi.fn(),
-							$delete: vi.fn(),
-						},
+							$delete: vi.fn()
+						}
 					},
 					"pre-register": {
-						$post: vi.fn(),
+						$post: vi.fn()
 					},
 					admin: {
 						registrations: {
-							$get: vi.fn(),
+							$get: vi.fn()
 						},
 						"registrations.csv": {
-							$get: vi.fn(),
-						},
-					},
-				},
-			},
-		}),
+							$get: vi.fn()
+						}
+					}
+				}
+			}
+		})
 	};
 });
 
@@ -111,31 +111,31 @@ vi.mock("@/lib/rpc", () => ({
 					":id": {
 						$get: vi.fn(),
 						$patch: vi.fn(),
-						$delete: vi.fn(),
-					},
+						$delete: vi.fn()
+					}
 				},
 				events: {
 					$get: vi.fn(),
 					":id": {
 						$get: vi.fn(),
 						$patch: vi.fn(),
-						$delete: vi.fn(),
-					},
+						$delete: vi.fn()
+					}
 				},
 				"pre-register": {
-					$post: vi.fn(),
+					$post: vi.fn()
 				},
 				admin: {
 					registrations: {
-						$get: vi.fn(),
+						$get: vi.fn()
 					},
 					"registrations.csv": {
-						$get: vi.fn(),
-					},
-				},
-			},
-		},
-	},
+						$get: vi.fn()
+					}
+				}
+			}
+		}
+	}
 }));
 
 // Mock embla-carousel-react
@@ -146,9 +146,9 @@ vi.mock("embla-carousel-react", () => ({
 			scrollTo: vi.fn(),
 			selectedScrollSnap: vi.fn(),
 			on: vi.fn(),
-			off: vi.fn(),
-		},
-	],
+			off: vi.fn()
+		}
+	]
 }));
 
 // Reset all mocks before each test

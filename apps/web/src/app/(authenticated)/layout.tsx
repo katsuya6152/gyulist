@@ -9,7 +9,7 @@ import { redirect } from "next/navigation";
 import { Toaster } from "sonner";
 
 export default async function AuthenticatedLayout({
-	children,
+	children
 }: {
 	children: React.ReactNode;
 }) {
@@ -33,7 +33,7 @@ export default async function AuthenticatedLayout({
 	let userTheme: string | undefined;
 	try {
 		const user = await getUserById(userId);
-		userTheme = user.theme || undefined;
+		userTheme = (user as { theme?: string | null }).theme || undefined;
 	} catch (error) {
 		console.error("Failed to fetch user theme:", error);
 		// 認証エラーの場合はログインページにリダイレクト

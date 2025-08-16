@@ -6,7 +6,7 @@ import ScheduleContainer from "../container";
 
 // Mock the eventService
 vi.mock("@/services/eventService", () => ({
-	SearchEvents: vi.fn(),
+	SearchEvents: vi.fn()
 }));
 
 // Mock the presentational component
@@ -15,7 +15,7 @@ vi.mock("../presentational", () => ({
 		events,
 		currentFilter,
 		customDate,
-		error,
+		error
 	}: {
 		events: SearchEventsResType["results"];
 		currentFilter: string;
@@ -28,7 +28,7 @@ vi.mock("../presentational", () => ({
 			<div data-testid="custom-date">{customDate || "none"}</div>
 			<div data-testid="error">{error || "none"}</div>
 		</div>
-	),
+	)
 }));
 
 const mockEventsData: SearchEventsResType = {
@@ -42,11 +42,11 @@ const mockEventsData: SearchEventsResType = {
 			createdAt: "2024-01-15T10:00:00.000Z",
 			updatedAt: "2024-01-15T10:00:00.000Z",
 			cattleName: "Test Cattle",
-			cattleEarTagNumber: "TC001",
-		},
+			cattleEarTagNumber: "TC001"
+		}
 	],
 	nextCursor: null,
-	hasNext: false,
+	hasNext: false
 };
 
 describe("ScheduleContainer", () => {
@@ -77,7 +77,7 @@ describe("ScheduleContainer", () => {
 
 		// Check that SearchEvents was called without date parameters (client-side filtering)
 		expect(mockSearchEvents).toHaveBeenCalledWith({
-			limit: 50,
+			limit: 50
 		});
 	});
 
@@ -90,7 +90,7 @@ describe("ScheduleContainer", () => {
 
 		// Check that SearchEvents was called without date parameters (client-side filtering)
 		expect(mockSearchEvents).toHaveBeenCalledWith({
-			limit: 50,
+			limit: 50
 		});
 	});
 
@@ -100,19 +100,19 @@ describe("ScheduleContainer", () => {
 		render(await ScheduleContainer({ searchParams }));
 
 		expect(screen.getByTestId("current-filter")).toHaveTextContent(
-			"dayAfterTomorrow",
+			"dayAfterTomorrow"
 		);
 
 		// Check that SearchEvents was called without date parameters (client-side filtering)
 		expect(mockSearchEvents).toHaveBeenCalledWith({
-			limit: 50,
+			limit: 50
 		});
 	});
 
 	it("should handle custom date filter correctly", async () => {
 		const searchParams = Promise.resolve({
 			filter: "custom",
-			date: "2024-01-20",
+			date: "2024-01-20"
 		});
 
 		render(await ScheduleContainer({ searchParams }));
@@ -125,15 +125,15 @@ describe("ScheduleContainer", () => {
 			expect.objectContaining({
 				limit: 50,
 				startDate: expect.stringMatching(/2024-01-[12][09]T\d{2}:00:00\.000Z/),
-				endDate: expect.stringMatching(/2024-01-[12][09]T\d{2}:59:59\.999Z/),
-			}),
+				endDate: expect.stringMatching(/2024-01-[12][09]T\d{2}:59:59\.999Z/)
+			})
 		);
 	});
 
 	it("should handle array parameters correctly", async () => {
 		const searchParams = Promise.resolve({
 			filter: ["today", "tomorrow"],
-			date: ["2024-01-20", "2024-01-21"],
+			date: ["2024-01-20", "2024-01-21"]
 		});
 
 		render(await ScheduleContainer({ searchParams }));
@@ -160,7 +160,7 @@ describe("ScheduleContainer", () => {
 		expect(screen.getByTestId("schedule-presentation")).toBeInTheDocument();
 		expect(screen.getByTestId("events-count")).toHaveTextContent("0");
 		expect(screen.getByTestId("error")).toHaveTextContent(
-			"イベントの取得に失敗しました",
+			"イベントの取得に失敗しました"
 		);
 	});
 
@@ -168,7 +168,7 @@ describe("ScheduleContainer", () => {
 		mockSearchEvents.mockResolvedValue({
 			results: [],
 			nextCursor: null,
-			hasNext: false,
+			hasNext: false
 		});
 		const searchParams = Promise.resolve({});
 

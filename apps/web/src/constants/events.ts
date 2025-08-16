@@ -16,5 +16,5 @@ export const eventTypeColors: Record<string, string> = {
 	WEIGHT_MEASURED: "bg-gray-100 text-gray-800 border-gray-300",
 	WEANING: "bg-lime-100 text-lime-800 border-lime-300",
 	START_FATTENING: "bg-lime-100 text-lime-800 border-lime-300",
-	OTHER: "bg-gray-100 text-gray-800 border-gray-300",
+	OTHER: "bg-gray-100 text-gray-800 border-gray-300"
 };

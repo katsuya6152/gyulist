@@ -7,14 +7,14 @@ describe("sendCompletionEmail", () => {
 			"fetch",
 			vi.fn().mockResolvedValue({
 				ok: true,
-				json: async () => ({ id: "email_1" }),
-			}),
+				json: async () => ({ id: "email_1" })
+			})
 		);
 		const result = await sendCompletionEmail(
 			"key",
 			"from@example.com",
 			"to@example.com",
-			"search",
+			"search"
 		);
 		expect(result.id).toBe("email_1");
 		const fetchMock = fetch as unknown as Mock;
@@ -25,10 +25,10 @@ describe("sendCompletionEmail", () => {
 	it("throws on failure", async () => {
 		vi.stubGlobal(
 			"fetch",
-			vi.fn().mockResolvedValue({ ok: false, status: 500 }),
+			vi.fn().mockResolvedValue({ ok: false, status: 500 })
 		);
 		await expect(sendCompletionEmail("k", "f", "t", null)).rejects.toThrow(
-			/resend/,
+			/resend/
 		);
 	});
 

@@ -5,9 +5,9 @@ import { generateToken, hashPassword } from "../../../src/lib/token";
 const mockGetRandomValues = vi.fn();
 Object.defineProperty(global, "crypto", {
 	value: {
-		getRandomValues: mockGetRandomValues,
+		getRandomValues: mockGetRandomValues
 	},
-	writable: true,
+	writable: true
 });
 
 describe("Token Library", () => {
@@ -179,11 +179,11 @@ describe("Token Library", () => {
 				"simple",
 				"complex!@#$%^&*()",
 				"123456789",
-				"verylongpasswordwithmanycharacterstotest",
+				"verylongpasswordwithmanycharacterstotest"
 			];
 
 			const promises = passwords.map((password) =>
-				hashPassword(password).catch(() => {}),
+				hashPassword(password).catch(() => {})
 			);
 
 			for (const promise of promises) {

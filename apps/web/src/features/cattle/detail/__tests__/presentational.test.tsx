@@ -30,7 +30,7 @@ describe("CattleDetailPresentation", () => {
 		motherInfo: null,
 		breedingStatus: null,
 		breedingSummary: null,
-		events: [],
+		events: []
 	};
 
 	it("should render cattle details correctly", () => {

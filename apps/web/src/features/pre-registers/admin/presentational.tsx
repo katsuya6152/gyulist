@@ -9,11 +9,11 @@ import {
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
-	SelectValue,
+	SelectValue
 } from "@/components/ui/select";
 import {
 	downloadRegistrationsCsv,
-	listRegistrations,
+	listRegistrations
 } from "@/services/preRegisterService";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -62,7 +62,7 @@ export function PreRegisterAdmin({ initialParams }: Props) {
 				return {
 					email,
 					referral_source: referralSource,
-					created_at: createdIso,
+					created_at: createdIso
 				};
 			});
 			setItems(mapped);
@@ -114,7 +114,7 @@ export function PreRegisterAdmin({ initialParams }: Props) {
 								onChange={(e) =>
 									setCredentials({
 										...credentials,
-										user: e.target.value,
+										user: e.target.value
 									})
 								}
 							/>
@@ -125,7 +125,7 @@ export function PreRegisterAdmin({ initialParams }: Props) {
 								onChange={(e) =>
 									setCredentials({
 										...credentials,
-										pass: e.target.value,
+										pass: e.target.value
 									})
 								}
 							/>
@@ -178,7 +178,7 @@ export function PreRegisterAdmin({ initialParams }: Props) {
 								onValueChange={(v) =>
 									setParams({
 										...params,
-										source: v === "all" ? undefined : v,
+										source: v === "all" ? undefined : v
 									})
 								}
 							>

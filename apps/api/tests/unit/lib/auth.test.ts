@@ -2,16 +2,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	generateOAuthDummyPasswordHash,
 	signToken,
-	verifyPassword,
+	verifyPassword
 } from "../../../src/lib/auth";
 
 // crypto.getRandomValuesをモック
 const mockGetRandomValues = vi.fn();
 Object.defineProperty(global, "crypto", {
 	value: {
-		getRandomValues: mockGetRandomValues,
+		getRandomValues: mockGetRandomValues
 	},
-	writable: true,
+	writable: true
 });
 
 describe("Auth Library", () => {
@@ -63,11 +63,11 @@ describe("Auth Library", () => {
 				{ userId: 1 },
 				{ email: "test@example.com" },
 				{ userId: 1, role: "admin" },
-				{ data: { nested: "value" } },
+				{ data: { nested: "value" } }
 			];
 
 			const promises = payloads.map((payload) =>
-				signToken(payload, "secret").catch(() => {}),
+				signToken(payload, "secret").catch(() => {})
 			);
 
 			for (const promise of promises) {
@@ -108,8 +108,8 @@ describe("Auth Library", () => {
 			expect(mockGetRandomValues).toHaveBeenCalledWith(expect.any(Uint8Array));
 			expect(mockGetRandomValues).toHaveBeenCalledWith(
 				expect.objectContaining({
-					length: 32,
-				}),
+					length: 32
+				})
 			);
 		});
 

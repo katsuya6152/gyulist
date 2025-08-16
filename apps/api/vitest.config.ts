@@ -12,7 +12,7 @@ export default defineConfig({
 				"src/**/*.ts",
 				"!tests/**",
 				"!src/**/*.test.ts",
-				"!src/**/*.spec.ts",
+				"!src/**/*.spec.ts"
 			],
 			exclude: [
 				// 基本的な除外項目
@@ -35,8 +35,7 @@ export default defineConfig({
 				"src/db/migrations/**",
 				"src/db/dummy/**",
 
-				// モックファイル
-				"tests/fixtures/**",
+				// モックファイル (削除済み)
 
 				// 型定義のみのファイル
 				"src/types.ts",
@@ -52,8 +51,8 @@ export default defineConfig({
 				// その他設定・ビルド関連
 				"**/.{eslint,prettier}rc.{js,cjs,json}",
 				"**/drizzle.config.ts",
-				"**/wrangler.toml",
-			],
+				"**/wrangler.toml"
+			]
 			// カバレッジのしきい値を設定
 			// thresholds: {
 			// 	statements: 80,
@@ -61,6 +60,6 @@ export default defineConfig({
 			// 	functions: 80,
 			// 	lines: 80,
 			// },
-		},
-	},
+		}
+	}
 });

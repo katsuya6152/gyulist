@@ -27,14 +27,14 @@ const nextConfig: NextConfig = {
 			"@radix-ui/react-tabs",
 			"lucide-react",
 			"date-fns",
-			"embla-carousel-react",
-		],
+			"embla-carousel-react"
+		]
 	},
 	// 圧縮の有効化
 	compress: true,
 	// パフォーマンス最適化
 	poweredByHeader: false,
-	generateEtags: false,
+	generateEtags: false
 };
 
 export default nextConfig;

@@ -23,7 +23,7 @@ interface ScrollToTopProps {
 export function ScrollToTop({
 	threshold = 200,
 	duration = 500,
-	className = "",
+	className = ""
 }: ScrollToTopProps) {
 	const [isVisible, setIsVisible] = useState(false);
 	const [isScrolling, setIsScrolling] = useState(false);
@@ -103,7 +103,7 @@ export function ScrollToTop({
 				opacity: isVisible ? 1 : 0,
 				transform: isVisible
 					? "translateY(0) scale(1)"
-					: "translateY(20px) scale(0.8)",
+					: "translateY(20px) scale(0.8)"
 			}}
 		>
 			<ChevronUp

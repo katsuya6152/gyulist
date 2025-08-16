@@ -14,7 +14,7 @@ interface CattleListPresentationProps {
 }
 
 export function CattleListPresentation({
-	cattleList,
+	cattleList
 }: CattleListPresentationProps) {
 	const router = useRouter();
 	const searchParams = useSearchParams();

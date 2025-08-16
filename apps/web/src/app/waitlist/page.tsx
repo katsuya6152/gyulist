@@ -7,7 +7,7 @@ interface WaitlistPageProps {
 export const runtime = "edge";
 
 export default async function WaitlistPage({
-	searchParams,
+	searchParams
 }: WaitlistPageProps) {
 	const { email } = await searchParams;
 

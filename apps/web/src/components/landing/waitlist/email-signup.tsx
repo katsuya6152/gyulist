@@ -7,7 +7,7 @@ import {
 	FormField,
 	FormItem,
 	FormLabel,
-	FormMessage,
+	FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,7 +15,7 @@ import {
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
-	SelectValue,
+	SelectValue
 } from "@/components/ui/select";
 import { trackWaitlistSignup } from "@/lib/analytics";
 import { preRegister, preRegisterSchema } from "@/services/preRegisterService";
@@ -37,7 +37,7 @@ const defaultSources = ["Twitter/X", "検索", "友人", "ブログ記事", "そ
 export function EmailSignup({
 	buttonLabel = "登録する",
 	sources = defaultSources,
-	onSuccess,
+	onSuccess
 }: EmailSignupProps) {
 	const router = useRouter();
 	const [step, setStep] = useState<1 | 2>(1);
@@ -53,8 +53,8 @@ export function EmailSignup({
 		defaultValues: {
 			email: "",
 			referralSource: undefined,
-			turnstileToken: "",
-		},
+			turnstileToken: ""
+		}
 	});
 
 	// Turnstileウィジェットの初期化
@@ -76,7 +76,7 @@ export function EmailSignup({
 					},
 					"error-callback": () => {
 						form.setValue("turnstileToken", "");
-					},
+					}
 				});
 				setWidgetId(id);
 			} catch (error) {
@@ -128,7 +128,7 @@ export function EmailSignup({
 			const token = form.getValues("turnstileToken");
 			if (!token || token.length < 10) {
 				form.setError("turnstileToken", {
-					message: "セキュリティ認証を完了してください。",
+					message: "セキュリティ認証を完了してください。"
 				});
 				return;
 			}
@@ -154,7 +154,7 @@ export function EmailSignup({
 		if (res.code === "VALIDATION_FAILED" || res.code === "TURNSTILE_FAILED") {
 			for (const [key, msg] of Object.entries(res.fieldErrors ?? {})) {
 				form.setError(key as keyof z.infer<typeof preRegisterSchema>, {
-					message: msg,
+					message: msg
 				});
 			}
 		} else {
@@ -291,7 +291,7 @@ declare global {
 					"expired-callback"?: () => void;
 					"error-callback"?: () => void;
 					size?: "normal" | "compact" | "invisible";
-				},
+				}
 			) => string;
 			remove: (widgetId: string) => void;
 		};

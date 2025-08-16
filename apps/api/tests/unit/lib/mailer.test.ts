@@ -12,7 +12,7 @@ describe("Mailer", () => {
 
 		mockEnv = {
 			APP_URL: "http://localhost:3000",
-			ENVIRONMENT: "development",
+			ENVIRONMENT: "development"
 		} as Bindings;
 	});
 
@@ -29,7 +29,7 @@ describe("Mailer", () => {
 			await sendVerificationEmail(mockEnv, email, token);
 
 			expect(consoleSpy).toHaveBeenCalledWith(
-				"【開発モード】メール送信: test@example.com - リンク: http://localhost:3000/verify?token=test-token-123",
+				"【開発モード】メール送信: test@example.com - リンク: http://localhost:3000/verify?token=test-token-123"
 			);
 		});
 
@@ -41,7 +41,7 @@ describe("Mailer", () => {
 			await sendVerificationEmail(mockEnv, email, token);
 
 			expect(consoleSpy).toHaveBeenCalledWith(
-				"【開発モード】メール送信: staging@example.com - リンク: http://localhost:3000/verify?token=staging-token",
+				"【開発モード】メール送信: staging@example.com - リンク: http://localhost:3000/verify?token=staging-token"
 			);
 		});
 
@@ -64,7 +64,7 @@ describe("Mailer", () => {
 			await sendVerificationEmail(mockEnv, email, token);
 
 			expect(consoleSpy).toHaveBeenCalledWith(
-				"【開発モード】メール送信: test@example.com - リンク: https://gyulist.com/verify?token=test-token",
+				"【開発モード】メール送信: test@example.com - リンク: https://gyulist.com/verify?token=test-token"
 			);
 		});
 
@@ -76,7 +76,7 @@ describe("Mailer", () => {
 			await sendVerificationEmail(mockEnv, email, token);
 
 			expect(consoleSpy).toHaveBeenCalledWith(
-				"【開発モード】メール送信: test+user@example.com - リンク: http://localhost:3000/verify?token=token-with-special-chars_123",
+				"【開発モード】メール送信: test+user@example.com - リンク: http://localhost:3000/verify?token=token-with-special-chars_123"
 			);
 		});
 	});

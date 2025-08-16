@@ -14,7 +14,7 @@ export default defineConfig({
 			"**/dist/**",
 			"**/.{idea,git,cache,output,temp}/**",
 			"**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*",
-			"**/e2e/**", // e2eテストを除外
+			"**/e2e/**" // e2eテストを除外
 		],
 		coverage: {
 			provider: "v8",
@@ -28,15 +28,15 @@ export default defineConfig({
 				"src/app/**/*",
 				"src/components/ui/**/*",
 				"src/lib/**/*",
-				"e2e/**/*", // e2eテストをカバレッジからも除外
+				"e2e/**/*" // e2eテストをカバレッジからも除外
 			],
-			include: ["src/features/**/*"],
-		},
+			include: ["src/features/**/*"]
+		}
 	},
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
-			"@repo/api": path.resolve(__dirname, "../api/src"),
-		},
-	},
+			"@repo/api": path.resolve(__dirname, "../api/src")
+		}
+	}
 });

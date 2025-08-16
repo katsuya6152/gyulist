@@ -17,6 +17,7 @@ export const createRoutes = (app: Hono<{ Bindings: Bindings }>) => {
 return app
 .basePath("/api/v1")
 .use("*", corsMiddleware)
+.get("/", (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }))
 .route("/", healthRoutes)
 .route("/pre-register", preRegisterRoutes)
 .route("/admin", adminRoutes)

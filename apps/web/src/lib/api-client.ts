@@ -14,7 +14,7 @@ export async function getAuthToken(): Promise<string> {
 }
 
 export async function fetchWithAuth<T>(
-	fetchFn: (token: string) => Promise<Response>,
+	fetchFn: (token: string) => Promise<Response>
 ): Promise<T> {
 	const token = await getAuthToken();
 	const res = await fetchFn(token);
@@ -24,6 +24,19 @@ export async function fetchWithAuth<T>(
 			redirect("/login");
 		}
 		throw new Error(`API request failed: ${res.status} ${res.statusText}`);
+	}
+
+	// Handle 204 No Content and empty bodies gracefully
+	if (res.status === 204) {
+		return undefined as unknown as T;
+	}
+	const contentLength = res.headers.get("content-length");
+	if (contentLength === "0" || contentLength === null) {
+		try {
+			return (await res.json()) as T;
+		} catch {
+			return undefined as unknown as T;
+		}
 	}
 
 	return res.json();
@@ -42,7 +55,7 @@ export function createDemoResponse(type: true): {
 	message: "demo";
 };
 export function createDemoResponse(
-	type: "success" | true,
+	type: "success" | true
 ): { status: "success"; message: "demo" } | { success: true; message: "demo" } {
 	if (type === "success") {
 		return { status: "success" as const, message: "demo" };

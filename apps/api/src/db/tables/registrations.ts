@@ -7,7 +7,7 @@ export const registrations = sqliteTable("registrations", {
 	status: text("status").notNull(),
 	locale: text("locale").notNull().default("ja"),
 	createdAt: integer("created_at").notNull(),
-	updatedAt: integer("updated_at").notNull(),
+	updatedAt: integer("updated_at").notNull()
 });
 
 export type Registration = typeof registrations.$inferSelect;

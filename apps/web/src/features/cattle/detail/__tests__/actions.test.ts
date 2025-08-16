@@ -4,17 +4,17 @@ import { deleteCattleAction, updateCattleStatusAction } from "../actions";
 // Mock the cattle service
 vi.mock("@/services/cattleService", () => ({
 	DeleteCattle: vi.fn(),
-	updateCattleStatus: vi.fn(),
+	updateCattleStatus: vi.fn()
 }));
 
 // Mock JWT verification
 vi.mock("@/lib/jwt", () => ({
-	verifyAndGetUserId: vi.fn(),
+	verifyAndGetUserId: vi.fn()
 }));
 
 // Mock next/navigation
 vi.mock("next/navigation", () => ({
-	redirect: vi.fn(),
+	redirect: vi.fn()
 }));
 
 describe("deleteCattleAction", () => {
@@ -36,7 +36,7 @@ describe("deleteCattleAction", () => {
 
 		expect(DeleteCattle).toHaveBeenCalledWith(123);
 		expect(result).toEqual({
-			success: true,
+			success: true
 		});
 	});
 
@@ -50,7 +50,7 @@ describe("deleteCattleAction", () => {
 
 		expect(result).toEqual({
 			success: true,
-			message: "demo",
+			message: "demo"
 		});
 	});
 
@@ -67,11 +67,11 @@ describe("deleteCattleAction", () => {
 
 		expect(consoleSpy).toHaveBeenCalledWith(
 			"Failed to delete cattle:",
-			expect.any(Error),
+			expect.any(Error)
 		);
 		expect(result).toEqual({
 			success: false,
-			error: "牛の削除に失敗しました",
+			error: "牛の削除に失敗しました"
 		});
 
 		consoleSpy.mockRestore();
@@ -84,7 +84,7 @@ describe("deleteCattleAction", () => {
 
 		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
 		vi.mocked(DeleteCattle).mockRejectedValue(
-			new Error("API request failed: 401 Unauthorized"),
+			new Error("API request failed: 401 Unauthorized")
 		);
 
 		await deleteCattleAction(123);
@@ -122,7 +122,7 @@ describe("updateCattleStatusAction", () => {
 
 		expect(result).toEqual({
 			success: false,
-			error: "ステータスの更新に失敗しました",
+			error: "ステータスの更新に失敗しました"
 		});
 	});
 });

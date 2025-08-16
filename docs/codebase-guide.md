@@ -116,24 +116,34 @@ apps/web/
 ```
 apps/api/
 ├── 📁 src/
+│   ├── 📁 contexts/           # FDM（Functional Domain Modeling）
+│   │   ├── 📁 cattle/         # 牛管理コンテキスト
+│   │   │   ├── 📁 domain/     # ドメインロジック
+│   │   │   │   ├── 📁 codecs/ # 入出力変換
+│   │   │   │   ├── 📁 model/  # ドメインモデル
+│   │   │   │   └── 📁 services/ # ユースケース
+│   │   │   ├── 📁 infra/      # インフラ層
+│   │   │   │   ├── 📁 drizzle/ # DB実装
+│   │   │   │   └── 📁 mappers/ # データ変換
+│   │   │   ├── 📁 presentation/ # HTTP層
+│   │   │   ├── 📄 ports.ts    # インターフェース定義
+│   │   │   └── 📁 tests/      # テスト
+│   │   ├── 📁 auth/           # 認証コンテキスト
+│   │   ├── 📁 events/         # イベントコンテキスト
+│   │   └── 📁 alerts/         # アラートコンテキスト
 │   ├── 📁 routes/             # APIエンドポイント定義
 │   │   ├── 📄 index.ts        # ルートアグリゲーター
 │   │   ├── 📄 auth.ts         # 認証関連API
 │   │   ├── 📄 cattle.ts       # 牛管理API
 │   │   ├── 📄 events.ts       # イベント管理API
 │   │   └── 📄 health.ts       # ヘルスチェック
-│   ├── 📁 services/           # ビジネスロジック
-│   │   ├── 📄 authService.ts
-│   │   ├── 📄 cattleService.ts
-│   │   └── 📄 eventService.ts
-│   ├── 📁 repositories/       # データアクセス層
-│   │   ├── 📄 userRepository.ts
-│   │   ├── 📄 cattleRepository.ts
-│   │   └── 📄 eventRepository.ts
-│   ├── 📁 validators/         # バリデーション定義
-│   │   ├── 📄 authValidator.ts
-│   │   ├── 📄 cattleValidator.ts
-│   │   └── 📄 eventValidator.ts
+│   ├── 📁 shared/             # 共通機能
+│   │   ├── 📁 config/         # 設定・DI
+│   │   ├── 📁 http/           # HTTP共通処理
+│   │   ├── 📁 logging/        # 構造化ログ
+│   │   ├── 📁 ports/          # 共通インターフェース
+│   │   ├── 📁 types/          # 型安全ユーティリティ
+│   │   └── 📁 utils/          # 共通ユーティリティ
 │   ├── 📁 middleware/         # ミドルウェア
 │   │   ├── 📄 jwt.ts          # JWT認証
 │   │   └── 📄 cors.ts         # CORS設定
@@ -154,124 +164,254 @@ apps/api/
 └── 📄 tsconfig.json           # TypeScript設定
 ```
 
-### 🎯 レイヤードアーキテクチャ
+### 🎯 Functional Domain Modeling (FDM) アーキテクチャ
+
+#### 📁 `contexts/[domain]/` - ドメインコンテキスト
+- **役割**: ビジネスドメインの完全な実装
+- **構成**: 
+  - `domain/` - ドメインロジック（純粋関数）
+  - `infra/` - インフラ実装（DB、外部API）
+  - `presentation/` - HTTP表現層
+  - `ports.ts` - インターフェース定義
+  - `tests/` - ドメイン固有テスト
+
+#### 📁 `shared/` - 共通機能
+- **config/di.ts**: 依存注入設定
+- **http/route-helpers.ts**: 統一エラーハンドリング
+- **logging/logger.ts**: 構造化ログシステム
+- **types/safe-cast.ts**: 型安全キャスト
+- **utils/**: データ変換・リクエスト処理ユーティリティ
 
 #### 📁 `routes/` - APIエンドポイント層
 - **役割**: HTTPリクエスト/レスポンスの処理
 - **責務**: 
   - リクエストバリデーション
-  - レスポンス形式の統一
-  - エラーハンドリング
-- **パターン**: Honoアプリケーションとして実装
+  - 統一エラーハンドリング
+  - 構造化ログ出力
+- **パターン**: FDMユースケース呼び出し + 共通ヘルパー使用
 
-#### 📁 `services/` - ビジネスロジック層
-- **役割**: アプリケーションのビジネスルール
-- **責務**:
-  - 権限チェック
-  - データ変換・計算
-  - 複数リポジトリの協調
-- **依存**: Repositoryレイヤーのみに依存
+### 🏗️ FDM 実装パターン
 
-#### 📁 `repositories/` - データアクセス層
-- **役割**: データベースとの直接的なやり取り
-- **責務**:
-  - CRUD操作
-  - クエリ構築
-  - データマッピング
-- **依存**: データベース（Drizzle ORM）のみに依存
+#### Domain Layer（ドメイン層）
+```typescript
+// contexts/cattle/domain/services/create.ts
+export function createCattle(deps: CattleDeps) {
+  return async (input: CreateCattleInput): Promise<Result<CattleId, CattleError>> => {
+    // 純粋なビジネスロジック
+    const validation = validateCattleData(input);
+    if (!validation.ok) return validation;
+    
+    const cattleId = await deps.repo.create(input);
+    return { ok: true, value: cattleId };
+  };
+}
+```
 
-#### 📁 `validators/` - バリデーション層
-- **役割**: 入力データの検証
-- **実装**: Zodスキーマ
-- **共有**: フロントエンドと同じスキーマを使用可能
+#### Infrastructure Layer（インフラ層）
+```typescript
+// contexts/cattle/infra/drizzle/repo.ts
+export function makeCattleRepo(db: AnyD1Database): CattleRepoPort {
+  return {
+    async create(data: CreateCattleInput): Promise<CattleId> {
+      // DB実装の詳細
+    },
+    // その他のCRUD操作
+  };
+}
+```
+
+#### Presentation Layer（表現層）
+```typescript
+// routes/cattle.ts
+.post("/", zValidator("json", CreateCattleSchema), async (c) => {
+  const input = c.req.valid("json");
+  const deps = makeCattleDeps(c.env.DB, clock);
+  
+  return executeUseCase(c, async () => {
+    const result = await createCattle(deps)(input);
+    if (!result.ok) return result;
+    return { ok: true, value: { cattleId: result.value } };
+  });
+})
+```
 
 ## 🏗️ 新機能追加の手順
 
-### 📋 1. バックエンドAPI追加
+### 📋 1. バックエンドAPI追加（FDM パターン）
 
-#### Step 1: バリデーション定義
+#### Step 1: ドメインモデル・型定義
 ```typescript
-// apps/api/src/validators/newFeatureValidator.ts
+// apps/api/src/contexts/new-feature/domain/model/new-feature.ts
+import type { Brand } from "../../../shared/brand";
+
+export type NewFeatureId = Brand<number, "NewFeatureId">;
+export type UserId = Brand<number, "UserId">;
+
+export type NewFeature = {
+  id: NewFeatureId;
+  name: string;
+  description?: string;
+  ownerId: UserId;
+  createdAt: string;
+};
+```
+
+#### Step 2: 入出力コーデック定義
+```typescript
+// apps/api/src/contexts/new-feature/domain/codecs/input.ts
 import { z } from "zod";
 
-export const createNewFeatureSchema = z.object({
+export const createNewFeatureInputSchema = z.object({
   name: z.string().min(1, "名前は必須です"),
   description: z.string().optional(),
 });
 
-export type CreateNewFeatureInput = z.infer<typeof createNewFeatureSchema>;
+export type CreateNewFeatureInput = z.infer<typeof createNewFeatureInputSchema>;
 ```
 
-#### Step 2: リポジトリ層実装
+#### Step 3: Ports（インターフェース）定義
 ```typescript
-// apps/api/src/repositories/newFeatureRepository.ts
+// apps/api/src/contexts/new-feature/ports.ts
+import type { Result } from "../../shared/result";
+import type { NewFeature, NewFeatureId } from "./domain/model/new-feature";
+import type { CreateNewFeatureInput } from "./domain/codecs/input";
+
+export interface NewFeatureRepoPort {
+  create(data: CreateNewFeatureInput & { ownerId: UserId }): Promise<NewFeatureId>;
+  findById(id: NewFeatureId): Promise<NewFeature | null>;
+}
+
+export type NewFeatureDeps = {
+  repo: NewFeatureRepoPort;
+  clock: ClockPort;
+};
+
+export type NewFeatureError = 
+  | { type: "ValidationError"; message: string }
+  | { type: "NotFound"; message: string };
+```
+
+#### Step 4: ドメインサービス（ユースケース）実装
+```typescript
+// apps/api/src/contexts/new-feature/domain/services/create.ts
+import type { Result } from "../../../../shared/result";
+import type { NewFeatureDeps, NewFeatureError } from "../../ports";
+import type { CreateNewFeatureInput } from "../codecs/input";
+import type { NewFeatureId, UserId } from "../model/new-feature";
+
+export function createNewFeature(deps: NewFeatureDeps) {
+  return async (
+    ownerId: UserId,
+    input: CreateNewFeatureInput
+  ): Promise<Result<NewFeatureId, NewFeatureError>> => {
+    try {
+      // ビジネスロジック
+      if (input.name.length > 100) {
+        return {
+          ok: false,
+          error: { type: "ValidationError", message: "名前は100文字以内である必要があります" }
+        };
+      }
+
+      const newFeatureId = await deps.repo.create({
+        ...input,
+        ownerId
+      });
+
+      return { ok: true, value: newFeatureId };
+    } catch (error) {
+      return {
+        ok: false,
+        error: { type: "ValidationError", message: "作成に失敗しました" }
+      };
+    }
+  };
+}
+```
+
+#### Step 5: インフラ層（Repository）実装
+```typescript
+// apps/api/src/contexts/new-feature/infra/drizzle/repo.ts
 import { drizzle } from "drizzle-orm/d1";
 import type { AnyD1Database } from "drizzle-orm/d1";
-import { newFeatures } from "../db/schema";
+import { newFeatures } from "../../../../db/tables/new-features";
+import type { NewFeatureRepoPort } from "../../ports";
+import type { NewFeatureId, UserId } from "../../domain/model/new-feature";
 
-export async function createNewFeature(
-  db: AnyD1Database, 
-  data: CreateNewFeatureInput
-) {
+export function makeNewFeatureRepo(db: AnyD1Database): NewFeatureRepoPort {
   const dbInstance = drizzle(db);
-  return await dbInstance.insert(newFeatures).values(data);
+  
+  return {
+    async create(data) {
+      const [result] = await dbInstance
+        .insert(newFeatures)
+        .values({
+          name: data.name,
+          description: data.description,
+          ownerId: data.ownerId,
+          createdAt: new Date().toISOString()
+        })
+        .returning({ id: newFeatures.id });
+      
+      return result.id as NewFeatureId;
+    },
+
+    async findById(id) {
+      const result = await dbInstance
+        .select()
+        .from(newFeatures)
+        .where(eq(newFeatures.id, id))
+        .limit(1);
+      
+      return result[0] || null;
+    }
+  };
 }
 ```
 
-#### Step 3: サービス層実装
+#### Step 6: DI設定追加
 ```typescript
-// apps/api/src/services/newFeatureService.ts
-import { createNewFeature } from "../repositories/newFeatureRepository";
-import type { CreateNewFeatureInput } from "../validators/newFeatureValidator";
+// apps/api/src/shared/config/di.ts に追加
+import { makeNewFeatureRepo } from "../../contexts/new-feature/infra/drizzle/repo";
+import type { NewFeatureDeps } from "../../contexts/new-feature/ports";
 
-export async function createNewFeatureData(
-  db: AnyD1Database,
-  ownerUserId: number,
-  input: CreateNewFeatureInput
-) {
-  // ビジネスロジック（権限チェック等）
-  return await createNewFeature(db, { ...input, ownerUserId });
+export function makeNewFeatureDeps(db: AnyD1Database, clock: ClockPort): NewFeatureDeps {
+  return {
+    get repo() { return makeNewFeatureRepo(db); },
+    clock
+  };
 }
 ```
 
-#### Step 4: ルート層実装
+#### Step 7: ルート層実装
 ```typescript
-// apps/api/src/routes/newFeature.ts
+// apps/api/src/routes/new-feature.ts
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { jwtMiddleware } from "../middleware/jwt";
-import { createNewFeatureData } from "../services/newFeatureService";
-import { createNewFeatureSchema } from "../validators/newFeatureValidator";
+import { createNewFeature } from "../contexts/new-feature/domain/services/create";
+import { createNewFeatureInputSchema } from "../contexts/new-feature/domain/codecs/input";
+import { makeNewFeatureDeps } from "../shared/config/di";
+import { executeUseCase } from "../shared/http/route-helpers";
+import { extractUserId } from "../shared/types/safe-cast";
+import type { Bindings } from "../types";
 
 const app = new Hono<{ Bindings: Bindings }>()
   .use("*", jwtMiddleware)
-  .post("/", zValidator("json", createNewFeatureSchema), async (c) => {
+  .post("/", zValidator("json", createNewFeatureInputSchema), async (c) => {
     const input = c.req.valid("json");
-    const userId = c.get("jwtPayload").userId;
+    const userId = extractUserId(c.get("jwtPayload"));
     
-    try {
-      await createNewFeatureData(c.env.DB, userId, input);
-      return c.json({ message: "作成に成功しました" });
-    } catch (error) {
-      return c.json({ error: "作成に失敗しました" }, 500);
-    }
+    return executeUseCase(c, async () => {
+      const deps = makeNewFeatureDeps(c.env.DB, { nowIso: () => new Date().toISOString() });
+      const result = await createNewFeature(deps)(userId, input);
+      
+      if (!result.ok) return result;
+      return { ok: true, value: { newFeatureId: result.value } };
+    });
   });
 
 export default app;
-```
-
-#### Step 5: ルートを統合
-```typescript
-// apps/api/src/routes/index.ts に追加
-import newFeature from "./newFeature";
-
-export const createRoutes = (app: Hono<{ Bindings: Bindings }>) => {
-  return app
-    .basePath("/api/v1")
-    .use("*", corsMiddleware)
-    // ... 既存ルート
-    .route("/new-feature", newFeature);
-};
 ```
 
 ### 📋 2. フロントエンド機能追加
@@ -450,17 +590,35 @@ export default function NewFeatureNewPage() {
 ## 🚨 重要なルール・制約
 
 ### ✅ DO（推奨）
+
+#### バックエンド（API）
+- **FDM パターン**: Functional Domain Modeling の徹底
+- **Result 型**: エラーハンドリングにResult<T, E>を使用
+- **依存注入**: 統一されたDI設定の活用
+- **構造化ログ**: logger.tsを使用した構造化ログ出力
+- **型安全キャスト**: safe-cast.tsの型安全ユーティリティ使用
+- **統一エラーハンドリング**: executeUseCase等の共通ヘルパー使用
+
+#### フロントエンド（Web）
+- **Container/Presentational**: 責務分離パターンの徹底
+- **Server Components**: データ取得はServer Componentsで実行
 - **Server Actions**: フォーム処理はServer Actionsを使用
 - **型安全性**: Zodスキーマでバリデーション統一
-- **関心の分離**: Container/Presentational パターン遵守
-- **エラーハンドリング**: 統一的なエラーレスポンス形式
 - **認証**: 全APIエンドポイントでJWT検証
 
 ### ❌ DON'T（禁止）
-- **直接DB操作**: ServiceレイヤーからRepositoryを経由せずDB操作
+
+#### バックエンド（API）
+- **直接DB操作**: ドメインサービスからRepositoryを経由せずDB操作
+- **console.log**: 構造化ログではなくconsole.logの使用
+- **型キャスト**: 安全でない型キャスト（as any等）
+- **例外スロー**: Result型を使わずに例外をスロー
+
+#### フロントエンド（Web）
 - **クライアント状態**: 複雑な状態管理ライブラリの導入
 - **混在パターン**: Container内でのClient Component実装
 - **ハードコード**: 環境変数を使わずに設定値をハードコード
+- **直接API呼び出し**: Service層を経由せずにAPI呼び出し
 
 ## 🔍 よく使うファイルの場所
 
@@ -483,4 +641,20 @@ export default function NewFeatureNewPage() {
 
 ---
 
-**最終更新**: 2025年8月
+## 📚 関連ドキュメント
+
+### アーキテクチャドキュメント
+- **[API アーキテクチャガイド](./api-architecture.md)**: バックエンドFDMアーキテクチャの詳細
+- **[Web アーキテクチャガイド](./web-architecture.md)**: フロントエンドContainer/Presentationalアーキテクチャの詳細
+
+### 実装ガイドライン
+- **[API 実装ガイドライン](./api-implementation-guidelines.md)**: バックエンド開発の具体的規約
+- **[Web 実装ガイドライン](./web-implementation-guidelines.md)**: フロントエンド開発の具体的規約
+
+### その他
+- **[アーキテクチャ決定記録](./architecture-decisions.md)**: 重要な技術決定の記録
+
+---
+
+**最終更新**: 2025年8月  
+**バージョン**: 2.0（FDM + Container/Presentational 対応）

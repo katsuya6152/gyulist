@@ -10,7 +10,7 @@ export const runtime = "edge";
 
 const initialState = {
 	success: false,
-	message: "",
+	message: ""
 };
 
 export default function RegisterPage() {

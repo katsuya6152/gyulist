@@ -3,17 +3,17 @@ import { createEventAction } from "../actions";
 
 // Mock the event service
 vi.mock("@/services/eventService", () => ({
-	CreateEvent: vi.fn(),
+	CreateEvent: vi.fn()
 }));
 
 // Mock JWT verification
 vi.mock("@/lib/jwt", () => ({
-	verifyAndGetUserId: vi.fn(),
+	verifyAndGetUserId: vi.fn()
 }));
 
 // Mock next/navigation
 vi.mock("next/navigation", () => ({
-	redirect: vi.fn(),
+	redirect: vi.fn()
 }));
 
 describe("createEventAction", () => {
@@ -41,12 +41,12 @@ describe("createEventAction", () => {
 			cattleId: 1,
 			eventType: "ESTRUS",
 			eventDatetime: expect.stringMatching(/2024-01-15T\d{2}:30:00\.000Z/),
-			notes: "発情確認のテスト",
+			notes: "発情確認のテスト"
 		});
 
 		expect(result).toEqual({
 			status: "success",
-			message: "イベントが正常に登録されました",
+			message: "イベントが正常に登録されました"
 		});
 	});
 
@@ -65,7 +65,7 @@ describe("createEventAction", () => {
 
 		expect(result).toEqual({
 			status: "success",
-			message: "demo",
+			message: "demo"
 		});
 	});
 
@@ -88,12 +88,12 @@ describe("createEventAction", () => {
 			cattleId: 1,
 			eventType: "VACCINATION",
 			eventDatetime: expect.stringMatching(/2024-02-10T\d{2}:00:00\.000Z/),
-			notes: undefined,
+			notes: undefined
 		});
 
 		expect(result).toEqual({
 			status: "success",
-			message: "イベントが正常に登録されました",
+			message: "イベントが正常に登録されました"
 		});
 	});
 
@@ -158,7 +158,7 @@ describe("createEventAction", () => {
 		expect(consoleSpy).toHaveBeenCalledWith("Event creation error:", mockError);
 		expect(result).toEqual({
 			status: "error",
-			message: "イベントの登録中にエラーが発生しました",
+			message: "イベントの登録中にエラーが発生しました"
 		});
 
 		consoleSpy.mockRestore();
@@ -183,7 +183,7 @@ describe("createEventAction", () => {
 			cattleId: 1,
 			eventType: "CALVING",
 			eventDatetime: expect.stringMatching(/2024-12-25T\d{2}:59:00\.000Z/),
-			notes: undefined,
+			notes: undefined
 		});
 	});
 
@@ -201,7 +201,7 @@ describe("createEventAction", () => {
 			"VACCINATION",
 			"SHIPMENT",
 			"HOOF_TRIMMING",
-			"OTHER",
+			"OTHER"
 		];
 
 		for (const eventType of eventTypes) {
@@ -215,7 +215,7 @@ describe("createEventAction", () => {
 
 			expect(result).toEqual({
 				status: "success",
-				message: "イベントが正常に登録されました",
+				message: "イベントが正常に登録されました"
 			});
 		}
 	});

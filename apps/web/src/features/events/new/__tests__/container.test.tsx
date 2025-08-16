@@ -5,12 +5,12 @@ import { EventNewContainer } from "../container";
 
 // Mock the cattle service
 vi.mock("@/services/cattleService", () => ({
-	GetCattleDetail: vi.fn(),
+	GetCattleDetail: vi.fn()
 }));
 
 // Mock next/navigation
 vi.mock("next/navigation", () => ({
-	notFound: vi.fn(),
+	notFound: vi.fn()
 }));
 
 // Mock the presentational component
@@ -21,7 +21,7 @@ vi.mock("../presentational", () => ({
 			<div>Cattle Name: {cattle.name}</div>
 			<div>Ear Tag: {cattle.earTagNumber}</div>
 		</div>
-	),
+	)
 }));
 
 describe("EventNewContainer", () => {
@@ -41,7 +41,7 @@ describe("EventNewContainer", () => {
 			fatherCattleName: "父牛",
 			motherFatherCattleName: "母父牛",
 			motherGrandFatherCattleName: "母祖父牛",
-			motherGreatGrandFatherCattleName: "母曽祖父牛",
+			motherGreatGrandFatherCattleName: "母曽祖父牛"
 		},
 		breedingStatus: {
 			breedingStatusId: 1,
@@ -53,10 +53,10 @@ describe("EventNewContainer", () => {
 			isDifficultBirth: false,
 			breedingMemo: "",
 			createdAt: "2023-01-01T00:00:00Z",
-			updatedAt: null,
+			updatedAt: null
 		},
 		createdAt: "2023-01-01T00:00:00Z",
-		updatedAt: null,
+		updatedAt: null
 	} as GetCattleDetailResType;
 
 	beforeEach(() => {
@@ -96,7 +96,7 @@ describe("EventNewContainer", () => {
 		expect(GetCattleDetail).toHaveBeenCalledWith("1");
 		expect(consoleSpy).toHaveBeenCalledWith(
 			"Failed to fetch cattle data:",
-			mockError,
+			mockError
 		);
 		expect(notFound).toHaveBeenCalled();
 

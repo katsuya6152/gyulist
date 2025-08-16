@@ -2,31 +2,31 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // NOTE: Import actions dynamically in each test to ensure mocks take effect before module evaluation.
 
 vi.mock("next/headers", () => ({
-	cookies: vi.fn().mockResolvedValue({ get: () => ({ value: "token" }) }),
+	cookies: vi.fn().mockResolvedValue({ get: () => ({ value: "token" }) })
 }));
 
 vi.mock("next/navigation", () => ({
-	redirect: vi.fn(),
+	redirect: vi.fn()
 }));
 
 vi.mock("@/lib/api-client", () => ({
 	createDemoResponse: vi.fn((success: boolean) => ({
 		success,
-		message: "demo" as const,
+		message: "demo" as const
 	})),
-	isDemo: vi.fn(() => false),
+	isDemo: vi.fn(() => false)
 }));
 
 vi.mock("@/lib/jwt", () => ({
-	verifyAndGetUserId: vi.fn(async () => 2),
+	verifyAndGetUserId: vi.fn(async () => 2)
 }));
 
 vi.mock("@/services/themeService", () => ({
-	updateTheme: vi.fn(async () => {}),
+	updateTheme: vi.fn(async () => {})
 }));
 
 vi.mock("../../../app/(auth)/login/actions", () => ({
-	logoutAction: vi.fn(async () => {}),
+	logoutAction: vi.fn(async () => {})
 }));
 
 describe("settings actions", () => {
@@ -50,7 +50,7 @@ describe("settings actions", () => {
 
 		type CookieValue = { name?: string; value?: string } | undefined;
 		vi.mocked(cookies).mockResolvedValue({
-			get: (_name?: string): CookieValue => undefined,
+			get: (_name?: string): CookieValue => undefined
 		} as unknown as Awaited<ReturnType<typeof cookies>>);
 
 		const { updateThemeAction } = await import("../actions");
@@ -65,7 +65,7 @@ describe("settings actions", () => {
 		vi.mocked(isDemo).mockReturnValue(true);
 		vi.mocked(createDemoResponse).mockReturnValue({
 			success: true,
-			message: "demo",
+			message: "demo"
 		});
 
 		const { updateThemeAction } = await import("../actions");
@@ -81,7 +81,7 @@ describe("settings actions", () => {
 		const res = await updateThemeAction("dark");
 		expect(res).toEqual({
 			success: false,
-			error: "テーマの更新に失敗しました",
+			error: "テーマの更新に失敗しました"
 		});
 	});
 

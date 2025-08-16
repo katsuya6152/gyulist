@@ -1,7 +1,7 @@
 import { sha256 } from "@oslojs/crypto/sha2";
 import {
 	encodeBase32LowerCaseNoPadding,
-	encodeHexLowerCase,
+	encodeHexLowerCase
 } from "@oslojs/encoding";
 import { eq } from "drizzle-orm";
 import type { AnyD1Database } from "drizzle-orm/d1";
@@ -37,20 +37,20 @@ export function generateSessionToken(): string {
 export async function createSession(
 	dbInstance: AnyD1Database,
 	token: string,
-	userId: number,
+	userId: number
 ): Promise<Session> {
 	const db = drizzle(dbInstance);
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 	const session: Session = {
 		id: sessionId,
 		userId,
-		expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30日
+		expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30) // 30日
 	};
 
 	await db.insert(sessions).values({
 		id: session.id,
 		userId: session.userId,
-		expiresAt: session.expiresAt,
+		expiresAt: session.expiresAt
 	});
 
 	return session;
@@ -58,7 +58,7 @@ export async function createSession(
 
 export async function validateSessionToken(
 	dbInstance: AnyD1Database,
-	token: string,
+	token: string
 ): Promise<SessionValidationResult> {
 	const db = drizzle(dbInstance);
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
@@ -68,15 +68,15 @@ export async function validateSessionToken(
 			session: {
 				id: sessions.id,
 				userId: sessions.userId,
-				expiresAt: sessions.expiresAt,
+				expiresAt: sessions.expiresAt
 			},
 			user: {
 				id: users.id,
 				userName: users.userName,
 				email: users.email,
 				avatarUrl: users.avatarUrl,
-				oauthProvider: users.oauthProvider,
-			},
+				oauthProvider: users.oauthProvider
+			}
 		})
 		.from(sessions)
 		.innerJoin(users, eq(sessions.userId, users.id))
@@ -108,21 +108,21 @@ export async function validateSessionToken(
 		session: {
 			id: session.id,
 			userId: session.userId,
-			expiresAt,
+			expiresAt
 		},
 		user: {
 			id: user.id,
 			userName: user.userName,
 			email: user.email,
 			avatarUrl: user.avatarUrl,
-			oauthProvider: user.oauthProvider,
-		},
+			oauthProvider: user.oauthProvider
+		}
 	};
 }
 
 export async function invalidateSession(
 	dbInstance: AnyD1Database,
-	sessionId: string,
+	sessionId: string
 ): Promise<void> {
 	const db = drizzle(dbInstance);
 	await db.delete(sessions).where(eq(sessions.id, sessionId));
@@ -131,7 +131,7 @@ export async function invalidateSession(
 export function createSessionCookie(
 	token: string,
 	expiresAt: Date,
-	isProduction = false,
+	isProduction = false
 ) {
 	return {
 		name: "session",
@@ -141,8 +141,8 @@ export function createSessionCookie(
 			secure: isProduction,
 			sameSite: "lax" as const,
 			expires: expiresAt,
-			path: "/",
-		},
+			path: "/"
+		}
 	};
 }
 
@@ -155,7 +155,7 @@ export function createBlankSessionCookie(isProduction = false) {
 			secure: isProduction,
 			sameSite: "lax" as const,
 			maxAge: 0,
-			path: "/",
-		},
+			path: "/"
+		}
 	};
 }

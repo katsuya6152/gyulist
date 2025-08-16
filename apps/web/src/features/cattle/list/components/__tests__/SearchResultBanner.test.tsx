@@ -17,14 +17,14 @@ describe("SearchResultBanner", () => {
 			<SearchResultBanner
 				searchTerm={searchTerm}
 				onClearSearch={mockOnClearSearch}
-			/>,
+			/>
 		);
 
 		// 検索ワードが表示されていることを確認
 		expect(screen.getByText(searchTerm)).toBeInTheDocument();
 		expect(screen.getByText(searchTerm)).toHaveClass(
 			"font-medium",
-			"text-foreground",
+			"text-foreground"
 		);
 
 		// クリアボタンが表示されていることを確認
@@ -36,7 +36,7 @@ describe("SearchResultBanner", () => {
 			<SearchResultBanner
 				searchTerm="テスト"
 				onClearSearch={mockOnClearSearch}
-			/>,
+			/>
 		);
 
 		// クリアボタンをクリック
@@ -49,7 +49,7 @@ describe("SearchResultBanner", () => {
 
 	it("should display clear button correctly", () => {
 		render(
-			<SearchResultBanner searchTerm="牛" onClearSearch={mockOnClearSearch} />,
+			<SearchResultBanner searchTerm="牛" onClearSearch={mockOnClearSearch} />
 		);
 
 		const clearButton = screen.getByText("検索をクリア");
@@ -62,7 +62,7 @@ describe("SearchResultBanner", () => {
 
 	it("should handle empty search term", () => {
 		render(
-			<SearchResultBanner searchTerm="" onClearSearch={mockOnClearSearch} />,
+			<SearchResultBanner searchTerm="" onClearSearch={mockOnClearSearch} />
 		);
 
 		// クリアボタンは常に表示される
@@ -77,7 +77,7 @@ describe("SearchResultBanner", () => {
 				<SearchResultBanner
 					searchTerm={searchTerm}
 					onClearSearch={mockOnClearSearch}
-				/>,
+				/>
 			);
 
 			expect(screen.getByText(searchTerm)).toBeInTheDocument();

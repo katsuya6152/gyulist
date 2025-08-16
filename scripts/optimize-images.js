@@ -10,27 +10,27 @@ const imagesToOptimize = [
 		input: "hero-bg-pc.png",
 		outputs: [
 			{ name: "hero-bg-pc.webp", quality: 80, width: 1920 },
-			{ name: "hero-bg-pc@2x.webp", quality: 80, width: 3840 },
-		],
+			{ name: "hero-bg-pc@2x.webp", quality: 80, width: 3840 }
+		]
 	},
 	{
 		input: "hero-bg-sp.png",
 		outputs: [
 			{ name: "hero-bg-sp.webp", quality: 80, width: 768 },
-			{ name: "hero-bg-sp@2x.webp", quality: 80, width: 1536 },
-		],
+			{ name: "hero-bg-sp@2x.webp", quality: 80, width: 1536 }
+		]
 	},
 	{
 		input: "app-shot.png",
 		outputs: [
 			{ name: "app-shot.webp", quality: 85 },
-			{ name: "app-shot@2x.webp", quality: 85, width: 1200 },
-		],
+			{ name: "app-shot@2x.webp", quality: 85, width: 1200 }
+		]
 	},
 	{
 		input: "icon-horizontal.png",
-		outputs: [{ name: "icon-horizontal.webp", quality: 90 }],
-	},
+		outputs: [{ name: "icon-horizontal.webp", quality: 90 }]
+	}
 ];
 
 async function optimizeImages() {
@@ -55,7 +55,7 @@ async function optimizeImages() {
 				if (output.width) {
 					sharpInstance = sharpInstance.resize(output.width, null, {
 						withoutEnlargement: true,
-						fit: "inside",
+						fit: "inside"
 					});
 				}
 
@@ -71,7 +71,7 @@ async function optimizeImages() {
 				).toFixed(1);
 
 				console.log(
-					`  ✅ ${output.name} (${(stats.size / 1024).toFixed(1)}KB, ${savings}% 削減)`,
+					`  ✅ ${output.name} (${(stats.size / 1024).toFixed(1)}KB, ${savings}% 削減)`
 				);
 			} catch (error) {
 				console.error(`  ❌ ${output.name} の処理に失敗:`, error.message);

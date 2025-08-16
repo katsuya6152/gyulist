@@ -18,7 +18,7 @@ export const formatFilterDate = (date: Date) => {
 // イベントデータをフィルタリングする関数
 export const filterEventsByDate = (
 	events: Event[],
-	targetDate: Date,
+	targetDate: Date
 ): Event[] => {
 	return events
 		.filter((event) => {
@@ -32,7 +32,7 @@ export const filterEventsByDate = (
 		.sort(
 			(a, b) =>
 				new Date(b.eventDatetime).getTime() -
-				new Date(a.eventDatetime).getTime(),
+				new Date(a.eventDatetime).getTime()
 		);
 };
 
@@ -40,7 +40,7 @@ export const filterEventsByDate = (
 export const sortAllEvents = (events: Event[]): Event[] => {
 	return [...events].sort(
 		(a, b) =>
-			new Date(b.eventDatetime).getTime() - new Date(a.eventDatetime).getTime(),
+			new Date(b.eventDatetime).getTime() - new Date(a.eventDatetime).getTime()
 	);
 };
 
@@ -54,6 +54,6 @@ export const prepareFilterEventData = (events: Event[]) => {
 		today: filterEventsByDate(events, today),
 		tomorrow: filterEventsByDate(events, tomorrow),
 		dayAfterTomorrow: filterEventsByDate(events, dayAfterTomorrow),
-		all: sortAllEvents(events),
+		all: sortAllEvents(events)
 	};
 };

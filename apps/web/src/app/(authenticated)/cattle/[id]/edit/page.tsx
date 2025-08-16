@@ -3,7 +3,7 @@ import CattleEditContainer from "@/features/cattle/edit/container";
 export const runtime = "edge";
 
 export default async function CattleEditPage({
-	params,
+	params
 }: {
 	params: Promise<{ id: string }>;
 }) {

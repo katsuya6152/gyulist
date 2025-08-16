@@ -48,7 +48,7 @@ export const DateFilterButtons = memo(
 				</output>
 			)}
 		</div>
-	),
+	)
 );
 
 DateFilterButtons.displayName = "DateFilterButtons";

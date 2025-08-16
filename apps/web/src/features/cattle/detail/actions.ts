@@ -16,7 +16,7 @@ export async function deleteCattleAction(cattleId: number) {
 		await DeleteCattle(cattleId);
 
 		return {
-			success: true,
+			success: true
 		};
 	} catch (error) {
 		console.error("Failed to delete cattle:", error);
@@ -28,7 +28,7 @@ export async function deleteCattleAction(cattleId: number) {
 
 		return {
 			success: false,
-			error: "牛の削除に失敗しました",
+			error: "牛の削除に失敗しました"
 		};
 	}
 }
@@ -36,7 +36,7 @@ export async function deleteCattleAction(cattleId: number) {
 export async function updateCattleStatusAction(
 	cattleId: number,
 	status: CattleStatus,
-	reason?: string,
+	reason?: string
 ) {
 	try {
 		const userId = await verifyAndGetUserId();
@@ -53,7 +53,7 @@ export async function updateCattleStatusAction(
 		}
 		return {
 			success: false,
-			error: "ステータスの更新に失敗しました",
+			error: "ステータスの更新に失敗しました"
 		};
 	}
 }

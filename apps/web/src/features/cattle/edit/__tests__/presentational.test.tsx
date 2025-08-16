@@ -7,8 +7,8 @@ import CattleEditPresentation from "../presentational";
 const mockPush = vi.fn();
 vi.mock("next/navigation", () => ({
 	useRouter: () => ({
-		push: mockPush,
-	}),
+		push: mockPush
+	})
 }));
 
 // Mock useActionState
@@ -16,7 +16,7 @@ vi.mock("react", async () => {
 	const actual = await vi.importActual("react");
 	return {
 		...actual,
-		useActionState: () => [null, vi.fn(), false],
+		useActionState: () => [null, vi.fn(), false]
 	};
 });
 
@@ -48,7 +48,7 @@ describe("CattleEditPresentation", () => {
 		motherInfo: null,
 		breedingStatus: null,
 		breedingSummary: null,
-		events: [],
+		events: []
 	};
 
 	it("should render form with initial values", () => {
@@ -111,12 +111,12 @@ describe("CattleEditPresentation", () => {
 				fatherCattleName: "父牛名",
 				motherFatherCattleName: "母の父牛名",
 				motherGrandFatherCattleName: "母の祖父牛名",
-				motherGreatGrandFatherCattleName: "母の曾祖父牛名",
-			},
+				motherGreatGrandFatherCattleName: "母の曾祖父牛名"
+			}
 		};
 
 		render(
-			<CattleEditPresentation cattle={cattleWithBloodline} error={undefined} />,
+			<CattleEditPresentation cattle={cattleWithBloodline} error={undefined} />
 		);
 
 		// 血統情報のフィールドを確認
@@ -124,7 +124,7 @@ describe("CattleEditPresentation", () => {
 		expect(screen.getByLabelText("母の父牛名")).toHaveValue("母の父牛名");
 		expect(screen.getByLabelText("母の祖父牛名")).toHaveValue("母の祖父牛名");
 		expect(screen.getByLabelText("母の曾祖父牛名")).toHaveValue(
-			"母の曾祖父牛名",
+			"母の曾祖父牛名"
 		);
 	});
 
@@ -136,8 +136,8 @@ describe("CattleEditPresentation", () => {
 				expectedCalvingDate: "2024-06-01",
 				scheduledPregnancyCheckDate: "2024-05-01",
 				breedingMemo: "繁殖メモ",
-				isDifficultBirth: false,
-			},
+				isDifficultBirth: false
+			}
 		};
 
 		render(<CattleEditPresentation cattle={adultCattle} error={undefined} />);

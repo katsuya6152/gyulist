@@ -20,7 +20,7 @@ describe("JWT Middleware", () => {
 
 		mockContext = {
 			req: {
-				header: vi.fn(),
+				header: vi.fn()
 			} as unknown as Context["req"],
 			env: {
 				JWT_SECRET: "test-secret",
@@ -28,10 +28,10 @@ describe("JWT Middleware", () => {
 				ENVIRONMENT: "test",
 				APP_URL: "http://localhost:3000",
 				GOOGLE_CLIENT_ID: "test-client-id",
-				GOOGLE_CLIENT_SECRET: "test-client-secret",
+				GOOGLE_CLIENT_SECRET: "test-client-secret"
 			},
 			json: vi.fn().mockReturnValue("json-response"),
-			set: vi.fn(),
+			set: vi.fn()
 		} as Partial<Context>;
 	});
 
@@ -53,7 +53,7 @@ describe("JWT Middleware", () => {
 			expect(result).toBe("json-response");
 			expect(mockContext.json).toHaveBeenCalledWith(
 				{ error: "No token provided" },
-				401,
+				401
 			);
 			expect(mockNext).not.toHaveBeenCalled();
 		});
@@ -68,7 +68,7 @@ describe("JWT Middleware", () => {
 			expect(result).toBe("json-response");
 			expect(mockContext.json).toHaveBeenCalledWith(
 				{ error: "No token provided" },
-				401,
+				401
 			);
 			expect(mockNext).not.toHaveBeenCalled();
 		});
@@ -83,7 +83,7 @@ describe("JWT Middleware", () => {
 			expect(result).toBe("json-response");
 			expect(mockContext.json).toHaveBeenCalledWith(
 				{ error: "No token provided" },
-				401,
+				401
 			);
 			expect(mockNext).not.toHaveBeenCalled();
 		});
@@ -122,7 +122,7 @@ describe("JWT Middleware", () => {
 			expect(result).toBe("json-response");
 			expect(mockContext.json).toHaveBeenCalledWith(
 				{ error: "Invalid token format" },
-				401,
+				401
 			);
 			expect(mockNext).not.toHaveBeenCalled();
 		});
@@ -137,7 +137,7 @@ describe("JWT Middleware", () => {
 			expect(result).toBe("json-response");
 			expect(mockContext.json).toHaveBeenCalledWith(
 				{ error: "Invalid token format" },
-				401,
+				401
 			);
 			expect(mockNext).not.toHaveBeenCalled();
 		});
@@ -170,7 +170,7 @@ describe("JWT Middleware", () => {
 			expect(result).toBe("json-response");
 			expect(mockContext.json).toHaveBeenCalledWith(
 				{ error: "Token expired" },
-				401,
+				401
 			);
 			expect(mockNext).not.toHaveBeenCalled();
 		});
@@ -188,7 +188,7 @@ describe("JWT Middleware", () => {
 			expect(result).toBe("json-response");
 			expect(mockContext.json).toHaveBeenCalledWith(
 				{ error: "Invalid token payload" },
-				401,
+				401
 			);
 			expect(mockNext).not.toHaveBeenCalled();
 		});
@@ -205,7 +205,7 @@ describe("JWT Middleware", () => {
 
 			expect(mockContext.set).toHaveBeenCalledWith(
 				"jwtPayload",
-				payloadWithoutExp,
+				payloadWithoutExp
 			);
 			expect(mockNext).toHaveBeenCalled();
 		});
@@ -221,7 +221,7 @@ describe("JWT Middleware", () => {
 			expect(result).toBe("json-response");
 			expect(mockContext.json).toHaveBeenCalledWith(
 				{ error: "Invalid token" },
-				401,
+				401
 			);
 			expect(consoleSpy).toHaveBeenCalledTimes(2); // Both JWT and OAuth errors logged
 		});
@@ -239,7 +239,7 @@ describe("JWT Middleware", () => {
 			expect(result).toBe("json-response");
 			expect(mockContext.json).toHaveBeenCalledWith(
 				{ error: "Invalid token" },
-				401,
+				401
 			);
 			expect(consoleSpy).toHaveBeenCalledTimes(2);
 		});
@@ -247,7 +247,7 @@ describe("JWT Middleware", () => {
 		it("should handle OAuth token with userId as 0", async () => {
 			const payloadWithZeroUserId = {
 				userId: 0,
-				exp: Date.now() / 1000 + 3600,
+				exp: Date.now() / 1000 + 3600
 			};
 
 			(
@@ -261,14 +261,14 @@ describe("JWT Middleware", () => {
 			expect(result).toBe("json-response");
 			expect(mockContext.json).toHaveBeenCalledWith(
 				{ error: "Invalid token payload" },
-				401,
+				401
 			);
 		});
 
 		it("should handle OAuth token with string userId", async () => {
 			const payloadWithStringUserId = {
 				userId: "123",
-				exp: Date.now() / 1000 + 3600,
+				exp: Date.now() / 1000 + 3600
 			};
 
 			(
@@ -280,7 +280,7 @@ describe("JWT Middleware", () => {
 
 			expect(mockContext.set).toHaveBeenCalledWith(
 				"jwtPayload",
-				payloadWithStringUserId,
+				payloadWithStringUserId
 			);
 			expect(mockNext).toHaveBeenCalled();
 		});
@@ -296,7 +296,7 @@ describe("JWT Middleware", () => {
 			expect(result).toBe("json-response");
 			expect(mockContext.json).toHaveBeenCalledWith(
 				{ error: "Invalid token format" },
-				401,
+				401
 			);
 		});
 
@@ -328,14 +328,14 @@ describe("JWT Middleware", () => {
 			expect(result).toBe("json-response");
 			expect(mockContext.json).toHaveBeenCalledWith(
 				{ error: "Invalid token" },
-				401,
+				401
 			);
 		});
 
 		it("should handle payload with null userId", async () => {
 			const payloadWithNullUserId = {
 				userId: null,
-				exp: Date.now() / 1000 + 3600,
+				exp: Date.now() / 1000 + 3600
 			};
 
 			(
@@ -348,7 +348,7 @@ describe("JWT Middleware", () => {
 			expect(result).toBe("json-response");
 			expect(mockContext.json).toHaveBeenCalledWith(
 				{ error: "Invalid token payload" },
-				401,
+				401
 			);
 		});
 
@@ -359,7 +359,7 @@ describe("JWT Middleware", () => {
 				mockContext.req as unknown as { header: ReturnType<typeof vi.fn> }
 			).header.mockReturnValue("Bearer header.payload.signature");
 			vi.mocked(atob).mockReturnValue(
-				JSON.stringify(payloadWithUndefinedUserId),
+				JSON.stringify(payloadWithUndefinedUserId)
 			);
 
 			const result = await jwtMiddleware(mockContext as Context, mockNext);
@@ -367,7 +367,7 @@ describe("JWT Middleware", () => {
 			expect(result).toBe("json-response");
 			expect(mockContext.json).toHaveBeenCalledWith(
 				{ error: "Invalid token payload" },
-				401,
+				401
 			);
 		});
 	});
