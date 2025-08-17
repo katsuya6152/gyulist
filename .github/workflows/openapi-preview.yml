@@ -76,14 +76,15 @@ jobs:
           <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
           <script>
             window.onload = () => {
-              window.ui = SwaggerUIBundle({ url: '/openapi.json', dom_id: '#swagger-ui' });
+              // Use relative path so it works under project pages path
+              window.ui = SwaggerUIBundle({ url: 'openapi.json', dom_id: '#swagger-ui' });
             };
           </script>
           </body>
           </html>
           HTML
-          # move openapi.json to top-level for serving
-          mv docs/openapi.json public/openapi.json
+          # place openapi.json beside the swagger index for reliable relative loading
+          mv docs/openapi.json public/swagger/openapi.json
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
