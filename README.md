@@ -1,272 +1,136 @@
-# 🐄 Gyulist - 牛群管理システム
+# 🐄 Gyulist — 牛群管理システム
 
-URL: https://gyulist.com
+概要: 畜産農家の「牛の個体・繁殖・イベント管理」を、型安全なフルスタックで高速・確実に。
 
-Gyulistは、畜産農家向けの包括的な牛群管理システムです。個体識別、血統管理、繁殖情報の追跡、健康状態の記録など、牛の一生をデジタルで管理できます。
+[![Website](https://img.shields.io/badge/Website-gyulist.com-2ea44f?logo=vercel&logoColor=white)](https://gyulist.com)
+[![Swagger UI](https://img.shields.io/badge/API-Swagger%20UI-85EA2D?logo=swagger&logoColor=white)](https://katsuya6152.github.io/gyulist/swagger/)
+[![CI](https://github.com/katsuya6152/gyulist/actions/workflows/openapi-preview.yml/badge.svg)](https://github.com/katsuya6152/gyulist/actions/workflows/openapi-preview.yml)
 
-## ✨ 主な機能
+## ⚡ TL;DR（要約）
+- 技術スタック: Next.js 15 / Hono / Cloudflare Workers & Pages / D1(SQLite) / Drizzle / TypeScript / pnpm / Biome
+- コア機能: 個体CRUD・検索/絞り込み・イベント登録・認証（JWT/Cookie）・KPIダッシュボード
+- ドキュメント/デモ:
+  - デモ：https://gyulist.com/
+  - Swagger UI: https://katsuya6152.github.io/gyulist/swagger/
+  - アーキテクチャ/実装ガイド: docs/ 配下（[索引](./docs/README.md)）
 
-### 🐮 牛群管理
-- **個体登録・編集**: 個体識別番号、耳標番号、名号などの基本情報管理
-- **血統情報**: 父牛、母の父牛、母の祖父牛、母の曾祖父牛の血統追跡
-- **成長段階管理**: 仔牛、育成牛、肥育牛、初産牛、経産牛の段階別管理
-- **年齢自動計算**: 生年月日から年齢、月齢、日齢を自動計算
+## 🔍 What’s this（問題・背景）
+- 想定ユーザー: 畜産農家・飼養管理者・出荷管理担当
+- 背景課題: 紙台帳/Excel管理の限界（入力負荷・見落とし・集計遅延）
+- 解決アプローチ: 型安全なWebアプリで「統一入力」「自動計算」「検索・通知」「KPI可視化」を提供
+- 成果指標: 入力時間短縮、予定/リスク見落とし削減、記録の完全性・一貫性向上
 
-### 🔄 繁殖管理
-- **繁殖状態追跡**: 産次、分娩予定日、妊娠鑑定予定日の自動計算
-- **繁殖統計**: 累計種付回数、受胎率、難産回数などの統計情報
-- **繁殖メモ**: 繁殖に関する詳細なメモ記録
-- **難産判定**: 前回出産の難産・安産判定
+## ✨ ハイライト（3点）
+- 型安全フルスタック（Zod/InferResponseType + Hono RPC的開発体験）
+- 低運用コスト（Cloudflare Pages/Workers/D1 でスケーラブル＆軽量）
+- 高速検索UX（カーソル・フィルタ・ソート最適化、サマリ/KPI表示）
 
-### 📊 データ分析
-- **自動計算機能**: 生年月日、イベントデータに基づく自動計算
-- **統計情報**: 繁殖成績、健康状態の統計分析
-- **検索・フィルタ**: 成長段階、性別、年齢による検索機能
+## 🏗️ アーキテクチャ概要
+- フロント（Next.js）→ API（Hono/Workers）→ DB（D1/Drizzle）
+- 通知（将来拡張）: Email/LINE/PWA を予定
+- モノレポ構成: 型/スキーマ共有・再利用性向上・一貫したCI
 
-## 🏗️ アーキテクチャ・技術スタック
+## 📁 ディレクトリ構成
+```
+apps/
+  web/   # Next.js (App Router)
+  api/   # Hono + Cloudflare Workers, D1/Drizzle
+docs/
+  api-spec/  # 内部処理要件中心のAPI仕様
+  ...        # アーキテクチャ/実装/DB ガイド
+```
 
-### フロントエンド (Web)
-- **Framework**: Next.js 15 (App Router)
-- **Architecture**: Container/Presentational パターン
-- **UI**: Tailwind CSS + shadcn/ui
-- **Form**: Conform + Zod (型安全なフォーム管理)
-- **State**: React Server Components + Server Actions
-- **Testing**: Vitest + React Testing Library + Playwright
-- **Deployment**: Cloudflare Pages
+## 🧰 技術スタック（採用理由）
+- フロント: Next.js 15（App Router/Server Components/Server Actions）— SSR最適化
+- API: Hono — 軽量・高速、型安全なエンドポイント定義
+- DB: Cloudflare D1 + Drizzle — Edge環境適合、型安全クエリ
+- インフラ: Cloudflare Pages/Workers — 簡易デプロイ、低運用コスト
+- 品質: TypeScript strict / Biome / Vitest / Playwright — 品質と開発速度両立
+  - トレードオフ: D1機能制約, React/Nextの最新機能に伴うライブラリ互換注意
 
-### バックエンド (API)
-- **Framework**: Hono (軽量Webフレームワーク)
-- **Architecture**: Functional Domain Modeling (FDM)
-- **Database**: Cloudflare D1 (SQLite)
-- **ORM**: Drizzle ORM
-- **Authentication**: JWT
-- **Logging**: 構造化ログシステム
-- **Error Handling**: Result型 + 統一エラーハンドリング
-- **Testing**: Vitest + 契約テスト
-- **Deployment**: Cloudflare Workers
+## ✅ 機能一覧
+- 個体CRUD・検索/絞り込み/ソート/カーソル形式ページング
+- イベント登録（型・時刻・整合チェック）
+- 認証（Cookie-JWT）
+- KPI（繁殖指標）とアラート
+- 管理用CSVエクスポート
 
-### 開発・運用
-- **Monorepo**: pnpm Workspaces
-- **Code Quality**: Biome (フォーマット・リント)
-- **Type Safety**: TypeScript strict mode
-- **CI/CD**: GitHub Actions
-- **Documentation**: 包括的なアーキテクチャドキュメント
+## 💡 実装の見どころ / 工夫
+- 型共有と境界バリデーション（Zod / @hono/zod-openapi / zValidator）
+- `executeUseCase` による一貫したエラーマッピングとログ
+- CORS/Cookie運用（SameSite/secure）とPages/Workers両立
+- 関数ドメインモデリング + ヘキサゴナルアーキテクチャ（ドメイン純関数 + ポート/アダプタ + Mappers）
 
-### インフラストラクチャ
-- **Hosting**: Cloudflare Pages (フロントエンド)
-- **API**: Cloudflare Workers (バックエンド)
-- **Database**: Cloudflare D1 (SQLite)
-- **Monitoring**: 構造化ログ + エラートラッキング
+## 🙋‍♂️ 担当範囲（個人開発）
+- 企画 / 設計 / 実装（Web/API/DB） / インフラ / CI/CD / デザイン
 
 ## 🚀 クイックスタート
-
-### 前提条件
-- Node.js 20以上
-- pnpm
-- Cloudflareアカウント
-- Wrangler CLI
-
-### 1. リポジトリのクローン
-```bash
-git clone
-cd gyulist
-```
-
-### 2. 依存関係のインストール
+前提: Node.js 20+, pnpm, Cloudflare アカウント, Wrangler
 ```bash
 pnpm install
-```
-
-### 3. 環境変数の設定
-
-#### API (apps/api)
-```bash
+# API
 cd apps/api
-cp .env.example .env.local
+pnpm migrate:local
+pnpm dev
+# Web
+cd ../web
+pnpm dev
 ```
+主要スクリプトはリポジトリ各 `package.json` を参照
 
-必要な環境変数:
-- `CLOUDFLARE_API_TOKEN`
-- `CLOUDFLARE_ACCOUNT_ID`
-- `JWT_SECRET`
+## 🔧 環境変数
+- API: `JWT_SECRET`, `TURNSTILE_SECRET_KEY`, D1接続系（wrangler設定）
+- Web: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
+- 本番/ローカルで SameSite/secure の挙動を切替
 
-#### Web (apps/web)
+## 🧪 APIサンプル
 ```bash
-cd apps/web
-cp .env.example .env.local
+# healthcheck
+curl -s https://<api-domain>/api/v1/health
+
+# cattle 検索（JWT）
+curl -H "Authorization: Bearer <token>" \
+  "https://<api-domain>/api/v1/cattle?limit=20&sort_by=id"
+
+# cattle 登録
+curl -X POST -H "Authorization: Bearer <token>" -H "Content-Type: application/json" \
+  -d '{"identificationNumber":123,"earTagNumber":{"number":456},"name":"テスト牛"}' \
+  https://<api-domain>/api/v1/cattle
+
+# cattle 削除
+curl -X DELETE -H "Authorization: Bearer <token>" \
+  https://<api-domain>/api/v1/cattle/1
+
+# events 登録
+curl -X POST -H "Authorization: Bearer <token>" -H "Content-Type: application/json" \
+  -d '{"cattleId":1,"eventType":"CALVING","eventDatetime":"2025-01-01T00:00:00Z"}' \
+  https://<api-domain>/api/v1/events
 ```
+- OpenAPI/Swagger UI: https://katsuya6152.github.io/gyulist/swagger/
 
-必要な環境変数:
-- `NEXT_PUBLIC_API_URL`
-- `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
+## 🔐 セキュリティ / 認証
+- Cookie: httpOnly / secure / SameSite(None|Lax) を環境に応じて設定
+- CORS: 既定の許可ドメイン/メソッドで制御
+- エラーハンドリング: Result型 + 統一マッパー、予期せぬ例外は構造化ログ
+- リトライ: クライアント側（サービス層）で段階的に実装
 
-### 4. データベースのセットアップ
-```bash
-cd apps/api
-pnpm run migrate:local  # ローカル開発用
-pnpm run migrate:remote # 本番環境用
-```
+## 🧷 テスト / 品質
+- Biome（lint/format）
+- Vitest / React Testing Library / Playwright（E2E）
+- GitHub Actions: lint / build / test / OpenAPI生成 & Pages公開
 
-### 5. 開発サーバーの起動
+## 🚀 デプロイ
+- Web: Cloudflare Pages（カスタムドメイン）
+- API: Cloudflare Workers（Custom Domain）
+- DB: D1（`migrations apply`）
 
-#### API
-```bash
-cd apps/api
-pnpm run dev
-```
+## 🛠️ 運用 / 監視（案）
+- 構造化ログ（環境別フォーマット）
+- レート制御（KVなど）
+- 重要操作の監査ログ/APIメトリクス可視化
 
-#### Web
-```bash
-cd apps/web
-pnpm run dev
-```
 
-ブラウザで [http://localhost:3000](http://localhost:3000) を開いてアプリケーションを確認できます。
 
-### 事前登録フォームと管理画面
-
-トップページの「正式開始の先行案内」フォームから事前登録できます。Cloudflare Turnstile を利用するため `NEXT_PUBLIC_TURNSTILE_SITE_KEY` を設定してください。
-
-登録内容は `/pre-registers` で確認できます。ユーザー名とパスワードを入力して Basic 認証を通過すると一覧が表示され、検索・期間指定・流入元フィルタ・CSV ダウンロードが利用できます。
-
-## 📁 プロジェクト構造
-
-```
-gyulist/
-├── apps/
-│   ├── api/                 # バックエンド (Hono + Cloudflare Workers)
-│   │   ├── src/
-│   │   │   ├── routes/      # APIルート
-│   │   │   ├── services/    # ビジネスロジック
-│   │   │   ├── repositories/# データアクセス層
-│   │   │   ├── validators/  # バリデーション
-│   │   │   └── db/         # データベース設定
-│   │   └── drizzle/        # マイグレーションファイル
-│   └── web/                # フロントエンド (Next.js)
-│       ├── src/
-│       │   ├── app/        # Next.js App Router
-│       │   ├── features/   # 機能別コンポーネント
-│       │   ├── components/ # 共通UIコンポーネント
-│       │   └── lib/        # ユーティリティ
-│       └── public/         # 静的ファイル
-├── docs/                   # ドキュメント
-└── .github/workflows/      # CI/CD設定
-```
-
-## 🛠️ 開発
-
-### 利用可能なスクリプト
-
-#### ルート
-```bash
-pnpm format        # コードフォーマット
-pnpm lint          # リント
-pnpm web           # Webアプリのスクリプト実行
-pnpm api           # APIのスクリプト実行
-```
-
-#### API
-```bash
-pnpm run dev              # 開発サーバー起動
-pnpm run build            # ビルド
-pnpm run deploy           # Cloudflare Workersにデプロイ
-pnpm run migrate:local    # ローカルDBマイグレーション
-pnpm run migrate:remote   # 本番DBマイグレーション
-```
-
-#### Web
-```bash
-pnpm run dev              # 開発サーバー起動
-pnpm run build            # ビルド
-pnpm run deploy           # Cloudflare Pagesにデプロイ
-pnpm run preview          # 本番環境のプレビュー
-```
-
-### データベース操作
-
-#### マイグレーション生成
-```bash
-cd apps/api
-pnpm run generate
-```
-
-#### ダミーデータ作成
-```bash
-cd apps/api
-pnpm run create-dummy-data:local   # ローカル用
-pnpm run create-dummy-data:remote  # 本番用
-```
-
-## 🚀 デプロイメント
-
-### 自動デプロイ
-GitHubのmainブランチにプッシュすると、GitHub Actionsが自動的にデプロイを実行します。
-
-### 手動デプロイ
-
-#### API
-```bash
-cd apps/api
-pnpm run deploy
-```
-
-#### Web
-```bash
-cd apps/web
-pnpm run deploy
-```
-
-## 📊 データベース設計
-
-### 主要テーブル
-- **cattle**: 牛の基本情報
-- **bloodline**: 血統情報
-- **breeding_status**: 繁殖状態
-- **breeding_summary**: 繁殖統計
-- **events**: イベント記録
-
-詳細なスキーマは [docs/schema_columns.md](docs/schema_columns.md) を参照してください。
-
-## 📚 ドキュメント
-
-技術的な詳細情報については、以下のドキュメントを参照してください：
-
-- **[📋 ドキュメント一覧](docs/README.md)** - 全ドキュメントのインデックス
-- **[🏗️ API アーキテクチャガイド](docs/api-architecture.md)** - FDMアーキテクチャの詳細解説
-- **[⚡ API 実装ガイド](docs/api-implementation-guide.md)** - 新機能開発の実践的ガイド
-- **[📝 アーキテクチャ判断記録](docs/architecture-decisions.md)** - 技術選定と設計判断の記録
-- **[📊 コードベースガイド](docs/codebase-guide.md)** - プロジェクト全体の構造
-
-### 新規開発者向け
-1. **[コードベース構造ガイド](docs/codebase-guide.md)**: プロジェクト全体の構造を理解
-2. **[アーキテクチャ決定記録](docs/architecture-decisions.md)**: なぜこの技術構成にしたのかを理解
-3. **[API アーキテクチャガイド](docs/api-architecture.md)**: FDMアーキテクチャの全体像を把握
-4. **[Web アーキテクチャガイド](docs/web-architecture.md)**: Container/Presentationalパターンを理解
-5. **実装ガイドライン**: [API](docs/api-implementation-guidelines.md) / [Web](docs/web-implementation-guidelines.md) で具体的な実装方法を学習
-
-## 📚 ドキュメント一覧
-
-### アーキテクチャガイド
-- **[コードベース構造ガイド](docs/codebase-guide.md)**: プロジェクト全体の構造と開発ルール
-- **[API アーキテクチャガイド](docs/api-architecture.md)**: バックエンドFDMアーキテクチャの詳細
-- **[Web アーキテクチャガイド](docs/web-architecture.md)**: フロントエンドContainer/Presentationalアーキテクチャの詳細
-
-### 実装ガイドライン
-- **[API 実装ガイドライン](docs/api-implementation-guidelines.md)**: バックエンド開発の具体的規約
-- **[Web 実装ガイドライン](docs/web-implementation-guidelines.md)**: フロントエンド開発の具体的規約
-
-### その他
-- **[アーキテクチャ決定記録](docs/architecture-decisions.md)**: 重要な技術決定の記録
-- **[データベーススキーマ](docs/calculated_columns.md)**: データベース設計詳細
-
-## 📞 サポート・お問い合わせ
-
-技術的な問題やご質問がございましたら、以下の方法でお問い合わせください：
-
-- **GitHub Issues**: バグ報告や機能要望
-- **Email**: support@gyulist.com
-
----
-
-**© 2025 Gyulist. All rights reserved.**  
-**デジタルで牛群を管理し、酪農の未来を創造する** 🐄✨
+## 📈 成果 / 学び
+- 定量: 入力/検索速度の体感改善、運用コスト低減
+- 定性: 関数型ドメインモデリング + ヘキサゴナルで保守性・可観測性が向上

@@ -2,6 +2,10 @@
 
 GyuList（牛の個体管理システム）の技術ドキュメント集です。
 
+## 🔗 API 仕様（Swagger UI）
+
+- 公開URL: [Gyulist Swagger UI](https://katsuya6152.github.io/gyulist/swagger/) 〔GitHub Pages〕
+
 ## 📋 ドキュメント一覧
 
 ### 🏗️ アーキテクチャ・設計
@@ -23,7 +27,14 @@ GyuList（牛の個体管理システム）の技術ドキュメント集です�
   - FDM移行完了記録
   - 将来の変更予定・検討事項
 
-### 📊 データベース・スキーマ
+### 📂 用途別ドキュメント
+
+- アーキテクチャ系: [docs/architecture/](./architecture/)
+- 実装ガイド・規約: [docs/guides/](./guides/)
+- データベース仕様: [docs/db/](./db/)
+- API仕様（内部処理要件）: [docs/api-spec/](./api-spec/)
+
+### 📊 データベース・スキーマ（従来の配置）
 
 - **[コードベースガイド](./codebase-guide.md)** - プロジェクト全体の構造とガイド
 - **[計算カラム](./calculated_columns.md)** - データベースの計算カラム仕様

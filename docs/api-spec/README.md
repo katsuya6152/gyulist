@@ -6,6 +6,9 @@
   - **BasicAuth**: 管理系（`/admin`）
   - **No Auth**: 認証フロー（`/auth`, `/oauth`）と一部公開エンドポイント（`/pre-register`, `/health`）
 
+#### 🔗 Swagger UI（OpenAPI）
+- 公開URL: [Gyulist Swagger UI](https://katsuya6152.github.io/gyulist/swagger/)
+
 #### このドキュメントの目的
 - I/Oの詳細は OpenAPI に任せ、ここでは「内部処理要件（副作用・依存・境界・エラーマッピング・監査/ログ）」を簡潔に共有します。
 - 実装・運用の観点で、挙動の前提や非機能（認可・監査・安定性）を素早く把握できることを目指します。
