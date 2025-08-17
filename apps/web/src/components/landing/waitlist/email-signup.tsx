@@ -138,19 +138,54 @@ export function EmailSignup({
 		}
 
 		// Step 2: API送信
+		console.log("Submitting pre-registration...", values);
 		const res = await preRegister(values);
-		if (res.ok) {
-			if (res.alreadyRegistered) {
+		console.log("Pre-registration response:", res);
+		console.log("Response type:", typeof res);
+		console.log("Response ok property:", res.ok);
+		console.log("Response alreadyRegistered property:", res.alreadyRegistered);
+		console.log("Full response object:", JSON.stringify(res, null, 2));
+
+		// レスポンスの構造を確認して適切に処理
+		let isSuccess = false;
+		let isAlreadyRegistered = false;
+
+		if (res && typeof res === "object") {
+			isSuccess = res.ok === true;
+			isAlreadyRegistered = res.alreadyRegistered === true;
+		}
+
+		if (isSuccess) {
+			if (isAlreadyRegistered) {
+				console.log("User already registered");
 				form.setError("email", { message: "既に登録済みです" });
 			} else {
+				console.log("Pre-registration successful, redirecting to /waitlist...");
 				trackWaitlistSignup();
 				onSuccess?.();
-				router.push("/waitlist");
+
+				// 遷移処理を改善
+				try {
+					// フォームをリセット
+					form.reset();
+
+					// 少し待ってから遷移（UIの更新を確実にするため）
+					setTimeout(() => {
+						console.log("Executing router.push('/waitlist')...");
+						// メールアドレスをクエリパラメータとして渡す
+						router.push(`/waitlist?email=${encodeURIComponent(values.email)}`);
+					}, 100);
+				} catch (error) {
+					console.error("Navigation error:", error);
+					// フォールバック: window.locationを使用
+					window.location.href = `/waitlist?email=${encodeURIComponent(values.email)}`;
+				}
 			}
 			return;
 		}
 
 		// エラーハンドリング
+		console.error("Pre-registration failed:", res);
 		if (res.code === "VALIDATION_FAILED" || res.code === "TURNSTILE_FAILED") {
 			for (const [key, msg] of Object.entries(res.fieldErrors ?? {})) {
 				form.setError(key as keyof z.infer<typeof preRegisterSchema>, {
@@ -160,6 +195,32 @@ export function EmailSignup({
 		} else {
 			// 一般的なエラーはコンソールに記録
 			console.error("Unexpected error during registration:", res);
+
+			// レスポンスの構造が不明な場合のフォールバック処理
+			if (res && typeof res === "object" && res.data) {
+				console.log("Attempting to extract data from nested response...");
+				const nestedData = res.data;
+				if (nestedData.ok === true) {
+					console.log("Found success in nested data, attempting redirect...");
+					try {
+						form.reset();
+						setTimeout(() => {
+							router.push(
+								`/waitlist?email=${encodeURIComponent(values.email)}`
+							);
+						}, 100);
+						return;
+					} catch (error) {
+						console.error("Fallback navigation failed:", error);
+					}
+				}
+			}
+
+			// ユーザーにもエラーを表示
+			form.setError("email", {
+				message:
+					"登録処理中にエラーが発生しました。しばらく時間をおいて再度お試しください。"
+			});
 		}
 	};
 

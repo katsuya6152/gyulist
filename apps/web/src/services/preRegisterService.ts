@@ -34,8 +34,9 @@ export async function preRegister(
 	const res = await client.api.v1["pre-register"].$post({
 		json: data
 	});
-	const json = (await res.json()) as PreRegisterResponse;
-	return json;
+	const json = await res.json();
+
+	return json as PreRegisterResponse;
 }
 
 // Admin: List registrations (JSON) and CSV download
