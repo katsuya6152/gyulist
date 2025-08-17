@@ -4,7 +4,7 @@ import {
 	type LoginInput,
 	clearAuthCookie,
 	login,
-	setAuthCookie,
+	setAuthCookie
 } from "@/services/authService";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -17,7 +17,7 @@ const loginSchema = z.object({
 	password: z
 		.string()
 		.nonempty("パスワードを入力してください。")
-		.min(6, "パスワードは6文字以上である必要があります。"),
+		.min(6, "パスワードは6文字以上である必要があります。")
 });
 
 export type LoginActionResult =
@@ -26,11 +26,11 @@ export type LoginActionResult =
 
 export async function loginAction(
 	prevState: LoginActionResult | null,
-	formData: FormData,
+	formData: FormData
 ): Promise<LoginActionResult> {
 	const data = {
 		email: formData.get("email"),
-		password: formData.get("password"),
+		password: formData.get("password")
 	};
 
 	const parseResult = loginSchema.safeParse(data);
@@ -51,7 +51,7 @@ export async function loginAction(
 
 	return {
 		success: result.success,
-		message: result.message,
+		message: result.message
 	};
 }
 

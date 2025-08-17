@@ -17,7 +17,7 @@ import { type DateFilter, type Event, FILTER_BUTTONS } from "./constants";
 import {
 	formatEventDate,
 	prepareFilterEventData,
-	sortAllEvents,
+	sortAllEvents
 } from "./utils";
 
 interface SchedulePresentationProps {
@@ -31,7 +31,7 @@ export function SchedulePresentation({
 	events,
 	currentFilter,
 	customDate,
-	error,
+	error
 }: SchedulePresentationProps) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
@@ -40,7 +40,7 @@ export function SchedulePresentation({
 	// Embla Carouselの設定
 	const [emblaRef, emblaApi] = useEmblaCarousel({
 		align: "start",
-		skipSnaps: false,
+		skipSnaps: false
 	});
 
 	// プログラム的な同期フラグ（スワイプ時のURL更新を一時的に無効化）
@@ -51,7 +51,7 @@ export function SchedulePresentation({
 	// 各フィルターに対応するイベントデータを準備（メモ化のみ）
 	const filterEventData = useMemo(
 		() => prepareFilterEventData(events),
-		[events],
+		[events]
 	);
 
 	// スワイプ時のURL更新（デバウンス付き）
@@ -97,7 +97,7 @@ export function SchedulePresentation({
 		if (!emblaApi || currentFilter === "custom" || isSwipingRef.current) return;
 
 		const targetIndex = FILTER_BUTTONS.findIndex(
-			(button) => button.key === currentFilter,
+			(button) => button.key === currentFilter
 		);
 
 		if (targetIndex !== -1) {
@@ -118,7 +118,7 @@ export function SchedulePresentation({
 			}
 			router.push(`/schedule?${params.toString()}`);
 		},
-		[searchParams, router],
+		[searchParams, router]
 	);
 
 	// 日付選択のハンドラー（即座に検索しない）
@@ -153,7 +153,7 @@ export function SchedulePresentation({
 				if (result.success) {
 					if ("message" in result && result.message === "demo") {
 						toast.info("イベントを更新しました", {
-							description: "デモアカウントのため、実際に更新はされていません",
+							description: "デモアカウントのため、実際に更新はされていません"
 						});
 					} else {
 						toast.success("イベントを更新しました");
@@ -162,7 +162,7 @@ export function SchedulePresentation({
 				} else {
 					toast.error(
 						("error" in result && result.error) ||
-							"イベントの更新に失敗しました",
+							"イベントの更新に失敗しました"
 					);
 				}
 			} catch (error) {
@@ -171,7 +171,7 @@ export function SchedulePresentation({
 				throw error;
 			}
 		},
-		[router],
+		[router]
 	);
 
 	// イベント削除実行ハンドラー
@@ -183,7 +183,7 @@ export function SchedulePresentation({
 				if (result.success) {
 					if ("message" in result && result.message === "demo") {
 						toast.info("イベントを削除しました", {
-							description: "デモアカウントのため、実際に削除はされていません",
+							description: "デモアカウントのため、実際に削除はされていません"
 						});
 					} else {
 						toast.success("イベントを削除しました");
@@ -192,7 +192,7 @@ export function SchedulePresentation({
 				} else {
 					toast.error(
 						("error" in result && result.error) ||
-							"イベントの削除に失敗しました",
+							"イベントの削除に失敗しました"
 					);
 				}
 			} catch (error) {
@@ -201,7 +201,7 @@ export function SchedulePresentation({
 				throw error;
 			}
 		},
-		[router],
+		[router]
 	);
 
 	// 現在表示するイベントを決定（条件分岐をシンプルに）
@@ -292,7 +292,7 @@ export function SchedulePresentation({
 										eventDatetime: event.eventDatetime,
 										notes: event.notes,
 										cattleName: event.cattleName,
-										cattleEarTagNumber: event.cattleEarTagNumber,
+										cattleEarTagNumber: event.cattleEarTagNumber
 									}}
 									onSave={async (id, data) => {
 										await handleSaveEvent(id, data as UpdateEventInput);
@@ -338,12 +338,12 @@ export function SchedulePresentation({
 																	eventDatetime: event.eventDatetime,
 																	notes: event.notes,
 																	cattleName: event.cattleName,
-																	cattleEarTagNumber: event.cattleEarTagNumber,
+																	cattleEarTagNumber: event.cattleEarTagNumber
 																}}
 																onSave={async (id, data) => {
 																	await handleSaveEvent(
 																		id,
-																		data as UpdateEventInput,
+																		data as UpdateEventInput
 																	);
 																}}
 																onConfirmDelete={async (id) => {

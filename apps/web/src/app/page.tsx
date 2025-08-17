@@ -17,13 +17,13 @@ export const metadata: Metadata = {
 		"繁殖管理",
 		"健康管理",
 		"牧場経営",
-		"データ管理",
+		"データ管理"
 	],
 	openGraph: {
 		title: "ギュウリスト - 畜産経営をデータで支える",
 		description:
 			"個体・繁殖・健康のデータを一元管理。紙とExcelから卒業し、効率的な牧場経営を実現します。",
-		type: "website",
+		type: "website"
 	},
 	other: {
 		"application/ld+json": JSON.stringify({
@@ -33,9 +33,9 @@ export const metadata: Metadata = {
 			applicationCategory: "BusinessApplication",
 			operatingSystem: "Web",
 			offers: { "@type": "Offer", price: "0", priceCurrency: "JPY" },
-			releaseNotes: "Pre-release: Demo available / Waitlist open",
-		}),
-	},
+			releaseNotes: "Pre-release: Demo available / Waitlist open"
+		})
+	}
 };
 
 /**

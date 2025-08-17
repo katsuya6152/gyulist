@@ -4,12 +4,12 @@ const pricingPlans = [
 	{
 		name: "フリーデモ",
 		price: "無料",
-		features: ["ログイン不要", "主要機能を体験", "フィードバック歓迎"],
+		features: ["ログイン不要", "主要機能を体験", "フィードバック歓迎"]
 	},
 	{
 		name: "アーリーアクセス",
 		price: "事前登録者向け",
-		features: ["正式版へ先行招待", "優先サポート", "特典適用"],
+		features: ["正式版へ先行招待", "優先サポート", "特典適用"]
 	},
 	{
 		name: "正式版",
@@ -17,9 +17,9 @@ const pricingPlans = [
 		features: [
 			"詳細はメールで案内",
 			"基本無料＆柔軟な料金プラン",
-			"契約縛りなし",
-		],
-	},
+			"契約縛りなし"
+		]
+	}
 ];
 
 export function PricingSection() {

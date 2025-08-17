@@ -9,15 +9,15 @@ const mockSearchParams = new URLSearchParams();
 
 vi.mock("next/navigation", () => ({
 	useRouter: () => ({
-		push: mockPush,
+		push: mockPush
 	}),
-	useSearchParams: () => mockSearchParams,
+	useSearchParams: () => mockSearchParams
 }));
 
 // Mock scrollIntoView for JSDOM
 Object.defineProperty(Element.prototype, "scrollIntoView", {
 	value: vi.fn(),
-	writable: true,
+	writable: true
 });
 
 describe("CattleListPresentation", () => {
@@ -44,7 +44,7 @@ describe("CattleListPresentation", () => {
 			breedingValue: "AAAAAA",
 			notes: "テスト用の牛",
 			createdAt: "2024-01-01T00:00:00Z",
-			updatedAt: "2024-01-01T00:00:00Z",
+			updatedAt: "2024-01-01T00:00:00Z"
 		},
 		{
 			cattleId: 2,
@@ -68,7 +68,7 @@ describe("CattleListPresentation", () => {
 			breedingValue: "AAAAAA",
 			notes: "テスト用の牛",
 			createdAt: "2024-01-01T00:00:00Z",
-			updatedAt: "2024-01-01T00:00:00Z",
+			updatedAt: "2024-01-01T00:00:00Z"
 		},
 		{
 			cattleId: 3,
@@ -92,8 +92,8 @@ describe("CattleListPresentation", () => {
 			breedingValue: "AAAAAA",
 			notes: "テスト用の牛",
 			createdAt: "2024-01-01T00:00:00Z",
-			updatedAt: "2024-01-01T00:00:00Z",
-		},
+			updatedAt: "2024-01-01T00:00:00Z"
+		}
 	];
 
 	beforeEach(() => {
@@ -141,7 +141,7 @@ describe("CattleListPresentation", () => {
 
 		// 検索が実行されることを確認
 		expect(mockPush).toHaveBeenLastCalledWith(
-			"/cattle?search=%E7%89%B9%E5%88%A5",
+			"/cattle?search=%E7%89%B9%E5%88%A5"
 		);
 	});
 
@@ -160,7 +160,7 @@ describe("CattleListPresentation", () => {
 
 		// 実際に呼ばれたURLを確認
 		expect(mockPush).toHaveBeenLastCalledWith(
-			"/cattle?sort_by=id&sort_order=asc",
+			"/cattle?sort_by=id&sort_order=asc"
 		);
 	});
 
@@ -193,7 +193,7 @@ describe("CattleListPresentation", () => {
 		await user.click(screen.getByRole("button", { name: "絞り込む" }));
 
 		expect(mockPush).toHaveBeenCalledWith(
-			"/cattle?growth_stage=CALF&gender=%E3%82%AA%E3%82%B9&status=HEALTHY",
+			"/cattle?growth_stage=CALF&gender=%E3%82%AA%E3%82%B9&status=HEALTHY"
 		);
 	});
 
@@ -229,13 +229,13 @@ describe("CattleListPresentation", () => {
 			{
 				...mockCattleList[0],
 				status: "HEALTHY",
-				healthStatus: "健康",
+				healthStatus: "健康"
 			},
 			{
 				...mockCattleList[1],
 				status: "TREATING",
-				healthStatus: "治療中",
-			},
+				healthStatus: "治療中"
+			}
 		];
 
 		render(<CattleListPresentation cattleList={cattleWithHealthStatus} />);
@@ -249,8 +249,8 @@ describe("CattleListPresentation", () => {
 			{
 				...mockCattleList[0],
 				weight: null,
-				daysOld: null,
-			},
+				daysOld: null
+			}
 		];
 
 		render(<CattleListPresentation cattleList={cattleWithNulls} />);

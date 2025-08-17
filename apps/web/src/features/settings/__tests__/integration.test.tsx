@@ -5,13 +5,13 @@ import { SettingsContainer } from "../container";
 
 // Mock the logout action only
 vi.mock("../../../app/(auth)/login/actions", () => ({
-	logoutAction: vi.fn(),
+	logoutAction: vi.fn()
 }));
 
 // Mock window.confirm
 Object.defineProperty(window, "confirm", {
 	writable: true,
-	value: vi.fn(),
+	value: vi.fn()
 });
 
 describe("Settings Integration", () => {
@@ -68,21 +68,21 @@ describe("Settings Integration", () => {
 
 		// アカウントカード内のコンテンツを確認
 		expect(
-			screen.getByText("アカウントに関する設定を管理します"),
+			screen.getByText("アカウントに関する設定を管理します")
 		).toBeInTheDocument();
 		expect(
-			screen.getByText("現在のセッションからログアウトします"),
+			screen.getByText("現在のセッションからログアウトします")
 		).toBeInTheDocument();
 
 		// アプリケーション設定カード内のコンテンツを確認
 		expect(
-			screen.getByText("アプリケーションの動作に関する設定"),
+			screen.getByText("アプリケーションの動作に関する設定")
 		).toBeInTheDocument();
 
 		// テーマ設定の確認
 		expect(screen.getByText("テーマ")).toBeInTheDocument();
 		expect(
-			screen.getByText("アプリケーションの見た目をカスタマイズします"),
+			screen.getByText("アプリケーションの見た目をカスタマイズします")
 		).toBeInTheDocument();
 		expect(screen.getByText("ライトモード")).toBeInTheDocument();
 		expect(screen.getByText("ダークモード")).toBeInTheDocument();

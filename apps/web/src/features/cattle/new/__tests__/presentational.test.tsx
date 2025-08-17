@@ -8,8 +8,8 @@ const mockPush = vi.fn();
 
 vi.mock("next/navigation", () => ({
 	useRouter: () => ({
-		push: mockPush,
-	}),
+		push: mockPush
+	})
 }));
 
 describe("CattleNewPresentation", () => {
@@ -31,7 +31,7 @@ describe("CattleNewPresentation", () => {
 
 		// バリデーションエラーメッセージが表示されることを確認
 		expect(screen.getAllByText("Expected number, received nan")).toHaveLength(
-			2,
+			2
 		);
 		expect(screen.getAllByText("Required")).toHaveLength(3);
 		expect(screen.getByText("成長段階は必須です")).toBeInTheDocument();

@@ -7,7 +7,7 @@ import {
 	formatEventTime,
 	formatFilterDate,
 	prepareFilterEventData,
-	sortAllEvents,
+	sortAllEvents
 } from "../utils";
 
 // Mock event data for testing
@@ -21,7 +21,7 @@ const mockEvents: Event[] = [
 		cattleEarTagNumber: "001",
 		notes: "Test note 1",
 		createdAt: "2024-01-15T08:00:00.000Z",
-		updatedAt: "2024-01-15T08:00:00.000Z",
+		updatedAt: "2024-01-15T08:00:00.000Z"
 	},
 	{
 		eventId: 2,
@@ -32,7 +32,7 @@ const mockEvents: Event[] = [
 		cattleEarTagNumber: "002",
 		notes: "Test note 2",
 		createdAt: "2024-01-16T10:00:00.000Z",
-		updatedAt: "2024-01-16T10:00:00.000Z",
+		updatedAt: "2024-01-16T10:00:00.000Z"
 	},
 	{
 		eventId: 3,
@@ -43,8 +43,8 @@ const mockEvents: Event[] = [
 		cattleEarTagNumber: "003",
 		notes: "Test note 3",
 		createdAt: "2024-01-15T14:00:00.000Z",
-		updatedAt: "2024-01-15T14:00:00.000Z",
-	},
+		updatedAt: "2024-01-15T14:00:00.000Z"
+	}
 ];
 
 describe("Date formatting utilities", () => {

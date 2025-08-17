@@ -30,14 +30,14 @@ describe("basicAuthMiddleware", () => {
 			TURNSTILE_SECRET_KEY: "",
 			ADMIN_USER: "admin",
 			ADMIN_PASS: "pass",
-			WEB_ORIGIN: "http://localhost:3000",
+			WEB_ORIGIN: "http://localhost:3000"
 		};
 	});
 
 	it("allows OPTIONS without auth (returns 404 if no route for OPTIONS)", async () => {
 		const app = buildApp(env);
 		const res = await app.request("http://localhost/secure", {
-			method: "OPTIONS",
+			method: "OPTIONS"
 		});
 		// 現状は明示 OPTIONS ハンドラがないため 404 だが、ミドルウェアは認証をスキップしていることを確認（401ではない）
 		expect(res.status).not.toBe(401);
@@ -54,7 +54,7 @@ describe("basicAuthMiddleware", () => {
 		const app = buildApp(env);
 		const bad = btoa("admin:wrong");
 		const res = await app.request("http://localhost/secure", {
-			headers: { Authorization: `Basic ${bad}` },
+			headers: { Authorization: `Basic ${bad}` }
 		});
 		expect(res.status).toBe(401);
 		expect(res.headers.get("WWW-Authenticate")).toContain("Basic");
@@ -64,7 +64,7 @@ describe("basicAuthMiddleware", () => {
 		const app = buildApp(env);
 		const ok = btoa("admin:pass");
 		const res = await app.request("http://localhost/secure", {
-			headers: { Authorization: `Basic ${ok}` },
+			headers: { Authorization: `Basic ${ok}` }
 		});
 		expect(res.status).toBe(200);
 		expect(await res.text()).toBe("ok");

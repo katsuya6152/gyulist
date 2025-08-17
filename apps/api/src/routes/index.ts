@@ -9,6 +9,7 @@ import eventsRoutes from "./events";
 import healthRoutes from "./health";
 import kpiRoutes from "./kpi";
 import oauthRoutes from "./oauth";
+import openapiRoutes from "./openapi";
 import preRegisterRoutes from "./pre-register";
 import usersRoutes from "./users";
 
@@ -17,6 +18,7 @@ export const createRoutes = (app: Hono<{ Bindings: Bindings }>) => {
 return app
 .basePath("/api/v1")
 .use("*", corsMiddleware)
+.get("/", (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }))
 .route("/", healthRoutes)
 .route("/pre-register", preRegisterRoutes)
 .route("/admin", adminRoutes)
@@ -26,5 +28,7 @@ return app
 .route("/alerts", alertsRoutes)
 .route("/kpi", kpiRoutes)
 .route("/cattle", cattleRoutes)
-.route("/events", eventsRoutes);
+.route("/events", eventsRoutes)
+// OpenAPI doc & Swagger UI are served under /api-docs
+.route("/api-docs", openapiRoutes);
 };

@@ -1,17 +1,17 @@
 import type { CattleStatus } from "@/features/cattle/constants";
 import { fetchWithAuth } from "@/lib/api-client";
 import { client } from "@/lib/rpc";
-import type { InferResponseType } from "hono";
+import type {
+	CattleListResponse,
+	CattleResponse,
+	CattleStatusCountsResponse,
+	CreateCattleInput,
+	UpdateCattleInput
+} from "@repo/api";
 
-export type GetCattleListResType = InferResponseType<
-	typeof client.api.v1.cattle.$get,
-	200
->;
+export type GetCattleListResType = CattleListResponse;
 
-export type GetCattleDetailResType = InferResponseType<
-	(typeof client.api.v1.cattle)[":id"]["$get"],
-	200
->;
+export type GetCattleDetailResType = CattleResponse;
 
 export type CattleListQueryParams = {
 	cursor?: string;
@@ -25,9 +25,9 @@ export type CattleListQueryParams = {
 };
 
 export async function GetCattleList(
-	queryParams: CattleListQueryParams = {},
+	queryParams: CattleListQueryParams = {}
 ): Promise<GetCattleListResType> {
-	return fetchWithAuth<GetCattleListResType>((token) =>
+	return fetchWithAuth<{ data: GetCattleListResType }>((token) =>
 		client.api.v1.cattle.$get(
 			{
 				query: {
@@ -38,67 +38,67 @@ export async function GetCattleList(
 					search: queryParams.search,
 					growth_stage: queryParams.growth_stage,
 					gender: queryParams.gender,
-					status: queryParams.status,
-				},
+					status: queryParams.status
+				}
 			},
 			{
 				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			},
-		),
-	);
+					Authorization: `Bearer ${token}`
+				}
+			}
+		)
+	).then((r) => r.data);
 }
 
 export async function GetCattleDetail(
-	id: number | string,
+	id: number | string
 ): Promise<GetCattleDetailResType> {
-	return fetchWithAuth<GetCattleDetailResType>((token) =>
+	return fetchWithAuth<{ data: GetCattleDetailResType }>((token) =>
 		client.api.v1.cattle[":id"].$get(
 			{
-				param: { id: id.toString() },
+				param: { id: id.toString() }
 			},
 			{
 				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			},
-		),
-	);
+					Authorization: `Bearer ${token}`
+				}
+			}
+		)
+	).then((r) => r.data);
 }
 
 export async function DeleteCattle(id: number | string): Promise<void> {
 	return fetchWithAuth<void>((token) =>
 		client.api.v1.cattle[":id"].$delete(
 			{
-				param: { id: id.toString() },
+				param: { id: id.toString() }
 			},
 			{
 				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			},
-		),
+					Authorization: `Bearer ${token}`
+				}
+			}
+		)
 	);
 }
 
 export async function updateCattleStatus(
 	id: number | string,
 	status: CattleStatus,
-	reason?: string,
+	reason?: string
 ): Promise<void> {
 	return fetchWithAuth<void>((token) =>
 		client.api.v1.cattle[":id"].status.$patch(
 			{
 				param: { id: id.toString() },
-				json: { status, reason },
+				json: { status, reason }
 			},
 			{
 				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			},
-		),
+					Authorization: `Bearer ${token}`
+				}
+			}
+		)
 	);
 }
 
@@ -108,7 +108,7 @@ export async function UpdateCattle(
 		identificationNumber: number;
 		earTagNumber: number;
 		name: string;
-		gender: string;
+		gender: "オス" | "メス";
 		birthday: string;
 		growthStage:
 			| "CALF"
@@ -118,123 +118,69 @@ export async function UpdateCattle(
 			| "MULTI_PAROUS";
 		breed?: string | null;
 		notes?: string | null;
-	},
+	}
 ): Promise<void> {
 	return fetchWithAuth<void>((token) =>
 		client.api.v1.cattle[":id"].$patch(
 			{
 				param: { id: id.toString() },
-				json: data,
+				json: data
 			},
 			{
 				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			},
-		),
+					Authorization: `Bearer ${token}`
+				}
+			}
+		)
 	);
 }
 
-export type CreateCattleInput = {
-	identificationNumber: number;
-	earTagNumber: number;
-	name: string;
-	gender: string;
-	birthday: string;
-	growthStage:
-		| "CALF"
-		| "GROWING"
-		| "FATTENING"
-		| "FIRST_CALVED"
-		| "MULTI_PAROUS";
-	weight?: number | null;
-	score?: number | null;
-	breed: string | null;
-	producerName?: string | null;
-	barn?: string | null;
-	breedingValue?: string | null;
-	notes: string | null;
-	status?: "HEALTHY" | "PREGNANT" | "RESTING" | "TREATING" | "SHIPPED" | "DEAD";
-	bloodline?: {
-		fatherCattleName: string | null;
-		motherFatherCattleName: string | null;
-		motherGrandFatherCattleName: string | null;
-		motherGreatGrandFatherCattleName: string | null;
-	};
-	breedingStatus?: {
-		parity: number | null;
-		expectedCalvingDate: string | null;
-		scheduledPregnancyCheckDate: string | null;
-		daysAfterCalving: number | null;
-		daysOpen: number | null;
-		pregnancyDays: number | null;
-		daysAfterInsemination: number | null;
-		inseminationCount: number | null;
-		breedingMemo: string | null;
-		isDifficultBirth: boolean | null;
-	};
-	breedingSummary?: {
-		totalInseminationCount: number | null;
-		averageDaysOpen: number | null;
-		averagePregnancyPeriod: number | null;
-		averageCalvingInterval: number | null;
-		difficultBirthCount: number | null;
-		pregnancyHeadCount: number | null;
-		pregnancySuccessRate: number | null;
-	};
-};
-
-export type UpdateCattleInput = CreateCattleInput;
+// 型は @repo/api の共有型を使用する
 
 export async function CreateCattle(data: CreateCattleInput): Promise<void> {
 	return fetchWithAuth<void>((token) =>
 		client.api.v1.cattle.$post(
 			{
-				json: data,
+				json: data
 			},
 			{
 				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			},
-		),
+					Authorization: `Bearer ${token}`
+				}
+			}
+		)
 	);
 }
 
 export async function UpdateCattleDetailed(
 	id: number | string,
-	data: UpdateCattleInput,
+	data: UpdateCattleInput
 ): Promise<void> {
 	return fetchWithAuth<void>((token) =>
 		client.api.v1.cattle[":id"].$patch(
 			{
 				param: { id: id.toString() },
-				json: data,
+				json: data
 			},
 			{
 				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			},
-		),
+					Authorization: `Bearer ${token}`
+				}
+			}
+		)
 	);
 }
 
 // ステータス別頭数取得
-export type GetCattleStatusCountsRes = {
-	counts: Record<
-		"HEALTHY" | "PREGNANT" | "RESTING" | "TREATING" | "SHIPPED" | "DEAD",
-		number
-	>;
-};
+export type GetCattleStatusCountsRes = CattleStatusCountsResponse;
 
 export async function GetCattleStatusCounts(): Promise<GetCattleStatusCountsRes> {
-	return fetchWithAuth<GetCattleStatusCountsRes>((token) =>
+	return fetchWithAuth<{ data: GetCattleStatusCountsRes }>((token) =>
 		client.api.v1.cattle["status-counts"].$get(
 			{},
 			{
-				headers: { Authorization: `Bearer ${token}` },
-			},
-		),
-	);
+				headers: { Authorization: `Bearer ${token}` }
+			}
+		)
+	).then((r) => r.data);
 }

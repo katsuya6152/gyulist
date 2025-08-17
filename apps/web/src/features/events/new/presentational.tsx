@@ -4,13 +4,13 @@ import {
 	Accordion,
 	AccordionContent,
 	AccordionItem,
-	AccordionTrigger,
+	AccordionTrigger
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import {
 	Popover,
 	PopoverContent,
-	PopoverTrigger,
+	PopoverTrigger
 } from "@/components/ui/popover";
 import type { GetCattleDetailResType } from "@/services/cattleService";
 import { useForm } from "@conform-to/react";
@@ -19,7 +19,7 @@ import {
 	EVENT_GROUP_LABELS,
 	EVENT_GROUP_ORDER,
 	EVENT_TYPE_GROUPS,
-	EVENT_TYPE_LABELS,
+	EVENT_TYPE_LABELS
 } from "@repo/api";
 import { Check, ChevronsUpDown } from "lucide-react";
 import Link from "next/link";
@@ -38,7 +38,7 @@ export function EventNewPresentation({ cattle }: EventNewPresentationProps) {
 
 	const [lastResult, action, isPending] = useActionState(
 		createEventAction,
-		null,
+		null
 	);
 
 	const [form, fields] = useForm({
@@ -52,8 +52,8 @@ export function EventNewPresentation({ cattle }: EventNewPresentationProps) {
 		defaultValue: {
 			cattleId: cattle.cattleId.toString(),
 			eventDate: new Date().toISOString().split("T")[0], // 今日の日付
-			eventTime: new Date().toTimeString().slice(0, 5), // 現在時刻
-		},
+			eventTime: new Date().toTimeString().slice(0, 5) // 現在時刻
+		}
 	});
 
 	// トースト通知とリダイレクトの処理
@@ -66,7 +66,7 @@ export function EventNewPresentation({ cattle }: EventNewPresentationProps) {
 		) {
 			if (lastResult.message === "demo") {
 				toast.info("イベントを登録しました", {
-					description: "デモアカウントのため、実際に保存はされていません",
+					description: "デモアカウントのため、実際に保存はされていません"
 				});
 			} else {
 				toast.success(lastResult.message);
@@ -84,14 +84,14 @@ export function EventNewPresentation({ cattle }: EventNewPresentationProps) {
 	}, [lastResult, router, cattle.cattleId]);
 
 	const [selectedType, setSelectedType] = useState<string>(
-		fields.eventType.initialValue || "",
+		fields.eventType.initialValue || ""
 	);
 
 	const GROUPS: { key: string; label: string; items: string[] }[] =
 		EVENT_GROUP_ORDER.map((groupKey) => ({
 			key: groupKey,
 			label: EVENT_GROUP_LABELS[groupKey],
-			items: [...EVENT_TYPE_GROUPS[groupKey]],
+			items: [...EVENT_TYPE_GROUPS[groupKey]]
 		}));
 
 	return (

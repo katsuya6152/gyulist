@@ -18,21 +18,21 @@ export const FILTER_BUTTONS = [
 	{
 		key: "today" as const,
 		label: "今日",
-		getDate: () => new Date(),
+		getDate: () => new Date()
 	},
 	{
 		key: "tomorrow" as const,
 		label: "明日",
-		getDate: () => addDays(new Date(), 1),
+		getDate: () => addDays(new Date(), 1)
 	},
 	{
 		key: "dayAfterTomorrow" as const,
 		label: "明後日",
-		getDate: () => addDays(new Date(), 2),
+		getDate: () => addDays(new Date(), 2)
 	},
 	{
 		key: "all" as const,
 		label: "全て",
-		getDate: () => null,
-	},
+		getDate: () => null
+	}
 ];

@@ -8,21 +8,21 @@ import { CattleDetailHeader } from "../hedear";
 const mockPush = vi.fn();
 vi.mock("next/navigation", () => ({
 	useRouter: () => ({
-		push: mockPush,
-	}),
+		push: mockPush
+	})
 }));
 
 // Mock sonner toast
 vi.mock("sonner", () => ({
 	toast: {
 		success: vi.fn(),
-		error: vi.fn(),
-	},
+		error: vi.fn()
+	}
 }));
 
 // Mock the delete action
 vi.mock("../../actions", () => ({
-	deleteCattleAction: vi.fn(),
+	deleteCattleAction: vi.fn()
 }));
 
 // Mock getGrowthStage utility
@@ -36,10 +36,10 @@ vi.mock("@/lib/utils", async (importOriginal) => {
 				GROWING: "育成牛",
 				FATTENING: "肥育牛",
 				FIRST_CALVED: "初産牛",
-				MULTI_PAROUS: "経産牛",
+				MULTI_PAROUS: "経産牛"
 			};
 			return stages[stage as keyof typeof stages] || stage;
-		}),
+		})
 	};
 });
 
@@ -86,11 +86,11 @@ vi.mock("vaul", () => {
 		Description: DrawerChildComponent,
 		Footer: DrawerChildComponent,
 		Portal: DrawerChildComponent,
-		Overlay: DrawerChildComponent,
+		Overlay: DrawerChildComponent
 	};
 
 	return {
-		Drawer: DrawerObject,
+		Drawer: DrawerObject
 	};
 });
 
@@ -113,7 +113,7 @@ describe("CattleDetailHeader", () => {
 		breedingStatus: null,
 		motherInfo: null,
 		breedingSummary: null,
-		events: null,
+		events: null
 	} as unknown as GetCattleDetailResType;
 
 	beforeEach(() => {
@@ -163,7 +163,7 @@ describe("CattleDetailHeader", () => {
 
 		// 削除確認ダイアログが表示されることを確認
 		expect(
-			screen.getByText("以下の個体情報を削除してもよろしいですか？"),
+			screen.getByText("以下の個体情報を削除してもよろしいですか？")
 		).toBeInTheDocument();
 		expect(screen.getByText(/個体識別番号:\s*12345/)).toBeInTheDocument();
 		expect(screen.getByText(/名号:\s*テスト牛/)).toBeInTheDocument();
@@ -172,7 +172,7 @@ describe("CattleDetailHeader", () => {
 		const confirmButtons = screen.getAllByRole("button", { name: "削除" });
 		expect(confirmButtons.length).toBeGreaterThan(0);
 		expect(
-			screen.getByRole("button", { name: "キャンセル" }),
+			screen.getByRole("button", { name: "キャンセル" })
 		).toBeInTheDocument();
 	});
 
@@ -181,7 +181,7 @@ describe("CattleDetailHeader", () => {
 		const { toast } = await import("sonner");
 
 		vi.mocked(deleteCattleAction).mockResolvedValue({
-			success: true,
+			success: true
 		});
 
 		render(<CattleDetailHeader cattle={mockCattle} />);
@@ -192,7 +192,7 @@ describe("CattleDetailHeader", () => {
 
 		// 削除確認ボタンをクリック
 		const confirmDeleteButton = screen.getAllByRole("button", {
-			name: "削除",
+			name: "削除"
 		})[1];
 		await user.click(confirmDeleteButton);
 
@@ -203,8 +203,8 @@ describe("CattleDetailHeader", () => {
 		expect(toast.success).toHaveBeenCalledWith(
 			"牛の削除が完了しました",
 			expect.objectContaining({
-				description: "テスト牛（個体識別番号: 12345）を削除しました",
-			}),
+				description: "テスト牛（個体識別番号: 12345）を削除しました"
+			})
 		);
 
 		// 牛一覧ページにリダイレクトされることを確認
@@ -217,7 +217,7 @@ describe("CattleDetailHeader", () => {
 
 		vi.mocked(deleteCattleAction).mockResolvedValue({
 			success: false,
-			error: "削除に失敗しました",
+			error: "削除に失敗しました"
 		});
 
 		render(<CattleDetailHeader cattle={mockCattle} />);
@@ -228,7 +228,7 @@ describe("CattleDetailHeader", () => {
 
 		// 削除確認ボタンをクリック
 		const confirmDeleteButton = screen.getAllByRole("button", {
-			name: "削除",
+			name: "削除"
 		})[1];
 		await user.click(confirmDeleteButton);
 
@@ -236,8 +236,8 @@ describe("CattleDetailHeader", () => {
 		expect(toast.error).toHaveBeenCalledWith(
 			"削除に失敗しました",
 			expect.objectContaining({
-				description: "削除に失敗しました",
-			}),
+				description: "削除に失敗しました"
+			})
 		);
 
 		// エラーメッセージが表示されることを確認
@@ -258,7 +258,7 @@ describe("CattleDetailHeader", () => {
 
 		// 削除確認ボタンをクリック
 		const confirmDeleteButton = screen.getAllByRole("button", {
-			name: "削除",
+			name: "削除"
 		})[1];
 		await user.click(confirmDeleteButton);
 
@@ -266,8 +266,8 @@ describe("CattleDetailHeader", () => {
 		expect(toast.error).toHaveBeenCalledWith(
 			"削除中にエラーが発生しました",
 			expect.objectContaining({
-				description: "予期しないエラーが発生しました",
-			}),
+				description: "予期しないエラーが発生しました"
+			})
 		);
 	});
 
@@ -289,7 +289,7 @@ describe("CattleDetailHeader", () => {
 
 		// 削除確認ボタンをクリック
 		const confirmDeleteButton = screen.getAllByRole("button", {
-			name: "削除",
+			name: "削除"
 		})[1];
 		await user.click(confirmDeleteButton);
 

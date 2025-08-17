@@ -5,7 +5,7 @@ import { StatusBadge } from "../status-badge";
 
 // Mock the action
 vi.mock("../../actions", () => ({
-	updateCattleStatusAction: vi.fn().mockResolvedValue({ success: true }),
+	updateCattleStatusAction: vi.fn().mockResolvedValue({ success: true })
 }));
 
 // Mock the toast
@@ -13,8 +13,8 @@ vi.mock("sonner", () => ({
 	toast: {
 		success: vi.fn(),
 		error: vi.fn(),
-		info: vi.fn(),
-	},
+		info: vi.fn()
+	}
 }));
 
 describe("StatusBadge", () => {
@@ -30,13 +30,13 @@ describe("StatusBadge", () => {
 		expect(screen.getByRole("dialog")).toBeInTheDocument();
 		expect(screen.getByRole("button", { name: "更新" })).toBeInTheDocument();
 		expect(
-			screen.getByPlaceholderText("ステータス変更の理由を入力してください"),
+			screen.getByPlaceholderText("ステータス変更の理由を入力してください")
 		).toBeInTheDocument();
 
 		// Type in the reason field
 		await user.type(
 			screen.getByPlaceholderText("ステータス変更の理由を入力してください"),
-			"test",
+			"test"
 		);
 
 		// Click the update button
@@ -46,7 +46,7 @@ describe("StatusBadge", () => {
 		expect(updateCattleStatusAction).toHaveBeenCalledWith(
 			1,
 			"HEALTHY", // Current status since we didn't change it
-			"test",
+			"test"
 		);
 	});
 

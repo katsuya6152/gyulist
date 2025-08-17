@@ -9,10 +9,10 @@ import { type CreateEventFormData, createEventSchema } from "./schema";
 
 export async function createEventAction(
 	prevState: unknown,
-	formData: FormData,
+	formData: FormData
 ) {
 	const submission = parseWithZod(formData, {
-		schema: createEventSchema,
+		schema: createEventSchema
 	});
 
 	if (submission.status !== "success") {
@@ -35,18 +35,18 @@ export async function createEventAction(
 			cattleId,
 			eventType: eventType as CreateEventInput["eventType"],
 			eventDatetime,
-			notes,
+			notes
 		});
 
 		return {
 			status: "success" as const,
-			message: "イベントが正常に登録されました",
+			message: "イベントが正常に登録されました"
 		};
 	} catch (error) {
 		console.error("Event creation error:", error);
 		return {
 			status: "error" as const,
-			message: "イベントの登録中にエラーが発生しました",
+			message: "イベントの登録中にエラーが発生しました"
 		};
 	}
 }

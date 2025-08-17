@@ -31,7 +31,7 @@ describe("Bloodline", () => {
 			fatherCattleName: "父牛テスト",
 			motherFatherCattleName: "母父牛テスト",
 			motherGrandFatherCattleName: "母祖父牛テスト",
-			motherGreatGrandFatherCattleName: "母曽祖父牛テスト",
+			motherGreatGrandFatherCattleName: "母曽祖父牛テスト"
 		},
 		motherInfo: {
 			motherInfoId: 1,
@@ -39,13 +39,13 @@ describe("Bloodline", () => {
 			motherCattleId: 1,
 			motherName: "母牛テスト",
 			motherIdentificationNumber: "67890",
-			motherScore: 90,
+			motherScore: 90
 		},
 		breedingStatus: null,
 		breedingSummary: null,
 		events: null,
 		status: "HEALTHY",
-		healthStatus: "健康",
+		healthStatus: "健康"
 	} as unknown as GetCattleDetailResType;
 
 	it("should render bloodline information correctly", () => {
@@ -92,8 +92,8 @@ describe("Bloodline", () => {
 				fatherCattleName: null,
 				motherFatherCattleName: null,
 				motherGrandFatherCattleName: null,
-				motherGreatGrandFatherCattleName: null,
-			},
+				motherGreatGrandFatherCattleName: null
+			}
 		} as GetCattleDetailResType;
 
 		render(<Bloodline cattle={cattleWithNullBloodline} />);
@@ -111,8 +111,8 @@ describe("Bloodline", () => {
 				cattleId: 1,
 				motherName: null,
 				motherIdentificationNumber: null,
-				motherScore: null,
-			},
+				motherScore: null
+			}
 		} as GetCattleDetailResType;
 
 		render(<Bloodline cattle={cattleWithNullMotherInfo} />);
@@ -126,7 +126,7 @@ describe("Bloodline", () => {
 		const cattleWithNullData: GetCattleDetailResType = {
 			...mockCattle,
 			bloodline: null,
-			motherInfo: null,
+			motherInfo: null
 		} as GetCattleDetailResType;
 
 		render(<Bloodline cattle={cattleWithNullData} />);
@@ -140,10 +140,10 @@ describe("Bloodline", () => {
 		render(<Bloodline cattle={mockCattle} />);
 
 		expect(
-			screen.getByText("登録日時: 2023-01-01T00:00:00Z"),
+			screen.getByText("登録日時: 2023-01-01T00:00:00Z")
 		).toBeInTheDocument();
 		expect(
-			screen.getByText("更新日時: 2023-12-01T00:00:00Z"),
+			screen.getByText("更新日時: 2023-12-01T00:00:00Z")
 		).toBeInTheDocument();
 	});
 
@@ -156,8 +156,8 @@ describe("Bloodline", () => {
 				motherCattleId: 1,
 				motherName: "母牛テスト",
 				motherIdentificationNumber: "0",
-				motherScore: 0,
-			},
+				motherScore: 0
+			}
 		} as unknown as GetCattleDetailResType;
 
 		render(<Bloodline cattle={cattleWithZeroValues} />);

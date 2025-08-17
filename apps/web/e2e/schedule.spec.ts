@@ -38,7 +38,7 @@ test.describe("スケジュール機能", () => {
 
 		// イベント追加ボタンが表示されることを確認
 		await expect(
-			page.getByRole("link", { name: "イベント追加", exact: true }),
+			page.getByRole("link", { name: "イベント追加", exact: true })
 		).toBeVisible();
 	});
 
@@ -128,17 +128,17 @@ test.describe("スケジュール機能", () => {
 
 			// イベントカードの基本構造が表示されることを確認
 			await expect(
-				eventCard.locator(".flex.items-center.gap-2.text-sm"),
+				eventCard.locator(".flex.items-center.gap-2.text-sm")
 			).toBeVisible();
 
 			// イベントタイプバッジが表示されることを確認（より具体的なセレクター）
 			await expect(
-				eventCard.locator('span[data-slot="badge"]').first(),
+				eventCard.locator('span[data-slot="badge"]').first()
 			).toBeVisible();
 		} else {
 			// イベントがない場合の表示確認
 			await expect(
-				page.locator("text=該当する日付のイベントがありません"),
+				page.locator("text=該当する日付のイベントがありません")
 			).toBeVisible();
 		}
 

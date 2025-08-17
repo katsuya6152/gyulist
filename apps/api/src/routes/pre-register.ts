@@ -1,20 +1,50 @@
 import { Hono } from "hono";
-import { preRegister } from "../services/registrationService";
+import { createCryptoIdPort } from "../contexts/auth/infra/id";
+import { preRegisterSchema } from "../contexts/registration/domain/codecs/input";
+import { preRegisterSuccessSchema } from "../contexts/registration/domain/codecs/output";
+import { preRegister as preRegisterUC } from "../contexts/registration/domain/services/preRegister";
+import { makeRegistrationRepo } from "../contexts/registration/infra/drizzle/repo";
+import { sendCompletionEmail } from "../lib/resend";
+import { verifyTurnstile } from "../lib/turnstile";
+import {
+	executeUseCase,
+	handleValidationError
+} from "../shared/http/route-helpers";
 import type { Bindings } from "../types";
-import { preRegisterSchema } from "../validators/preRegisterValidator";
 
 const app = new Hono<{ Bindings: Bindings }>().post("/", async (c) => {
 	const body = await c.req.json().catch(() => ({}));
 	const parsed = preRegisterSchema.safeParse(body);
 	if (!parsed.success) {
-		console.error(parsed.error); // validation error
-		return c.json(
-			{ ok: false, code: "VALIDATION_FAILED", message: "Validation failed" },
-			400,
-		);
+		return handleValidationError(c, parsed.error);
 	}
-	const result = await preRegister(c.env, c.env.DB, parsed.data);
-	return c.json(result.body, result.status);
+
+	return executeUseCase(
+		c,
+		async () => {
+			const deps = {
+				repo: makeRegistrationRepo(c.env.DB),
+				id: createCryptoIdPort(),
+				time: { nowSeconds: () => Math.floor(Date.now() / 1000) },
+				turnstile: { verify: verifyTurnstile },
+				mail: { sendCompleted: sendCompletionEmail },
+				secrets: {
+					TURNSTILE_SECRET_KEY: c.env.TURNSTILE_SECRET_KEY,
+					RESEND_API_KEY: c.env.RESEND_API_KEY,
+					MAIL_FROM: c.env.MAIL_FROM || "no-reply@gyulist.com"
+				}
+			};
+
+			const result = await preRegisterUC(deps)(parsed.data);
+			if (!result.ok) return result;
+
+			return {
+				ok: true,
+				value: preRegisterSuccessSchema.parse(result.value.body)
+			} as const;
+		},
+		{ envelope: "data" }
+	);
 });
 
 export default app;

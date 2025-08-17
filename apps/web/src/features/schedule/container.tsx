@@ -27,7 +27,7 @@ export default async function ScheduleContainer({ searchParams }: Props) {
 
 	// SearchEventsQuery を構築
 	const searchQuery: SearchEventsQuery = {
-		limit: 50,
+		limit: 50
 	};
 
 	// カスタム日付の場合のみ日付フィルタリングを適用

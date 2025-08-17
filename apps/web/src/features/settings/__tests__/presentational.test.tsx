@@ -6,12 +6,12 @@ import { SettingsPresentation } from "../presentational";
 // Mock the actions
 vi.mock("../actions", () => ({
 	logoutAction: vi.fn(),
-	updateThemeAction: vi.fn(),
+	updateThemeAction: vi.fn()
 }));
 
 // Mock the theme provider
 vi.mock("@/lib/theme-provider", () => ({
-	useTheme: vi.fn(),
+	useTheme: vi.fn()
 }));
 
 // Mock sonner toast
@@ -19,14 +19,14 @@ vi.mock("sonner", () => ({
 	toast: {
 		info: vi.fn(),
 		success: vi.fn(),
-		error: vi.fn(),
-	},
+		error: vi.fn()
+	}
 }));
 
 // Mock window.confirm
 Object.defineProperty(window, "confirm", {
 	writable: true,
-	value: vi.fn(),
+	value: vi.fn()
 });
 
 describe("SettingsPresentation", () => {
@@ -39,7 +39,7 @@ describe("SettingsPresentation", () => {
 		const { useTheme } = vi.mocked(await import("@/lib/theme-provider"));
 		useTheme.mockReturnValue({
 			theme: "light",
-			setTheme: mockSetTheme,
+			setTheme: mockSetTheme
 		});
 	});
 
@@ -49,21 +49,21 @@ describe("SettingsPresentation", () => {
 		// ページタイトルと説明を確認
 		expect(screen.getByText("設定")).toBeInTheDocument();
 		expect(
-			screen.getByText("アカウント設定とアプリケーションの設定を管理します"),
+			screen.getByText("アカウント設定とアプリケーションの設定を管理します")
 		).toBeInTheDocument();
 
 		// アカウント設定カードを確認
 		expect(screen.getByText("アカウント")).toBeInTheDocument();
 		expect(
-			screen.getByText("アカウントに関する設定を管理します"),
+			screen.getByText("アカウントに関する設定を管理します")
 		).toBeInTheDocument();
 
 		// ログアウトセクションを確認（h3要素とbutton要素を区別）
 		expect(
-			screen.getByRole("heading", { level: 3, name: "ログアウト" }),
+			screen.getByRole("heading", { level: 3, name: "ログアウト" })
 		).toBeInTheDocument();
 		expect(
-			screen.getByText("現在のセッションからログアウトします"),
+			screen.getByText("現在のセッションからログアウトします")
 		).toBeInTheDocument();
 
 		// ログアウトボタンを確認
@@ -74,13 +74,13 @@ describe("SettingsPresentation", () => {
 		// アプリケーション設定カードを確認
 		expect(screen.getByText("アプリケーション設定")).toBeInTheDocument();
 		expect(
-			screen.getByText("アプリケーションの動作に関する設定"),
+			screen.getByText("アプリケーションの動作に関する設定")
 		).toBeInTheDocument();
 
 		// テーマ設定の確認
 		expect(screen.getByText("テーマ")).toBeInTheDocument();
 		expect(
-			screen.getByText("アプリケーションの見た目をカスタマイズします"),
+			screen.getByText("アプリケーションの見た目をカスタマイズします")
 		).toBeInTheDocument();
 		expect(screen.getByText("ライトモード")).toBeInTheDocument();
 		expect(screen.getByText("ダークモード")).toBeInTheDocument();
@@ -165,7 +165,7 @@ describe("SettingsPresentation", () => {
 		const { useTheme } = vi.mocked(await import("@/lib/theme-provider"));
 		useTheme.mockReturnValue({
 			theme: "dark",
-			setTheme: mockSetTheme,
+			setTheme: mockSetTheme
 		});
 
 		const { updateThemeAction } = await import("../actions");
@@ -209,7 +209,7 @@ describe("SettingsPresentation", () => {
 
 		vi.mocked(updateThemeAction).mockResolvedValue({
 			success: true,
-			message: "demo",
+			message: "demo"
 		});
 
 		render(<SettingsPresentation />);
@@ -222,7 +222,7 @@ describe("SettingsPresentation", () => {
 			expect(updateThemeAction).toHaveBeenCalledWith("dark");
 			expect(toast.info).toHaveBeenCalledWith("テーマを更新しました", {
 				description:
-					"デモアカウントのため、実際にデータベースには保存されていません",
+					"デモアカウントのため、実際にデータベースには保存されていません"
 			});
 		});
 	});
@@ -233,7 +233,7 @@ describe("SettingsPresentation", () => {
 
 		vi.mocked(updateThemeAction).mockResolvedValue({
 			success: false,
-			error: "テーマの更新に失敗しました",
+			error: "テーマの更新に失敗しました"
 		});
 
 		render(<SettingsPresentation />);
@@ -268,7 +268,7 @@ describe("SettingsPresentation", () => {
 			expect(updateThemeAction).toHaveBeenCalledWith("dark");
 			expect(consoleSpy).toHaveBeenCalledWith(
 				"Failed to update theme:",
-				expect.any(Error),
+				expect.any(Error)
 			);
 			expect(toast.error).toHaveBeenCalledWith("テーマの更新に失敗しました");
 			// テーマが元に戻される
@@ -283,7 +283,7 @@ describe("SettingsPresentation", () => {
 
 		// Never resolving promise to keep loading state
 		vi.mocked(updateThemeAction).mockImplementation(
-			() => new Promise(() => {}),
+			() => new Promise(() => {})
 		);
 
 		render(<SettingsPresentation />);
@@ -300,7 +300,7 @@ describe("SettingsPresentation", () => {
 		const { useTheme } = vi.mocked(await import("@/lib/theme-provider"));
 		useTheme.mockReturnValue({
 			theme: "dark",
-			setTheme: mockSetTheme,
+			setTheme: mockSetTheme
 		});
 
 		render(<SettingsPresentation />);
@@ -315,7 +315,7 @@ describe("SettingsPresentation", () => {
 
 		// Never resolving promise to keep loading state
 		vi.mocked(updateThemeAction).mockImplementation(
-			() => new Promise(() => {}),
+			() => new Promise(() => {})
 		);
 
 		render(<SettingsPresentation />);
@@ -326,7 +326,7 @@ describe("SettingsPresentation", () => {
 		// All radio buttons should be disabled during update
 		const lightModeRadio = screen.getByRole("radio", { name: /ライトモード/ });
 		const systemModeRadio = screen.getByRole("radio", {
-			name: /システム設定に従う/,
+			name: /システム設定に従う/
 		});
 
 		expect(lightModeRadio).toBeDisabled();

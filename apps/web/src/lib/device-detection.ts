@@ -31,7 +31,7 @@ export function getDeviceInfo(): DeviceInfo {
 			isSafari: false,
 			isFirefox: false,
 			screenWidth: 1920,
-			screenHeight: 1080,
+			screenHeight: 1080
 		};
 	}
 
@@ -70,7 +70,7 @@ export function getDeviceInfo(): DeviceInfo {
 		isSafari,
 		isFirefox,
 		screenWidth,
-		screenHeight,
+		screenHeight
 	};
 }
 

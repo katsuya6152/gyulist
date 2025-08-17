@@ -8,5 +8,5 @@ export const sessions = sqliteTable("sessions", {
 		.references(() => users.id)
 		.notNull(),
 	expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
-	createdAt: text().default(sql`(CURRENT_TIMESTAMP)`),
+	createdAt: text().default(sql`(CURRENT_TIMESTAMP)`)
 });

@@ -4,7 +4,7 @@ import { users } from "./users";
 
 export const cattle = sqliteTable("cattle", {
 	cattleId: integer("cattleId", { mode: "number" }).primaryKey({
-		autoIncrement: true,
+		autoIncrement: true
 	}),
 	// users(id)への外部キー参照
 	ownerUserId: integer("ownerUserId", { mode: "number" })
@@ -12,7 +12,7 @@ export const cattle = sqliteTable("cattle", {
 		.notNull(),
 	// 個体識別番号*
 	identificationNumber: integer("identificationNumber", {
-		mode: "number",
+		mode: "number"
 	}).notNull(),
 	// 耳標番号
 	earTagNumber: integer("earTagNumber", { mode: "number" }),
@@ -21,7 +21,7 @@ export const cattle = sqliteTable("cattle", {
 	// 成長段階*
 	growthStage: text("growthStage", {
 		// enum: ["仔牛", "育成牛", "肥育牛", "初産牛", "経産牛"],
-		enum: ["CALF", "GROWING", "FATTENING", "FIRST_CALVED", "MULTI_PAROUS"],
+		enum: ["CALF", "GROWING", "FATTENING", "FIRST_CALVED", "MULTI_PAROUS"]
 	}),
 	// 出生日
 	birthday: text("birthday"),
@@ -41,7 +41,7 @@ export const cattle = sqliteTable("cattle", {
 	breed: text("breed"),
 	// ステータス
 	status: text("status", {
-		enum: ["HEALTHY", "PREGNANT", "RESTING", "TREATING", "SHIPPED", "DEAD"],
+		enum: ["HEALTHY", "PREGNANT", "RESTING", "TREATING", "SHIPPED", "DEAD"]
 	}).default("HEALTHY"),
 	// 生産者
 	producerName: text("producerName"),
@@ -53,7 +53,7 @@ export const cattle = sqliteTable("cattle", {
 	notes: text("notes"),
 	// 登録日時
 	createdAt: text().default(sql`(datetime('now', 'utc'))`),
-	updatedAt: text().default(sql`(datetime('now', 'utc'))`),
+	updatedAt: text().default(sql`(datetime('now', 'utc'))`)
 });
 
 /**
@@ -61,7 +61,7 @@ export const cattle = sqliteTable("cattle", {
  */
 export const bloodline = sqliteTable("bloodline", {
 	bloodlineId: integer("bloodlineId", { mode: "number" }).primaryKey({
-		autoIncrement: true,
+		autoIncrement: true
 	}),
 	// 紐づけ対象の個体
 	cattleId: integer("cattleId", { mode: "number" })
@@ -74,7 +74,7 @@ export const bloodline = sqliteTable("bloodline", {
 	// 母の祖父
 	motherGrandFatherCattleName: text("motherGrandFatherCattleName"),
 	// 母の祖祖父
-	motherGreatGrandFatherCattleName: text("motherGreatGrandFatherCattleName"),
+	motherGreatGrandFatherCattleName: text("motherGreatGrandFatherCattleName")
 });
 
 /**
@@ -82,7 +82,7 @@ export const bloodline = sqliteTable("bloodline", {
  */
 export const motherInfo = sqliteTable("mother_info", {
 	motherInfoId: integer("motherInfoId", { mode: "number" }).primaryKey({
-		autoIncrement: true,
+		autoIncrement: true
 	}),
 	// 子の個体ID
 	cattleId: integer("cattleId", { mode: "number" })
@@ -95,7 +95,7 @@ export const motherInfo = sqliteTable("mother_info", {
 	// 母の個体識別番号
 	motherIdentificationNumber: text("motherIdentificationNumber"),
 	// 母の得点
-	motherScore: integer("motherScore", { mode: "number" }),
+	motherScore: integer("motherScore", { mode: "number" })
 });
 
 /**
@@ -103,7 +103,7 @@ export const motherInfo = sqliteTable("mother_info", {
  */
 export const breedingStatus = sqliteTable("breeding_status", {
 	breedingStatusId: integer("breedingStatusId", { mode: "number" }).primaryKey({
-		autoIncrement: true,
+		autoIncrement: true
 	}),
 	// 紐づけ対象の個体
 	cattleId: integer("cattleId", { mode: "number" })
@@ -132,7 +132,7 @@ export const breedingStatus = sqliteTable("breeding_status", {
 
 	// 登録日時・更新日時
 	createdAt: text().default(sql`(datetime('now', 'utc'))`),
-	updatedAt: text().default(sql`(datetime('now', 'utc'))`),
+	updatedAt: text().default(sql`(datetime('now', 'utc'))`)
 });
 
 /**
@@ -140,9 +140,9 @@ export const breedingStatus = sqliteTable("breeding_status", {
  */
 export const breedingSummary = sqliteTable("breeding_summary", {
 	breedingSummaryId: integer("breedingSummaryId", {
-		mode: "number",
+		mode: "number"
 	}).primaryKey({
-		autoIncrement: true,
+		autoIncrement: true
 	}),
 	// 紐づけ対象の個体
 	cattleId: integer("cattleId", { mode: "number" })
@@ -165,5 +165,5 @@ export const breedingSummary = sqliteTable("breeding_summary", {
 
 	// 登録日時・更新日時
 	createdAt: text().default(sql`(datetime('now', 'utc'))`),
-	updatedAt: text().default(sql`(datetime('now', 'utc'))`),
+	updatedAt: text().default(sql`(datetime('now', 'utc'))`)
 });

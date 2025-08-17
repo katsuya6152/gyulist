@@ -39,7 +39,7 @@ describe("Breeding", () => {
 			isDifficultBirth: false,
 			breedingMemo: "順調に妊娠中",
 			createdAt: "2023-01-01T00:00:00Z",
-			updatedAt: "2023-12-01T00:00:00Z",
+			updatedAt: "2023-12-01T00:00:00Z"
 		},
 		breedingSummary: {
 			breedingSummaryId: 1,
@@ -50,13 +50,13 @@ describe("Breeding", () => {
 			averageCalvingInterval: 380,
 			difficultBirthCount: 1,
 			pregnancyHeadCount: 3,
-			pregnancySuccessRate: 75,
+			pregnancySuccessRate: 75
 		},
 		bloodline: null,
 		motherInfo: null,
 		events: null,
 		status: "HEALTHY",
-		healthStatus: "健康",
+		healthStatus: "健康"
 	} as unknown as GetCattleDetailResType;
 
 	it("should render breeding status correctly", () => {
@@ -130,9 +130,9 @@ describe("Breeding", () => {
 			breedingStatus: mockCattle.breedingStatus
 				? {
 						...mockCattle.breedingStatus,
-						isDifficultBirth: true,
+						isDifficultBirth: true
 					}
-				: null,
+				: null
 		} as GetCattleDetailResType;
 
 		render(<Breeding cattle={cattleWithDifficultBirth} />);
@@ -146,9 +146,9 @@ describe("Breeding", () => {
 			breedingStatus: mockCattle.breedingStatus
 				? {
 						...mockCattle.breedingStatus,
-						isDifficultBirth: null,
+						isDifficultBirth: null
 					}
-				: null,
+				: null
 		} as GetCattleDetailResType;
 
 		render(<Breeding cattle={cattleWithNullDifficultBirth} />);
@@ -175,8 +175,8 @@ describe("Breeding", () => {
 				isDifficultBirth: null,
 				breedingMemo: null,
 				createdAt: "2023-01-01T00:00:00Z",
-				updatedAt: "2023-12-01T00:00:00Z",
-			},
+				updatedAt: "2023-12-01T00:00:00Z"
+			}
 		} as unknown as GetCattleDetailResType;
 
 		render(<Breeding cattle={cattleWithNullValues} />);
@@ -198,8 +198,8 @@ describe("Breeding", () => {
 				averageCalvingInterval: null,
 				difficultBirthCount: null,
 				pregnancyHeadCount: null,
-				pregnancySuccessRate: null,
-			},
+				pregnancySuccessRate: null
+			}
 		} as unknown as GetCattleDetailResType;
 
 		render(<Breeding cattle={cattleWithNullSummary} />);
@@ -220,7 +220,7 @@ describe("Breeding", () => {
 	it("should show loading message when breeding status is null", () => {
 		const cattleWithoutBreedingStatus: GetCattleDetailResType = {
 			...mockCattle,
-			breedingStatus: null,
+			breedingStatus: null
 		} as GetCattleDetailResType;
 
 		render(<Breeding cattle={cattleWithoutBreedingStatus} />);
@@ -233,7 +233,7 @@ describe("Breeding", () => {
 	it("should show loading message when breeding summary is null", () => {
 		const cattleWithoutBreedingSummary: GetCattleDetailResType = {
 			...mockCattle,
-			breedingSummary: null,
+			breedingSummary: null
 		} as GetCattleDetailResType;
 
 		render(<Breeding cattle={cattleWithoutBreedingSummary} />);
@@ -247,10 +247,10 @@ describe("Breeding", () => {
 		render(<Breeding cattle={mockCattle} />);
 
 		expect(
-			screen.getByText("登録日時: 2023-01-01T00:00:00Z"),
+			screen.getByText("登録日時: 2023-01-01T00:00:00Z")
 		).toBeInTheDocument();
 		expect(
-			screen.getByText("更新日時: 2023-12-01T00:00:00Z"),
+			screen.getByText("更新日時: 2023-12-01T00:00:00Z")
 		).toBeInTheDocument();
 	});
 
@@ -265,7 +265,7 @@ describe("Breeding", () => {
 						daysOpen: 0,
 						pregnancyDays: 0,
 						daysAfterInsemination: 0,
-						inseminationCount: 0,
+						inseminationCount: 0
 					}
 				: null,
 			breedingSummary: mockCattle.breedingSummary
@@ -277,9 +277,9 @@ describe("Breeding", () => {
 						averageCalvingInterval: 0,
 						difficultBirthCount: 0,
 						pregnancyHeadCount: 0,
-						pregnancySuccessRate: 0,
+						pregnancySuccessRate: 0
 					}
-				: null,
+				: null
 		} as GetCattleDetailResType;
 
 		render(<Breeding cattle={cattleWithZeroValues} />);

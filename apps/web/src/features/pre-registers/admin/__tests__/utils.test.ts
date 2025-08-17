@@ -24,7 +24,7 @@ describe("utils", () => {
 		vi.spyOn(document, "createElement").mockReturnValue({
 			href: "",
 			download: "",
-			click,
+			click
 		} as unknown as HTMLAnchorElement);
 		await downloadCsv(blob, "test.csv");
 		expect(createObjectURL).toHaveBeenCalled();

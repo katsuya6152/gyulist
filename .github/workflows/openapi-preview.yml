@@ -1,0 +1,99 @@
+name: OpenAPI Preview
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile=false
+
+      - name: Generate OpenAPI JSON
+        working-directory: apps/api
+        run: pnpm openapi:gen
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-spec
+          path: docs/openapi.json
+
+  pages:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download OpenAPI artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: openapi-spec
+          path: docs
+
+      - name: Prepare Swagger UI
+        run: |
+          mkdir -p public
+          curl -L -o public/swagger-ui.zip https://github.com/swagger-api/swagger-ui/archive/refs/heads/master.zip
+          sudo apt-get update && sudo apt-get install -y unzip
+          unzip public/swagger-ui.zip -d public
+          mv public/swagger-ui-master/dist public/swagger
+          # create index.html pointing to openapi.json
+          cat > public/swagger/index.html <<'HTML'
+          <!doctype html>
+          <html>
+          <head>
+            <meta charset="utf-8"/>
+            <title>Gyulist API - Swagger UI</title>
+            <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+          </head>
+          <body>
+          <div id="swagger-ui"></div>
+          <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+          <script>
+            window.onload = () => {
+              window.ui = SwaggerUIBundle({ url: '/openapi.json', dom_id: '#swagger-ui' });
+            };
+          </script>
+          </body>
+          </html>
+          HTML
+          # move openapi.json to top-level for serving
+          mv docs/openapi.json public/openapi.json
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
+
+

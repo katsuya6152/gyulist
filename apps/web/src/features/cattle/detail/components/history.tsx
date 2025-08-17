@@ -1,7 +1,7 @@
 import { EventCard } from "@/components/event/event-card";
 import {
 	deleteEventAction,
-	updateEventAction,
+	updateEventAction
 } from "@/features/schedule/actions";
 import type { GetCattleDetailResType } from "@/services/cattleService";
 import type { UpdateEventInput } from "@/services/eventService";
@@ -9,23 +9,23 @@ import { parseISO } from "date-fns";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-type CattleEvent = NonNullable<GetCattleDetailResType["events"][number]>;
+type CattleEvent = NonNullable<GetCattleDetailResType["events"]>[number];
 
 export function History({ cattle }: { cattle: GetCattleDetailResType }) {
 	const router = useRouter();
 
 	const sortedEvents = (
-		events: (GetCattleDetailResType["events"][number] | null)[] | undefined,
+		events: GetCattleDetailResType["events"]
 	): CattleEvent[] => {
 		const safeEvents: CattleEvent[] = (events ?? []).filter(
-			(e): e is CattleEvent => e != null,
+			(e): e is CattleEvent => e != null
 		);
 		return safeEvents
 			.slice()
 			.sort(
 				(a, b) =>
 					parseISO(b.eventDatetime).getTime() -
-					parseISO(a.eventDatetime).getTime(),
+					parseISO(a.eventDatetime).getTime()
 			);
 	};
 
@@ -42,7 +42,7 @@ export function History({ cattle }: { cattle: GetCattleDetailResType }) {
 						eventDatetime: event.eventDatetime,
 						notes: event.notes ?? undefined,
 						cattleName: cattle.name,
-						cattleEarTagNumber: cattle.earTagNumber ?? undefined,
+						cattleEarTagNumber: cattle.earTagNumber ?? undefined
 					}}
 					hideCattleInfo
 					onSave={async (id, data) => {

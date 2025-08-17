@@ -6,7 +6,7 @@ import { SettingsContainer } from "../container";
 vi.mock("../presentational", () => ({
 	SettingsPresentation: () => (
 		<div data-testid="settings-presentation">Settings Presentation</div>
-	),
+	)
 }));
 
 describe("SettingsContainer", () => {

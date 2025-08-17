@@ -4,6 +4,11 @@ import { client } from "@/lib/rpc";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
+type CompleteRegistrationResponse = {
+	message: string;
+	success?: boolean;
+};
+
 export default function CompleteRegistrationForm() {
 	const searchParams = useSearchParams();
 	const token = searchParams.get("token");
@@ -23,9 +28,9 @@ export default function CompleteRegistrationForm() {
 		setLoading(true);
 		try {
 			const res = await client.api.v1.auth.complete.$post({
-				json: { token, name, password },
+				json: { token, name, password }
 			});
-			const data = await res.json();
+			const data = (await res.json()) as CompleteRegistrationResponse;
 			setMessage(data.message);
 			if (data.success) {
 				setTimeout(() => {

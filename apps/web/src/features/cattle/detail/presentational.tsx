@@ -19,7 +19,7 @@ export default function CattleDetailPresentation({ cattle, error }: Props) {
 	const [selectedTab, setSelectedTab] = useState("basic");
 	const [emblaRef, emblaApi] = useEmblaCarousel({
 		align: "start",
-		skipSnaps: false,
+		skipSnaps: false
 	});
 
 	const onSelect = useCallback(() => {
@@ -27,7 +27,7 @@ export default function CattleDetailPresentation({ cattle, error }: Props) {
 		setSelectedTab(
 			["basic", "bloodline", "breeding", "history"][
 				emblaApi.selectedScrollSnap()
-			],
+			]
 		);
 	}, [emblaApi]);
 
@@ -45,7 +45,7 @@ export default function CattleDetailPresentation({ cattle, error }: Props) {
 			if (!emblaApi) return;
 			emblaApi.scrollTo(index);
 		},
-		[emblaApi],
+		[emblaApi]
 	);
 
 	if (error) {

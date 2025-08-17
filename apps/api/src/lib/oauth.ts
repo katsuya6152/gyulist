@@ -5,7 +5,7 @@ export function createGoogleOAuth(env: Bindings): Google {
 	return new Google(
 		env.GOOGLE_CLIENT_ID,
 		env.GOOGLE_CLIENT_SECRET,
-		`${env.APP_URL}/api/v1/oauth/google/callback`,
+		`${env.APP_URL}/api/v1/oauth/google/callback`
 	);
 }
 

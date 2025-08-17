@@ -9,13 +9,13 @@ import {
 	DialogDescription,
 	DialogFooter,
 	DialogHeader,
-	DialogTitle,
+	DialogTitle
 } from "@/components/ui/dialog";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuTrigger,
+	DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,7 +24,7 @@ import {
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
-	SelectValue,
+	SelectValue
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
@@ -56,7 +56,7 @@ interface EventCardProps {
 	// Optional inline dialogs
 	onSave?: (
 		eventId: number,
-		data: { eventType: string; eventDatetime: string; notes?: string },
+		data: { eventType: string; eventDatetime: string; notes?: string }
 	) => Promise<void>;
 	onConfirmDelete?: (eventId: number) => Promise<void>;
 }
@@ -71,7 +71,7 @@ export const EventCard = memo(
 		hideCattleInfo,
 		compact,
 		onSave,
-		onConfirmDelete,
+		onConfirmDelete
 	}: EventCardProps) => {
 		const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 		const [isEditOpen, setIsEditOpen] = useState(false);
@@ -79,7 +79,7 @@ export const EventCard = memo(
 		const [isSubmitting, setIsSubmitting] = useState(false);
 		const [isNotesOpen, setIsNotesOpen] = useState(false);
 		const [localEventType, setLocalEventType] = useState<string>(
-			event.eventType,
+			event.eventType
 		);
 		const [localDatetime, setLocalDatetime] = useState<string>("");
 		const [localNotes, setLocalNotes] = useState<string>(event.notes || "");
@@ -326,7 +326,7 @@ export const EventCard = memo(
 											await onSave(event.eventId, {
 												eventType: localEventType,
 												eventDatetime: iso,
-												notes: localNotes || undefined,
+												notes: localNotes || undefined
 											});
 											setIsEditOpen(false);
 										} finally {
@@ -386,7 +386,7 @@ export const EventCard = memo(
 				)}
 			</>
 		);
-	},
+	}
 );
 
 EventCard.displayName = "EventCard";

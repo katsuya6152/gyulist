@@ -1,0 +1,2568 @@
+{
+	"openapi": "3.1.0",
+	"info": { "title": "Gyulist API", "version": "1.0.0" },
+	"servers": [{ "url": "/" }],
+	"components": {
+		"securitySchemes": {
+			"bearerAuth": {
+				"type": "http",
+				"scheme": "bearer",
+				"bearerFormat": "JWT"
+			},
+			"basicAuth": { "type": "http", "scheme": "basic" }
+		},
+		"schemas": {
+			"HealthResponse": {
+				"type": "object",
+				"properties": {
+					"status": { "type": "string" },
+					"timestamp": { "type": "string" }
+				},
+				"required": ["status", "timestamp"]
+			},
+			"AlertsListEnvelope": {
+				"type": "object",
+				"properties": {
+					"data": {
+						"type": "object",
+						"properties": {
+							"results": {
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"alertId": { "type": "string" },
+										"type": {
+											"type": "string",
+											"enum": [
+												"OPEN_DAYS_OVER60_NO_AI",
+												"CALVING_WITHIN_60",
+												"CALVING_OVERDUE",
+												"ESTRUS_OVER20_NOT_PREGNANT"
+											]
+										},
+										"severity": {
+											"type": "string",
+											"enum": ["high", "medium", "low"]
+										},
+										"cattleId": { "type": "number" },
+										"cattleName": { "type": "string", "nullable": true },
+										"cattleEarTagNumber": {
+											"type": "string",
+											"nullable": true
+										},
+										"dueAt": { "type": "string", "nullable": true },
+										"message": { "type": "string" }
+									},
+									"required": [
+										"alertId",
+										"type",
+										"severity",
+										"cattleId",
+										"cattleName",
+										"cattleEarTagNumber",
+										"dueAt",
+										"message"
+									]
+								}
+							}
+						},
+						"required": ["results"]
+					}
+				},
+				"required": ["data"]
+			},
+			"CattleListEnvelope": {
+				"type": "object",
+				"properties": {
+					"data": {
+						"type": "object",
+						"properties": {
+							"results": {
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"cattleId": { "type": "number" },
+										"ownerUserId": { "type": "number" },
+										"identificationNumber": { "type": "number" },
+										"earTagNumber": { "type": "number", "nullable": true },
+										"name": { "type": "string", "nullable": true },
+										"gender": {
+											"type": "string",
+											"nullable": true,
+											"enum": ["オス", "メス"]
+										},
+										"birthday": { "type": "string", "nullable": true },
+										"growthStage": {
+											"type": "string",
+											"nullable": true,
+											"enum": [
+												"CALF",
+												"GROWING",
+												"FATTENING",
+												"FIRST_CALVED",
+												"MULTI_PAROUS"
+											]
+										},
+										"age": { "type": "number", "nullable": true },
+										"monthsOld": { "type": "number", "nullable": true },
+										"daysOld": { "type": "number", "nullable": true },
+										"breed": { "type": "string", "nullable": true },
+										"status": {
+											"type": "string",
+											"nullable": true,
+											"enum": [
+												"HEALTHY",
+												"PREGNANT",
+												"RESTING",
+												"TREATING",
+												"SHIPPED",
+												"DEAD"
+											]
+										},
+										"producerName": { "type": "string", "nullable": true },
+										"barn": { "type": "string", "nullable": true },
+										"breedingValue": { "type": "string", "nullable": true },
+										"notes": { "type": "string", "nullable": true },
+										"weight": { "type": "number", "nullable": true },
+										"score": { "type": "number", "nullable": true },
+										"createdAt": { "type": "string" },
+										"updatedAt": { "type": "string" }
+									},
+									"required": [
+										"cattleId",
+										"ownerUserId",
+										"earTagNumber",
+										"name",
+										"gender",
+										"birthday",
+										"growthStage",
+										"age",
+										"monthsOld",
+										"daysOld",
+										"breed",
+										"status",
+										"producerName",
+										"barn",
+										"breedingValue",
+										"notes",
+										"weight",
+										"score",
+										"createdAt",
+										"updatedAt"
+									]
+								}
+							},
+							"next_cursor": { "type": "string", "nullable": true },
+							"has_next": { "type": "boolean" }
+						},
+						"required": ["results", "next_cursor", "has_next"]
+					}
+				},
+				"required": ["data"]
+			},
+			"CattleStatusCountsEnvelope": {
+				"type": "object",
+				"properties": {
+					"data": {
+						"type": "object",
+						"properties": {
+							"counts": {
+								"type": "object",
+								"additionalProperties": { "type": "number" }
+							}
+						},
+						"required": ["counts"]
+					}
+				},
+				"required": ["data"]
+			},
+			"CattleEnvelope": {
+				"type": "object",
+				"properties": {
+					"data": {
+						"type": "object",
+						"properties": {
+							"cattleId": { "type": "number" },
+							"ownerUserId": { "type": "number" },
+							"identificationNumber": { "type": "number" },
+							"earTagNumber": { "type": "number", "nullable": true },
+							"name": { "type": "string", "nullable": true },
+							"gender": {
+								"type": "string",
+								"nullable": true,
+								"enum": ["オス", "メス"]
+							},
+							"birthday": { "type": "string", "nullable": true },
+							"growthStage": {
+								"type": "string",
+								"nullable": true,
+								"enum": [
+									"CALF",
+									"GROWING",
+									"FATTENING",
+									"FIRST_CALVED",
+									"MULTI_PAROUS"
+								]
+							},
+							"age": { "type": "number", "nullable": true },
+							"monthsOld": { "type": "number", "nullable": true },
+							"daysOld": { "type": "number", "nullable": true },
+							"breed": { "type": "string", "nullable": true },
+							"status": {
+								"type": "string",
+								"nullable": true,
+								"enum": [
+									"HEALTHY",
+									"PREGNANT",
+									"RESTING",
+									"TREATING",
+									"SHIPPED",
+									"DEAD"
+								]
+							},
+							"producerName": { "type": "string", "nullable": true },
+							"barn": { "type": "string", "nullable": true },
+							"breedingValue": { "type": "string", "nullable": true },
+							"notes": { "type": "string", "nullable": true },
+							"weight": { "type": "number", "nullable": true },
+							"score": { "type": "number", "nullable": true },
+							"createdAt": { "type": "string" },
+							"updatedAt": { "type": "string" },
+							"events": {
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"eventId": { "type": "number" },
+										"cattleId": { "type": "number" },
+										"eventType": { "type": "string" },
+										"eventDatetime": { "type": "string" },
+										"notes": { "type": "string", "nullable": true },
+										"createdAt": { "type": "string" },
+										"updatedAt": { "type": "string" },
+										"cattleName": { "type": "string", "nullable": true },
+										"cattleEarTagNumber": { "type": "number", "nullable": true }
+									},
+									"required": [
+										"eventId",
+										"cattleId",
+										"eventType",
+										"eventDatetime",
+										"notes"
+									]
+								}
+							},
+							"bloodline": {
+								"type": "object",
+								"nullable": true,
+								"properties": {
+									"bloodlineId": { "type": "number" },
+									"cattleId": { "type": "number" },
+									"fatherCattleName": { "type": "string", "nullable": true },
+									"motherFatherCattleName": {
+										"type": "string",
+										"nullable": true
+									},
+									"motherGrandFatherCattleName": {
+										"type": "string",
+										"nullable": true
+									},
+									"motherGreatGrandFatherCattleName": {
+										"type": "string",
+										"nullable": true
+									}
+								},
+								"required": [
+									"bloodlineId",
+									"cattleId",
+									"fatherCattleName",
+									"motherFatherCattleName",
+									"motherGrandFatherCattleName",
+									"motherGreatGrandFatherCattleName"
+								]
+							},
+							"motherInfo": {
+								"type": "object",
+								"nullable": true,
+								"properties": {
+									"motherInfoId": { "type": "number" },
+									"cattleId": { "type": "number" },
+									"motherCattleId": { "type": "number" },
+									"motherName": { "type": "string", "nullable": true },
+									"motherIdentificationNumber": {
+										"type": "string",
+										"nullable": true
+									},
+									"motherScore": { "type": "number", "nullable": true }
+								},
+								"required": [
+									"motherInfoId",
+									"cattleId",
+									"motherCattleId",
+									"motherName",
+									"motherIdentificationNumber",
+									"motherScore"
+								]
+							},
+							"breedingStatus": {
+								"type": "object",
+								"nullable": true,
+								"properties": {
+									"breedingStatusId": { "type": "number" },
+									"cattleId": { "type": "number" },
+									"parity": { "type": "number", "nullable": true },
+									"expectedCalvingDate": { "type": "string", "nullable": true },
+									"scheduledPregnancyCheckDate": {
+										"type": "string",
+										"nullable": true
+									},
+									"daysAfterCalving": { "type": "number", "nullable": true },
+									"daysOpen": { "type": "number", "nullable": true },
+									"pregnancyDays": { "type": "number", "nullable": true },
+									"daysAfterInsemination": {
+										"type": "number",
+										"nullable": true
+									},
+									"inseminationCount": { "type": "number", "nullable": true },
+									"breedingMemo": { "type": "string", "nullable": true },
+									"isDifficultBirth": { "type": "boolean", "nullable": true },
+									"createdAt": { "type": "string" },
+									"updatedAt": { "type": "string" }
+								},
+								"required": [
+									"breedingStatusId",
+									"cattleId",
+									"parity",
+									"expectedCalvingDate",
+									"scheduledPregnancyCheckDate",
+									"daysAfterCalving",
+									"daysOpen",
+									"pregnancyDays",
+									"daysAfterInsemination",
+									"inseminationCount",
+									"breedingMemo",
+									"isDifficultBirth",
+									"createdAt",
+									"updatedAt"
+								]
+							},
+							"breedingSummary": {
+								"type": "object",
+								"nullable": true,
+								"properties": {
+									"breedingSummaryId": { "type": "number" },
+									"cattleId": { "type": "number" },
+									"totalInseminationCount": {
+										"type": "number",
+										"nullable": true
+									},
+									"averageDaysOpen": { "type": "number", "nullable": true },
+									"averagePregnancyPeriod": {
+										"type": "number",
+										"nullable": true
+									},
+									"averageCalvingInterval": {
+										"type": "number",
+										"nullable": true
+									},
+									"difficultBirthCount": { "type": "number", "nullable": true },
+									"pregnancyHeadCount": { "type": "number", "nullable": true },
+									"pregnancySuccessRate": {
+										"type": "number",
+										"nullable": true
+									},
+									"createdAt": { "type": "string" },
+									"updatedAt": { "type": "string" }
+								},
+								"required": [
+									"breedingSummaryId",
+									"cattleId",
+									"totalInseminationCount",
+									"averageDaysOpen",
+									"averagePregnancyPeriod",
+									"averageCalvingInterval",
+									"difficultBirthCount",
+									"pregnancyHeadCount",
+									"pregnancySuccessRate",
+									"createdAt",
+									"updatedAt"
+								]
+							}
+						},
+						"required": [
+							"cattleId",
+							"ownerUserId",
+							"earTagNumber",
+							"name",
+							"gender",
+							"birthday",
+							"growthStage",
+							"age",
+							"monthsOld",
+							"daysOld",
+							"breed",
+							"status",
+							"producerName",
+							"barn",
+							"breedingValue",
+							"notes",
+							"weight",
+							"score",
+							"createdAt",
+							"updatedAt"
+						]
+					}
+				},
+				"required": ["data"]
+			},
+			"CattleCreatedEnvelope": {
+				"type": "object",
+				"properties": {
+					"data": {
+						"type": "object",
+						"properties": {
+							"cattleId": { "type": "number" },
+							"ownerUserId": { "type": "number" },
+							"identificationNumber": { "type": "number" },
+							"earTagNumber": { "type": "number", "nullable": true },
+							"name": { "type": "string", "nullable": true },
+							"gender": {
+								"type": "string",
+								"nullable": true,
+								"enum": ["オス", "メス"]
+							},
+							"birthday": { "type": "string", "nullable": true },
+							"growthStage": {
+								"type": "string",
+								"nullable": true,
+								"enum": [
+									"CALF",
+									"GROWING",
+									"FATTENING",
+									"FIRST_CALVED",
+									"MULTI_PAROUS"
+								]
+							},
+							"age": { "type": "number", "nullable": true },
+							"monthsOld": { "type": "number", "nullable": true },
+							"daysOld": { "type": "number", "nullable": true },
+							"breed": { "type": "string", "nullable": true },
+							"status": {
+								"type": "string",
+								"nullable": true,
+								"enum": [
+									"HEALTHY",
+									"PREGNANT",
+									"RESTING",
+									"TREATING",
+									"SHIPPED",
+									"DEAD"
+								]
+							},
+							"producerName": { "type": "string", "nullable": true },
+							"barn": { "type": "string", "nullable": true },
+							"breedingValue": { "type": "string", "nullable": true },
+							"notes": { "type": "string", "nullable": true },
+							"weight": { "type": "number", "nullable": true },
+							"score": { "type": "number", "nullable": true },
+							"createdAt": { "type": "string" },
+							"updatedAt": { "type": "string" },
+							"events": {
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"eventId": { "type": "number" },
+										"cattleId": { "type": "number" },
+										"eventType": { "type": "string" },
+										"eventDatetime": { "type": "string" },
+										"notes": { "type": "string", "nullable": true },
+										"createdAt": { "type": "string" },
+										"updatedAt": { "type": "string" },
+										"cattleName": { "type": "string", "nullable": true },
+										"cattleEarTagNumber": { "type": "number", "nullable": true }
+									},
+									"required": [
+										"eventId",
+										"cattleId",
+										"eventType",
+										"eventDatetime",
+										"notes"
+									]
+								}
+							},
+							"bloodline": {
+								"type": "object",
+								"nullable": true,
+								"properties": {
+									"bloodlineId": { "type": "number" },
+									"cattleId": { "type": "number" },
+									"fatherCattleName": { "type": "string", "nullable": true },
+									"motherFatherCattleName": {
+										"type": "string",
+										"nullable": true
+									},
+									"motherGrandFatherCattleName": {
+										"type": "string",
+										"nullable": true
+									},
+									"motherGreatGrandFatherCattleName": {
+										"type": "string",
+										"nullable": true
+									}
+								},
+								"required": [
+									"bloodlineId",
+									"cattleId",
+									"fatherCattleName",
+									"motherFatherCattleName",
+									"motherGrandFatherCattleName",
+									"motherGreatGrandFatherCattleName"
+								]
+							},
+							"motherInfo": {
+								"type": "object",
+								"nullable": true,
+								"properties": {
+									"motherInfoId": { "type": "number" },
+									"cattleId": { "type": "number" },
+									"motherCattleId": { "type": "number" },
+									"motherName": { "type": "string", "nullable": true },
+									"motherIdentificationNumber": {
+										"type": "string",
+										"nullable": true
+									},
+									"motherScore": { "type": "number", "nullable": true }
+								},
+								"required": [
+									"motherInfoId",
+									"cattleId",
+									"motherCattleId",
+									"motherName",
+									"motherIdentificationNumber",
+									"motherScore"
+								]
+							},
+							"breedingStatus": {
+								"type": "object",
+								"nullable": true,
+								"properties": {
+									"breedingStatusId": { "type": "number" },
+									"cattleId": { "type": "number" },
+									"parity": { "type": "number", "nullable": true },
+									"expectedCalvingDate": { "type": "string", "nullable": true },
+									"scheduledPregnancyCheckDate": {
+										"type": "string",
+										"nullable": true
+									},
+									"daysAfterCalving": { "type": "number", "nullable": true },
+									"daysOpen": { "type": "number", "nullable": true },
+									"pregnancyDays": { "type": "number", "nullable": true },
+									"daysAfterInsemination": {
+										"type": "number",
+										"nullable": true
+									},
+									"inseminationCount": { "type": "number", "nullable": true },
+									"breedingMemo": { "type": "string", "nullable": true },
+									"isDifficultBirth": { "type": "boolean", "nullable": true },
+									"createdAt": { "type": "string" },
+									"updatedAt": { "type": "string" }
+								},
+								"required": [
+									"breedingStatusId",
+									"cattleId",
+									"parity",
+									"expectedCalvingDate",
+									"scheduledPregnancyCheckDate",
+									"daysAfterCalving",
+									"daysOpen",
+									"pregnancyDays",
+									"daysAfterInsemination",
+									"inseminationCount",
+									"breedingMemo",
+									"isDifficultBirth",
+									"createdAt",
+									"updatedAt"
+								]
+							},
+							"breedingSummary": {
+								"type": "object",
+								"nullable": true,
+								"properties": {
+									"breedingSummaryId": { "type": "number" },
+									"cattleId": { "type": "number" },
+									"totalInseminationCount": {
+										"type": "number",
+										"nullable": true
+									},
+									"averageDaysOpen": { "type": "number", "nullable": true },
+									"averagePregnancyPeriod": {
+										"type": "number",
+										"nullable": true
+									},
+									"averageCalvingInterval": {
+										"type": "number",
+										"nullable": true
+									},
+									"difficultBirthCount": { "type": "number", "nullable": true },
+									"pregnancyHeadCount": { "type": "number", "nullable": true },
+									"pregnancySuccessRate": {
+										"type": "number",
+										"nullable": true
+									},
+									"createdAt": { "type": "string" },
+									"updatedAt": { "type": "string" }
+								},
+								"required": [
+									"breedingSummaryId",
+									"cattleId",
+									"totalInseminationCount",
+									"averageDaysOpen",
+									"averagePregnancyPeriod",
+									"averageCalvingInterval",
+									"difficultBirthCount",
+									"pregnancyHeadCount",
+									"pregnancySuccessRate",
+									"createdAt",
+									"updatedAt"
+								]
+							}
+						},
+						"required": [
+							"cattleId",
+							"ownerUserId",
+							"earTagNumber",
+							"name",
+							"gender",
+							"birthday",
+							"growthStage",
+							"age",
+							"monthsOld",
+							"daysOld",
+							"breed",
+							"status",
+							"producerName",
+							"barn",
+							"breedingValue",
+							"notes",
+							"weight",
+							"score",
+							"createdAt",
+							"updatedAt"
+						]
+					}
+				},
+				"required": ["data"]
+			}
+		},
+		"parameters": {}
+	},
+	"paths": {
+		"/api/v1/health": {
+			"get": {
+				"tags": ["ヘルスチェック"],
+				"summary": "ヘルスチェック",
+				"description": "APIの稼働状態を返します。",
+				"responses": {
+					"200": {
+						"description": "Health Check",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HealthResponse" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/auth/register": {
+			"post": {
+				"tags": ["認証"],
+				"summary": "仮登録",
+				"description": "メールを受け取り、仮登録フローを開始します。",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"email": { "type": "string", "format": "email" }
+								},
+								"required": ["email"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Register",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": { "type": "boolean", "enum": [true] },
+										"message": { "type": "string" }
+									},
+									"required": ["success", "message"]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/auth/verify": {
+			"post": {
+				"tags": ["認証"],
+				"summary": "トークン検証",
+				"description": "メールで送付されたトークンを検証し、状態を返します。",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"token": { "type": "string", "minLength": 10 }
+								},
+								"required": ["token"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Verify",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": { "type": "boolean" },
+										"message": { "type": "string" }
+									},
+									"required": ["success", "message"]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/auth/complete": {
+			"post": {
+				"tags": ["認証"],
+				"summary": "本登録",
+				"description": "トークン・氏名・パスワードで本登録を完了します。",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"token": { "type": "string", "minLength": 10 },
+									"name": { "type": "string", "minLength": 1 },
+									"password": { "type": "string", "minLength": 8 }
+								},
+								"required": ["token", "name", "password"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Complete",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": { "type": "boolean" },
+										"message": { "type": "string" }
+									},
+									"required": ["success", "message"]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/auth/login": {
+			"post": {
+				"tags": ["認証"],
+				"summary": "ログイン",
+				"description": "ユーザーを認証してJWTを返します。",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"email": { "type": "string", "format": "email" },
+									"password": { "type": "string", "minLength": 8 }
+								},
+								"required": ["email", "password"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Login",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": { "token": { "type": "string" } },
+									"required": ["token"]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/alerts": {
+			"get": {
+				"tags": ["アラート"],
+				"summary": "アラート一覧",
+				"description": "ホーム画面で使用するアラート一覧を返します。",
+				"security": [{ "bearerAuth": [] }],
+				"responses": {
+					"200": {
+						"description": "List alerts",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/AlertsListEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/cattle": {
+			"get": {
+				"tags": ["牛（Cattle）"],
+				"summary": "牛の検索・一覧",
+				"description": "フィルタとカーソルで牛を検索・一覧します。",
+				"security": [{ "bearerAuth": [] }],
+				"parameters": [
+					{
+						"schema": { "type": "string" },
+						"required": false,
+						"name": "cursor",
+						"in": "query"
+					},
+					{
+						"schema": {
+							"type": "number",
+							"minimum": 1,
+							"maximum": 100,
+							"default": 20
+						},
+						"required": false,
+						"name": "limit",
+						"in": "query"
+					},
+					{
+						"schema": {
+							"type": "string",
+							"enum": ["id", "name", "days_old"],
+							"default": "id"
+						},
+						"required": false,
+						"name": "sort_by",
+						"in": "query"
+					},
+					{
+						"schema": {
+							"type": "string",
+							"enum": ["asc", "desc"],
+							"default": "desc"
+						},
+						"required": false,
+						"name": "sort_order",
+						"in": "query"
+					},
+					{
+						"schema": { "type": "string" },
+						"required": false,
+						"name": "search",
+						"in": "query"
+					},
+					{
+						"schema": { "type": "string" },
+						"required": false,
+						"name": "growth_stage",
+						"in": "query"
+					},
+					{
+						"schema": { "type": "string" },
+						"required": false,
+						"name": "gender",
+						"in": "query"
+					},
+					{
+						"schema": { "type": "string" },
+						"required": false,
+						"name": "status",
+						"in": "query"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Search cattle",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/CattleListEnvelope" }
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"tags": ["牛（Cattle）"],
+				"summary": "牛の作成",
+				"description": "新しい牛を作成します。",
+				"security": [{ "bearerAuth": [] }],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"identificationNumber": { "type": "number" },
+									"earTagNumber": { "type": "number" },
+									"name": { "type": "string" },
+									"gender": { "type": "string", "enum": ["オス", "メス"] },
+									"birthday": { "type": "string" },
+									"growthStage": {
+										"type": "string",
+										"enum": [
+											"CALF",
+											"GROWING",
+											"FATTENING",
+											"FIRST_CALVED",
+											"MULTI_PAROUS"
+										]
+									},
+									"weight": { "type": "number", "nullable": true },
+									"score": { "type": "number", "nullable": true },
+									"breed": { "type": "string", "nullable": true },
+									"producerName": { "type": "string", "nullable": true },
+									"barn": { "type": "string", "nullable": true },
+									"breedingValue": { "type": "string", "nullable": true },
+									"notes": { "type": "string", "nullable": true },
+									"bloodline": {
+										"type": "object",
+										"properties": {
+											"bloodlineId": { "type": "number" },
+											"cattleId": { "type": "number" },
+											"fatherCattleName": {
+												"type": "string",
+												"nullable": true
+											},
+											"motherFatherCattleName": {
+												"type": "string",
+												"nullable": true
+											},
+											"motherGrandFatherCattleName": {
+												"type": "string",
+												"nullable": true
+											},
+											"motherGreatGrandFatherCattleName": {
+												"type": "string",
+												"nullable": true
+											}
+										},
+										"required": [
+											"fatherCattleName",
+											"motherFatherCattleName",
+											"motherGrandFatherCattleName",
+											"motherGreatGrandFatherCattleName"
+										]
+									},
+									"breedingStatus": {
+										"type": "object",
+										"properties": {
+											"breedingStatusId": { "type": "number" },
+											"cattleId": { "type": "number" },
+											"parity": { "type": "number", "nullable": true },
+											"expectedCalvingDate": {
+												"type": "string",
+												"nullable": true
+											},
+											"scheduledPregnancyCheckDate": {
+												"type": "string",
+												"nullable": true
+											},
+											"daysAfterCalving": {
+												"type": "number",
+												"nullable": true
+											},
+											"daysOpen": { "type": "number", "nullable": true },
+											"pregnancyDays": { "type": "number", "nullable": true },
+											"daysAfterInsemination": {
+												"type": "number",
+												"nullable": true
+											},
+											"inseminationCount": {
+												"type": "number",
+												"nullable": true
+											},
+											"breedingMemo": { "type": "string", "nullable": true },
+											"isDifficultBirth": {
+												"type": "boolean",
+												"nullable": true
+											},
+											"createdAt": { "type": "string" },
+											"updatedAt": { "type": "string" }
+										},
+										"required": [
+											"parity",
+											"expectedCalvingDate",
+											"scheduledPregnancyCheckDate",
+											"daysAfterCalving",
+											"daysOpen",
+											"pregnancyDays",
+											"daysAfterInsemination",
+											"inseminationCount",
+											"breedingMemo",
+											"isDifficultBirth"
+										]
+									},
+									"breedingSummary": {
+										"type": "object",
+										"properties": {
+											"breedingSummaryId": { "type": "number" },
+											"cattleId": { "type": "number" },
+											"totalInseminationCount": {
+												"type": "number",
+												"nullable": true
+											},
+											"averageDaysOpen": { "type": "number", "nullable": true },
+											"averagePregnancyPeriod": {
+												"type": "number",
+												"nullable": true
+											},
+											"averageCalvingInterval": {
+												"type": "number",
+												"nullable": true
+											},
+											"difficultBirthCount": {
+												"type": "number",
+												"nullable": true
+											},
+											"pregnancyHeadCount": {
+												"type": "number",
+												"nullable": true
+											},
+											"pregnancySuccessRate": {
+												"type": "number",
+												"nullable": true
+											},
+											"createdAt": { "type": "string" },
+											"updatedAt": { "type": "string" }
+										},
+										"required": [
+											"totalInseminationCount",
+											"averageDaysOpen",
+											"averagePregnancyPeriod",
+											"averageCalvingInterval",
+											"difficultBirthCount",
+											"pregnancyHeadCount",
+											"pregnancySuccessRate"
+										]
+									}
+								},
+								"required": [
+									"identificationNumber",
+									"earTagNumber",
+									"name",
+									"gender",
+									"birthday",
+									"growthStage",
+									"breed",
+									"notes"
+								]
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Create cattle",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CattleCreatedEnvelope"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/cattle/status-counts": {
+			"get": {
+				"tags": ["牛（Cattle）"],
+				"summary": "ステータス別件数",
+				"description": "ユーザーごとのステータス別頭数を返します。",
+				"security": [{ "bearerAuth": [] }],
+				"responses": {
+					"200": {
+						"description": "Status counts",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CattleStatusCountsEnvelope"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/cattle/{id}": {
+			"get": {
+				"tags": ["牛（Cattle）"],
+				"summary": "牛の詳細取得",
+				"description": "関連情報を含む牛の詳細を返します。",
+				"security": [{ "bearerAuth": [] }],
+				"parameters": [
+					{
+						"schema": { "type": "string", "example": "123" },
+						"required": true,
+						"name": "id",
+						"in": "path"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Cattle detail",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/CattleEnvelope" }
+							}
+						}
+					}
+				}
+			},
+			"patch": {
+				"tags": ["牛（Cattle）"],
+				"summary": "牛の更新",
+				"description": "牛の属性および関連情報を更新します。",
+				"security": [{ "bearerAuth": [] }],
+				"parameters": [
+					{
+						"schema": { "type": "string", "example": "123" },
+						"required": true,
+						"name": "id",
+						"in": "path"
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"identificationNumber": { "type": "number" },
+									"earTagNumber": { "type": "number" },
+									"name": { "type": "string" },
+									"gender": { "type": "string", "enum": ["オス", "メス"] },
+									"birthday": { "type": "string" },
+									"growthStage": {
+										"type": "string",
+										"enum": [
+											"CALF",
+											"GROWING",
+											"FATTENING",
+											"FIRST_CALVED",
+											"MULTI_PAROUS"
+										]
+									},
+									"weight": { "type": "number", "nullable": true },
+									"score": { "type": "number", "nullable": true },
+									"breed": { "type": "string", "nullable": true },
+									"producerName": { "type": "string", "nullable": true },
+									"barn": { "type": "string", "nullable": true },
+									"breedingValue": { "type": "string", "nullable": true },
+									"notes": { "type": "string", "nullable": true },
+									"bloodline": {
+										"type": "object",
+										"properties": {
+											"bloodlineId": { "type": "number" },
+											"cattleId": { "type": "number" },
+											"fatherCattleName": {
+												"type": "string",
+												"nullable": true
+											},
+											"motherFatherCattleName": {
+												"type": "string",
+												"nullable": true
+											},
+											"motherGrandFatherCattleName": {
+												"type": "string",
+												"nullable": true
+											},
+											"motherGreatGrandFatherCattleName": {
+												"type": "string",
+												"nullable": true
+											}
+										},
+										"required": [
+											"fatherCattleName",
+											"motherFatherCattleName",
+											"motherGrandFatherCattleName",
+											"motherGreatGrandFatherCattleName"
+										]
+									},
+									"breedingStatus": {
+										"type": "object",
+										"properties": {
+											"breedingStatusId": { "type": "number" },
+											"cattleId": { "type": "number" },
+											"parity": { "type": "number", "nullable": true },
+											"expectedCalvingDate": {
+												"type": "string",
+												"nullable": true
+											},
+											"scheduledPregnancyCheckDate": {
+												"type": "string",
+												"nullable": true
+											},
+											"daysAfterCalving": {
+												"type": "number",
+												"nullable": true
+											},
+											"daysOpen": { "type": "number", "nullable": true },
+											"pregnancyDays": { "type": "number", "nullable": true },
+											"daysAfterInsemination": {
+												"type": "number",
+												"nullable": true
+											},
+											"inseminationCount": {
+												"type": "number",
+												"nullable": true
+											},
+											"breedingMemo": { "type": "string", "nullable": true },
+											"isDifficultBirth": {
+												"type": "boolean",
+												"nullable": true
+											},
+											"createdAt": { "type": "string" },
+											"updatedAt": { "type": "string" }
+										},
+										"required": [
+											"parity",
+											"expectedCalvingDate",
+											"scheduledPregnancyCheckDate",
+											"daysAfterCalving",
+											"daysOpen",
+											"pregnancyDays",
+											"daysAfterInsemination",
+											"inseminationCount",
+											"breedingMemo",
+											"isDifficultBirth"
+										]
+									},
+									"breedingSummary": {
+										"type": "object",
+										"properties": {
+											"breedingSummaryId": { "type": "number" },
+											"cattleId": { "type": "number" },
+											"totalInseminationCount": {
+												"type": "number",
+												"nullable": true
+											},
+											"averageDaysOpen": { "type": "number", "nullable": true },
+											"averagePregnancyPeriod": {
+												"type": "number",
+												"nullable": true
+											},
+											"averageCalvingInterval": {
+												"type": "number",
+												"nullable": true
+											},
+											"difficultBirthCount": {
+												"type": "number",
+												"nullable": true
+											},
+											"pregnancyHeadCount": {
+												"type": "number",
+												"nullable": true
+											},
+											"pregnancySuccessRate": {
+												"type": "number",
+												"nullable": true
+											},
+											"createdAt": { "type": "string" },
+											"updatedAt": { "type": "string" }
+										},
+										"required": [
+											"totalInseminationCount",
+											"averageDaysOpen",
+											"averagePregnancyPeriod",
+											"averageCalvingInterval",
+											"difficultBirthCount",
+											"pregnancyHeadCount",
+											"pregnancySuccessRate"
+										]
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Update cattle",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "object",
+											"properties": {
+												"cattleId": { "type": "number" },
+												"ownerUserId": { "type": "number" },
+												"identificationNumber": { "type": "number" },
+												"earTagNumber": { "type": "number", "nullable": true },
+												"name": { "type": "string", "nullable": true },
+												"gender": {
+													"type": "string",
+													"nullable": true,
+													"enum": ["オス", "メス"]
+												},
+												"birthday": { "type": "string", "nullable": true },
+												"growthStage": {
+													"type": "string",
+													"nullable": true,
+													"enum": [
+														"CALF",
+														"GROWING",
+														"FATTENING",
+														"FIRST_CALVED",
+														"MULTI_PAROUS"
+													]
+												},
+												"age": { "type": "number", "nullable": true },
+												"monthsOld": { "type": "number", "nullable": true },
+												"daysOld": { "type": "number", "nullable": true },
+												"breed": { "type": "string", "nullable": true },
+												"status": {
+													"type": "string",
+													"nullable": true,
+													"enum": [
+														"HEALTHY",
+														"PREGNANT",
+														"RESTING",
+														"TREATING",
+														"SHIPPED",
+														"DEAD"
+													]
+												},
+												"producerName": { "type": "string", "nullable": true },
+												"barn": { "type": "string", "nullable": true },
+												"breedingValue": { "type": "string", "nullable": true },
+												"notes": { "type": "string", "nullable": true },
+												"weight": { "type": "number", "nullable": true },
+												"score": { "type": "number", "nullable": true },
+												"createdAt": { "type": "string" },
+												"updatedAt": { "type": "string" },
+												"events": {
+													"type": "array",
+													"items": {
+														"type": "object",
+														"properties": {
+															"eventId": { "type": "number" },
+															"cattleId": { "type": "number" },
+															"eventType": { "type": "string" },
+															"eventDatetime": { "type": "string" },
+															"notes": { "type": "string", "nullable": true },
+															"createdAt": { "type": "string" },
+															"updatedAt": { "type": "string" },
+															"cattleName": {
+																"type": "string",
+																"nullable": true
+															},
+															"cattleEarTagNumber": {
+																"type": "number",
+																"nullable": true
+															}
+														},
+														"required": [
+															"eventId",
+															"cattleId",
+															"eventType",
+															"eventDatetime",
+															"notes"
+														]
+													}
+												},
+												"bloodline": {
+													"type": "object",
+													"nullable": true,
+													"properties": {
+														"bloodlineId": { "type": "number" },
+														"cattleId": { "type": "number" },
+														"fatherCattleName": {
+															"type": "string",
+															"nullable": true
+														},
+														"motherFatherCattleName": {
+															"type": "string",
+															"nullable": true
+														},
+														"motherGrandFatherCattleName": {
+															"type": "string",
+															"nullable": true
+														},
+														"motherGreatGrandFatherCattleName": {
+															"type": "string",
+															"nullable": true
+														}
+													},
+													"required": [
+														"bloodlineId",
+														"cattleId",
+														"fatherCattleName",
+														"motherFatherCattleName",
+														"motherGrandFatherCattleName",
+														"motherGreatGrandFatherCattleName"
+													]
+												},
+												"motherInfo": {
+													"type": "object",
+													"nullable": true,
+													"properties": {
+														"motherInfoId": { "type": "number" },
+														"cattleId": { "type": "number" },
+														"motherCattleId": { "type": "number" },
+														"motherName": {
+															"type": "string",
+															"nullable": true
+														},
+														"motherIdentificationNumber": {
+															"type": "string",
+															"nullable": true
+														},
+														"motherScore": {
+															"type": "number",
+															"nullable": true
+														}
+													},
+													"required": [
+														"motherInfoId",
+														"cattleId",
+														"motherCattleId",
+														"motherName",
+														"motherIdentificationNumber",
+														"motherScore"
+													]
+												},
+												"breedingStatus": {
+													"type": "object",
+													"nullable": true,
+													"properties": {
+														"breedingStatusId": { "type": "number" },
+														"cattleId": { "type": "number" },
+														"parity": { "type": "number", "nullable": true },
+														"expectedCalvingDate": {
+															"type": "string",
+															"nullable": true
+														},
+														"scheduledPregnancyCheckDate": {
+															"type": "string",
+															"nullable": true
+														},
+														"daysAfterCalving": {
+															"type": "number",
+															"nullable": true
+														},
+														"daysOpen": { "type": "number", "nullable": true },
+														"pregnancyDays": {
+															"type": "number",
+															"nullable": true
+														},
+														"daysAfterInsemination": {
+															"type": "number",
+															"nullable": true
+														},
+														"inseminationCount": {
+															"type": "number",
+															"nullable": true
+														},
+														"breedingMemo": {
+															"type": "string",
+															"nullable": true
+														},
+														"isDifficultBirth": {
+															"type": "boolean",
+															"nullable": true
+														},
+														"createdAt": { "type": "string" },
+														"updatedAt": { "type": "string" }
+													},
+													"required": [
+														"breedingStatusId",
+														"cattleId",
+														"parity",
+														"expectedCalvingDate",
+														"scheduledPregnancyCheckDate",
+														"daysAfterCalving",
+														"daysOpen",
+														"pregnancyDays",
+														"daysAfterInsemination",
+														"inseminationCount",
+														"breedingMemo",
+														"isDifficultBirth",
+														"createdAt",
+														"updatedAt"
+													]
+												},
+												"breedingSummary": {
+													"type": "object",
+													"nullable": true,
+													"properties": {
+														"breedingSummaryId": { "type": "number" },
+														"cattleId": { "type": "number" },
+														"totalInseminationCount": {
+															"type": "number",
+															"nullable": true
+														},
+														"averageDaysOpen": {
+															"type": "number",
+															"nullable": true
+														},
+														"averagePregnancyPeriod": {
+															"type": "number",
+															"nullable": true
+														},
+														"averageCalvingInterval": {
+															"type": "number",
+															"nullable": true
+														},
+														"difficultBirthCount": {
+															"type": "number",
+															"nullable": true
+														},
+														"pregnancyHeadCount": {
+															"type": "number",
+															"nullable": true
+														},
+														"pregnancySuccessRate": {
+															"type": "number",
+															"nullable": true
+														},
+														"createdAt": { "type": "string" },
+														"updatedAt": { "type": "string" }
+													},
+													"required": [
+														"breedingSummaryId",
+														"cattleId",
+														"totalInseminationCount",
+														"averageDaysOpen",
+														"averagePregnancyPeriod",
+														"averageCalvingInterval",
+														"difficultBirthCount",
+														"pregnancyHeadCount",
+														"pregnancySuccessRate",
+														"createdAt",
+														"updatedAt"
+													]
+												}
+											},
+											"required": [
+												"cattleId",
+												"ownerUserId",
+												"earTagNumber",
+												"name",
+												"gender",
+												"birthday",
+												"growthStage",
+												"age",
+												"monthsOld",
+												"daysOld",
+												"breed",
+												"status",
+												"producerName",
+												"barn",
+												"breedingValue",
+												"notes",
+												"weight",
+												"score",
+												"createdAt",
+												"updatedAt"
+											]
+										}
+									},
+									"required": ["data"]
+								}
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"tags": ["牛（Cattle）"],
+				"security": [{ "bearerAuth": [] }],
+				"parameters": [
+					{
+						"schema": { "type": "string", "example": "123" },
+						"required": true,
+						"name": "id",
+						"in": "path"
+					}
+				],
+				"responses": { "204": { "description": "Deleted" } }
+			}
+		},
+		"/api/v1/cattle/{id}/status": {
+			"patch": {
+				"tags": ["牛（Cattle）"],
+				"summary": "ステータス更新",
+				"description": "牛のステータスを更新します。",
+				"security": [{ "bearerAuth": [] }],
+				"parameters": [
+					{
+						"schema": { "type": "string", "example": "123" },
+						"required": true,
+						"name": "id",
+						"in": "path"
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"status": {
+										"type": "string",
+										"enum": [
+											"HEALTHY",
+											"PREGNANT",
+											"RESTING",
+											"TREATING",
+											"SHIPPED",
+											"DEAD"
+										]
+									},
+									"reason": { "type": "string", "nullable": true }
+								},
+								"required": ["status"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Update cattle status",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "object",
+											"properties": {
+												"cattleId": { "type": "number" },
+												"ownerUserId": { "type": "number" },
+												"identificationNumber": { "type": "number" },
+												"earTagNumber": { "type": "number", "nullable": true },
+												"name": { "type": "string", "nullable": true },
+												"gender": {
+													"type": "string",
+													"nullable": true,
+													"enum": ["オス", "メス"]
+												},
+												"birthday": { "type": "string", "nullable": true },
+												"growthStage": {
+													"type": "string",
+													"nullable": true,
+													"enum": [
+														"CALF",
+														"GROWING",
+														"FATTENING",
+														"FIRST_CALVED",
+														"MULTI_PAROUS"
+													]
+												},
+												"age": { "type": "number", "nullable": true },
+												"monthsOld": { "type": "number", "nullable": true },
+												"daysOld": { "type": "number", "nullable": true },
+												"breed": { "type": "string", "nullable": true },
+												"status": {
+													"type": "string",
+													"nullable": true,
+													"enum": [
+														"HEALTHY",
+														"PREGNANT",
+														"RESTING",
+														"TREATING",
+														"SHIPPED",
+														"DEAD"
+													]
+												},
+												"producerName": { "type": "string", "nullable": true },
+												"barn": { "type": "string", "nullable": true },
+												"breedingValue": { "type": "string", "nullable": true },
+												"notes": { "type": "string", "nullable": true },
+												"weight": { "type": "number", "nullable": true },
+												"score": { "type": "number", "nullable": true },
+												"createdAt": { "type": "string" },
+												"updatedAt": { "type": "string" }
+											},
+											"required": [
+												"cattleId",
+												"ownerUserId",
+												"earTagNumber",
+												"name",
+												"gender",
+												"birthday",
+												"growthStage",
+												"age",
+												"monthsOld",
+												"daysOld",
+												"breed",
+												"status",
+												"producerName",
+												"barn",
+												"breedingValue",
+												"notes",
+												"weight",
+												"score",
+												"createdAt",
+												"updatedAt"
+											]
+										}
+									},
+									"required": ["data"]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/events": {
+			"get": {
+				"tags": ["イベント"],
+				"summary": "イベント検索・一覧",
+				"description": "フィルタでイベントを検索・一覧します。",
+				"security": [{ "bearerAuth": [] }],
+				"parameters": [
+					{
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"exclusiveMinimum": true
+						},
+						"required": false,
+						"name": "cattleId",
+						"in": "query"
+					},
+					{
+						"schema": { "nullable": true },
+						"required": false,
+						"name": "eventType",
+						"in": "query"
+					},
+					{
+						"schema": { "type": "string", "format": "date-time" },
+						"required": false,
+						"name": "startDate",
+						"in": "query"
+					},
+					{
+						"schema": { "type": "string", "format": "date-time" },
+						"required": false,
+						"name": "endDate",
+						"in": "query"
+					},
+					{
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"exclusiveMinimum": true,
+							"maximum": 100,
+							"default": 20
+						},
+						"required": false,
+						"name": "limit",
+						"in": "query"
+					},
+					{
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"exclusiveMinimum": true
+						},
+						"required": false,
+						"name": "cursor",
+						"in": "query"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Search events",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "object",
+											"properties": {
+												"results": {
+													"type": "array",
+													"items": {
+														"type": "object",
+														"properties": {
+															"eventId": { "type": "number" },
+															"cattleId": { "type": "number" },
+															"eventType": { "type": "string" },
+															"eventDatetime": { "type": "string" },
+															"notes": { "type": "string", "nullable": true },
+															"createdAt": { "type": "string" },
+															"updatedAt": { "type": "string" },
+															"cattleName": {
+																"type": "string",
+																"nullable": true
+															},
+															"cattleEarTagNumber": {
+																"type": "number",
+																"nullable": true
+															}
+														},
+														"required": [
+															"eventId",
+															"cattleId",
+															"eventType",
+															"eventDatetime",
+															"notes"
+														]
+													}
+												},
+												"nextCursor": { "type": "number", "nullable": true },
+												"hasNext": { "type": "boolean" }
+											},
+											"required": ["results", "nextCursor", "hasNext"]
+										}
+									},
+									"required": ["data"]
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"tags": ["イベント"],
+				"summary": "イベント作成",
+				"description": "新しいイベントを作成します。",
+				"security": [{ "bearerAuth": [] }],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"cattleId": {
+										"type": "integer",
+										"minimum": 0,
+										"exclusiveMinimum": true
+									},
+									"eventType": { "nullable": true },
+									"eventDatetime": { "type": "string" },
+									"notes": { "type": "string", "nullable": true }
+								},
+								"required": ["cattleId", "eventDatetime"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Create event",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "object",
+											"properties": {
+												"eventId": { "type": "number" },
+												"cattleId": { "type": "number" },
+												"eventType": { "type": "string" },
+												"eventDatetime": { "type": "string" },
+												"notes": { "type": "string", "nullable": true },
+												"createdAt": { "type": "string" },
+												"updatedAt": { "type": "string" },
+												"cattleName": { "type": "string", "nullable": true },
+												"cattleEarTagNumber": {
+													"type": "number",
+													"nullable": true
+												}
+											},
+											"required": [
+												"eventId",
+												"cattleId",
+												"eventType",
+												"eventDatetime",
+												"notes"
+											]
+										}
+									},
+									"required": ["data"]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/events/cattle/{cattleId}": {
+			"get": {
+				"tags": ["イベント"],
+				"summary": "牛のイベント一覧",
+				"description": "特定の牛に紐づくイベント一覧を返します。",
+				"security": [{ "bearerAuth": [] }],
+				"parameters": [
+					{
+						"schema": { "type": "string", "example": "1" },
+						"required": true,
+						"name": "cattleId",
+						"in": "path"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Events of a cattle",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "object",
+											"properties": {
+												"results": {
+													"type": "array",
+													"items": {
+														"type": "object",
+														"properties": {
+															"eventId": { "type": "number" },
+															"cattleId": { "type": "number" },
+															"eventType": { "type": "string" },
+															"eventDatetime": { "type": "string" },
+															"notes": { "type": "string", "nullable": true },
+															"createdAt": { "type": "string" },
+															"updatedAt": { "type": "string" },
+															"cattleName": {
+																"type": "string",
+																"nullable": true
+															},
+															"cattleEarTagNumber": {
+																"type": "number",
+																"nullable": true
+															}
+														},
+														"required": [
+															"eventId",
+															"cattleId",
+															"eventType",
+															"eventDatetime",
+															"notes"
+														]
+													}
+												}
+											},
+											"required": ["results"]
+										}
+									},
+									"required": ["data"]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/events/{id}": {
+			"get": {
+				"tags": ["イベント"],
+				"summary": "イベント詳細取得",
+				"description": "指定IDのイベントを返します。",
+				"security": [{ "bearerAuth": [] }],
+				"parameters": [
+					{
+						"schema": { "type": "string", "example": "10" },
+						"required": true,
+						"name": "id",
+						"in": "path"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Event detail",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "object",
+											"properties": {
+												"eventId": { "type": "number" },
+												"cattleId": { "type": "number" },
+												"eventType": { "type": "string" },
+												"eventDatetime": { "type": "string" },
+												"notes": { "type": "string", "nullable": true },
+												"createdAt": { "type": "string" },
+												"updatedAt": { "type": "string" },
+												"cattleName": { "type": "string", "nullable": true },
+												"cattleEarTagNumber": {
+													"type": "number",
+													"nullable": true
+												}
+											},
+											"required": [
+												"eventId",
+												"cattleId",
+												"eventType",
+												"eventDatetime",
+												"notes"
+											]
+										}
+									},
+									"required": ["data"]
+								}
+							}
+						}
+					}
+				}
+			},
+			"patch": {
+				"tags": ["イベント"],
+				"summary": "イベント更新",
+				"description": "既存のイベントを更新します。",
+				"security": [{ "bearerAuth": [] }],
+				"parameters": [
+					{
+						"schema": { "type": "string", "example": "10" },
+						"required": true,
+						"name": "id",
+						"in": "path"
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"eventType": { "nullable": true },
+									"eventDatetime": { "type": "string" },
+									"notes": { "type": "string", "nullable": true }
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Update event",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "object",
+											"properties": {
+												"eventId": { "type": "number" },
+												"cattleId": { "type": "number" },
+												"eventType": { "type": "string" },
+												"eventDatetime": { "type": "string" },
+												"notes": { "type": "string", "nullable": true },
+												"createdAt": { "type": "string" },
+												"updatedAt": { "type": "string" },
+												"cattleName": { "type": "string", "nullable": true },
+												"cattleEarTagNumber": {
+													"type": "number",
+													"nullable": true
+												}
+											},
+											"required": [
+												"eventId",
+												"cattleId",
+												"eventType",
+												"eventDatetime",
+												"notes"
+											]
+										}
+									},
+									"required": ["data"]
+								}
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"tags": ["イベント"],
+				"security": [{ "bearerAuth": [] }],
+				"parameters": [
+					{
+						"schema": { "type": "string", "example": "10" },
+						"required": true,
+						"name": "id",
+						"in": "path"
+					}
+				],
+				"responses": { "204": { "description": "Deleted" } }
+			}
+		},
+		"/api/v1/kpi/breeding": {
+			"get": {
+				"tags": ["KPI"],
+				"summary": "繁殖KPI",
+				"description": "繁殖に関する集計指標を返します。",
+				"security": [{ "bearerAuth": [] }],
+				"parameters": [
+					{
+						"schema": { "type": "string", "format": "date-time" },
+						"required": false,
+						"name": "from",
+						"in": "query"
+					},
+					{
+						"schema": { "type": "string", "format": "date-time" },
+						"required": false,
+						"name": "to",
+						"in": "query"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Breeding KPI",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "object",
+											"properties": {
+												"metrics": {
+													"type": "object",
+													"properties": {
+														"conceptionRate": {
+															"type": "number",
+															"nullable": true
+														},
+														"avgDaysOpen": {
+															"type": "number",
+															"nullable": true
+														},
+														"avgCalvingInterval": {
+															"type": "number",
+															"nullable": true
+														},
+														"aiPerConception": {
+															"type": "number",
+															"nullable": true
+														}
+													},
+													"required": [
+														"conceptionRate",
+														"avgDaysOpen",
+														"avgCalvingInterval",
+														"aiPerConception"
+													]
+												},
+												"counts": {
+													"type": "object",
+													"additionalProperties": { "type": "number" }
+												}
+											},
+											"required": ["metrics", "counts"]
+										}
+									},
+									"required": ["data"]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/kpi/breeding/delta": {
+			"get": {
+				"tags": ["KPI"],
+				"summary": "繁殖KPIの差分",
+				"description": "前期間に対する差分を返します。",
+				"security": [{ "bearerAuth": [] }],
+				"parameters": [
+					{
+						"schema": { "type": "string" },
+						"required": false,
+						"name": "month",
+						"in": "query"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Breeding KPI delta",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "object",
+											"properties": {
+												"month": { "type": "string", "nullable": true },
+												"delta": {
+													"type": "object",
+													"properties": {
+														"conceptionRate": {
+															"type": "number",
+															"nullable": true
+														},
+														"avgDaysOpen": {
+															"type": "number",
+															"nullable": true
+														},
+														"avgCalvingInterval": {
+															"type": "number",
+															"nullable": true
+														},
+														"aiPerConception": {
+															"type": "number",
+															"nullable": true
+														}
+													},
+													"required": [
+														"conceptionRate",
+														"avgDaysOpen",
+														"avgCalvingInterval",
+														"aiPerConception"
+													]
+												}
+											},
+											"required": ["month", "delta"]
+										}
+									},
+									"required": ["data"]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/kpi/breeding/trends": {
+			"get": {
+				"tags": ["KPI"],
+				"summary": "繁殖KPIの推移",
+				"description": "KPIと差分の時系列を返します。",
+				"security": [{ "bearerAuth": [] }],
+				"parameters": [
+					{
+						"schema": { "type": "string" },
+						"required": false,
+						"name": "from",
+						"in": "query"
+					},
+					{
+						"schema": { "type": "string" },
+						"required": false,
+						"name": "to",
+						"in": "query"
+					},
+					{
+						"schema": { "type": "number", "nullable": true },
+						"required": false,
+						"name": "months",
+						"in": "query"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Breeding KPI trends",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "object",
+											"properties": {
+												"series": {
+													"type": "array",
+													"items": {
+														"type": "object",
+														"properties": {
+															"month": { "type": "string" },
+															"metrics": {
+																"type": "object",
+																"properties": {
+																	"conceptionRate": {
+																		"type": "number",
+																		"nullable": true
+																	},
+																	"avgDaysOpen": {
+																		"type": "number",
+																		"nullable": true
+																	},
+																	"avgCalvingInterval": {
+																		"type": "number",
+																		"nullable": true
+																	},
+																	"aiPerConception": {
+																		"type": "number",
+																		"nullable": true
+																	}
+																},
+																"required": [
+																	"conceptionRate",
+																	"avgDaysOpen",
+																	"avgCalvingInterval",
+																	"aiPerConception"
+																]
+															},
+															"counts": {
+																"type": "object",
+																"additionalProperties": { "type": "number" }
+															}
+														},
+														"required": ["month", "metrics", "counts"]
+													}
+												},
+												"deltas": {
+													"type": "array",
+													"items": {
+														"type": "object",
+														"properties": {
+															"month": { "type": "string" },
+															"metrics": {
+																"type": "object",
+																"properties": {
+																	"conceptionRate": {
+																		"type": "number",
+																		"nullable": true
+																	},
+																	"avgDaysOpen": {
+																		"type": "number",
+																		"nullable": true
+																	},
+																	"avgCalvingInterval": {
+																		"type": "number",
+																		"nullable": true
+																	},
+																	"aiPerConception": {
+																		"type": "number",
+																		"nullable": true
+																	}
+																},
+																"required": [
+																	"conceptionRate",
+																	"avgDaysOpen",
+																	"avgCalvingInterval",
+																	"aiPerConception"
+																]
+															}
+														},
+														"required": ["month", "metrics"]
+													}
+												}
+											},
+											"required": ["series", "deltas"]
+										}
+									},
+									"required": ["data"]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/admin/registrations": {
+			"get": {
+				"tags": ["管理（Admin）"],
+				"summary": "登録一覧",
+				"description": "管理者向けに登録情報を一覧します。",
+				"security": [{ "basicAuth": [] }],
+				"parameters": [
+					{
+						"schema": { "type": "string" },
+						"required": false,
+						"name": "q",
+						"in": "query"
+					},
+					{
+						"schema": { "type": "integer", "nullable": true },
+						"required": false,
+						"name": "from",
+						"in": "query"
+					},
+					{
+						"schema": { "type": "integer", "nullable": true },
+						"required": false,
+						"name": "to",
+						"in": "query"
+					},
+					{
+						"schema": { "type": "string" },
+						"required": false,
+						"name": "source",
+						"in": "query"
+					},
+					{
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 100,
+							"default": 20
+						},
+						"required": false,
+						"name": "limit",
+						"in": "query"
+					},
+					{
+						"schema": {
+							"type": "integer",
+							"nullable": true,
+							"minimum": 0,
+							"default": 0
+						},
+						"required": false,
+						"name": "offset",
+						"in": "query"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Registration list",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "object",
+											"properties": {
+												"items": {
+													"type": "array",
+													"items": {
+														"type": "object",
+														"properties": {
+															"id": { "type": "string" },
+															"email": { "type": "string" },
+															"referralSource": {
+																"type": "string",
+																"nullable": true
+															},
+															"status": { "type": "string" },
+															"locale": { "type": "string" },
+															"createdAt": { "type": "number" },
+															"updatedAt": { "type": "number" }
+														},
+														"required": [
+															"id",
+															"email",
+															"referralSource",
+															"status",
+															"locale",
+															"createdAt",
+															"updatedAt"
+														]
+													}
+												},
+												"total": { "type": "number" }
+											},
+											"required": ["items", "total"]
+										}
+									},
+									"required": ["data"]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/admin/registrations.csv": {
+			"get": {
+				"tags": ["管理（Admin）"],
+				"security": [{ "basicAuth": [] }],
+				"responses": {
+					"200": {
+						"description": "Registration list CSV",
+						"content": {
+							"text/csv": {
+								"schema": { "type": "string", "example": "id,email,..." }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/pre-register": {
+			"post": {
+				"tags": ["事前登録"],
+				"summary": "事前登録",
+				"description": "ボット対策付きで事前登録を受け付けます。",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"email": { "type": "string", "format": "email" },
+									"referralSource": { "type": "string", "maxLength": 100 },
+									"turnstileToken": { "type": "string", "minLength": 10 }
+								},
+								"required": ["email", "turnstileToken"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Pre-register",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "object",
+											"properties": {
+												"ok": { "type": "boolean", "enum": [true] },
+												"message": { "type": "string" },
+												"alreadyRegistered": { "type": "boolean" }
+											},
+											"required": ["ok"]
+										}
+									},
+									"required": ["data"]
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

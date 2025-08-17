@@ -22,7 +22,7 @@ describe("PreRegisterAdmin", () => {
 			body: null,
 			bodyUsed: false,
 			redirect: false,
-			res: new Response(),
+			res: new Response()
 		} as unknown as Resp;
 
 		const spy = vi

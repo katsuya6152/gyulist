@@ -14,7 +14,7 @@ function measureImagePerformance() {
 		{ name: "app-shot.png", path: "app-shot.png" },
 		{ name: "app-shot.webp", path: "app-shot.webp" },
 		{ name: "icon-horizontal.png", path: "icon-horizontal.png" },
-		{ name: "icon-horizontal.webp", path: "icon-horizontal.webp" },
+		{ name: "icon-horizontal.webp", path: "icon-horizontal.webp" }
 	];
 
 	let totalOriginalSize = 0;
@@ -44,10 +44,10 @@ function measureImagePerformance() {
 	console.log("�� 合計サイズ:");
 	console.log(`   元のPNG: ${(totalOriginalSize / 1024 / 1024).toFixed(2)} MB`);
 	console.log(
-		`   最適化WebP: ${(totalOptimizedSize / 1024 / 1024).toFixed(2)} MB`,
+		`   最適化WebP: ${(totalOptimizedSize / 1024 / 1024).toFixed(2)} MB`
 	);
 	console.log(
-		`   削減率: ${(((totalOriginalSize - totalOptimizedSize) / totalOriginalSize) * 100).toFixed(1)}%`,
+		`   削減率: ${(((totalOriginalSize - totalOptimizedSize) / totalOriginalSize) * 100).toFixed(1)}%`
 	);
 
 	console.log("\n🚀 パフォーマンス改善効果:");
