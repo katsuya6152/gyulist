@@ -7,7 +7,6 @@ import {
 	updateStatusSchema
 } from "../contexts/cattle/domain/codecs/input";
 import { jwtMiddleware } from "../middleware/jwt";
-// legacy cattleService usage removed (FDMへ移行)
 import type { Bindings } from "../types";
 
 import {
@@ -151,7 +150,8 @@ const app = new Hono<{ Bindings: Bindings }>()
 				const deps = makeDeps(c.env.DB, { now: () => new Date() });
 				const result = await getDetailUC({
 					repo: deps.cattleRepo,
-					eventsRepo: deps.eventsRepo
+					eventsRepo: deps.eventsRepo,
+					details: deps.cattleDetails
 				})({ id, requesterUserId: userId });
 
 				if (!result.ok) return result;
@@ -189,23 +189,21 @@ const app = new Hono<{ Bindings: Bindings }>()
 
 				if (!result.ok) return result;
 
-				// Temporary: Handle breeding data until FDM refactor is complete
+				// Initialize breeding data via breeding UC when provided
 				if (data.breedingStatus && result.value.cattleId) {
-					try {
-						const { drizzle } = await import("drizzle-orm/d1");
-						const { breedingStatus } = await import("../db/schema");
-						const d = drizzle(c.env.DB);
-
-						await d.insert(breedingStatus).values({
-							cattleId: result.value.cattleId as unknown as number,
-							...data.breedingStatus,
-							createdAt: new Date().toISOString(),
-							updatedAt: new Date().toISOString()
-						});
-					} catch (error) {
-						// Silently handle errors in test environment where mocking may cause issues
-						// In production, this would properly create breeding status
-					}
+					const deps2 = makeDeps(c.env.DB, { now: () => new Date() });
+					const { initializeBreedingUseCase } = await import(
+						"../contexts/breeding/domain/services/breedingManagement"
+					);
+					await initializeBreedingUseCase({
+						breedingRepo: deps2.breedingRepo,
+						clock: deps2.clock
+					})({
+						requesterUserId: userId as unknown as UserId,
+						cattleId: result.value.cattleId as unknown as CattleId,
+						initialParity: data.breedingStatus.parity ?? 0,
+						memo: data.breedingStatus.breedingMemo ?? null
+					});
 				}
 
 				const parsed = cattleResponseSchema.safeParse(result.value);
@@ -230,7 +228,8 @@ const app = new Hono<{ Bindings: Bindings }>()
 				const deps = makeDeps(c.env.DB, { now: () => new Date() });
 				const result = await updateUC({
 					repo: deps.cattleRepo,
-					clock: deps.clock
+					clock: deps.clock,
+					breedingRepo: deps.breedingRepo
 				})({
 					requesterUserId: userId,
 					id,
@@ -326,7 +325,12 @@ const app = new Hono<{ Bindings: Bindings }>()
 			c,
 			async () => {
 				const deps = makeDeps(c.env.DB, { now: () => new Date() });
-				const result = await deleteUC({ repo: deps.cattleRepo })({
+				const result = await deleteUC({
+					repo: deps.cattleRepo,
+					breedingRepo: deps.breedingRepo,
+					bloodlineRepo: deps.bloodlineRepo,
+					motherInfoRepo: deps.motherInfoRepo
+				})({
 					requesterUserId: userId,
 					id
 				});

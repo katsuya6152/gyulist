@@ -2,11 +2,20 @@ import type { CattleId, UserId } from "../../../../shared/brand";
 import type { ClockPort } from "../../../../shared/ports/clock";
 import type { Result } from "../../../../shared/result";
 import { err, ok } from "../../../../shared/result";
+import type { BreedingRepoPort } from "../../../breeding/ports";
 import type { CattleRepoPort } from "../../../cattle/ports";
 import type { DomainError } from "../errors";
+import { createBreedingAggregate } from "../model/breedingAggregate";
+import type { BreedingAggregate } from "../model/breedingAggregate";
+import type { BreedingStatus } from "../model/breedingStatus";
+import type { BreedingSummary } from "../model/breedingSummary";
 import type { Cattle } from "../model/cattle";
 
-type Deps = { repo: CattleRepoPort; clock: ClockPort };
+type Deps = {
+	repo: CattleRepoPort;
+	clock: ClockPort;
+	breedingRepo: BreedingRepoPort;
+};
 
 export type UpdateCattleCmd = {
 	requesterUserId: UserId;
@@ -92,25 +101,111 @@ export const update =
 				import("../model/cattle").NewCattleProps
 			>
 		);
-		// breeding upserts when provided
-		if (cmd.patch.breedingStatus) {
-			const bs = cmd.patch.breedingStatus;
-			// pregnancyDays は scheduledPregnancyCheckDate に基づき自動補完（既存契約踏襲）
-			let pregnancyDays: number | null | undefined = bs.pregnancyDays;
-			if (pregnancyDays == null && bs.scheduledPregnancyCheckDate) {
-				const checkDate = new Date(bs.scheduledPregnancyCheckDate);
-				pregnancyDays = Math.floor(
-					(deps.clock.now().getTime() - checkDate.getTime()) /
-						(1000 * 60 * 60 * 24)
-				);
+
+		// breeding updates via breedingRepo (Hex)
+		if (cmd.patch.breedingStatus || cmd.patch.breedingSummary) {
+			const existing =
+				(await deps.breedingRepo.findByCattleId(cmd.id)) ??
+				createBreedingAggregate(cmd.id, {
+					type: "NotBreeding",
+					parity: 0,
+					daysAfterCalving: null,
+					memo: null
+				} as unknown as BreedingStatus);
+
+			let nextStatus: BreedingStatus = existing.currentStatus;
+			if (cmd.patch.breedingStatus) {
+				const bs = cmd.patch.breedingStatus;
+				let pregnancyDays = bs.pregnancyDays ?? null;
+				if (pregnancyDays == null && bs.scheduledPregnancyCheckDate) {
+					const checkDate = new Date(bs.scheduledPregnancyCheckDate);
+					pregnancyDays = Math.floor(
+						(deps.clock.now().getTime() - checkDate.getTime()) /
+							(1000 * 60 * 60 * 24)
+					);
+				}
+				if (pregnancyDays != null) {
+					nextStatus = {
+						type: "Pregnant",
+						parity: (bs.parity ?? 0) as unknown,
+						pregnancyDays: pregnancyDays as unknown,
+						expectedCalvingDate: bs.expectedCalvingDate
+							? new Date(bs.expectedCalvingDate)
+							: new Date(),
+						scheduledPregnancyCheckDate: bs.scheduledPregnancyCheckDate
+							? new Date(bs.scheduledPregnancyCheckDate)
+							: null,
+						memo: (bs.breedingMemo ?? null) as unknown
+					} as unknown as BreedingStatus;
+				} else if (bs.daysAfterInsemination != null) {
+					nextStatus = {
+						type: "Inseminated",
+						parity: (bs.parity ?? 0) as unknown,
+						daysAfterInsemination: (bs.daysAfterInsemination ?? 0) as unknown,
+						inseminationCount: (bs.inseminationCount ?? 1) as unknown,
+						daysOpen: (bs.daysOpen ?? null) as unknown,
+						memo: (bs.breedingMemo ?? null) as unknown
+					} as unknown as BreedingStatus;
+				} else if (bs.daysAfterCalving != null) {
+					nextStatus = {
+						type: "PostCalving",
+						parity: (bs.parity ?? 0) as unknown,
+						daysAfterCalving: (bs.daysAfterCalving ?? 0) as unknown,
+						isDifficultBirth: Boolean(bs.isDifficultBirth),
+						memo: (bs.breedingMemo ?? null) as unknown
+					} as unknown as BreedingStatus;
+				} else {
+					nextStatus = {
+						type: "NotBreeding",
+						parity: (bs.parity ?? 0) as unknown,
+						daysAfterCalving: (bs.daysAfterCalving ?? null) as unknown,
+						memo: (bs.breedingMemo ?? null) as unknown
+					} as unknown as BreedingStatus;
+				}
 			}
-			await deps.repo.upsertBreedingStatus(cmd.id, {
-				...bs,
-				pregnancyDays: pregnancyDays ?? null
-			});
+
+			let nextSummary: BreedingSummary = existing.summary;
+			if (cmd.patch.breedingSummary) {
+				const s = cmd.patch.breedingSummary;
+				nextSummary = {
+					...existing.summary,
+					totalInseminationCount: (s.totalInseminationCount ??
+						(existing.summary
+							.totalInseminationCount as unknown as number)) as unknown,
+					averageDaysOpen: (s.averageDaysOpen ??
+						(existing.summary.averageDaysOpen as unknown as
+							| number
+							| null)) as unknown,
+					averagePregnancyPeriod: (s.averagePregnancyPeriod ??
+						(existing.summary.averagePregnancyPeriod as unknown as
+							| number
+							| null)) as unknown,
+					averageCalvingInterval: (s.averageCalvingInterval ??
+						(existing.summary.averageCalvingInterval as unknown as
+							| number
+							| null)) as unknown,
+					difficultBirthCount: (s.difficultBirthCount ??
+						(existing.summary
+							.difficultBirthCount as unknown as number)) as unknown,
+					pregnancyHeadCount: (s.pregnancyHeadCount ??
+						(existing.summary
+							.pregnancyHeadCount as unknown as number)) as unknown,
+					pregnancySuccessRate: (s.pregnancySuccessRate ??
+						(existing.summary.pregnancySuccessRate as unknown as
+							| number
+							| null)) as unknown,
+					lastUpdated: deps.clock.now()
+				} as unknown as BreedingSummary;
+			}
+
+			const aggregate: BreedingAggregate = {
+				...existing,
+				currentStatus: nextStatus,
+				summary: nextSummary,
+				lastUpdated: deps.clock.now()
+			};
+			await deps.breedingRepo.save(aggregate);
 		}
-		if (cmd.patch.breedingSummary) {
-			await deps.repo.upsertBreedingSummary(cmd.id, cmd.patch.breedingSummary);
-		}
+
 		return ok(updated);
 	};

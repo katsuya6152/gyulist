@@ -5,6 +5,10 @@ import { createAuthRepo } from "../../contexts/auth/infra/drizzle/repo";
 import { createCryptoIdPort } from "../../contexts/auth/infra/id";
 import { createHonoJwtTokenPort } from "../../contexts/auth/infra/token";
 import type { AuthRepoPort } from "../../contexts/auth/ports";
+import { makeBloodlineRepo } from "../../contexts/breeding/infra/drizzle/bloodlineRepo";
+import { makeBreedingRepo } from "../../contexts/breeding/infra/drizzle/breedingRepo";
+import { makeMotherInfoRepo } from "../../contexts/breeding/infra/drizzle/motherInfoRepo";
+import { makeCattleDetailsQuery } from "../../contexts/cattle/infra/drizzle/detailsQuery";
 import { makeCattleRepo } from "../../contexts/cattle/infra/drizzle/repo";
 import type { CattleRepoPort } from "../../contexts/cattle/ports";
 import { makeEventsRepo } from "../../contexts/events/infra/drizzle/repo";
@@ -24,6 +28,12 @@ import type { TokenPort } from "../ports/token";
 export type CoreDeps = {
 	cattleRepo: CattleRepoPort;
 	eventsRepo: EventsRepoPort;
+	breedingRepo: import("../../contexts/breeding/ports").BreedingRepoPort;
+	bloodlineRepo: import("../../contexts/breeding/ports").BloodlineRepoPort;
+	motherInfoRepo: import("../../contexts/breeding/ports").MotherInfoRepoPort;
+	cattleDetails: import(
+		"../../contexts/cattle/ports.details"
+	).CattleDetailsQueryPort;
 	clock: ClockPort;
 };
 
@@ -35,6 +45,18 @@ export function makeDeps(db: AnyD1Database, clock: ClockPort): CoreDeps {
 		get eventsRepo() {
 			return makeEventsRepo(db);
 		}, // Lazy evaluation
+		get breedingRepo() {
+			return makeBreedingRepo(db);
+		},
+		get bloodlineRepo() {
+			return makeBloodlineRepo(db);
+		},
+		get motherInfoRepo() {
+			return makeMotherInfoRepo(db);
+		},
+		get cattleDetails() {
+			return makeCattleDetailsQuery(db);
+		},
 		clock
 	};
 }

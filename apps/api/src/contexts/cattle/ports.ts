@@ -113,17 +113,10 @@ export interface CattleRepoPort {
 		changedBy: UserId;
 		reason?: string | null;
 	}): Promise<void>;
+}
 
-	upsertBreedingStatus(
-		cattleId: CattleId,
-		data: Record<string, unknown>
-	): Promise<void>;
-	upsertBreedingSummary(
-		cattleId: CattleId,
-		data: Record<string, unknown>
-	): Promise<void>;
-
-	// Detail fetchers (used by getDetail use case)
+// Read-model port for cattle details (projection)
+export interface CattleDetailsQueryPort {
 	getBloodline(cattleId: CattleId): Promise<{
 		bloodlineId: number;
 		cattleId: number;

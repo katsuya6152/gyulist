@@ -1,10 +1,20 @@
 import type { CattleId, UserId } from "../../../../shared/brand";
 import type { Result } from "../../../../shared/result";
 import { err, ok } from "../../../../shared/result";
+import type {
+	BloodlineRepoPort,
+	BreedingRepoPort,
+	MotherInfoRepoPort
+} from "../../../breeding/ports";
 import type { CattleRepoPort } from "../../../cattle/ports";
 import type { DomainError } from "../errors";
 
-type Deps = { repo: CattleRepoPort };
+type Deps = {
+	repo: CattleRepoPort;
+	breedingRepo?: BreedingRepoPort;
+	bloodlineRepo?: BloodlineRepoPort;
+	motherInfoRepo?: MotherInfoRepoPort;
+};
 
 export type DeleteCattleCmd = {
 	requesterUserId: UserId;
@@ -27,6 +37,10 @@ export const remove =
 		) {
 			return err({ type: "Forbidden", message: "You do not own this cattle" });
 		}
+		// Orchestrate cross-context deletes first when available (Hex):
+		await deps.breedingRepo?.delete(cmd.id);
+		await deps.bloodlineRepo?.delete(cmd.id);
+		await deps.motherInfoRepo?.delete(cmd.id);
 		await deps.repo.delete(cmd.id);
 		return ok(undefined);
 	};

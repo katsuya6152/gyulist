@@ -23,9 +23,12 @@
 		"test": "vitest",
 		"test:ui": "vitest --ui",
 		"test:run": "vitest run",
-		"test:coverage": "vitest run --coverage"
+		"test:coverage": "vitest run --coverage",
+		"openapi:gen": "tsx ./scripts/generate-openapi.ts"
 	},
 	"dependencies": {
+		"@hono/swagger-ui": "^0.4.0",
+		"@hono/zod-openapi": "^0.15.3",
 		"@hono/zod-validator": "^0.5.0",
 		"@node-rs/bcrypt": "^1.10.7",
 		"@oslojs/crypto": "^1.0.1",
@@ -44,6 +47,7 @@
 		"drizzle-kit": "^0.31.0",
 		"esbuild": "^0.25.3",
 		"tsup": "^8.4.0",
+		"tsx": "^4.20.4",
 		"typescript": "^5.8.3",
 		"vitest": "^3.2.4",
 		"wrangler": "^4.16.1"

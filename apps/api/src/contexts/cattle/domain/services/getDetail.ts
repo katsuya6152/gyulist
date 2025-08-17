@@ -3,11 +3,13 @@ import type { Result } from "../../../../shared/result";
 import { err, ok } from "../../../../shared/result";
 import type { EventsRepoPort } from "../../../events/ports";
 import type { CattleRepoPort } from "../../ports";
+import type { CattleDetailsQueryPort } from "../../ports.details";
 import type { DomainError } from "../errors";
 
 type Deps = {
 	repo: CattleRepoPort;
 	eventsRepo: EventsRepoPort;
+	details: CattleDetailsQueryPort;
 };
 
 export type GetCattleDetailCmd = {
@@ -37,28 +39,33 @@ export const getDetail =
 			return err({ type: "Forbidden", message: "Unauthorized" });
 		}
 
-		const [events, bloodline, motherInfo, breedingStatus, breedingSummary] =
-			await Promise.all([
-				deps.eventsRepo.listByCattleId(cmd.id, cmd.requesterUserId),
-				deps.repo.getBloodline(cmd.id),
-				deps.repo.getMotherInfo(cmd.id),
-				deps.repo.getBreedingStatus(cmd.id),
-				deps.repo.getBreedingSummary(cmd.id)
-			]);
+		const [
+			events,
+			bloodline,
+			motherInfo,
+			breedingStatusRaw,
+			breedingSummaryRaw
+		] = await Promise.all([
+			deps.eventsRepo.listByCattleId(cmd.id, cmd.requesterUserId),
+			deps.details.getBloodline(cmd.id),
+			deps.details.getMotherInfo(cmd.id),
+			deps.details.getBreedingStatus(cmd.id),
+			deps.details.getBreedingSummary(cmd.id)
+		]);
 
-		const normalizedBreedingStatus = breedingStatus
+		const normalizedBreedingStatus = breedingStatusRaw
 			? {
-					...breedingStatus,
-					createdAt: new Date(breedingStatus.createdAt),
-					updatedAt: new Date(breedingStatus.updatedAt)
+					...breedingStatusRaw,
+					createdAt: new Date(breedingStatusRaw.createdAt),
+					updatedAt: new Date(breedingStatusRaw.updatedAt)
 				}
 			: null;
 
-		const normalizedBreedingSummary = breedingSummary
+		const normalizedBreedingSummary = breedingSummaryRaw
 			? {
-					...breedingSummary,
-					createdAt: new Date(breedingSummary.createdAt),
-					updatedAt: new Date(breedingSummary.updatedAt)
+					...breedingSummaryRaw,
+					createdAt: new Date(breedingSummaryRaw.createdAt),
+					updatedAt: new Date(breedingSummaryRaw.updatedAt)
 				}
 			: null;
 
