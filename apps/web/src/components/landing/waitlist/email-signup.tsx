@@ -144,7 +144,6 @@ export function EmailSignup({
 				form.setError("email", { message: "既に登録済みです" });
 			} else {
 				trackWaitlistSignup();
-				onSuccess?.();
 				router.push("/waitlist");
 			}
 			return;
@@ -158,8 +157,19 @@ export function EmailSignup({
 				});
 			}
 		} else {
-			// 一般的なエラーはコンソールに記録
+			// 一般的なエラーはコンソールに記録し、ユーザーにも表示
 			console.error("Unexpected error during registration:", res);
+
+			// エラーメッセージをユーザーに表示
+			const errorMessage =
+				res.fieldErrors?.email ||
+				(res.code === "HTTP_ERROR"
+					? "サーバーエラーが発生しました"
+					: res.code === "NETWORK_ERROR"
+						? "ネットワークエラーが発生しました"
+						: "登録中にエラーが発生しました");
+
+			form.setError("email", { message: errorMessage });
 		}
 	};
 

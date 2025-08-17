@@ -31,11 +31,48 @@ export type PreRegisterResponse = PreRegisterSuccess | PreRegisterError;
 export async function preRegister(
 	data: PreRegisterInput
 ): Promise<PreRegisterResponse> {
-	const res = await client.api.v1["pre-register"].$post({
-		json: data
-	});
-	const json = (await res.json()) as PreRegisterResponse;
-	return json;
+	try {
+		const res = await client.api.v1["pre-register"].$post({
+			json: data
+		});
+
+		if (!res.ok) {
+			// HTTPエラーの場合
+			return {
+				ok: false,
+				code: "HTTP_ERROR",
+				fieldErrors: {
+					email: `HTTP ${res.status}: ${res.statusText}`
+				}
+			};
+		}
+
+		const json = (await res.json()) as { data: PreRegisterResponse };
+
+		// APIは{ data: { ok: true, ... } }の形式で返す
+		if (json.data) {
+			return json.data;
+		}
+
+		// 予期しないレスポンス形式
+		console.warn("Unexpected API response format:", json);
+		return {
+			ok: false,
+			code: "UNEXPECTED_RESPONSE",
+			fieldErrors: {
+				email: "予期しないレスポンス形式です"
+			}
+		};
+	} catch (error) {
+		console.error("Network error during pre-registration:", error);
+		return {
+			ok: false,
+			code: "NETWORK_ERROR",
+			fieldErrors: {
+				email: "ネットワークエラーが発生しました"
+			}
+		};
+	}
 }
 
 // Admin: List registrations (JSON) and CSV download
