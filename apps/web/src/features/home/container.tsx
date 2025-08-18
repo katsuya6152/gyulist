@@ -37,7 +37,16 @@ export default async function HomeContainer() {
 			<HomePresentation
 				todayEvents={eventsData.results || []}
 				statusCounts={statusCounts.counts}
-				alerts={alerts.results}
+				alerts={alerts.results.map((alert) => ({
+					alertId: alert.id,
+					type: alert.type,
+					severity: alert.severity,
+					cattleId: alert.cattleId,
+					cattleName: alert.cattleName,
+					cattleEarTagNumber: alert.cattleEarTagNumber,
+					dueAt: alert.dueAt,
+					message: alert.message
+				}))}
 				breedingKpi={kpi.metrics}
 				// KPIトレンドは前月比のみ使用
 				kpiTrendDeltas={
