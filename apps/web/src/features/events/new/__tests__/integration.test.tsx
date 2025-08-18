@@ -97,7 +97,7 @@ describe("Events New Integration", () => {
 			screen.getByRole("button", { name: "イベントを登録" })
 		).toBeInTheDocument();
 		expect(
-			screen.getByRole("link", { name: "キャンセル" })
+			screen.getByRole("button", { name: "キャンセル" })
 		).toBeInTheDocument();
 	});
 
