@@ -22,7 +22,6 @@ import {
 	EVENT_TYPE_LABELS
 } from "@repo/api";
 import { Check, ChevronsUpDown } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -304,8 +303,13 @@ export function EventNewPresentation({ cattle }: EventNewPresentationProps) {
 					<Button type="submit" disabled={isPending} className="flex-1">
 						{isPending ? "登録中..." : "イベントを登録"}
 					</Button>
-					<Button type="button" variant="outline" asChild className="flex-1">
-						<Link href={`/cattle/${cattle.cattleId}`}>キャンセル</Link>
+					<Button
+						type="button"
+						variant="outline"
+						onClick={() => router.back()}
+						className="flex-1"
+					>
+						キャンセル
 					</Button>
 				</div>
 			</form>

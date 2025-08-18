@@ -58,6 +58,14 @@ export const FilterSheet = memo(
 		const [genderOpen, setGenderOpen] = useState(false);
 		const [statusOpen, setStatusOpen] = useState(false);
 
+		// 選択されている絞り込み条件の総数を計算
+		const getTotalFilterCount = () => {
+			const growthStageCount = form.watch("growth_stage").length;
+			const genderCount = form.watch("gender").length;
+			const statusCount = form.watch("status").length;
+			return growthStageCount + genderCount + statusCount;
+		};
+
 		const form = useForm<FilterFormData>({
 			resolver: zodResolver(FormSchema),
 			defaultValues: {
@@ -154,19 +162,24 @@ export const FilterSheet = memo(
 		return (
 			<Sheet>
 				<SheetTrigger asChild>
-					<Button variant="ghost" className="">
+					<Button variant="ghost" className="relative">
 						<Filter />
 						絞り込み
+						{getTotalFilterCount() > 0 && (
+							<div className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center">
+								{getTotalFilterCount()}
+							</div>
+						)}
 					</Button>
 				</SheetTrigger>
-				<SheetContent>
+				<SheetContent className="flex flex-col h-full">
 					<SheetHeader>
 						<SheetTitle>絞り込み</SheetTitle>
 						<SheetDescription className="text-left">
 							絞り込みたい項目を選択してください
 						</SheetDescription>
 					</SheetHeader>
-					<div className="p-4">
+					<div className="flex-1 overflow-y-auto p-4">
 						<Form {...form}>
 							<form
 								onSubmit={form.handleSubmit(onSubmit)}
@@ -428,24 +441,27 @@ export const FilterSheet = memo(
 										)}
 									</div>
 								</div>
-
-								<div className="flex gap-2">
-									<SheetClose asChild>
-										<Button type="submit" className="flex-1 h-12 text-base">
-											絞り込む
-										</Button>
-									</SheetClose>
-									<Button
-										type="button"
-										variant="outline"
-										className="flex-1 h-12 text-base"
-										onClick={handleClear}
-									>
-										クリア
-									</Button>
-								</div>
 							</form>
 						</Form>
+					</div>
+
+					{/* 固定フッター */}
+					<div className="flex-shrink-0 p-4 bg-background border-t">
+						<div className="flex gap-2">
+							<SheetClose asChild>
+								<Button type="submit" className="flex-1 h-12 text-base">
+									絞り込む
+								</Button>
+							</SheetClose>
+							<Button
+								type="button"
+								variant="outline"
+								className="flex-1 h-12 text-base"
+								onClick={handleClear}
+							>
+								クリア
+							</Button>
+						</div>
 					</div>
 				</SheetContent>
 			</Sheet>

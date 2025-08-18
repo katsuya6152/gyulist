@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -14,7 +15,12 @@ import {
 	SheetTitle,
 	SheetTrigger
 } from "@/components/ui/sheet";
-import { ArrowDown01, ArrowDown10, ArrowDownUp } from "lucide-react";
+import {
+	ArrowDown01,
+	ArrowDown10,
+	ArrowDownUp,
+	ArrowUpDown
+} from "lucide-react";
 import { memo } from "react";
 import { sortOptions } from "../constants";
 
@@ -26,11 +32,32 @@ interface SortSheetProps {
 
 export const SortSheet = memo(
 	({ currentSortBy, currentSortOrder, onSort }: SortSheetProps) => {
+		// 現在の並び替え設定に応じたアイコンを取得
+		const getSortIcon = () => {
+			if (isDefaultSort) {
+				return <ArrowDownUp />;
+			}
+			return currentSortOrder === "asc" ? <ArrowDown01 /> : <ArrowDown10 />;
+		};
+
+		// 現在の並び替え設定を取得
+		const getCurrentSortSubtext = () => {
+			const sortOption = sortOptions.find(
+				(option) => option.id === currentSortBy
+			);
+			const orderLabel = currentSortOrder === "asc" ? "昇順" : "降順";
+			return sortOption ? `${sortOption.label} ${orderLabel}` : "";
+		};
+
+		// 並び替えがデフォルト以外に設定されているかチェック
+		const isDefaultSort =
+			currentSortBy && currentSortBy === "id" && currentSortOrder === "asc";
+
 		return (
 			<Sheet>
 				<SheetTrigger asChild>
-					<Button variant="ghost" className="">
-						<ArrowDownUp />
+					<Button variant="ghost" className="flex items-center gap-2">
+						{getSortIcon()}
 						並び替え
 					</Button>
 				</SheetTrigger>

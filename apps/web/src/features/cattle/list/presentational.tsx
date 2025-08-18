@@ -1,7 +1,7 @@
 "use client";
 
 import { Separator } from "@/components/ui/separator";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CattleItem } from "./components/CattleItem";
 import { FilterSheet } from "./components/FilterSheet";
 import { SearchBar } from "./components/SearchBar";
@@ -18,6 +18,7 @@ export function CattleListPresentation({
 }: CattleListPresentationProps) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
+	const pathname = usePathname();
 
 	const handleSearch = (value: string) => {
 		const params = new URLSearchParams(searchParams.toString());
@@ -75,10 +76,16 @@ export function CattleListPresentation({
 	};
 
 	const handleItemClick = (cattleId: number) => {
+		// 現在のURL（検索条件を含む）をローカルストレージに保存
+		const currentUrl = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
+		localStorage.setItem("cattleListUrl", currentUrl);
 		router.push(`/cattle/${cattleId}`);
 	};
 
 	const handleAddEvent = (cattleId: number) => {
+		// 現在のURL（検索条件を含む）をローカルストレージに保存
+		const currentUrl = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
+		localStorage.setItem("cattleListUrl", currentUrl);
 		router.push(`/events/new/${cattleId}`);
 	};
 
