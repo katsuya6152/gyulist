@@ -2,6 +2,10 @@ import { Hono } from "hono";
 import { createCryptoIdPort } from "../contexts/auth/infra/id";
 import { preRegisterSchema } from "../contexts/registration/domain/codecs/input";
 import { preRegisterSuccessSchema } from "../contexts/registration/domain/codecs/output";
+import {
+	toEmail,
+	toReferralSource
+} from "../contexts/registration/domain/model/converters";
 import { preRegister as preRegisterUC } from "../contexts/registration/domain/services/preRegister";
 import { makeRegistrationRepo } from "../contexts/registration/infra/drizzle/repo";
 import { sendCompletionEmail } from "../lib/resend";
@@ -35,7 +39,12 @@ const app = new Hono<{ Bindings: Bindings }>().post("/", async (c) => {
 				}
 			};
 
-			const result = await preRegisterUC(deps)(parsed.data);
+			const cmd = {
+				email: toEmail(parsed.data.email),
+				referralSource: toReferralSource(parsed.data.referralSource),
+				turnstileToken: parsed.data.turnstileToken
+			};
+			const result = await preRegisterUC(deps)(cmd);
 			if (!result.ok) return result;
 
 			return {
