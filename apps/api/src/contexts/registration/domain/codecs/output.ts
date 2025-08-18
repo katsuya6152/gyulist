@@ -69,13 +69,15 @@ export type PreRegisterResponse = z.infer<typeof preRegisterResponseSchema>;
 // 登録ステータス更新レスポンススキーマ
 // ============================================================================
 
-export const updateStatusResponseSchema = z.object({
+export const updateRegistrationStatusResponseSchema = z.object({
 	ok: z.literal(true),
 	message: z.string(),
 	registration: registrationItemSchema
 });
 
-export type UpdateStatusResponse = z.infer<typeof updateStatusResponseSchema>;
+export type UpdateRegistrationStatusResponse = z.infer<
+	typeof updateRegistrationStatusResponseSchema
+>;
 
 // ============================================================================
 // 紹介元更新レスポンススキーマ

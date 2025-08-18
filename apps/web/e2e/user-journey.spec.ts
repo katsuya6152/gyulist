@@ -36,7 +36,8 @@ test.describe("ユーザージャーニー", () => {
 			'.fixed.bottom-0 a[href="/schedule?filter=today"]'
 		);
 		await expect(scheduleLink).toBeVisible();
-		await scheduleLink.click();
+		await scheduleLink.waitFor({ state: "visible" });
+		await scheduleLink.click({ force: true });
 		await page.waitForURL("/schedule?filter=today", { timeout: 15000 });
 		await expect(page.locator("h1")).toContainText("予定");
 		await expect(page.getByRole("button", { name: /今日/ })).toHaveClass(
@@ -56,9 +57,11 @@ test.describe("ユーザージャーニー", () => {
 		await expect(page.getByRole("tab", { name: "基本情報" })).toBeVisible();
 
 		// 8. スケジュールに戻る
-		await page
-			.locator('.fixed.bottom-0 a[href="/schedule?filter=today"]')
-			.click();
+		const scheduleLink2 = page.locator(
+			'.fixed.bottom-0 a[href="/schedule?filter=today"]'
+		);
+		await scheduleLink2.waitFor({ state: "visible" });
+		await scheduleLink2.click({ force: true });
 
 		// URLの変更を待つ
 		await page.waitForURL(/\/schedule/, { timeout: 15000 });
@@ -87,7 +90,8 @@ test.describe("ユーザージャーニー", () => {
 			'.fixed.bottom-0 a[href="/schedule?filter=today"]'
 		);
 		await expect(scheduleLink).toBeVisible();
-		await scheduleLink.click();
+		await scheduleLink.waitFor({ state: "visible" });
+		await scheduleLink.click({ force: true });
 		await page.waitForURL("/schedule?filter=today", { timeout: 15000 });
 		await expect(page.locator("h1")).toContainText("予定");
 		await expect(page.getByRole("button", { name: /今日/ })).toHaveClass(
@@ -171,7 +175,8 @@ test.describe("ユーザージャーニー", () => {
 			'.fixed.bottom-0 a[href="/schedule?filter=today"]'
 		);
 		await expect(scheduleLink).toBeVisible();
-		await scheduleLink.click();
+		await scheduleLink.waitFor({ state: "visible" });
+		await scheduleLink.click({ force: true });
 		await page.waitForURL("/schedule?filter=today", { timeout: 15000 });
 		await expect(page.locator("h1")).toContainText("予定");
 

@@ -286,73 +286,84 @@ export function HomePresentation({
 				</CardHeader>
 				<CardContent>
 					<div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-						{[
-							{
-								key: "受胎率",
-								value:
-									breedingKpi.conceptionRate != null
-										? `${breedingKpi.conceptionRate}%`
-										: "-",
-								tip: "今月のAI本数に対する、今月に分娩で受胎確定できた割合"
-							},
-							{
-								key: "平均空胎日数",
-								value:
-									breedingKpi.avgDaysOpen != null
-										? `${breedingKpi.avgDaysOpen}日`
-										: "-",
-								tip: "前回分娩から受胎AIまでの日数の平均（今月に受胎AIがあったケース）"
-							},
-							{
-								key: "分娩間隔",
-								value:
-									breedingKpi.avgCalvingInterval != null
-										? `${breedingKpi.avgCalvingInterval}日`
-										: "-",
-								tip: "同一個体の連続分娩の間隔の平均（後側分娩が今月のもの）"
-							},
-							{
-								key: "AI回数/受胎",
-								value:
-									breedingKpi.aiPerConception != null
-										? `${breedingKpi.aiPerConception}回`
-										: "-",
-								tip: "受胎成立までに要したAI本数の平均（今月に受胎成立したケース）"
-							}
-						].map((kpi) => (
-							<div key={kpi.key} className="rounded-md border p-3">
-								<div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-									{kpi.key === "受胎率" && <Activity className="h-4 w-4" />}
-									{kpi.key === "平均空胎日数" && <Clock className="h-4 w-4" />}
-									{kpi.key === "分娩間隔" && <Calendar className="h-4 w-4" />}
-									{kpi.key === "AI回数/受胎" && <Repeat className="h-4 w-4" />}
-									<span className="inline-flex items-center gap-1">
-										{kpi.key}
-										<Popover>
-											<PopoverTrigger asChild>
-												<button
-													type="button"
-													aria-label={kpi.tip}
-													className="p-0.5"
+						{(() => {
+							const kpiData = [
+								{
+									id: "conception-rate",
+									key: "受胎率",
+									value:
+										breedingKpi.conceptionRate != null
+											? `${breedingKpi.conceptionRate}%`
+											: "-",
+									tip: "今月のAI本数に対する、今月に分娩で受胎確定できた割合"
+								},
+								{
+									id: "avg-days-open",
+									key: "平均空胎日数",
+									value:
+										breedingKpi.avgDaysOpen != null
+											? `${breedingKpi.avgDaysOpen}日`
+											: "-",
+									tip: "前回分娩から受胎AIまでの日数の平均（今月に受胎AIがあったケース）"
+								},
+								{
+									id: "calving-interval",
+									key: "分娩間隔",
+									value:
+										breedingKpi.avgCalvingInterval != null
+											? `${breedingKpi.avgCalvingInterval}日`
+											: "-",
+									tip: "同一個体の連続分娩の間隔の平均（後側分娩が今月のもの）"
+								},
+								{
+									id: "ai-per-conception",
+									key: "AI回数/受胎",
+									value:
+										breedingKpi.aiPerConception != null
+											? `${breedingKpi.aiPerConception}回`
+											: "-",
+									tip: "受胎成立までに要したAI本数の平均（今月に受胎成立したケース）"
+								}
+							];
+							return kpiData.map((kpi) => (
+								<div key={kpi.id} className="rounded-md border p-3">
+									<div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+										{kpi.key === "受胎率" && <Activity className="h-4 w-4" />}
+										{kpi.key === "平均空胎日数" && (
+											<Clock className="h-4 w-4" />
+										)}
+										{kpi.key === "分娩間隔" && <Calendar className="h-4 w-4" />}
+										{kpi.key === "AI回数/受胎" && (
+											<Repeat className="h-4 w-4" />
+										)}
+										<span className="inline-flex items-center gap-1">
+											{kpi.key}
+											<Popover>
+												<PopoverTrigger asChild>
+													<button
+														type="button"
+														aria-label={kpi.tip}
+														className="p-0.5"
+													>
+														<Info className="h-3 w-3 text-muted-foreground" />
+													</button>
+												</PopoverTrigger>
+												<PopoverContent
+													side="top"
+													align="start"
+													className="max-w-[220px] text-xs leading-relaxed"
 												>
-													<Info className="h-3 w-3 text-muted-foreground" />
-												</button>
-											</PopoverTrigger>
-											<PopoverContent
-												side="top"
-												align="start"
-												className="max-w-[220px] text-xs leading-relaxed"
-											>
-												{kpi.tip}
-											</PopoverContent>
-										</Popover>
-									</span>
+													{kpi.tip}
+												</PopoverContent>
+											</Popover>
+										</span>
+									</div>
+									<div className="text-xl font-bold leading-tight">
+										{kpi.value}
+									</div>
 								</div>
-								<div className="text-xl font-bold leading-tight">
-									{kpi.value}
-								</div>
-							</div>
-						))}
+							));
+						})()}
 					</div>
 				</CardContent>
 			</Card>

@@ -52,14 +52,16 @@ export type RegistrationQuery = z.infer<typeof registrationQuerySchema>;
 // 登録ステータス更新スキーマ
 // ============================================================================
 
-export const updateStatusSchema = z.object({
+export const updateRegistrationStatusSchema = z.object({
 	status: z.enum(REGISTRATION_STATUSES, {
 		errorMap: () => ({ message: "有効なステータスを選択してください" })
 	}),
 	reason: z.string().optional()
 });
 
-export type UpdateStatusInput = z.infer<typeof updateStatusSchema>;
+export type UpdateRegistrationStatusInput = z.infer<
+	typeof updateRegistrationStatusSchema
+>;
 
 // ============================================================================
 // 紹介元更新スキーマ
