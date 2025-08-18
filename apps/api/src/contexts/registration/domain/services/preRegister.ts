@@ -1,12 +1,33 @@
 import type { IdPort } from "../../../../shared/ports/id";
 import type { Result } from "../../../../shared/result";
 import { err, ok } from "../../../../shared/result";
-import type { DomainError } from "../../../auth/domain/errors";
 import type { RegistrationRepoPort } from "../../ports";
+import type { RegistrationDomainError } from "../errors";
+import {
+	createEmailLog,
+	createRegistration,
+	nowSeconds,
+	toEmailLogId,
+	toErrorMessage,
+	toLocaleValue,
+	toRegistrationId,
+	toResendId,
+	toTimestamp
+} from "../model";
+import type {
+	Email,
+	LocaleValue,
+	ReferralSource,
+	Timestamp
+} from "../model/types";
+
+// ============================================================================
+// コマンドと依存関係
+// ============================================================================
 
 export type PreRegisterCmd = {
-	email: string;
-	referralSource?: string | null;
+	email: Email;
+	referralSource?: ReferralSource | null;
 	turnstileToken: string;
 };
 
@@ -30,78 +51,147 @@ export type PreRegisterDeps = {
 	};
 };
 
+// ============================================================================
+// 結果型
+// ============================================================================
+
 export type PreRegisterResult = {
 	status: number;
 	body: Record<string, unknown>;
 };
 
+// ============================================================================
+// ドメインサービス
+// ============================================================================
+
+/**
+ * 事前登録のユースケース
+ */
 export const preRegister =
 	(deps: PreRegisterDeps) =>
 	async (
 		cmd: PreRegisterCmd
-	): Promise<Result<PreRegisterResult, DomainError>> => {
-		const valid = await deps.turnstile.verify(
-			deps.secrets.TURNSTILE_SECRET_KEY,
-			cmd.turnstileToken
-		);
-		if (!valid) {
-			return ok({
-				status: 400,
-				body: {
-					ok: false,
-					code: "TURNSTILE_FAILED",
-					message: "Turnstile failed"
-				}
-			});
-		}
+	): Promise<Result<PreRegisterResult, RegistrationDomainError>> => {
 		try {
-			const existing = await deps.repo.findByEmail(cmd.email);
-			if (existing) {
-				return ok({ status: 200, body: { ok: true, alreadyRegistered: true } });
+			// 1. Turnstile検証
+			const turnstileValid = await deps.turnstile.verify(
+				deps.secrets.TURNSTILE_SECRET_KEY,
+				cmd.turnstileToken
+			);
+			if (!turnstileValid) {
+				return err({
+					type: "TurnstileError",
+					message: "Turnstile検証に失敗しました",
+					token: cmd.turnstileToken
+				});
 			}
-			const now = deps.time.nowSeconds();
-			const id = deps.id.uuid();
+
+			// 2. 既存登録チェック
+			const existing = await deps.repo.findByEmail(cmd.email as string);
+			if (existing) {
+				return ok({
+					status: 200,
+					body: { ok: true, alreadyRegistered: true }
+				});
+			}
+
+			// 3. 新規登録の作成
+			const currentTime = deps.time.nowSeconds();
+			const registrationId = toRegistrationId(deps.id.uuid());
+			const locale = toLocaleValue("ja");
+
+			const newRegistration = createRegistration(
+				{
+					email: cmd.email,
+					referralSource: cmd.referralSource ?? null,
+					locale
+				},
+				registrationId,
+				toTimestamp(currentTime)
+			);
+
+			// 4. データベースに保存
 			await deps.repo.insert({
-				id,
-				email: cmd.email,
-				referralSource: cmd.referralSource ?? null,
-				status: "confirmed",
-				locale: "ja",
-				createdAt: now,
-				updatedAt: now
+				id: newRegistration.id as string,
+				email: newRegistration.email as string,
+				referralSource: newRegistration.referralSource as string | null,
+				status: newRegistration.status,
+				locale: newRegistration.locale as string,
+				createdAt: newRegistration.createdAt,
+				updatedAt: newRegistration.updatedAt
 			});
+
+			// 5. 完了メールの送信
 			try {
 				const mailResult = await deps.mail.sendCompleted(
 					deps.secrets.RESEND_API_KEY,
 					deps.secrets.MAIL_FROM,
-					cmd.email,
-					cmd.referralSource ?? null
+					cmd.email as string,
+					cmd.referralSource as string | null
 				);
+
+				// 6. メールログの記録（成功）
+				const emailLogId = toEmailLogId(deps.id.uuid());
+				const emailLog = createEmailLog(
+					{
+						email: cmd.email,
+						type: "completed",
+						httpStatus: 200,
+						resendId: toResendId(mailResult.id),
+						error: null
+					},
+					emailLogId,
+					toTimestamp(currentTime)
+				);
+
 				await deps.repo.insertEmailLog({
-					id: deps.id.uuid(),
-					email: cmd.email,
-					type: "completed",
-					httpStatus: 200,
-					resendId: mailResult.id,
-					error: null,
-					createdAt: now
+					id: emailLog.id as string,
+					email: emailLog.email as string,
+					type: emailLog.type,
+					httpStatus: emailLog.httpStatus,
+					resendId: emailLog.resendId as string | null,
+					error: emailLog.error as string | null,
+					createdAt: emailLog.createdAt
 				});
-			} catch (cause) {
+			} catch (mailError) {
+				// 7. メールログの記録（失敗）
+				const emailLogId = toEmailLogId(deps.id.uuid());
+				const emailLog = createEmailLog(
+					{
+						email: cmd.email,
+						type: "completed",
+						resendId: null,
+						error: toErrorMessage((mailError as Error).message)
+					},
+					emailLogId,
+					toTimestamp(currentTime)
+				);
+
 				await deps.repo.insertEmailLog({
-					id: deps.id.uuid(),
-					email: cmd.email,
-					type: "completed",
-					resendId: null,
-					error: (cause as Error).message,
-					createdAt: now
+					id: emailLog.id as string,
+					email: emailLog.email as string,
+					type: emailLog.type,
+					resendId: emailLog.resendId as string | null,
+					error: emailLog.error as string | null,
+					createdAt: emailLog.createdAt
 				});
+
 				return ok({
 					status: 502,
-					body: { ok: false, code: "RESEND_FAILED", message: "Resend failed" }
+					body: {
+						ok: false,
+						code: "RESEND_FAILED",
+						message: "メール送信に失敗しました"
+					}
 				});
 			}
+
 			return ok({ status: 200, body: { ok: true } });
 		} catch (cause) {
-			return err({ type: "InfraError", message: "pre-register failed", cause });
+			return err({
+				type: "InfraError",
+				message: "事前登録の処理に失敗しました",
+				cause
+			});
 		}
 	};
