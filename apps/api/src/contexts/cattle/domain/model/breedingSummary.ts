@@ -1,17 +1,16 @@
-import type { Brand } from "../../../../shared/brand";
 import type { Result } from "../../../../shared/result";
 import { err, ok } from "../../../../shared/result";
 import type { DomainError } from "../errors";
 import type { BreedingEvent } from "./breedingStatus";
-
-// Brand types for breeding summary metrics
-export type TotalInseminationCount = Brand<number, "TotalInseminationCount">;
-export type AverageDaysOpen = Brand<number, "AverageDaysOpen">;
-export type AveragePregnancyPeriod = Brand<number, "AveragePregnancyPeriod">;
-export type AverageCalvingInterval = Brand<number, "AverageCalvingInterval">;
-export type DifficultBirthCount = Brand<number, "DifficultBirthCount">;
-export type PregnancyHeadCount = Brand<number, "PregnancyHeadCount">;
-export type PregnancySuccessRate = Brand<number, "PregnancySuccessRate">;
+import type {
+	AverageCalvingInterval,
+	AverageDaysOpen,
+	AveragePregnancyPeriod,
+	DifficultBirthCount,
+	PregnancyHeadCount,
+	PregnancySuccessRate,
+	TotalInseminationCount
+} from "./types";
 
 // Breeding Summary Value Object (immutable statistics)
 export type BreedingSummary = {

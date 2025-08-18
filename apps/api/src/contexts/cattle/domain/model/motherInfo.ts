@@ -1,15 +1,12 @@
-import type { Brand, CattleId } from "../../../../shared/brand";
+import type { CattleId } from "../../../../shared/brand";
 import type { Result } from "../../../../shared/result";
 import { err, ok } from "../../../../shared/result";
 import type { DomainError } from "../errors";
-
-// Brand types for mother information
-export type MotherName = Brand<string, "MotherName">;
-export type MotherIdentificationNumber = Brand<
-	number,
-	"MotherIdentificationNumber"
->;
-export type MotherScore = Brand<number, "MotherScore">;
+import type {
+	MotherIdentificationNumber,
+	MotherName,
+	MotherScore
+} from "./types";
 
 // Mother Information Value Object
 export type MotherInfo = {

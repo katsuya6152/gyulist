@@ -1,16 +1,12 @@
-import type { Brand } from "../../../../shared/brand";
 import type { Result } from "../../../../shared/result";
 import { err, ok } from "../../../../shared/result";
 import type { DomainError } from "../errors";
-
-// Brand types for bloodline names
-export type FatherName = Brand<string, "FatherName">;
-export type MotherFatherName = Brand<string, "MotherFatherName">;
-export type MotherGrandFatherName = Brand<string, "MotherGrandFatherName">;
-export type MotherGreatGrandFatherName = Brand<
-	string,
-	"MotherGreatGrandFatherName"
->;
+import type {
+	FatherName,
+	MotherFatherName,
+	MotherGrandFatherName,
+	MotherGreatGrandFatherName
+} from "./types";
 
 // Bloodline Value Object
 export type Bloodline = {
