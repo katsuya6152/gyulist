@@ -38,13 +38,13 @@ export async function updateCattleAction(
 
 		// APIに送信するデータを準備（新規任意項目も含めて送信）
 		const apiData: UpdateCattleInput = {
-			identificationNumber: data.identificationNumber,
-			earTagNumber: data.earTagNumber,
+			identificationNumber: Number(data.identificationNumber),
+			earTagNumber: Number(data.earTagNumber),
 			name: data.name,
 			gender: data.gender as UpdateCattleInput["gender"],
 			birthday: data.birthday,
 			growthStage: data.growthStage as UpdateCattleInput["growthStage"],
-			...(data.weight != null ? { weight: data.weight } : {}),
+			...(data.weight != null ? { weight: Number(data.weight) } : {}),
 			score: data.score ?? null,
 			breed: data.breed || null,
 			producerName: data.producerName ?? null,

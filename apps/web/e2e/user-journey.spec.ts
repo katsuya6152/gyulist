@@ -258,7 +258,7 @@ test.describe("ユーザージャーニー", () => {
 		await page.locator('input[name="identificationNumber"]').fill("9999");
 		await page.locator('input[name="earTagNumber"]').fill("8888");
 		await page.locator('input[name="name"]').fill("テスト牛");
-		await page.locator('select[name="gender"]').selectOption("メス");
+		await page.locator('select[name="gender"]').selectOption("雌");
 		await page.locator('input[name="birthday"]').fill("2023-01-01");
 		await page.locator('select[name="growthStage"]').selectOption("CALF");
 
@@ -373,9 +373,9 @@ test.describe("ユーザージャーニー", () => {
 		await expect(page.locator("text=各ステータスの牛の数")).toBeVisible();
 		await expect(page.locator("text=健康")).toBeVisible();
 		await expect(page.locator("text=妊娠中")).toBeVisible();
-		await expect(page.locator("text=休息中")).toBeVisible();
+		await expect(page.locator("text=休養中")).toBeVisible();
 		await expect(page.locator("text=治療中")).toBeVisible();
-		await expect(page.locator("text=出荷済")).toBeVisible();
+		await expect(page.locator("text=出荷済み")).toBeVisible();
 		await expect(page.locator("text=死亡")).toBeVisible();
 	});
 

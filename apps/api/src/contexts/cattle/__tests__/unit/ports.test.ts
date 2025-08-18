@@ -44,7 +44,7 @@ function makeFakeRepo(): CattleRepoPort {
 				identificationNumber: dto.identificationNumber,
 				name: (dto.name as Cattle["name"]) ?? null,
 				earTagNumber: dto.earTagNumber ?? null,
-				gender: dto.gender ?? null,
+				gender: "雌" as const,
 				birthday: dto.birthday ?? null,
 				growthStage: dto.growthStage ?? null,
 				breed: (dto.breed ?? null) as Cattle["breed"],
@@ -140,7 +140,7 @@ describe("CattleRepoPort contract", () => {
 			ownerUserId: owner,
 			identificationNumber: 111 as unknown as Cattle["identificationNumber"],
 			name: "A",
-			gender: "メス" as const,
+			gender: "雌" as const,
 			status: "HEALTHY" as const
 		};
 		const created = await repo.create(newCow);

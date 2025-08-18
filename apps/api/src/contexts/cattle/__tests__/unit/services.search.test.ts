@@ -11,7 +11,7 @@ function makeCow(owner: UserId, id: number, name: string): Cattle {
 		identificationNumber: id as unknown as Cattle["identificationNumber"],
 		earTagNumber: null,
 		name,
-		gender: "メス",
+		gender: "雌",
 		birthday: null,
 		growthStage: null,
 		age: null,

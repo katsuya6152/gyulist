@@ -1,10 +1,12 @@
 import { z } from "zod";
 import {
-	CATTLE_GENDERS,
-	CATTLE_GROWTH_STAGES,
-	CATTLE_STATUS
-} from "../constants";
-import type { Gender, GrowthStage, Status } from "../model/cattle";
+	GENDERS,
+	GENDERS_TUPLE,
+	GROWTH_STAGES,
+	GROWTH_STAGES_TUPLE,
+	STATUSES,
+	STATUSES_TUPLE
+} from "../model/types";
 
 // 血統情報のスキーマ
 export const bloodlineSchema = z.object({
@@ -54,11 +56,11 @@ export const newCattleSchema = z.object({
 	identificationNumber: z.number(),
 	earTagNumber: z.number().nullable().optional(),
 	name: z.string().nullable().optional(),
-	gender: z.enum(CATTLE_GENDERS).nullable().optional(),
+	gender: z.enum(GENDERS_TUPLE).nullable().optional(),
 	birthday: z.string().nullable().optional(),
-	growthStage: z.enum(CATTLE_GROWTH_STAGES).nullable().optional(),
+	growthStage: z.enum(GROWTH_STAGES_TUPLE).nullable().optional(),
 	breed: z.string().nullable().optional(),
-	status: z.enum(CATTLE_STATUS).nullable().optional(),
+	status: z.enum(STATUSES_TUPLE).nullable().optional(),
 	producerName: z.string().nullable().optional(),
 	barn: z.string().nullable().optional(),
 	breedingValue: z.string().nullable().optional(),
@@ -73,9 +75,9 @@ export const createCattleSchema = z.object({
 	identificationNumber: z.number(),
 	earTagNumber: z.number(),
 	name: z.string(),
-	gender: z.enum(CATTLE_GENDERS),
+	gender: z.enum(GENDERS_TUPLE),
 	birthday: z.string(),
-	growthStage: z.enum(CATTLE_GROWTH_STAGES),
+	growthStage: z.enum(GROWTH_STAGES_TUPLE),
 	weight: z.number().nullable().optional(),
 	score: z.number().nullable().optional(),
 	breed: z.string().nullable(),
@@ -94,7 +96,7 @@ export const createCattleSchema = z.object({
 export const updateCattleSchema = createCattleSchema.partial();
 
 export const updateStatusSchema = z.object({
-	status: z.enum(CATTLE_STATUS),
+	status: z.enum(STATUSES_TUPLE),
 	reason: z.string().nullable().optional()
 });
 
@@ -108,17 +110,17 @@ export const searchCattleSchema = z.object({
 	growth_stage: z
 		.string()
 		.transform((val) => val?.split(","))
-		.pipe(z.enum(CATTLE_GROWTH_STAGES).array().optional())
+		.pipe(z.enum(GROWTH_STAGES_TUPLE).array().optional())
 		.optional(),
 	gender: z
 		.string()
 		.transform((val) => val?.split(","))
-		.pipe(z.enum(CATTLE_GENDERS).array().optional())
+		.pipe(z.enum(GENDERS_TUPLE).array().optional())
 		.optional(),
 	status: z
 		.string()
 		.transform((val) => val?.split(","))
-		.pipe(z.enum(CATTLE_STATUS).array().optional())
+		.pipe(z.enum(STATUSES_TUPLE).array().optional())
 		.optional()
 });
 

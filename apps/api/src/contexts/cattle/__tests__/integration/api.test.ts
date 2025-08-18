@@ -105,7 +105,7 @@ describe("Cattle API E2E (no mocks)", () => {
 			age: 1,
 			monthsOld: 12,
 			daysOld: 365,
-			gender: "オス",
+			gender: "雌",
 			weight: null,
 			score: null,
 			breed: null,

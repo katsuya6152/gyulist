@@ -126,7 +126,7 @@ describe("create cattle UC", () => {
 			ownerUserId: 1 as unknown as UserId,
 			identificationNumber: 1001 as Cattle["identificationNumber"],
 			name: "X",
-			gender: "メス",
+			gender: "雌",
 			birthday: null,
 			growthStage: null,
 			breed: null,

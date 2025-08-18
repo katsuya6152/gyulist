@@ -45,7 +45,7 @@ function baseCattle(owner: UserId, idNum: number, id: number): Cattle {
 		identificationNumber: idNum as unknown as Cattle["identificationNumber"],
 		earTagNumber: null,
 		name: "A",
-		gender: "メス",
+		gender: "雌",
 		birthday: null,
 		growthStage: null,
 		age: null,

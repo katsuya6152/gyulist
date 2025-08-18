@@ -21,22 +21,18 @@ import {
 import classNames from "classnames";
 import { useState } from "react";
 import { toast } from "sonner";
-import {
-	type CattleStatus,
-	statusLabelMap,
-	statusOptions
-} from "../../constants";
-import { updateCattleStatusAction } from "../actions";
+import { type Status, statusLabelMap, statusOptions } from "../../constants";
+import { updateStatusAction } from "../actions";
 
 interface StatusBadgeProps {
 	cattleId: number;
-	status: CattleStatus;
+	status: Status;
 }
 
 export function StatusBadge({ cattleId, status }: StatusBadgeProps) {
-	const [currentStatus, setCurrentStatus] = useState<CattleStatus>(status);
+	const [currentStatus, setCurrentStatus] = useState<Status>(status);
 	const [open, setOpen] = useState(false);
-	const [newStatus, setNewStatus] = useState<CattleStatus>(status);
+	const [newStatus, setNewStatus] = useState<Status>(status);
 	const [reason, setReason] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [showWarning, setShowWarning] = useState(false);
@@ -48,7 +44,7 @@ export function StatusBadge({ cattleId, status }: StatusBadgeProps) {
 		if (isSubmitting) return;
 		setIsSubmitting(true);
 		try {
-			const result = await updateCattleStatusAction(
+			const result = await updateStatusAction(
 				cattleId,
 				newStatus,
 				reason || undefined
@@ -74,7 +70,7 @@ export function StatusBadge({ cattleId, status }: StatusBadgeProps) {
 		}
 	};
 
-	const handleStatusChange = (value: CattleStatus) => {
+	const handleStatusChange = (value: Status) => {
 		setNewStatus(value);
 		// 最終ステータスから変更する場合は警告を表示
 		if (isFinalStatus && value !== currentStatus) {

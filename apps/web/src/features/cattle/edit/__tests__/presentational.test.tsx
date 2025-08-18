@@ -32,7 +32,7 @@ describe("CattleEditPresentation", () => {
 		age: 1,
 		monthsOld: 12,
 		daysOld: 365,
-		gender: "オス",
+		gender: "雄",
 		weight: 250,
 		score: 80,
 		breed: "黒毛和種",
@@ -58,7 +58,7 @@ describe("CattleEditPresentation", () => {
 		expect(screen.getByLabelText(/個体識別番号/)).toHaveValue("1001");
 		expect(screen.getByLabelText(/耳標番号/)).toHaveValue("1234");
 		expect(screen.getByLabelText(/名号/)).toHaveValue("テスト牛");
-		expect(screen.getByLabelText(/性別/)).toHaveValue("オス");
+		expect(screen.getByLabelText(/性別/)).toHaveValue("雄");
 		expect(screen.getByLabelText(/成長段階/)).toHaveValue("CALF");
 
 		// オプションフィールドの値を確認

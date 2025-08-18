@@ -33,7 +33,7 @@ describe("CattleListPresentation", () => {
 			age: 1,
 			monthsOld: 12,
 			daysOld: 365,
-			gender: "オス",
+			gender: "雄",
 			weight: 250,
 			score: 80,
 			breed: "黒毛和種",
@@ -57,7 +57,7 @@ describe("CattleListPresentation", () => {
 			age: 1,
 			monthsOld: 12,
 			daysOld: 364,
-			gender: "メス",
+			gender: "雄",
 			weight: 260,
 			score: 85,
 			breed: "黒毛和種",
@@ -81,7 +81,7 @@ describe("CattleListPresentation", () => {
 			age: 1,
 			monthsOld: 12,
 			daysOld: 363,
-			gender: "オス",
+			gender: "雄",
 			weight: 270,
 			score: 90,
 			breed: "黒毛和種",
@@ -123,8 +123,8 @@ describe("CattleListPresentation", () => {
 		// 成長段階と性別の表示確認
 		expect(screen.getAllByText("仔牛")).toHaveLength(2);
 		expect(screen.getByText("育成牛")).toBeInTheDocument();
-		expect(screen.getAllByText("オス")).toHaveLength(2);
-		expect(screen.getByText("メス")).toBeInTheDocument();
+		expect(screen.getAllByText("雄")).toHaveLength(2);
+		expect(screen.getByText("雄")).toBeInTheDocument();
 	});
 
 	it("should handle search input", async () => {
@@ -181,7 +181,7 @@ describe("CattleListPresentation", () => {
 		await user.click(screen.getByRole("button", { name: "性別を選択" }));
 
 		// オスを選択（Command内のオプション）
-		await user.click(screen.getByRole("option", { name: "オス" }));
+		await user.click(screen.getByRole("option", { name: "雄" }));
 
 		// ステータスのドロップダウンを開く
 		await user.click(screen.getByRole("button", { name: "ステータスを選択" }));
@@ -200,7 +200,7 @@ describe("CattleListPresentation", () => {
 	it("should handle filter clear", async () => {
 		const user = userEvent.setup();
 		mockSearchParams.set("growth_stage", "CALF");
-		mockSearchParams.set("gender", "オス");
+		mockSearchParams.set("gender", "雄");
 		mockSearchParams.set("status", "HEALTHY");
 
 		render(<CattleListPresentation cattleList={mockCattleList} />);

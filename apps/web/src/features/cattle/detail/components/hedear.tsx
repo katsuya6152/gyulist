@@ -15,11 +15,12 @@ import {
 import { getGrowthStage } from "@/lib/utils";
 import type { GetCattleDetailResType } from "@/services/cattleService";
 import classNames from "classnames";
+import { clsx } from "clsx";
 import { CalendarPlus, Edit, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import type { CattleStatus } from "../../constants";
+import type { Status } from "../../constants";
 import { deleteCattleAction } from "../actions";
 import { StatusBadge } from "./status-badge";
 
@@ -100,10 +101,12 @@ export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 				<div className="flex items-center gap-1">
 					<Badge variant="outline">
 						<span
-							className={classNames("font-semibold", {
-								"text-blue-500": cattle.gender === "オス",
-								"text-red-500": cattle.gender === "メス"
-							})}
+							className={clsx(
+								"text-sm font-medium",
+								cattle.gender === "雄" && "text-blue-500",
+								cattle.gender === "去勢" && "text-gray-500",
+								cattle.gender === "雌" && "text-red-500"
+							)}
 						>
 							{cattle.gender}
 						</span>
@@ -119,7 +122,7 @@ export function CattleDetailHeader({ cattle }: CattleDetailHeaderProps) {
 				{cattle.status && (
 					<StatusBadge
 						cattleId={cattle.cattleId}
-						status={cattle.status as CattleStatus}
+						status={cattle.status as Status}
 					/>
 				)}
 

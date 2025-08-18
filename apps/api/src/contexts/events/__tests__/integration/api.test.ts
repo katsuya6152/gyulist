@@ -101,7 +101,7 @@ describe("Events API E2E (no mocks)", () => {
 			age: 1,
 			monthsOld: 12,
 			daysOld: 365,
-			gender: "オス",
+			gender: "雄",
 			weight: null,
 			score: null,
 			breed: null,

@@ -16,47 +16,15 @@ import type {
 	BreedingValue,
 	CattleName,
 	EarTagNumber,
+	Gender,
+	GrowthStage,
 	IdentificationNumber,
 	Notes,
 	ProducerName,
 	Score,
+	Status,
 	Weight
 } from "./types";
-
-/**
- * 牛の成長段階
- *
- * 牛のライフサイクルにおける成長段階を表現します。
- * 各段階で異なる管理方針や飼育方法が適用されます。
- */
-export type GrowthStage =
-	| "CALF" // 繁殖・哺乳期（0〜8ヶ月）
-	| "GROWING" // 育成期（約8か月～12か月）
-	| "FATTENING" // 肥育期（12か月～30か月）
-	| "FIRST_CALVED" // 初産牛（初回分娩）
-	| "MULTI_PAROUS"; // 経産牛（1回以上の分娩）
-
-/**
- * 牛の性別
- *
- * 繁殖管理や飼育管理において重要な属性です。
- * 性別によって管理方針や飼育方法が異なります。
- */
-export type Gender = "オス" | "メス";
-
-/**
- * 牛の健康・繁殖状態
- *
- * 牛の現在の状態を表現し、適切な管理方針の決定に使用されます。
- * 各状態に応じて異なるケアや管理が必要です。
- */
-export type Status =
-	| "HEALTHY" // 健康：通常の飼育管理
-	| "PREGNANT" // 妊娠中：繁殖管理の重点化
-	| "RESTING" // 休養中：繁殖休止期間
-	| "TREATING" // 治療中：獣医による治療
-	| "SHIPPED" // 出荷済み：市場への出荷完了
-	| "DEAD"; // 死亡：記録保持のため
 
 /**
  * 牛エンティティ（集約ルート）
@@ -444,16 +412,18 @@ function validateAndTransformString(
  * 性別と年齢に基づいて繁殖可能かどうかを判定します。
  * 以下のルールに従います：
  *
- * - オス: 1歳以上で繁殖可能
- * - メス: 2歳以上で繁殖可能
+ * - 雄: 1歳以上で繁殖可能
+ * - 去勢: 繁殖不可（肉質向上や行動制御が目的）
+ * - 雌: 2歳以上で繁殖可能
  *
  * @param cattle - 判定対象の牛エンティティ
  * @returns 繁殖可能年齢の場合true、そうでない場合false
  */
 export function isBreedingAge(cattle: Cattle): boolean {
 	if (!cattle.age || !cattle.gender) return false;
-	if (cattle.gender === "オス") return cattle.age >= 1;
-	return cattle.age >= 2; // メスは通常2歳から繁殖可能
+	if (cattle.gender === "去勢") return false; // 去勢牛は繁殖不可
+	if (cattle.gender === "雄") return cattle.age >= 1;
+	return cattle.age >= 2; // 雌は通常2歳から繁殖可能
 }
 
 /**

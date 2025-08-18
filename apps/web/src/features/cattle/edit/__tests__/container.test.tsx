@@ -20,7 +20,7 @@ describe("CattleEditContainer", () => {
 		age: 1,
 		monthsOld: 12,
 		daysOld: 365,
-		gender: "オス",
+		gender: "雄",
 		weight: 250,
 		score: 80,
 		breed: "黒毛和種",

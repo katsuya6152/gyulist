@@ -54,7 +54,7 @@ describe("Cattle API E2E (recalc & history)", () => {
 			age: 2,
 			monthsOld: 24,
 			daysOld: 730,
-			gender: "メス",
+			gender: "雌",
 			weight: null,
 			score: null,
 			breed: null,
@@ -104,7 +104,7 @@ describe("Cattle API E2E (recalc & history)", () => {
 		appInst.route(
 			"/cattle",
 			(routes as { default: unknown }).default as typeof import(
-				"../../src/routes/cattle"
+				"../../../../../src/routes/cattle"
 			).default
 		);
 		app = appInst;
