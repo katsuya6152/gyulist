@@ -128,11 +128,16 @@ export async function listRegistrations(
 	const response = (await res.json()) as unknown;
 	// API returns { data: { items: [...], total: number } }
 	const { data } = response as {
-		data: {
+		data?: {
 			items: RegistrationListItem[];
 			total: number;
 		};
 	};
+
+	if (!data) {
+		throw new Error("Invalid API response: missing data property");
+	}
+
 	return { items: data.items, total: data.total };
 }
 
