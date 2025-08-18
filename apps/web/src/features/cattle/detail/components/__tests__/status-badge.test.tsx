@@ -72,9 +72,9 @@ describe("StatusBadge", () => {
 		const user = userEvent.setup();
 		render(<StatusBadge cattleId={1} status="SHIPPED" />);
 
-		expect(screen.getByText("出荷済")).toBeInTheDocument();
+		expect(screen.getByText("出荷済み")).toBeInTheDocument();
 
-		await user.click(screen.getByLabelText("ステータスを変更: 出荷済"));
+		await user.click(screen.getByLabelText("ステータスを変更: 出荷済み"));
 
 		// Check that the dialog content is rendered correctly
 		expect(screen.getByRole("dialog")).toBeInTheDocument();

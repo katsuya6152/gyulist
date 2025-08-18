@@ -33,11 +33,11 @@ describe("CattleListPresentation", () => {
 			age: 1,
 			monthsOld: 12,
 			daysOld: 365,
-			gender: "雄",
+			gender: "雄" as const,
 			weight: 250,
 			score: 80,
 			breed: "黒毛和種",
-			status: "HEALTHY",
+			status: "HEALTHY" as const,
 			healthStatus: "健康",
 			producerName: "テスト生産者",
 			barn: "テスト牛舎",
@@ -57,11 +57,11 @@ describe("CattleListPresentation", () => {
 			age: 1,
 			monthsOld: 12,
 			daysOld: 364,
-			gender: "雄",
+			gender: "雄" as const,
 			weight: 260,
 			score: 85,
 			breed: "黒毛和種",
-			status: "HEALTHY",
+			status: "HEALTHY" as const,
 			healthStatus: "健康",
 			producerName: "テスト生産者",
 			barn: "テスト牛舎",
@@ -81,11 +81,11 @@ describe("CattleListPresentation", () => {
 			age: 1,
 			monthsOld: 12,
 			daysOld: 363,
-			gender: "雄",
+			gender: "雄" as const,
 			weight: 270,
 			score: 90,
 			breed: "黒毛和種",
-			status: "HEALTHY",
+			status: "HEALTHY" as const,
 			healthStatus: "健康",
 			producerName: "テスト生産者",
 			barn: "テスト牛舎",
@@ -123,8 +123,7 @@ describe("CattleListPresentation", () => {
 		// 成長段階と性別の表示確認
 		expect(screen.getAllByText("仔牛")).toHaveLength(2);
 		expect(screen.getByText("育成牛")).toBeInTheDocument();
-		expect(screen.getAllByText("雄")).toHaveLength(2);
-		expect(screen.getByText("雄")).toBeInTheDocument();
+		expect(screen.getAllByText("雄")).toHaveLength(3);
 	});
 
 	it("should handle search input", async () => {
@@ -180,8 +179,8 @@ describe("CattleListPresentation", () => {
 		// 性別のドロップダウンを開く
 		await user.click(screen.getByRole("button", { name: "性別を選択" }));
 
-		// オスを選択（Command内のオプション）
-		await user.click(screen.getByRole("option", { name: "雄" }));
+		// 去勢を選択（Command内のオプション）
+		await user.click(screen.getByRole("option", { name: "去勢" }));
 
 		// ステータスのドロップダウンを開く
 		await user.click(screen.getByRole("button", { name: "ステータスを選択" }));
@@ -193,7 +192,7 @@ describe("CattleListPresentation", () => {
 		await user.click(screen.getByRole("button", { name: "絞り込む" }));
 
 		expect(mockPush).toHaveBeenCalledWith(
-			"/cattle?growth_stage=CALF&gender=%E3%82%AA%E3%82%B9&status=HEALTHY"
+			"/cattle?growth_stage=CALF&gender=%E5%8E%BB%E5%8B%A2&status=HEALTHY"
 		);
 	});
 
@@ -228,12 +227,12 @@ describe("CattleListPresentation", () => {
 		const cattleWithHealthStatus = [
 			{
 				...mockCattleList[0],
-				status: "HEALTHY",
+				status: "HEALTHY" as const,
 				healthStatus: "健康"
 			},
 			{
 				...mockCattleList[1],
-				status: "TREATING",
+				status: "TREATING" as const,
 				healthStatus: "治療中"
 			}
 		];

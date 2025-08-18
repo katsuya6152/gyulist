@@ -124,16 +124,16 @@ export const STATUSES_TUPLE = [
  * 性別の表示用ラベル
  */
 export const GENDER_LABELS: Record<Gender, string> = {
-	雄: "雄牛",
-	去勢: "去勢牛",
-	雌: "雌牛"
+	雄: "雄",
+	去勢: "去勢",
+	雌: "雌"
 };
 
 /**
  * 成長段階の表示用ラベル
  */
 export const GROWTH_STAGE_LABELS: Record<GrowthStage, string> = {
-	CALF: "子牛",
+	CALF: "仔牛",
 	GROWING: "育成牛",
 	FATTENING: "肥育牛",
 	FIRST_CALVED: "初産牛",
