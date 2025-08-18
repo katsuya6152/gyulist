@@ -1,4 +1,3 @@
-import type { CattleStatus } from "@/features/cattle/constants";
 import { fetchWithAuth } from "@/lib/api-client";
 import { client } from "@/lib/rpc";
 import type {
@@ -6,6 +5,7 @@ import type {
 	CattleResponse,
 	CattleStatusCountsResponse,
 	CreateCattleInput,
+	Status,
 	UpdateCattleInput
 } from "@repo/api";
 
@@ -82,9 +82,9 @@ export async function DeleteCattle(id: number | string): Promise<void> {
 	);
 }
 
-export async function updateCattleStatus(
+export async function updateStatus(
 	id: number | string,
-	status: CattleStatus,
+	status: Status,
 	reason?: string
 ): Promise<void> {
 	return fetchWithAuth<void>((token) =>
@@ -108,7 +108,7 @@ export async function UpdateCattle(
 		identificationNumber: number;
 		earTagNumber: number;
 		name: string;
-		gender: "オス" | "メス";
+		gender: "雄" | "去勢" | "雌";
 		birthday: string;
 		growthStage:
 			| "CALF"
@@ -172,10 +172,10 @@ export async function UpdateCattleDetailed(
 }
 
 // ステータス別頭数取得
-export type GetCattleStatusCountsRes = CattleStatusCountsResponse;
+export type GetStatusCountsRes = CattleStatusCountsResponse;
 
-export async function GetCattleStatusCounts(): Promise<GetCattleStatusCountsRes> {
-	return fetchWithAuth<{ data: GetCattleStatusCountsRes }>((token) =>
+export async function GetStatusCounts(): Promise<GetStatusCountsRes> {
+	return fetchWithAuth<{ data: GetStatusCountsRes }>((token) =>
 		client.api.v1.cattle["status-counts"].$get(
 			{},
 			{

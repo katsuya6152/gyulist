@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/popover";
 import { eventTypeColors } from "@/constants/events";
 import { statusLabelMap, statusOptions } from "@/features/cattle/constants";
-import type { CattleStatus } from "@/features/cattle/constants";
+import type { Status } from "@/features/cattle/constants";
 import { EVENT_TYPE_LABELS } from "@repo/api";
 import {
 	Activity,
@@ -32,7 +32,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 
-const STATUS_ICON_MAP: Record<CattleStatus, ReactNode> = {
+const STATUS_ICON_MAP: Record<Status, ReactNode> = {
 	HEALTHY: <Heart className="h-4 w-4 text-blue-500" />,
 	PREGNANT: <Baby className="h-4 w-4 text-yellow-500" />,
 	RESTING: <Bed className="h-4 w-4 text-green-500" />,
@@ -41,7 +41,7 @@ const STATUS_ICON_MAP: Record<CattleStatus, ReactNode> = {
 	DEAD: <Skull className="h-4 w-4 text-red-600" />
 };
 
-const STATUS_TEXT_CLASS_MAP: Record<CattleStatus, string> = {
+const STATUS_TEXT_CLASS_MAP: Record<Status, string> = {
 	HEALTHY: "text-blue-500",
 	PREGNANT: "text-yellow-500",
 	RESTING: "text-green-500",
@@ -50,7 +50,7 @@ const STATUS_TEXT_CLASS_MAP: Record<CattleStatus, string> = {
 	DEAD: "text-red-600"
 };
 
-const STATUS_BORDER_CLASS_MAP: Record<CattleStatus, string> = {
+const STATUS_BORDER_CLASS_MAP: Record<Status, string> = {
 	HEALTHY: "border-blue-500",
 	PREGNANT: "border-yellow-500",
 	RESTING: "border-green-500",
@@ -258,10 +258,10 @@ export function HomePresentation({
 								className="flex items-center justify-between rounded-md border p-3"
 							>
 								<div className="flex items-center gap-2 min-w-0">
-									{STATUS_ICON_MAP[opt.value as CattleStatus]}
+									{STATUS_ICON_MAP[opt.value as Status]}
 									<Badge
 										variant="outline"
-										className={`truncate max-w-[70%] ${STATUS_TEXT_CLASS_MAP[opt.value as CattleStatus]} ${STATUS_BORDER_CLASS_MAP[opt.value as CattleStatus]}`}
+										className={`truncate max-w-[70%] ${STATUS_TEXT_CLASS_MAP[opt.value as Status]} ${STATUS_BORDER_CLASS_MAP[opt.value as Status]}`}
 									>
 										{statusLabelMap[opt.value]}
 									</Badge>
@@ -286,73 +286,84 @@ export function HomePresentation({
 				</CardHeader>
 				<CardContent>
 					<div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-						{[
-							{
-								key: "受胎率",
-								value:
-									breedingKpi.conceptionRate != null
-										? `${breedingKpi.conceptionRate}%`
-										: "-",
-								tip: "今月のAI本数に対する、今月に分娩で受胎確定できた割合"
-							},
-							{
-								key: "平均空胎日数",
-								value:
-									breedingKpi.avgDaysOpen != null
-										? `${breedingKpi.avgDaysOpen}日`
-										: "-",
-								tip: "前回分娩から受胎AIまでの日数の平均（今月に受胎AIがあったケース）"
-							},
-							{
-								key: "分娩間隔",
-								value:
-									breedingKpi.avgCalvingInterval != null
-										? `${breedingKpi.avgCalvingInterval}日`
-										: "-",
-								tip: "同一個体の連続分娩の間隔の平均（後側分娩が今月のもの）"
-							},
-							{
-								key: "AI回数/受胎",
-								value:
-									breedingKpi.aiPerConception != null
-										? `${breedingKpi.aiPerConception}回`
-										: "-",
-								tip: "受胎成立までに要したAI本数の平均（今月に受胎成立したケース）"
-							}
-						].map((kpi) => (
-							<div key={kpi.key} className="rounded-md border p-3">
-								<div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-									{kpi.key === "受胎率" && <Activity className="h-4 w-4" />}
-									{kpi.key === "平均空胎日数" && <Clock className="h-4 w-4" />}
-									{kpi.key === "分娩間隔" && <Calendar className="h-4 w-4" />}
-									{kpi.key === "AI回数/受胎" && <Repeat className="h-4 w-4" />}
-									<span className="inline-flex items-center gap-1">
-										{kpi.key}
-										<Popover>
-											<PopoverTrigger asChild>
-												<button
-													type="button"
-													aria-label={kpi.tip}
-													className="p-0.5"
+						{(() => {
+							const kpiData = [
+								{
+									id: "conception-rate",
+									key: "受胎率",
+									value:
+										breedingKpi.conceptionRate != null
+											? `${breedingKpi.conceptionRate}%`
+											: "-",
+									tip: "今月のAI本数に対する、今月に分娩で受胎確定できた割合"
+								},
+								{
+									id: "avg-days-open",
+									key: "平均空胎日数",
+									value:
+										breedingKpi.avgDaysOpen != null
+											? `${breedingKpi.avgDaysOpen}日`
+											: "-",
+									tip: "前回分娩から受胎AIまでの日数の平均（今月に受胎AIがあったケース）"
+								},
+								{
+									id: "calving-interval",
+									key: "分娩間隔",
+									value:
+										breedingKpi.avgCalvingInterval != null
+											? `${breedingKpi.avgCalvingInterval}日`
+											: "-",
+									tip: "同一個体の連続分娩の間隔の平均（後側分娩が今月のもの）"
+								},
+								{
+									id: "ai-per-conception",
+									key: "AI回数/受胎",
+									value:
+										breedingKpi.aiPerConception != null
+											? `${breedingKpi.aiPerConception}回`
+											: "-",
+									tip: "受胎成立までに要したAI本数の平均（今月に受胎成立したケース）"
+								}
+							];
+							return kpiData.map((kpi) => (
+								<div key={kpi.id} className="rounded-md border p-3">
+									<div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+										{kpi.key === "受胎率" && <Activity className="h-4 w-4" />}
+										{kpi.key === "平均空胎日数" && (
+											<Clock className="h-4 w-4" />
+										)}
+										{kpi.key === "分娩間隔" && <Calendar className="h-4 w-4" />}
+										{kpi.key === "AI回数/受胎" && (
+											<Repeat className="h-4 w-4" />
+										)}
+										<span className="inline-flex items-center gap-1">
+											{kpi.key}
+											<Popover>
+												<PopoverTrigger asChild>
+													<button
+														type="button"
+														aria-label={kpi.tip}
+														className="p-0.5"
+													>
+														<Info className="h-3 w-3 text-muted-foreground" />
+													</button>
+												</PopoverTrigger>
+												<PopoverContent
+													side="top"
+													align="start"
+													className="max-w-[220px] text-xs leading-relaxed"
 												>
-													<Info className="h-3 w-3 text-muted-foreground" />
-												</button>
-											</PopoverTrigger>
-											<PopoverContent
-												side="top"
-												align="start"
-												className="max-w-[220px] text-xs leading-relaxed"
-											>
-												{kpi.tip}
-											</PopoverContent>
-										</Popover>
-									</span>
+													{kpi.tip}
+												</PopoverContent>
+											</Popover>
+										</span>
+									</div>
+									<div className="text-xl font-bold leading-tight">
+										{kpi.value}
+									</div>
 								</div>
-								<div className="text-xl font-bold leading-tight">
-									{kpi.value}
-								</div>
-							</div>
-						))}
+							));
+						})()}
 					</div>
 				</CardContent>
 			</Card>

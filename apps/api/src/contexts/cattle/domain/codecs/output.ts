@@ -1,10 +1,10 @@
 import { z } from "zod";
 import { eventSchema } from "../../../events/domain/codecs/output";
 import {
-	CATTLE_GENDERS,
-	CATTLE_GROWTH_STAGES,
-	CATTLE_STATUS
-} from "../constants";
+	GENDERS_TUPLE,
+	GROWTH_STAGES_TUPLE,
+	STATUSES_TUPLE
+} from "../model/types";
 
 // 血統情報スキーマ
 const bloodlineSchema = z.object({
@@ -65,17 +65,17 @@ const cattleSchema = z.object({
 	identificationNumber: z.number().optional(),
 	earTagNumber: z.number().nullable(),
 	name: z.string().nullable(),
-	gender: z.enum(CATTLE_GENDERS).nullable(),
+	gender: z.enum(GENDERS_TUPLE).nullable(),
 	birthday: z
 		.date()
 		.nullable()
 		.transform((date) => date?.toISOString() ?? null),
-	growthStage: z.enum(CATTLE_GROWTH_STAGES).nullable(),
+	growthStage: z.enum(GROWTH_STAGES_TUPLE).nullable(),
 	age: z.number().nullable(),
 	monthsOld: z.number().nullable(),
 	daysOld: z.number().nullable(),
 	breed: z.string().nullable(),
-	status: z.enum(CATTLE_STATUS).nullable(),
+	status: z.enum(STATUSES_TUPLE).nullable(),
 	producerName: z.string().nullable(),
 	barn: z.string().nullable(),
 	breedingValue: z.string().nullable(),

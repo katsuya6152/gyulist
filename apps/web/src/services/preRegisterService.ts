@@ -125,13 +125,20 @@ export async function listRegistrations(
 			}
 		}
 	);
-	const data = (await res.json()) as unknown;
-	// Narrow to expected shape
-	const { items, total } = data as {
-		items: RegistrationListItem[];
-		total: number;
+	const response = (await res.json()) as unknown;
+	// API returns { data: { items: [...], total: number } }
+	const { data } = response as {
+		data?: {
+			items: RegistrationListItem[];
+			total: number;
+		};
 	};
-	return { items, total };
+
+	if (!data) {
+		throw new Error("Invalid API response: missing data property");
+	}
+
+	return { items: data.items, total: data.total };
 }
 
 export async function downloadRegistrationsCsv(

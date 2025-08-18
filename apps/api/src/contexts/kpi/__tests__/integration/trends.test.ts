@@ -54,7 +54,7 @@ describe("KPI Trends API E2E", () => {
 			age: 4,
 			monthsOld: 48,
 			daysOld: 1460,
-			gender: "メス",
+			gender: "雌",
 			weight: null,
 			score: null,
 			breed: null,

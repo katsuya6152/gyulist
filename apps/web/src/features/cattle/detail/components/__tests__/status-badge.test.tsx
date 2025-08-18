@@ -5,7 +5,7 @@ import { StatusBadge } from "../status-badge";
 
 // Mock the action
 vi.mock("../../actions", () => ({
-	updateCattleStatusAction: vi.fn().mockResolvedValue({ success: true })
+	updateStatusAction: vi.fn().mockResolvedValue({ success: true })
 }));
 
 // Mock the toast
@@ -42,8 +42,8 @@ describe("StatusBadge", () => {
 		// Click the update button
 		await user.click(screen.getByRole("button", { name: "更新" }));
 
-		const { updateCattleStatusAction } = await import("../../actions");
-		expect(updateCattleStatusAction).toHaveBeenCalledWith(
+		const { updateStatusAction } = await import("../../actions");
+		expect(updateStatusAction).toHaveBeenCalledWith(
 			1,
 			"HEALTHY", // Current status since we didn't change it
 			"test"
@@ -72,9 +72,9 @@ describe("StatusBadge", () => {
 		const user = userEvent.setup();
 		render(<StatusBadge cattleId={1} status="SHIPPED" />);
 
-		expect(screen.getByText("出荷済")).toBeInTheDocument();
+		expect(screen.getByText("出荷済み")).toBeInTheDocument();
 
-		await user.click(screen.getByLabelText("ステータスを変更: 出荷済"));
+		await user.click(screen.getByLabelText("ステータスを変更: 出荷済み"));
 
 		// Check that the dialog content is rendered correctly
 		expect(screen.getByRole("dialog")).toBeInTheDocument();

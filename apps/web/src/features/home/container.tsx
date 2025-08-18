@@ -1,7 +1,7 @@
 import { GetAlerts } from "@/services/alertsService";
 import { GetBreedingKpiDelta } from "@/services/breedingKpiDeltaService";
 import { GetBreedingKpi } from "@/services/breedingKpiService";
-import { GetCattleStatusCounts } from "@/services/cattleService";
+import { GetStatusCounts } from "@/services/cattleService";
 import { SearchEvents } from "@/services/eventService";
 import {
 	endOfDay,
@@ -26,7 +26,7 @@ export default async function HomeContainer() {
 		const [eventsData, statusCounts, alerts, kpi, kpiDelta] = await Promise.all(
 			[
 				SearchEvents({ startDate: start, endDate: end, limit: 100 }),
-				GetCattleStatusCounts(),
+				GetStatusCounts(),
 				GetAlerts(),
 				GetBreedingKpi({ from: monthStart, to: monthEnd }),
 				// 前月比のみ必要なので delta API を利用
@@ -37,7 +37,16 @@ export default async function HomeContainer() {
 			<HomePresentation
 				todayEvents={eventsData.results || []}
 				statusCounts={statusCounts.counts}
-				alerts={alerts.results}
+				alerts={alerts.results.map((alert) => ({
+					alertId: alert.id,
+					type: alert.type,
+					severity: alert.severity,
+					cattleId: alert.cattleId,
+					cattleName: alert.cattleName,
+					cattleEarTagNumber: alert.cattleEarTagNumber,
+					dueAt: alert.dueAt,
+					message: alert.message
+				}))}
 				breedingKpi={kpi.metrics}
 				// KPIトレンドは前月比のみ使用
 				kpiTrendDeltas={

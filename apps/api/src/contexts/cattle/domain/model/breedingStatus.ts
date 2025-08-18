@@ -1,16 +1,15 @@
-import type { Brand } from "../../../../shared/brand";
 import type { Result } from "../../../../shared/result";
 import { err, ok } from "../../../../shared/result";
 import type { DomainError } from "../errors";
-
-// Brand types for breeding-related values
-export type Parity = Brand<number, "Parity">;
-export type DaysAfterCalving = Brand<number, "DaysAfterCalving">;
-export type DaysOpen = Brand<number, "DaysOpen">;
-export type PregnancyDays = Brand<number, "PregnancyDays">;
-export type DaysAfterInsemination = Brand<number, "DaysAfterInsemination">;
-export type InseminationCount = Brand<number, "InseminationCount">;
-export type BreedingMemo = Brand<string, "BreedingMemo">;
+import type {
+	BreedingMemo,
+	DaysAfterCalving,
+	DaysAfterInsemination,
+	DaysOpen,
+	InseminationCount,
+	Parity,
+	PregnancyDays
+} from "./types";
 
 // Breeding Status State Machine
 export type BreedingStatus =

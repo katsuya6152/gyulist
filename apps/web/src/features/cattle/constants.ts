@@ -1,15 +1,10 @@
-import {
-	CATTLE_STATUS,
-	CATTLE_STATUS_LABELS,
-	type CattleStatus
-} from "@repo/api";
+import { STATUSES, STATUS_LABELS, type Status } from "@repo/api";
 
-export const statusOptions = CATTLE_STATUS.map((value) => ({
-	value: value as CattleStatus,
-	label: CATTLE_STATUS_LABELS[value as CattleStatus]
+export const statusOptions = STATUSES.map((value) => ({
+	value: value as Status,
+	label: STATUS_LABELS[value as Status]
 }));
 
-export const statusLabelMap: Record<CattleStatus, string> =
-	CATTLE_STATUS_LABELS;
+export const statusLabelMap: Record<Status, string> = STATUS_LABELS;
 
-export type { CattleStatus } from "@repo/api";
+export type { Status } from "@repo/api";

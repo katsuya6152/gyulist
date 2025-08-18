@@ -38,7 +38,7 @@ describe("updateStatus UC", () => {
 			identificationNumber: 1 as unknown as Cattle["identificationNumber"],
 			earTagNumber: null,
 			name: "A",
-			gender: "メス",
+			gender: "雌",
 			birthday: null,
 			growthStage: null,
 			age: null,

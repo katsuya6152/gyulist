@@ -102,7 +102,7 @@ describe("CattleDetailHeader", () => {
 		identificationNumber: 12345,
 		earTagNumber: 54321,
 		name: "テスト牛",
-		gender: "メス",
+		gender: "雌",
 		birthday: "2020-01-01",
 		growthStage: "MULTI_PAROUS",
 		status: "HEALTHY",
@@ -308,7 +308,7 @@ describe("CattleDetailHeader", () => {
 	it("should display gender with correct styling", () => {
 		render(<CattleDetailHeader cattle={mockCattle} />);
 
-		const genderBadge = screen.getByText("メス");
+		const genderBadge = screen.getByText("雌");
 		// Badge 内の span に付与される色クラスのみをチェックする
 		expect(genderBadge).toHaveClass("text-red-500");
 	});

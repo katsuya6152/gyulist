@@ -87,12 +87,12 @@ describe("Cattle API E2E (filters & sort)", () => {
 				createdAt: new Date().toISOString(),
 				updatedAt: new Date().toISOString()
 			}) as unknown as FakeStore["cattle"][number];
-		store.cattle.push(base(1, "AAA", "CALF", "メス", "HEALTHY", "2024-01-01"));
+		store.cattle.push(base(1, "AAA", "CALF", "雌", "HEALTHY", "2024-01-01"));
 		store.cattle.push(
-			base(2, "BBB", "GROWING", "オス", "PREGNANT", "2023-01-01")
+			base(2, "BBB", "GROWING", "雄", "PREGNANT", "2023-01-01")
 		);
 		store.cattle.push(
-			base(3, "CCC", "FATTENING", "メス", "RESTING", "2022-01-01")
+			base(3, "CCC", "FATTENING", "雌", "RESTING", "2022-01-01")
 		);
 		set?.(store);
 
@@ -126,7 +126,7 @@ describe("Cattle API E2E (filters & sort)", () => {
 
 	it("GET /cattle with combined filters responds 200 and expected count", async () => {
 		const res = await app.request(
-			"/cattle?growth_stage=CALF,GROWING&gender=メス&status=HEALTHY&search=A",
+			"/cattle?growth_stage=CALF,GROWING&gender=雌&status=HEALTHY&search=A",
 			{ headers: auth() }
 		);
 		expect(res.status).toBe(200);

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import type { GetCattleDetailResType } from "@/services/cattleService";
 import { useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { GENDERS, GROWTH_STAGES, GROWTH_STAGE_LABELS } from "@repo/api";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState } from "react";
@@ -300,8 +301,11 @@ const CattleEditPresentation = ({
 						}`}
 					>
 						<option value="">選択してください</option>
-						<option value="オス">オス</option>
-						<option value="メス">メス</option>
+						{GENDERS.map((gender) => (
+							<option key={gender} value={gender}>
+								{gender}
+							</option>
+						))}
 					</select>
 					{fields.gender.errors && (
 						<p className="text-sm text-red-600 mt-1">{fields.gender.errors}</p>
@@ -357,11 +361,11 @@ const CattleEditPresentation = ({
 						}`}
 					>
 						<option value="">選択してください</option>
-						<option value="CALF">仔牛</option>
-						<option value="GROWING">育成牛</option>
-						<option value="FATTENING">肥育牛</option>
-						<option value="FIRST_CALVED">初産牛</option>
-						<option value="MULTI_PAROUS">経産牛</option>
+						{GROWTH_STAGES.map((stage) => (
+							<option key={stage} value={stage}>
+								{GROWTH_STAGE_LABELS[stage]}
+							</option>
+						))}
 					</select>
 					{fields.growthStage.errors && (
 						<p className="text-sm text-red-600 mt-1">

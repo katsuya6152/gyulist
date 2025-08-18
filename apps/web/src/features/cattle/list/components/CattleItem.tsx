@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getGrowthStage } from "@/lib/utils";
 import classNames from "classnames";
+import { clsx } from "clsx";
 import { CalendarPlus, ChevronRight } from "lucide-react";
 import { memo } from "react";
-import { type CattleStatus, statusLabelMap } from "../../constants";
+import { type Status, statusLabelMap } from "../../constants";
 import type { CattleListItem } from "../constants";
 
 interface CattleItemProps {
@@ -49,12 +50,11 @@ export const CattleItem = memo(
 								className="transition-all duration-200 hover:shadow-sm"
 							>
 								<span
-									className={classNames(
-										"font-semibold transition-colors duration-200",
-										{
-											"text-blue-500": cattle.gender === "オス",
-											"text-red-500": cattle.gender === "メス"
-										}
+									className={clsx(
+										"text-sm font-medium",
+										cattle.gender === "雄" && "text-blue-500",
+										cattle.gender === "去勢" && "text-gray-500",
+										cattle.gender === "雌" && "text-red-500"
 									)}
 								>
 									{cattle.gender}
@@ -86,7 +86,7 @@ export const CattleItem = memo(
 										}
 									)}
 								>
-									{statusLabelMap[cattle.status as CattleStatus]}
+									{statusLabelMap[cattle.status as Status]}
 								</Badge>
 							)}
 						</div>

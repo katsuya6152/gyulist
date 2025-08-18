@@ -23,12 +23,20 @@
 ## ✨ ハイライト（3点）
 - 型安全フルスタック（Zod/InferResponseType + Hono RPC的開発体験）
 - 低運用コスト（Cloudflare Pages/Workers/D1 でスケーラブル＆軽量）
-- 高速検索UX（カーソル・フィルタ・ソート最適化、サマリ/KPI表示）
+- 保守性の高い設計（関数型ドメインモデリング+ヘキサゴナルアーキテクチャ、Container/Presentational パターン）
 
 ## 🏗️ アーキテクチャ概要
 - フロント（Next.js）→ API（Hono/Workers）→ DB（D1/Drizzle）
 - 通知（将来拡張）: Email/LINE/PWA を予定
 - モノレポ構成: 型/スキーマ共有・再利用性向上・一貫したCI
+- API: 関数型ドメインモデリング+ヘキサゴナルアーキテクチャ
+- Web: Container/Presentational パターン
+
+*アーキテクチャ図*
+![アーキテクチャ図](./docs/architecture.svg)
+
+*シーケンス図*
+![シーケンス図](./docs/sequenceDiagram.svg)
 
 ## 📁 ディレクトリ構成
 ```
@@ -54,12 +62,6 @@ docs/
 - 認証（Cookie-JWT）
 - KPI（繁殖指標）とアラート
 - 管理用CSVエクスポート
-
-## 💡 実装の見どころ / 工夫
-- 型共有と境界バリデーション（Zod / @hono/zod-openapi / zValidator）
-- `executeUseCase` による一貫したエラーマッピングとログ
-- CORS/Cookie運用（SameSite/secure）とPages/Workers両立
-- 関数ドメインモデリング + ヘキサゴナルアーキテクチャ（ドメイン純関数 + ポート/アダプタ + Mappers）
 
 ## 🙋‍♂️ 担当範囲（個人開発）
 - 企画 / 設計 / 実装（Web/API/DB） / インフラ / CI/CD / デザイン
@@ -128,8 +130,6 @@ curl -X POST -H "Authorization: Bearer <token>" -H "Content-Type: application/js
 - 構造化ログ（環境別フォーマット）
 - レート制御（KVなど）
 - 重要操作の監査ログ/APIメトリクス可視化
-
-
 
 ## 📈 成果 / 学び
 - 定量: 入力/検索速度の体感改善、運用コスト低減

@@ -31,7 +31,7 @@
 								"items": {
 									"type": "object",
 									"properties": {
-										"alertId": { "type": "string" },
+										"id": { "type": "string" },
 										"type": {
 											"type": "string",
 											"enum": [
@@ -45,6 +45,15 @@
 											"type": "string",
 											"enum": ["high", "medium", "low"]
 										},
+										"status": {
+											"type": "string",
+											"enum": [
+												"active",
+												"acknowledged",
+												"resolved",
+												"dismissed"
+											]
+										},
 										"cattleId": { "type": "number" },
 										"cattleName": { "type": "string", "nullable": true },
 										"cattleEarTagNumber": {
@@ -52,22 +61,44 @@
 											"nullable": true
 										},
 										"dueAt": { "type": "string", "nullable": true },
-										"message": { "type": "string" }
+										"message": { "type": "string" },
+										"ownerUserId": { "type": "number" },
+										"createdAt": { "type": "number" },
+										"updatedAt": { "type": "number" },
+										"acknowledgedAt": { "type": "number", "nullable": true },
+										"resolvedAt": { "type": "number", "nullable": true }
 									},
 									"required": [
-										"alertId",
+										"id",
 										"type",
 										"severity",
+										"status",
 										"cattleId",
 										"cattleName",
 										"cattleEarTagNumber",
 										"dueAt",
-										"message"
+										"message",
+										"ownerUserId",
+										"createdAt",
+										"updatedAt",
+										"acknowledgedAt",
+										"resolvedAt"
 									]
 								}
+							},
+							"total": { "type": "number" },
+							"summary": {
+								"type": "object",
+								"properties": {
+									"high": { "type": "number" },
+									"medium": { "type": "number" },
+									"low": { "type": "number" },
+									"urgent": { "type": "number" }
+								},
+								"required": ["high", "medium", "low", "urgent"]
 							}
 						},
-						"required": ["results"]
+						"required": ["results", "total", "summary"]
 					}
 				},
 				"required": ["data"]
@@ -91,7 +122,7 @@
 										"gender": {
 											"type": "string",
 											"nullable": true,
-											"enum": ["オス", "メス"]
+											"enum": ["雄", "去勢", "雌"]
 										},
 										"birthday": { "type": "string", "nullable": true },
 										"growthStage": {
@@ -192,7 +223,7 @@
 							"gender": {
 								"type": "string",
 								"nullable": true,
-								"enum": ["オス", "メス"]
+								"enum": ["雄", "去勢", "雌"]
 							},
 							"birthday": { "type": "string", "nullable": true },
 							"growthStage": {
@@ -431,7 +462,7 @@
 							"gender": {
 								"type": "string",
 								"nullable": true,
-								"enum": ["オス", "メス"]
+								"enum": ["雄", "去勢", "雌"]
 							},
 							"birthday": { "type": "string", "nullable": true },
 							"growthStage": {
@@ -937,7 +968,7 @@
 									"identificationNumber": { "type": "number" },
 									"earTagNumber": { "type": "number" },
 									"name": { "type": "string" },
-									"gender": { "type": "string", "enum": ["オス", "メス"] },
+									"gender": { "type": "string", "enum": ["雄", "去勢", "雌"] },
 									"birthday": { "type": "string" },
 									"growthStage": {
 										"type": "string",
@@ -1173,7 +1204,7 @@
 									"identificationNumber": { "type": "number" },
 									"earTagNumber": { "type": "number" },
 									"name": { "type": "string" },
-									"gender": { "type": "string", "enum": ["オス", "メス"] },
+									"gender": { "type": "string", "enum": ["雄", "去勢", "雌"] },
 									"birthday": { "type": "string" },
 									"growthStage": {
 										"type": "string",
@@ -1337,7 +1368,7 @@
 												"gender": {
 													"type": "string",
 													"nullable": true,
-													"enum": ["オス", "メス"]
+													"enum": ["雄", "去勢", "雌"]
 												},
 												"birthday": { "type": "string", "nullable": true },
 												"growthStage": {
@@ -1680,7 +1711,7 @@
 												"gender": {
 													"type": "string",
 													"nullable": true,
-													"enum": ["オス", "メス"]
+													"enum": ["雄", "去勢", "雌"]
 												},
 												"birthday": { "type": "string", "nullable": true },
 												"growthStage": {
@@ -2468,13 +2499,24 @@
 														"type": "object",
 														"properties": {
 															"id": { "type": "string" },
-															"email": { "type": "string" },
+															"email": { "type": "string", "format": "email" },
 															"referralSource": {
 																"type": "string",
 																"nullable": true
 															},
-															"status": { "type": "string" },
-															"locale": { "type": "string" },
+															"status": {
+																"type": "string",
+																"enum": [
+																	"pending",
+																	"confirmed",
+																	"completed",
+																	"cancelled"
+																]
+															},
+															"locale": {
+																"type": "string",
+																"enum": ["ja", "en"]
+															},
 															"createdAt": { "type": "number" },
 															"updatedAt": { "type": "number" }
 														},
@@ -2529,7 +2571,11 @@
 							"schema": {
 								"type": "object",
 								"properties": {
-									"email": { "type": "string", "format": "email" },
+									"email": {
+										"type": "string",
+										"maxLength": 254,
+										"format": "email"
+									},
 									"referralSource": { "type": "string", "maxLength": 100 },
 									"turnstileToken": { "type": "string", "minLength": 10 }
 								},

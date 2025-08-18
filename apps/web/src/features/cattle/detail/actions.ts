@@ -1,9 +1,9 @@
 "use server";
 
-import type { CattleStatus } from "@/features/cattle/constants";
+import type { Status } from "@/features/cattle/constants";
 import { createDemoResponse, isDemo } from "@/lib/api-client";
 import { verifyAndGetUserId } from "@/lib/jwt";
-import { DeleteCattle, updateCattleStatus } from "@/services/cattleService";
+import { DeleteCattle, updateStatus } from "@/services/cattleService";
 import { redirect } from "next/navigation";
 
 export async function deleteCattleAction(cattleId: number) {
@@ -33,9 +33,9 @@ export async function deleteCattleAction(cattleId: number) {
 	}
 }
 
-export async function updateCattleStatusAction(
+export async function updateStatusAction(
 	cattleId: number,
-	status: CattleStatus,
+	status: Status,
 	reason?: string
 ) {
 	try {
@@ -44,7 +44,7 @@ export async function updateCattleStatusAction(
 			return createDemoResponse(true);
 		}
 
-		await updateCattleStatus(cattleId, status, reason);
+		await updateStatus(cattleId, status, reason);
 		return { success: true };
 	} catch (error) {
 		console.error("Failed to update cattle status:", error);

@@ -62,7 +62,7 @@ describe("Cattle API E2E (cursor pagination)", () => {
 				age: 0,
 				monthsOld: 6,
 				daysOld: 180,
-				gender: "メス",
+				gender: "雌",
 				weight: null,
 				score: null,
 				breed: null,

@@ -26,6 +26,7 @@ import {
 	SheetTrigger
 } from "@/components/ui/sheet";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { GENDERS, type Gender } from "@repo/api";
 import classNames from "classnames";
 import { Check, ChevronsUpDown, Filter, X } from "lucide-react";
 import { memo, useState } from "react";
@@ -198,7 +199,7 @@ export const FilterSheet = memo(
 														<CommandGroup>
 															{filterOptions
 																.filter(
-																	(item) => !["オス", "メス"].includes(item.id)
+																	(item) => !GENDERS.includes(item.id as Gender)
 																)
 																.map((item) => {
 																	const isSelected = form
@@ -284,7 +285,7 @@ export const FilterSheet = memo(
 														<CommandGroup>
 															{filterOptions
 																.filter((item) =>
-																	["オス", "メス"].includes(item.id)
+																	GENDERS.includes(item.id as Gender)
 																)
 																.map((item) => {
 																	const isSelected = form
