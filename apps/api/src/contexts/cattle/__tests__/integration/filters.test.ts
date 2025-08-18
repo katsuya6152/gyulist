@@ -126,7 +126,7 @@ describe("Cattle API E2E (filters & sort)", () => {
 
 	it("GET /cattle with combined filters responds 200 and expected count", async () => {
 		const res = await app.request(
-			"/cattle?growth_stage=CALF,GROWING&gender=メス&status=HEALTHY&search=A",
+			"/cattle?growth_stage=CALF,GROWING&gender=雌&status=HEALTHY&search=A",
 			{ headers: auth() }
 		);
 		expect(res.status).toBe(200);

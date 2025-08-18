@@ -139,7 +139,7 @@ describe("Cattle API E2E (no mocks)", () => {
 			identificationNumber: uniqueId,
 			earTagNumber: 5678,
 			name: "新規牛",
-			gender: "オス",
+			gender: "雄",
 			birthday: "2024-01-01",
 			growthStage: "CALF",
 			breed: null,

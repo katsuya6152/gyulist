@@ -91,7 +91,7 @@
 										"gender": {
 											"type": "string",
 											"nullable": true,
-											"enum": ["オス", "メス"]
+											"enum": ["雄", "去勢", "雌"]
 										},
 										"birthday": { "type": "string", "nullable": true },
 										"growthStage": {
@@ -192,7 +192,7 @@
 							"gender": {
 								"type": "string",
 								"nullable": true,
-								"enum": ["オス", "メス"]
+								"enum": ["雄", "去勢", "雌"]
 							},
 							"birthday": { "type": "string", "nullable": true },
 							"growthStage": {
@@ -431,7 +431,7 @@
 							"gender": {
 								"type": "string",
 								"nullable": true,
-								"enum": ["オス", "メス"]
+								"enum": ["雄", "去勢", "雌"]
 							},
 							"birthday": { "type": "string", "nullable": true },
 							"growthStage": {
@@ -937,7 +937,7 @@
 									"identificationNumber": { "type": "number" },
 									"earTagNumber": { "type": "number" },
 									"name": { "type": "string" },
-									"gender": { "type": "string", "enum": ["オス", "メス"] },
+									"gender": { "type": "string", "enum": ["雄", "去勢", "雌"] },
 									"birthday": { "type": "string" },
 									"growthStage": {
 										"type": "string",
@@ -1173,7 +1173,7 @@
 									"identificationNumber": { "type": "number" },
 									"earTagNumber": { "type": "number" },
 									"name": { "type": "string" },
-									"gender": { "type": "string", "enum": ["オス", "メス"] },
+									"gender": { "type": "string", "enum": ["雄", "去勢", "雌"] },
 									"birthday": { "type": "string" },
 									"growthStage": {
 										"type": "string",
@@ -1337,7 +1337,7 @@
 												"gender": {
 													"type": "string",
 													"nullable": true,
-													"enum": ["オス", "メス"]
+													"enum": ["雄", "去勢", "雌"]
 												},
 												"birthday": { "type": "string", "nullable": true },
 												"growthStage": {
@@ -1680,7 +1680,7 @@
 												"gender": {
 													"type": "string",
 													"nullable": true,
-													"enum": ["オス", "メス"]
+													"enum": ["雄", "去勢", "雌"]
 												},
 												"birthday": { "type": "string", "nullable": true },
 												"growthStage": {
