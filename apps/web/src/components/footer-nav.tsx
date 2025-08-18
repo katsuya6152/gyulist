@@ -75,7 +75,7 @@ export function FooterNav() {
 						icon={<Calendar className="h-5 w-5" />}
 						label="予定"
 						href="/schedule?filter=today"
-						isActive={pathname === "/schedule"}
+						isActive={pathname.startsWith("/schedule")}
 					/>
 				</div>
 
