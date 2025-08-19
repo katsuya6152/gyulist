@@ -110,12 +110,16 @@ jobs:
           pnpm run docs:gen
           echo "✅ TypeDoc generation completed"
           
-          # Check if files were generated
-          if [ -d "docs/tsdoc/api" ]; then
+          # Check if files were generated (relative to apps/api)
+          if [ -d "../../docs/tsdoc/api" ]; then
             echo "📁 TypeDoc output directory exists"
-            ls -la docs/tsdoc/api/
+            ls -la ../../docs/tsdoc/api/
           else
             echo "⚠️ TypeDoc output directory not found"
+            echo "Checking current directory..."
+            ls -la
+            echo "Checking docs directory..."
+            ls -la docs/ || echo "docs directory not found"
             exit 1
           fi
 
