@@ -13,18 +13,24 @@ import type {
 // ============================================================================
 
 /**
- * 登録ステータス値オブジェクト
+ * 登録ステータス値オブジェクト。
+ *
+ * 登録ステータスの表示名、説明、編集可能性などの情報を管理します。
  */
 export type RegistrationStatusValue = {
-	readonly value: RegistrationStatus;
-	readonly displayName: string;
-	readonly description: string;
-	readonly isActive: boolean;
-	readonly isEditable: boolean;
+	/** ステータス値 */ readonly value: RegistrationStatus;
+	/** 表示名 */ readonly displayName: string;
+	/** 説明 */ readonly description: string;
+	/** アクティブフラグ */ readonly isActive: boolean;
+	/** 編集可能フラグ */ readonly isEditable: boolean;
 };
 
 /**
- * 登録ステータスのファクトリ関数
+ * 登録ステータスのファクトリ関数。
+ *
+ * ステータス値から値オブジェクトを生成します。
+ * @param status - 登録ステータス
+ * @returns 登録ステータス値オブジェクト
  */
 export function createRegistrationStatus(
 	status: RegistrationStatus
@@ -66,17 +72,23 @@ export function createRegistrationStatus(
 }
 
 /**
- * ロケール値オブジェクト
+ * ロケール値オブジェクト。
+ *
+ * ロケールの表示名、言語コード、国コードなどの情報を管理します。
  */
 export type LocaleValueObject = {
-	readonly value: LocaleValue;
-	readonly displayName: string;
-	readonly languageCode: string;
-	readonly countryCode?: string;
+	/** ロケール値 */ readonly value: LocaleValue;
+	/** 表示名 */ readonly displayName: string;
+	/** 言語コード */ readonly languageCode: string;
+	/** 国コード（オプション） */ readonly countryCode?: string;
 };
 
 /**
- * ロケールのファクトリ関数
+ * ロケールのファクトリ関数。
+ *
+ * ロケール値から値オブジェクトを生成します。
+ * @param locale - ロケール値
+ * @returns ロケール値オブジェクト
  */
 export function createLocale(locale: LocaleValue): LocaleValueObject {
 	const localeMap: Record<string, Omit<LocaleValueObject, "value">> = {

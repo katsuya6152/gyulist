@@ -11,65 +11,78 @@ import type {
 	PregnancyDays
 } from "./types";
 
-// Breeding Status State Machine
+/**
+ * 繁殖状態の状態機械（ステートマシン）。
+ *
+ * - NotBreeding: 休息/未繁殖フェーズ
+ * - Inseminated: 授精済みフェーズ（授精回数・経過日数などを追跡）
+ * - Pregnant: 妊娠フェーズ（妊娠日数・予定分娩日など）
+ * - PostCalving: 分娩後フェーズ（分娩後日数・難産フラグなど）
+ */
 export type BreedingStatus =
 	| {
-			readonly type: "NotBreeding";
-			readonly parity: Parity;
-			readonly daysAfterCalving: DaysAfterCalving | null;
-			readonly memo: BreedingMemo | null;
+			/** 状態名 */ readonly type: "NotBreeding";
+			/** 産次 */ readonly parity: Parity;
+			/** 分娩後日数 */ readonly daysAfterCalving: DaysAfterCalving | null;
+			/** メモ */ readonly memo: BreedingMemo | null;
 	  }
 	| {
-			readonly type: "Inseminated";
-			readonly parity: Parity;
-			readonly daysAfterInsemination: DaysAfterInsemination;
-			readonly inseminationCount: InseminationCount;
-			readonly daysOpen: DaysOpen | null;
-			readonly memo: BreedingMemo | null;
+			/** 状態名 */ readonly type: "Inseminated";
+			/** 産次 */ readonly parity: Parity;
+			/** 授精後日数 */ readonly daysAfterInsemination: DaysAfterInsemination;
+			/** 授精回数 */ readonly inseminationCount: InseminationCount;
+			/** 空胎日数 */ readonly daysOpen: DaysOpen | null;
+			/** メモ */ readonly memo: BreedingMemo | null;
 	  }
 	| {
-			readonly type: "Pregnant";
-			readonly parity: Parity;
-			readonly pregnancyDays: PregnancyDays;
-			readonly expectedCalvingDate: Date;
-			readonly scheduledPregnancyCheckDate: Date | null;
-			readonly memo: BreedingMemo | null;
+			/** 状態名 */ readonly type: "Pregnant";
+			/** 産次 */ readonly parity: Parity;
+			/** 妊娠日数 */ readonly pregnancyDays: PregnancyDays;
+			/** 予定分娩日 */ readonly expectedCalvingDate: Date;
+			/** 予定妊娠確認日 */ readonly scheduledPregnancyCheckDate: Date | null;
+			/** メモ */ readonly memo: BreedingMemo | null;
 	  }
 	| {
-			readonly type: "PostCalving";
-			readonly parity: Parity;
-			readonly daysAfterCalving: DaysAfterCalving;
-			readonly isDifficultBirth: boolean;
-			readonly memo: BreedingMemo | null;
+			/** 状態名 */ readonly type: "PostCalving";
+			/** 産次 */ readonly parity: Parity;
+			/** 分娩後日数 */ readonly daysAfterCalving: DaysAfterCalving;
+			/** 難産フラグ */ readonly isDifficultBirth: boolean;
+			/** メモ */ readonly memo: BreedingMemo | null;
 	  };
 
-// Events that can trigger state transitions
+/**
+ * 状態遷移を引き起こすイベント。
+ */
 export type BreedingEvent =
 	| {
-			readonly type: "Inseminate";
-			readonly timestamp: Date;
-			readonly memo?: string | null;
+			/** 授精 */ readonly type: "Inseminate";
+			/** 発生時刻 */ readonly timestamp: Date;
+			/** メモ */ readonly memo?: string | null;
 	  }
 	| {
-			readonly type: "ConfirmPregnancy";
-			readonly timestamp: Date;
-			readonly expectedCalvingDate: Date;
-			readonly scheduledPregnancyCheckDate?: Date | null;
-			readonly memo?: string | null;
+			/** 妊娠確認 */ readonly type: "ConfirmPregnancy";
+			/** 発生時刻 */ readonly timestamp: Date;
+			/** 予定分娩日 */ readonly expectedCalvingDate: Date;
+			/** 予定妊娠確認日 */ readonly scheduledPregnancyCheckDate?: Date | null;
+			/** メモ */ readonly memo?: string | null;
 	  }
 	| {
-			readonly type: "Calve";
-			readonly timestamp: Date;
-			readonly isDifficultBirth: boolean;
-			readonly memo?: string | null;
+			/** 分娩 */ readonly type: "Calve";
+			/** 発生時刻 */ readonly timestamp: Date;
+			/** 難産かどうか */ readonly isDifficultBirth: boolean;
+			/** メモ */ readonly memo?: string | null;
 	  }
 	| {
-			readonly type: "StartNewCycle";
-			readonly timestamp: Date;
-			readonly memo?: string | null;
+			/** 新周期開始 */ readonly type: "StartNewCycle";
+			/** 発生時刻 */ readonly timestamp: Date;
+			/** メモ */ readonly memo?: string | null;
 	  };
 
-// Factory function for creating initial breeding status
+/**
+ * 初期繁殖状態の作成。
+ * @param props.parity - 初期産次（0以上）
+ * @param props.memo - 初期メモ
+ */
 export function createInitialBreedingStatus(props: {
 	parity: number;
 	memo?: string | null;
@@ -90,7 +103,12 @@ export function createInitialBreedingStatus(props: {
 	});
 }
 
-// Pure function for state transitions
+/**
+ * 繁殖状態の遷移を行う純粋関数。
+ * @param current - 現在の状態
+ * @param event - 発生イベント
+ * @param currentDate - 現在日時
+ */
 export function transitionBreedingStatus(
 	current: BreedingStatus,
 	event: BreedingEvent,
@@ -211,7 +229,9 @@ function calculateDaysDifference(from: Date, to: Date): number {
 	return Math.floor(diffMs / (1000 * 60 * 60 * 24));
 }
 
-// Pure function to get current breeding phase description
+/**
+ * 現在の繁殖フェーズを表示用の説明文として返します。
+ */
 export function getBreedingPhaseDescription(status: BreedingStatus): string {
 	switch (status.type) {
 		case "NotBreeding":
@@ -227,7 +247,9 @@ export function getBreedingPhaseDescription(status: BreedingStatus): string {
 	}
 }
 
-// Pure function to check if breeding status needs attention
+/**
+ * 注意喚起が必要かを判定します。
+ */
 export function needsBreedingAttention(
 	status: BreedingStatus,
 	currentDate: Date

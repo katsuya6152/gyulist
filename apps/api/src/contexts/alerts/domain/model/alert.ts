@@ -170,41 +170,52 @@ export function createAlertStatus(status: AlertStatus): AlertStatusValue {
 // ============================================================================
 
 /**
- * 新規アラート作成用のプロパティ
+ * 新規アラート作成用のプロパティ。
+ *
+ * アラートエンティティの作成に必要な情報を定義します。
  */
 export type NewAlertProps = {
-	readonly type: AlertType;
-	readonly severity: AlertSeverity;
-	readonly cattleId: CattleId;
-	readonly cattleName: CattleName | null;
-	readonly cattleEarTagNumber: EarTagNumber | null;
-	readonly dueAt: DueDate | null;
-	readonly message: AlertMessage;
-	readonly ownerUserId: UserId;
+	/** アラートタイプ */ readonly type: AlertType;
+	/** 重要度 */ readonly severity: AlertSeverity;
+	/** 牛ID */ readonly cattleId: CattleId;
+	/** 牛名 */ readonly cattleName: CattleName | null;
+	/** 耳標番号 */ readonly cattleEarTagNumber: EarTagNumber | null;
+	/** 期限日時 */ readonly dueAt: DueDate | null;
+	/** アラートメッセージ */ readonly message: AlertMessage;
+	/** 所有者ユーザーID */ readonly ownerUserId: UserId;
 };
 
 /**
- * Alertエンティティ
+ * Alertエンティティ。
+ *
+ * 牛の繁殖管理、健康管理、スケジュール管理に関するアラートを表現します。
+ * ステータス管理、重要度管理、期限管理などの機能を提供します。
  */
 export type Alert = {
-	readonly id: AlertId;
-	readonly type: AlertType;
-	readonly severity: AlertSeverity;
-	readonly status: AlertStatus;
-	readonly cattleId: CattleId;
-	readonly cattleName: CattleName | null;
-	readonly cattleEarTagNumber: EarTagNumber | null;
-	readonly dueAt: DueDate | null;
-	readonly message: AlertMessage;
-	readonly ownerUserId: UserId;
-	readonly createdAt: Timestamp;
-	readonly updatedAt: Timestamp;
-	readonly acknowledgedAt: Timestamp | null;
-	readonly resolvedAt: Timestamp | null;
+	/** アラートID */ readonly id: AlertId;
+	/** アラートタイプ */ readonly type: AlertType;
+	/** 重要度 */ readonly severity: AlertSeverity;
+	/** ステータス */ readonly status: AlertStatus;
+	/** 牛ID */ readonly cattleId: CattleId;
+	/** 牛名 */ readonly cattleName: CattleName | null;
+	/** 耳標番号 */ readonly cattleEarTagNumber: EarTagNumber | null;
+	/** 期限日時 */ readonly dueAt: DueDate | null;
+	/** アラートメッセージ */ readonly message: AlertMessage;
+	/** 所有者ユーザーID */ readonly ownerUserId: UserId;
+	/** 作成日時 */ readonly createdAt: Timestamp;
+	/** 更新日時 */ readonly updatedAt: Timestamp;
+	/** 確認日時 */ readonly acknowledgedAt: Timestamp | null;
+	/** 解決日時 */ readonly resolvedAt: Timestamp | null;
 };
 
 /**
- * Alertエンティティのファクトリ関数
+ * Alertエンティティのファクトリ関数。
+ *
+ * 新規アラートを作成し、初期状態を設定します。
+ * @param props - 新規アラートのプロパティ
+ * @param id - アラートID
+ * @param currentTime - 現在時刻
+ * @returns 作成されたアラートエンティティ
  */
 export function createAlert(
 	props: NewAlertProps,
@@ -230,7 +241,13 @@ export function createAlert(
 }
 
 /**
- * Alertエンティティの更新
+ * Alertエンティティの更新。
+ *
+ * アラートの一部プロパティを更新します。
+ * @param alert - 更新対象のアラート
+ * @param updates - 更新内容
+ * @param currentTime - 現在時刻
+ * @returns 更新されたアラートエンティティ
  */
 export function updateAlert(
 	alert: Alert,
@@ -245,7 +262,13 @@ export function updateAlert(
 }
 
 /**
- * Alertエンティティのステータス更新
+ * Alertエンティティのステータス更新。
+ *
+ * アラートのステータスを更新し、必要に応じて確認日時や解決日時を設定します。
+ * @param alert - 更新対象のアラート
+ * @param newStatus - 新しいステータス
+ * @param currentTime - 現在時刻
+ * @returns 更新されたアラートエンティティ
  */
 export function updateAlertStatus(
 	alert: Alert,
@@ -273,7 +296,13 @@ export function updateAlertStatus(
 }
 
 /**
- * Alertエンティティの重要度更新
+ * Alertエンティティの重要度更新。
+ *
+ * アラートの重要度を更新します。
+ * @param alert - 更新対象のアラート
+ * @param newSeverity - 新しい重要度
+ * @param currentTime - 現在時刻
+ * @returns 更新されたアラートエンティティ
  */
 export function updateAlertSeverity(
 	alert: Alert,
@@ -288,7 +317,12 @@ export function updateAlertSeverity(
 // ============================================================================
 
 /**
- * アラートステータスの変更が許可されているかチェック
+ * アラートステータスの変更が許可されているかチェックします。
+ *
+ * 現在のステータスから新しいステータスへの遷移が有効かどうかを判定します。
+ * @param currentStatus - 現在のステータス
+ * @param newStatus - 新しいステータス
+ * @returns 遷移が許可されている場合は true
  */
 export function canChangeStatus(
 	currentStatus: AlertStatus,

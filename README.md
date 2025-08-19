@@ -4,6 +4,7 @@
 
 [![Website](https://img.shields.io/badge/Website-gyulist.com-2ea44f?logo=vercel&logoColor=white)](https://gyulist.com)
 [![Swagger UI](https://img.shields.io/badge/API-Swagger%20UI-85EA2D?logo=swagger&logoColor=white)](https://katsuya6152.github.io/gyulist/swagger/)
+[![TypeDoc](https://img.shields.io/badge/API-TypeDoc%20Docs-3178C6?logo=typescript&logoColor=white)](https://katsuya6152.github.io/gyulist/typedoc/)
 [![CI](https://github.com/katsuya6152/gyulist/actions/workflows/openapi-preview.yml/badge.svg)](https://github.com/katsuya6152/gyulist/actions/workflows/openapi-preview.yml)
 
 ## ⚡ TL;DR（要約）
@@ -12,6 +13,7 @@
 - ドキュメント/デモ:
   - デモ：https://gyulist.com/
   - Swagger UI: https://katsuya6152.github.io/gyulist/swagger/
+  - TypeDoc API: https://katsuya6152.github.io/gyulist/typedoc/
   - アーキテクチャ/実装ガイド: docs/ 配下（[索引](./docs/README.md)）
 
 ## 🔍 What’s this（問題・背景）

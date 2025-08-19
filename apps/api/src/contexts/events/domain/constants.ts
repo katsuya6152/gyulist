@@ -3,6 +3,10 @@
  * イベントタイプ、グループ分類等のドメイン固有定数
  */
 
+/**
+ * イベントタイプの定数配列。
+ * 牛のライフサイクルにおける各種イベントを定義します。
+ */
 export const EVENT_TYPES = [
 	"ARRIVAL", // 導入
 	"ESTRUS", // 発情
@@ -24,9 +28,16 @@ export const EVENT_TYPES = [
 	"OTHER" // その他
 ] as const;
 
+/**
+ * イベントタイプの型。
+ * 定数配列から生成される型安全なイベントタイプです。
+ */
 export type EventType = (typeof EVENT_TYPES)[number];
 
-// イベントの分類グループ（順序付き）
+/**
+ * イベントの分類グループ（順序付き）。
+ * UI表示時のグループ化に使用されます。
+ */
 export const EVENT_GROUP_ORDER = [
 	"ARRIVAL",
 	"BREEDING",
@@ -38,6 +49,10 @@ export const EVENT_GROUP_ORDER = [
 	"OTHER"
 ] as const;
 
+/**
+ * イベントグループの表示ラベル。
+ * 日本語での表示名を定義します。
+ */
 export const EVENT_GROUP_LABELS: Record<
 	(typeof EVENT_GROUP_ORDER)[number],
 	string
@@ -52,6 +67,10 @@ export const EVENT_GROUP_LABELS: Record<
 	OTHER: "その他"
 };
 
+/**
+ * イベントタイプとグループのマッピング。
+ * 各イベントタイプがどのグループに属するかを定義します。
+ */
 export const EVENT_TYPE_GROUPS: Record<
 	(typeof EVENT_GROUP_ORDER)[number],
 	readonly EventType[]
@@ -73,6 +92,10 @@ export const EVENT_TYPE_GROUPS: Record<
 	OTHER: ["OTHER"]
 };
 
+/**
+ * イベントタイプの表示ラベル。
+ * 日本語での表示名を定義します。
+ */
 export const EVENT_TYPE_LABELS: Record<EventType, string> = {
 	ARRIVAL: "導入",
 	ESTRUS: "発情",

@@ -3,16 +3,31 @@ import { err, ok } from "../../../../shared/result";
 import type { AuthDeps } from "../../../auth/ports";
 import type { DomainError } from "../errors";
 
+/**
+ * ユーザー登録コマンド。
+ */
 export type RegisterCmd = {
-	email: string;
+	/** メールアドレス */ email: string;
 };
 
+/**
+ * ユーザー登録結果。
+ */
 export type RegisterResult = {
-	success: true;
-	message: string;
-	verificationToken?: string;
+	/** 成功フラグ */ success: true;
+	/** 結果メッセージ */ message: string;
+	/** 検証トークン（新規登録時のみ） */ verificationToken?: string;
 };
 
+/**
+ * ユーザー登録ユースケース。
+ *
+ * メールアドレスによる仮登録を行い、検証トークンを生成します。
+ * 既存ユーザーの場合はセキュリティのため同じメッセージを返します。
+ *
+ * @param deps - 認証依存関係
+ * @returns 成功時は登録結果、失敗時はドメインエラー
+ */
 export const register =
 	(deps: AuthDeps) =>
 	async (cmd: RegisterCmd): Promise<Result<RegisterResult, DomainError>> => {

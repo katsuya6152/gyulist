@@ -2,23 +2,48 @@ import type { Result } from "../../../../shared/result";
 import { err, ok } from "../../../../shared/result";
 import type { DomainError } from "../../../auth/domain/errors";
 
+/**
+ * 生イベントデータ。
+ *
+ * データベースから取得される生のイベントデータを表現します。
+ */
 export type RawEvent = {
-	cattleId: number;
-	eventType: string;
-	eventDatetime: string;
+	/** 牛ID */ cattleId: number;
+	/** イベントタイプ */ eventType: string;
+	/** イベント日時（ISO8601） */ eventDatetime: string;
 };
 
 import type { KpiRepoPort } from "../../ports";
 
+/**
+ * KPIリポジトリの型エイリアス。
+ */
 export type Repo = KpiRepoPort;
 
+/**
+ * 繁殖KPI指標。
+ *
+ * 繁殖管理に関する主要な指標を定義します。
+ */
 export type BreedingKpi = {
-	conceptionRate: number | null;
-	avgDaysOpen: number | null;
-	avgCalvingInterval: number | null;
-	aiPerConception: number | null;
+	/** 受胎率（%） */ conceptionRate: number | null;
+	/** 平均空胎日数 */ avgDaysOpen: number | null;
+	/** 平均分娩間隔 */ avgCalvingInterval: number | null;
+	/** 受胎あたりの授精回数 */ aiPerConception: number | null;
 };
 
+/**
+ * 繁殖KPI取得ユースケース。
+ *
+ * 指定された期間の繁殖指標を計算し、統計情報を提供します。
+ * 受胎率、平均空胎日数、平均分娩間隔、受胎あたりの授精回数を算出します。
+ *
+ * @param repo - KPIリポジトリ
+ * @param ownerUserId - 所有者ユーザーID
+ * @param fromIso - 開始日時（ISO8601、オプション）
+ * @param toIso - 終了日時（ISO8601、オプション）
+ * @returns 成功時は繁殖KPIとイベント数、失敗時はドメインエラー
+ */
 export const getBreedingKpi =
 	(repo: Repo) =>
 	async (

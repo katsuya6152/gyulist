@@ -3,9 +3,30 @@ import { err, ok } from "../../../../shared/result";
 import type { AuthDeps } from "../../../auth/ports";
 import type { DomainError } from "../errors";
 
-export type VerifyCmd = { token: string };
-export type VerifyResult = { success: boolean; message: string };
+/**
+ * トークン検証コマンド。
+ */
+export type VerifyCmd = {
+	/** 検証トークン */ token: string;
+};
 
+/**
+ * トークン検証結果。
+ */
+export type VerifyResult = {
+	/** 成功フラグ */ success: boolean;
+	/** 結果メッセージ */ message: string;
+};
+
+/**
+ * トークン検証ユースケース。
+ *
+ * 検証トークンの有効性をチェックし、本登録可能かどうかを判定します。
+ * トークンの存在と重複登録をチェックします。
+ *
+ * @param deps - 認証依存関係
+ * @returns 成功時は検証結果、失敗時はドメインエラー
+ */
 export const verify =
 	(deps: AuthDeps) =>
 	async (cmd: VerifyCmd): Promise<Result<VerifyResult, DomainError>> => {

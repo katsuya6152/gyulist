@@ -13,7 +13,8 @@
 			".wrangler",
 			".vercel",
 			"coverage",
-			"playwright-report"
+			"playwright-report",
+			"docs"
 		]
 	},
 	"formatter": {

@@ -29,29 +29,42 @@ import {
 // 依存関係とコマンド
 // ============================================================================
 
+/**
+ * アラート生成の依存関係。
+ */
 export type AlertGeneratorDeps = {
-	repo: AlertsRepoPort;
-	id: { uuid(): string };
-	time: { nowSeconds(): number };
+	/** アラートリポジトリ */ repo: AlertsRepoPort;
+	/** ID生成器 */ id: { uuid(): string };
+	/** 時刻取得器 */ time: { nowSeconds(): number };
 };
 
+/**
+ * アラート生成コマンド。
+ *
+ * アラートを生成する際に必要な情報を定義します。
+ */
 export type GenerateAlertsCmd = {
-	ownerUserId: UserId;
-	now: () => Date;
+	/** 所有者ユーザーID */ ownerUserId: UserId;
+	/** 現在時刻取得関数 */ now: () => Date;
 };
 
 // ============================================================================
 // 結果型
 // ============================================================================
 
+/**
+ * アラート生成結果。
+ *
+ * 生成されたアラート一覧と統計情報を含む結果を定義します。
+ */
 export type AlertGenerationResult = {
-	alerts: Alert[];
-	total: number;
-	summary: {
-		high: number;
-		medium: number;
-		low: number;
-		urgent: number;
+	/** アラート一覧 */ alerts: Alert[];
+	/** 総件数 */ total: number;
+	/** 重要度別統計 */ summary: {
+		/** 高重要度 */ high: number;
+		/** 中重要度 */ medium: number;
+		/** 低重要度 */ low: number;
+		/** 緊急 */ urgent: number;
 	};
 };
 
@@ -60,7 +73,14 @@ export type AlertGenerationResult = {
 // ============================================================================
 
 /**
- * アラート生成のユースケース
+ * アラート生成のユースケース。
+ *
+ * 繁殖管理、健康管理、スケジュール管理に関するアラートを動的に生成します。
+ * 各種条件に基づいてアラートを作成し、重要度別の統計情報も提供します。
+ *
+ * @param deps - 依存関係
+ * @param cmd - アラート生成コマンド
+ * @returns 成功時はアラート生成結果、失敗時はドメインエラー
  */
 export const generateAlerts =
 	(deps: AlertGeneratorDeps) =>

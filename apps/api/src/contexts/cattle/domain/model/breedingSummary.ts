@@ -12,19 +12,23 @@ import type {
 	TotalInseminationCount
 } from "./types";
 
-// Breeding Summary Value Object (immutable statistics)
+/**
+ * 繁殖統計の値オブジェクト（不変）。
+ */
 export type BreedingSummary = {
-	readonly totalInseminationCount: TotalInseminationCount;
-	readonly averageDaysOpen: AverageDaysOpen | null;
-	readonly averagePregnancyPeriod: AveragePregnancyPeriod | null;
-	readonly averageCalvingInterval: AverageCalvingInterval | null;
-	readonly difficultBirthCount: DifficultBirthCount;
-	readonly pregnancyHeadCount: PregnancyHeadCount;
-	readonly pregnancySuccessRate: PregnancySuccessRate | null;
-	readonly lastUpdated: Date;
+	/** 総授精回数 */ readonly totalInseminationCount: TotalInseminationCount;
+	/** 平均空胎日数 */ readonly averageDaysOpen: AverageDaysOpen | null;
+	/** 平均妊娠期間 */ readonly averagePregnancyPeriod: AveragePregnancyPeriod | null;
+	/** 平均分娩間隔 */ readonly averageCalvingInterval: AverageCalvingInterval | null;
+	/** 難産回数 */ readonly difficultBirthCount: DifficultBirthCount;
+	/** 妊娠頭数 */ readonly pregnancyHeadCount: PregnancyHeadCount;
+	/** 妊娠成功率（%） */ readonly pregnancySuccessRate: PregnancySuccessRate | null;
+	/** 最終更新日時 */ readonly lastUpdated: Date;
 };
 
-// Factory function for creating initial breeding summary
+/**
+ * 初期繁殖サマリを作成します。
+ */
 export function createInitialBreedingSummary(): BreedingSummary {
 	return {
 		totalInseminationCount: 0 as TotalInseminationCount,
@@ -38,7 +42,9 @@ export function createInitialBreedingSummary(): BreedingSummary {
 	};
 }
 
-// Factory function for creating breeding summary with validation
+/**
+ * 繁殖サマリのファクトリ（バリデーション付き）。
+ */
 export function createBreedingSummary(props: {
 	totalInseminationCount: number;
 	averageDaysOpen?: number | null;
@@ -137,7 +143,9 @@ export function createBreedingSummary(props: {
 	});
 }
 
-// Pure function to update breeding summary with new event
+/**
+ * 新しいイベントを適用して繁殖サマリを更新します。
+ */
 export function updateBreedingSummary(
 	summary: BreedingSummary,
 	event: BreedingEvent,
@@ -180,7 +188,9 @@ export function updateBreedingSummary(
 	};
 }
 
-// Pure function to calculate breeding metrics from history
+/**
+ * 履歴から集計指標を計算します。
+ */
 function calculateBreedingMetrics(history: BreedingEvent[]): {
 	averageDaysOpen: number | null;
 	averagePregnancyPeriod: number | null;
@@ -259,7 +269,9 @@ function calculateBreedingMetrics(history: BreedingEvent[]): {
 	};
 }
 
-// Pure function to get breeding performance rating
+/**
+ * 繁殖パフォーマンスのレーティングを返します。
+ */
 export function getBreedingPerformanceRating(
 	summary: BreedingSummary
 ): "Excellent" | "Good" | "Average" | "Poor" | "Unknown" {
@@ -271,7 +283,9 @@ export function getBreedingPerformanceRating(
 	return "Poor";
 }
 
-// Pure function to check if breeding summary needs attention
+/**
+ * サマリの更新（再計算）が必要かを判定します。
+ */
 export function needsBreedingSummaryUpdate(
 	summary: BreedingSummary,
 	currentDate: Date

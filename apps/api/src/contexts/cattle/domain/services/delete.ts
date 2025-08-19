@@ -9,18 +9,36 @@ import type {
 import type { CattleRepoPort } from "../../../cattle/ports";
 import type { DomainError } from "../errors";
 
+/**
+ * 牛削除の依存関係。
+ */
 type Deps = {
-	repo: CattleRepoPort;
-	breedingRepo?: BreedingRepoPort;
-	bloodlineRepo?: BloodlineRepoPort;
-	motherInfoRepo?: MotherInfoRepoPort;
+	/** 牛リポジトリ */ repo: CattleRepoPort;
+	/** 繁殖リポジトリ（オプション） */ breedingRepo?: BreedingRepoPort;
+	/** 血統リポジトリ（オプション） */ bloodlineRepo?: BloodlineRepoPort;
+	/** 母牛情報リポジトリ（オプション） */ motherInfoRepo?: MotherInfoRepoPort;
 };
 
+/**
+ * 牛削除コマンド。
+ *
+ * 牛を削除する際に必要な情報を定義します。
+ */
 export type DeleteCattleCmd = {
-	requesterUserId: UserId;
-	id: CattleId;
+	/** リクエスト元ユーザーID */ requesterUserId: UserId;
+	/** 牛ID */ id: CattleId;
 };
 
+/**
+ * 牛削除ユースケース。
+ *
+ * 牛の削除を実行します。所有者権限をチェックし、
+ * 関連する繁殖、血統、母牛情報も含めて削除します。
+ *
+ * @param deps - 依存関係
+ * @param cmd - 牛削除コマンド
+ * @returns 成功時はvoid、失敗時はドメインエラー
+ */
 export const remove =
 	(deps: Deps) =>
 	async (cmd: DeleteCattleCmd): Promise<Result<void, DomainError>> => {

@@ -6,16 +6,33 @@ import type { DomainError } from "../errors";
 import type { Cattle, NewCattleProps } from "../model/cattle";
 import { createCattle } from "../model/cattle";
 
-// Dependencies for create cattle use case
+/**
+ * 依存関係（ポート）の束。
+ *
+ * - `cattleRepo`: 牛エンティティの永続化を担うリポジトリポート
+ * - `clock`: 現在時刻を提供するクロックポート
+ */
 type Deps = {
 	cattleRepo: CattleRepoPort;
 	clock: ClockPort;
 };
 
-// Command for creating cattle
+/**
+ * 新規作成コマンドの型。
+ * `NewCattleProps` はドメインモデルで定義された、
+ * 登録に必要な入力プロパティを表します。
+ */
 export type CreateCattleCmd = NewCattleProps;
 
-// Pure function for create cattle use case
+/**
+ * 牛の新規作成ユースケース。
+ *
+ * 入力コマンドの検証（ドメインファクトリ内のバリデーションを含む）を行い、
+ * リポジトリへ保存して作成結果を返します。
+ *
+ * @param deps - ユースケースが利用する依存関係
+ * @returns 成功時は作成された `Cattle`、失敗時は `DomainError` を含む `Result`
+ */
 export const createCattleUseCase =
 	(deps: Deps) =>
 	async (cmd: CreateCattleCmd): Promise<Result<Cattle, DomainError>> => {
@@ -55,7 +72,15 @@ export const createCattleUseCase =
 		}
 	};
 
-// Pure function to validate create cattle command
+/**
+ * 作成コマンドの静的検証。
+ *
+ * 必須項目や値域など、ユースケースに入る前に静的にチェック可能な内容を検証します。
+ * ドメインファクトリ `createCattle` 側の検証と組み合わせて利用します。
+ *
+ * @param cmd - 新規作成コマンド
+ * @returns 有効な場合は `ok(true)`、不正な場合は `DomainError` の `err`
+ */
 export function validateCreateCattleCmd(
 	cmd: CreateCattleCmd
 ): Result<true, DomainError> {
@@ -107,7 +132,15 @@ export function validateCreateCattleCmd(
 	return ok(true);
 }
 
-// Pure function to generate default values for optional fields
+/**
+ * オプション項目のデフォルト値を補完します。
+ *
+ * 明示されなかった `status` や、誕生日から推定可能な `growthStage` を補完します。
+ *
+ * @param cmd - 入力コマンド
+ * @param currentDate - 推論に用いる現在日付
+ * @returns デフォルト値を適用したコマンド
+ */
 export function generateCattleDefaults(
 	cmd: CreateCattleCmd,
 	currentDate: Date
@@ -121,11 +154,17 @@ export function generateCattleDefaults(
 	};
 }
 
-// Helper function to infer growth stage from birthday
+/**
+ * 誕生日から成育段階を推定します。
+ *
+ * @param birthday - 生年月日（null/未指定可）
+ * @param currentDate - 現在時刻
+ * @returns 推定された `GrowthStage`。誕生日未指定の場合は `null`。
+ */
 function inferGrowthStageFromAge(
 	birthday: Date | null | undefined,
 	currentDate: Date
-): import("../model/cattle").GrowthStage | null {
+): import("../model/types").GrowthStage | null {
 	if (!birthday) return null;
 
 	const ageInMonths = Math.floor(
