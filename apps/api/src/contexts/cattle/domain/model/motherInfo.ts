@@ -8,15 +8,19 @@ import type {
 	MotherScore
 } from "./types";
 
-// Mother Information Value Object
+/**
+ * 母情報の値オブジェクト。
+ */
 export type MotherInfo = {
-	readonly motherCattleId: CattleId;
-	readonly motherName: MotherName | null;
-	readonly motherIdentificationNumber: MotherIdentificationNumber | null;
-	readonly motherScore: MotherScore | null;
+	/** 母牛のID */ readonly motherCattleId: CattleId;
+	/** 母名 */ readonly motherName: MotherName | null;
+	/** 母牛の個体識別番号 */ readonly motherIdentificationNumber: MotherIdentificationNumber | null;
+	/** 母牛の評価スコア */ readonly motherScore: MotherScore | null;
 };
 
-// Factory function for creating mother info with validation
+/**
+ * 母情報のファクトリ（バリデーション付き）。
+ */
 export function createMotherInfo(props: {
 	motherCattleId: number;
 	motherName?: string | null;
@@ -55,7 +59,9 @@ export function createMotherInfo(props: {
 	});
 }
 
-// Pure function to check if mother info is complete
+/**
+ * 母情報が一通り揃っているかを判定します。
+ */
 export function isMotherInfoComplete(motherInfo: MotherInfo): boolean {
 	return !!(
 		motherInfo.motherName &&
@@ -64,7 +70,9 @@ export function isMotherInfoComplete(motherInfo: MotherInfo): boolean {
 	);
 }
 
-// Pure function to get mother info completeness percentage
+/**
+ * 母情報の充足度（%）を返します。
+ */
 export function getMotherInfoCompleteness(motherInfo: MotherInfo): number {
 	let completedFields = 1; // motherCattleId is always present
 	const totalFields = 4;

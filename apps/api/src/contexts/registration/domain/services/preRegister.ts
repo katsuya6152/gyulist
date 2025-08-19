@@ -25,18 +25,28 @@ import type {
 // コマンドと依存関係
 // ============================================================================
 
+/**
+ * 事前登録コマンド。
+ *
+ * 事前登録を実行する際に必要な情報を定義します。
+ */
 export type PreRegisterCmd = {
-	email: Email;
-	referralSource?: ReferralSource | null;
-	turnstileToken: string;
+	/** メールアドレス */ email: Email;
+	/** 紹介元（オプション） */ referralSource?: ReferralSource | null;
+	/** Turnstileトークン */ turnstileToken: string;
 };
 
+/**
+ * 事前登録の依存関係。
+ */
 export type PreRegisterDeps = {
-	turnstile: { verify(secret: string, token: string): Promise<boolean> };
-	id: IdPort;
-	time: { nowSeconds(): number };
-	repo: RegistrationRepoPort;
-	mail: {
+	/** Turnstile検証 */ turnstile: {
+		verify(secret: string, token: string): Promise<boolean>;
+	};
+	/** ID生成器 */ id: IdPort;
+	/** 時刻取得器 */ time: { nowSeconds(): number };
+	/** 登録リポジトリ */ repo: RegistrationRepoPort;
+	/** メール送信 */ mail: {
 		sendCompleted(
 			apiKey: string,
 			from: string,
@@ -44,10 +54,10 @@ export type PreRegisterDeps = {
 			referral: string | null
 		): Promise<{ id: string }>;
 	};
-	secrets: {
-		TURNSTILE_SECRET_KEY: string;
-		RESEND_API_KEY: string;
-		MAIL_FROM: string;
+	/** シークレット情報 */ secrets: {
+		/** Turnstile秘密鍵 */ TURNSTILE_SECRET_KEY: string;
+		/** Resend APIキー */ RESEND_API_KEY: string;
+		/** 送信元メールアドレス */ MAIL_FROM: string;
 	};
 };
 
@@ -55,9 +65,14 @@ export type PreRegisterDeps = {
 // 結果型
 // ============================================================================
 
+/**
+ * 事前登録結果。
+ *
+ * HTTPレスポンス用の結果を定義します。
+ */
 export type PreRegisterResult = {
-	status: number;
-	body: Record<string, unknown>;
+	/** HTTPステータスコード */ status: number;
+	/** レスポンスボディ */ body: Record<string, unknown>;
 };
 
 // ============================================================================
@@ -65,7 +80,14 @@ export type PreRegisterResult = {
 // ============================================================================
 
 /**
- * 事前登録のユースケース
+ * 事前登録のユースケース。
+ *
+ * 新規ユーザーの事前登録を処理します。
+ * Turnstile検証、重複チェック、登録作成、メール送信を行います。
+ *
+ * @param deps - 依存関係
+ * @param cmd - 事前登録コマンド
+ * @returns 成功時は登録結果、失敗時はドメインエラー
  */
 export const preRegister =
 	(deps: PreRegisterDeps) =>

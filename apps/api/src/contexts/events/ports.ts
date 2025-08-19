@@ -1,42 +1,105 @@
 import type { Brand } from "../../shared/brand";
 
+/**
+ * イベントIDのブランド型。
+ */
 export type EventId = Brand<number, "EventId">;
+
+/**
+ * 牛IDのブランド型。
+ */
 export type CattleId = Brand<number, "CattleId">;
+
+/**
+ * ユーザーIDのブランド型。
+ */
 export type UserId = Brand<number, "UserId">;
 
+/**
+ * イベントタイプ。
+ * 繁殖、健康管理、計測などの各種イベントを分類します。
+ */
 export type EventType = "INSEMINATION" | "CALVING" | "ESTRUS" | (string & {});
 
+/**
+ * イベントエンティティ。
+ *
+ * 牛のライフサイクルにおける各種イベントを管理します。
+ * 繁殖、健康管理、計測、出荷などのイベントが含まれます。
+ */
 export type Event = {
-	eventId: EventId;
-	cattleId: CattleId;
-	eventType: EventType;
-	eventDatetime: string;
-	notes: string | null;
-	createdAt: string;
-	updatedAt: string;
-	cattleName?: string | null;
-	cattleEarTagNumber?: number | null;
+	/** イベントID */ eventId: EventId;
+	/** 牛ID */ cattleId: CattleId;
+	/** イベントタイプ */ eventType: EventType;
+	/** イベント日時（ISO8601） */ eventDatetime: string;
+	/** 備考・メモ */ notes: string | null;
+	/** 作成日時 */ createdAt: string;
+	/** 更新日時 */ updatedAt: string;
+	/** 牛名（結合時） */ cattleName?: string | null;
+	/** 耳標番号（結合時） */ cattleEarTagNumber?: number | null;
 };
 
+/**
+ * イベントリポジトリポート。
+ *
+ * イベントの永続化、検索、更新などの操作を提供します。
+ */
 export interface EventsRepoPort {
+	/**
+	 * IDでイベントを取得します。
+	 * @param eventId - イベントID
+	 * @param ownerUserId - 所有者ユーザーID
+	 * @returns 見つからない場合は null
+	 */
 	findById(eventId: EventId, ownerUserId: UserId): Promise<Event | null>;
+
+	/**
+	 * 牛IDでイベント一覧を取得します。
+	 * @param cattleId - 牛ID
+	 * @param ownerUserId - 所有者ユーザーID
+	 * @returns イベント一覧
+	 */
 	listByCattleId(cattleId: CattleId, ownerUserId: UserId): Promise<Event[]>;
+
+	/**
+	 * 条件検索を行います（ページング対応）。
+	 * @param q - 検索条件
+	 * @returns 検索結果とページング情報
+	 */
 	search(q: {
-		ownerUserId: UserId;
-		cattleId?: CattleId;
-		eventType?: EventType;
-		startDate?: string;
-		endDate?: string;
-		cursor?: number | null;
-		limit: number;
+		/** 所有者ユーザーID */ ownerUserId: UserId;
+		/** 牛IDフィルタ */ cattleId?: CattleId;
+		/** イベントタイプフィルタ */ eventType?: EventType;
+		/** 開始日 */ startDate?: string;
+		/** 終了日 */ endDate?: string;
+		/** カーソル */ cursor?: number | null;
+		/** 取得件数 */ limit: number;
 	}): Promise<{
-		results: Event[];
-		nextCursor: number | null;
-		hasNext: boolean;
+		/** 検索結果 */ results: Event[];
+		/** 次ページカーソル */ nextCursor: number | null;
+		/** 次ページ有無 */ hasNext: boolean;
 	}>;
+
+	/**
+	 * 新規イベントを作成します。
+	 * @param dto - イベントデータ
+	 * @returns 作成されたイベント
+	 */
 	create(
 		dto: Omit<Event, "eventId" | "createdAt" | "updatedAt">
 	): Promise<Event>;
+
+	/**
+	 * イベントを更新します。
+	 * @param eventId - イベントID
+	 * @param partial - 更新データ
+	 * @returns 更新されたイベント
+	 */
 	update(eventId: EventId, partial: Partial<Event>): Promise<Event>;
+
+	/**
+	 * イベントを削除します。
+	 * @param eventId - イベントID
+	 */
 	delete(eventId: EventId): Promise<void>;
 }

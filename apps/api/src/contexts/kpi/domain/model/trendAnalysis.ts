@@ -10,85 +10,97 @@ import { compareBreedingMetrics } from "./breedingMetrics";
 import type { DateRange, MonthPeriod } from "./types";
 import { formatMonthPeriod } from "./types";
 
-// トレンド方向の型定義（types.tsと統一）
+/**
+ * トレンド方向の型定義。
+ */
 type TrendDirection = "improving" | "declining" | "stable" | "unknown";
 
 /**
- * トレンドポイント
+ * トレンドポイント。
  *
  * 特定の月の指標データを表現します。
  */
 export type TrendPoint = {
-	readonly period: MonthPeriod;
-	readonly metrics: BreedingMetrics;
-	readonly counts: TrendCounts;
-	readonly periodString: string; // YYYY-MM形式
+	/** 期間 */ readonly period: MonthPeriod;
+	/** 繁殖指標 */ readonly metrics: BreedingMetrics;
+	/** イベント数 */ readonly counts: TrendCounts;
+	/** 期間文字列（YYYY-MM形式） */ readonly periodString: string;
 };
 
 /**
- * トレンドカウント
+ * トレンドカウント。
  *
  * 特定の期間のイベント数を管理します。
  */
 export type TrendCounts = {
-	readonly inseminations: number;
-	readonly conceptions: number;
-	readonly calvings: number;
-	readonly pairsForDaysOpen: number;
-	readonly totalEvents: number;
+	/** 授精回数 */ readonly inseminations: number;
+	/** 受胎数 */ readonly conceptions: number;
+	/** 分娩数 */ readonly calvings: number;
+	/** 空胎日数計算対象ペア数 */ readonly pairsForDaysOpen: number;
+	/** 総イベント数 */ readonly totalEvents: number;
 };
 
 /**
- * トレンドデルタ
+ * トレンドデルタ。
  *
  * 前月比の指標変化を表現します。
  */
 export type TrendDelta = {
-	readonly period: MonthPeriod;
-	readonly metrics: BreedingMetrics;
-	readonly periodString: string; // YYYY-MM形式
-	readonly changes: MetricChanges;
+	/** 期間 */ readonly period: MonthPeriod;
+	/** 繁殖指標 */ readonly metrics: BreedingMetrics;
+	/** 期間文字列（YYYY-MM形式） */ readonly periodString: string;
+	/** 指標の変化 */ readonly changes: MetricChanges;
 };
 
 /**
- * 指標の変化
+ * 指標の変化。
  *
  * 各指標の前月比変化を管理します。
  */
 export type MetricChanges = {
-	readonly conceptionRate: TrendDirection;
-	readonly averageDaysOpen: TrendDirection;
-	readonly averageCalvingInterval: TrendDirection;
-	readonly aiPerConception: TrendDirection;
+	/** 受胎率の変化方向 */ readonly conceptionRate: TrendDirection;
+	/** 平均空胎日数の変化方向 */ readonly averageDaysOpen: TrendDirection;
+	/** 平均分娩間隔の変化方向 */ readonly averageCalvingInterval: TrendDirection;
+	/** 受胎あたりの授精回数の変化方向 */ readonly aiPerConception: TrendDirection;
 };
 
 /**
- * トレンド分析の集約
+ * トレンド分析の集約。
  *
  * 時系列での指標変化を分析し、洞察を提供します。
  */
 export type TrendAnalysis = {
-	readonly series: TrendPoint[];
-	readonly deltas: TrendDelta[];
-	readonly overallTrend: OverallTrend;
-	readonly periodRange: DateRange | null;
-	readonly summary: string;
+	/** 時系列データ */ readonly series: TrendPoint[];
+	/** 変化データ */ readonly deltas: TrendDelta[];
+	/** 全体的なトレンド */ readonly overallTrend: OverallTrend;
+	/** 分析期間範囲 */ readonly periodRange: DateRange | null;
+	/** 分析要約 */ readonly summary: string;
 };
 
 /**
- * 全体的なトレンド
+ * 全体的なトレンド。
  *
  * 分析期間全体での傾向を表現します。
  */
 export type OverallTrend = {
-	readonly direction: "improving" | "declining" | "stable" | "mixed";
-	readonly confidence: "high" | "medium" | "low";
-	readonly keyInsights: string[];
-	readonly recommendations: string[];
+	/** トレンド方向 */ readonly direction:
+		| "improving"
+		| "declining"
+		| "stable"
+		| "mixed";
+	/** 信頼度 */ readonly confidence: "high" | "medium" | "low";
+	/** 主要な洞察 */ readonly keyInsights: string[];
+	/** 推奨事項 */ readonly recommendations: string[];
 };
 
 /**
- * トレンドポイントの作成
+ * トレンドポイントの作成。
+ *
+ * 特定の期間の指標データからトレンドポイントを生成します。
+ * @param period - 期間
+ * @param metrics - 繁殖指標
+ * @param counts - イベント数
+ * @returns トレンドポイント
  */
 export function createTrendPoint(
 	period: MonthPeriod,

@@ -10,17 +10,29 @@ import {
 	updateBreedingSummary
 } from "./breedingSummary";
 
-// Breeding Aggregate Root
+/**
+ * 繁殖集約ルート。
+ *
+ * 牛の繁殖に関するすべての情報を統合管理する集約ルートです。
+ * 現在の繁殖状況、統計情報、イベント履歴、バージョン管理を提供します。
+ */
 export type BreedingAggregate = {
-	readonly cattleId: CattleId;
-	readonly currentStatus: BreedingStatus;
-	readonly summary: BreedingSummary;
-	readonly history: readonly BreedingEvent[];
-	readonly version: number; // For optimistic concurrency control
-	readonly lastUpdated: Date;
+	/** 牛ID */ readonly cattleId: CattleId;
+	/** 現在の繁殖状況 */ readonly currentStatus: BreedingStatus;
+	/** 繁殖統計情報 */ readonly summary: BreedingSummary;
+	/** イベント履歴 */ readonly history: readonly BreedingEvent[];
+	/** バージョン（楽観的ロック制御用） */ readonly version: number;
+	/** 最終更新日時 */ readonly lastUpdated: Date;
 };
 
-// Factory function for creating new breeding aggregate
+/**
+ * 新規繁殖集約のファクトリ関数。
+ *
+ * 新しい牛の繁殖集約を作成し、初期状態を設定します。
+ * @param cattleId - 牛ID
+ * @param initialStatus - 初期繁殖状況
+ * @returns 作成された繁殖集約
+ */
 export function createBreedingAggregate(
 	cattleId: CattleId,
 	initialStatus: BreedingStatus
@@ -35,14 +47,20 @@ export function createBreedingAggregate(
 	};
 }
 
-// Factory function for reconstructing breeding aggregate from persistence
+/**
+ * 永続化データから繁殖集約を再構築するファクトリ関数。
+ *
+ * データベースから取得したデータから繁殖集約を再構築します。
+ * @param props - 再構築用のプロパティ
+ * @returns 再構築された繁殖集約
+ */
 export function reconstructBreedingAggregate(props: {
-	cattleId: CattleId;
-	currentStatus: BreedingStatus;
-	summary: BreedingSummary;
-	history: BreedingEvent[];
-	version: number;
-	lastUpdated: Date;
+	/** 牛ID */ cattleId: CattleId;
+	/** 現在の繁殖状況 */ currentStatus: BreedingStatus;
+	/** 繁殖統計情報 */ summary: BreedingSummary;
+	/** イベント履歴 */ history: BreedingEvent[];
+	/** バージョン */ version: number;
+	/** 最終更新日時 */ lastUpdated: Date;
 }): BreedingAggregate {
 	return {
 		cattleId: props.cattleId,
@@ -54,7 +72,16 @@ export function reconstructBreedingAggregate(props: {
 	};
 }
 
-// Pure function to apply breeding event to aggregate
+/**
+ * 繁殖イベントを集約に適用する純粋関数。
+ *
+ * 繁殖イベントを集約に適用し、新しい状態を生成します。
+ * イベントの妥当性チェック、状態遷移、統計更新を行います。
+ * @param aggregate - 対象の繁殖集約
+ * @param event - 適用する繁殖イベント
+ * @param currentDate - 現在日時
+ * @returns 成功時は更新された集約、失敗時はドメインエラー
+ */
 export function applyBreedingEvent(
 	aggregate: BreedingAggregate,
 	event: BreedingEvent,
@@ -108,7 +135,13 @@ export function applyBreedingEvent(
 	});
 }
 
-// Pure function to get breeding events within date range
+/**
+ * 指定された日付範囲内の繁殖イベントを取得する純粋関数。
+ * @param aggregate - 対象の繁殖集約
+ * @param startDate - 開始日
+ * @param endDate - 終了日
+ * @returns 日付範囲内のイベント一覧
+ */
 export function getBreedingEventsInRange(
 	aggregate: BreedingAggregate,
 	startDate: Date,
@@ -119,7 +152,12 @@ export function getBreedingEventsInRange(
 	);
 }
 
-// Pure function to get last event of specific type
+/**
+ * 指定されたタイプの最後のイベントを取得する純粋関数。
+ * @param aggregate - 対象の繁殖集約
+ * @param eventType - イベントタイプ
+ * @returns 最後のイベント（見つからない場合はnull）
+ */
 export function getLastEventOfType(
 	aggregate: BreedingAggregate,
 	eventType: BreedingEvent["type"]
@@ -130,7 +168,13 @@ export function getLastEventOfType(
 	return eventsOfType.length > 0 ? eventsOfType[eventsOfType.length - 1] : null;
 }
 
-// Pure function to check if breeding aggregate is in valid state
+/**
+ * 繁殖集約が有効な状態かどうかをチェックする純粋関数。
+ *
+ * 状態の一貫性、イベントの順序、バージョンの妥当性を検証します。
+ * @param aggregate - 検証対象の繁殖集約
+ * @returns 成功時はtrue、失敗時はドメインエラー
+ */
 export function isBreedingAggregateValid(
 	aggregate: BreedingAggregate
 ): Result<true, DomainError> {
@@ -178,13 +222,19 @@ export function isBreedingAggregateValid(
 	return ok(true);
 }
 
-// Pure function to get breeding cycle summary
+/**
+ * 繁殖サイクルの要約を取得する純粋関数。
+ *
+ * 現在の繁殖サイクルの開始日、経過日数、次の予定イベントなどを計算します。
+ * @param aggregate - 対象の繁殖集約
+ * @returns 繁殖サイクルの要約情報
+ */
 export function getBreedingCycleSummary(aggregate: BreedingAggregate): {
-	currentCycleStartDate: Date | null;
-	daysInCurrentCycle: number | null;
-	cyclePhase: string;
-	nextExpectedEvent: string | null;
-	nextExpectedDate: Date | null;
+	/** 現在のサイクル開始日 */ currentCycleStartDate: Date | null;
+	/** 現在のサイクル経過日数 */ daysInCurrentCycle: number | null;
+	/** サイクル段階 */ cyclePhase: string;
+	/** 次の予定イベント */ nextExpectedEvent: string | null;
+	/** 次の予定日 */ nextExpectedDate: Date | null;
 } {
 	const status = aggregate.currentStatus;
 	const lastCalving = getLastEventOfType(aggregate, "Calve");

@@ -6,15 +6,36 @@ import type { CattleRepoPort } from "../../../cattle/ports";
 import type { DomainError } from "../errors";
 import type { Cattle } from "../model/cattle";
 
-type Deps = { repo: CattleRepoPort; clock: ClockPort };
-
-export type UpdateStatusCmd = {
-	requesterUserId: UserId;
-	id: CattleId;
-	newStatus: NonNullable<Cattle["status"]>;
-	reason?: string | null;
+/**
+ * 牛ステータス更新の依存関係。
+ */
+type Deps = {
+	/** 牛リポジトリ */ repo: CattleRepoPort;
+	/** クロック */ clock: ClockPort;
 };
 
+/**
+ * 牛ステータス更新コマンド。
+ *
+ * 牛のステータスを更新する際に必要な情報を定義します。
+ */
+export type UpdateStatusCmd = {
+	/** リクエスト元ユーザーID */ requesterUserId: UserId;
+	/** 牛ID */ id: CattleId;
+	/** 新しいステータス */ newStatus: NonNullable<Cattle["status"]>;
+	/** 変更理由（オプション） */ reason?: string | null;
+};
+
+/**
+ * 牛ステータス更新ユースケース。
+ *
+ * 牛のステータスを更新し、ステータス変更履歴を記録します。
+ * 所有者権限をチェックし、変更理由も記録されます。
+ *
+ * @param deps - 依存関係
+ * @param cmd - 牛ステータス更新コマンド
+ * @returns 成功時は更新された牛情報、失敗時はドメインエラー
+ */
 export const updateStatus =
 	(deps: Deps) =>
 	async (cmd: UpdateStatusCmd): Promise<Result<Cattle, DomainError>> => {

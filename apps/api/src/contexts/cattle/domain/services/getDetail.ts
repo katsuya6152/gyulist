@@ -6,17 +6,35 @@ import type { CattleRepoPort } from "../../ports";
 import type { CattleDetailsQueryPort } from "../../ports.details";
 import type { DomainError } from "../errors";
 
+/**
+ * 牛詳細取得の依存関係。
+ */
 type Deps = {
-	repo: CattleRepoPort;
-	eventsRepo: EventsRepoPort;
-	details: CattleDetailsQueryPort;
+	/** 牛リポジトリ */ repo: CattleRepoPort;
+	/** イベントリポジトリ */ eventsRepo: EventsRepoPort;
+	/** 詳細クエリポート */ details: CattleDetailsQueryPort;
 };
 
+/**
+ * 牛詳細取得コマンド。
+ *
+ * 牛の詳細情報を取得する際に必要な情報を定義します。
+ */
 export type GetCattleDetailCmd = {
-	id: CattleId;
-	requesterUserId: UserId;
+	/** 牛ID */ id: CattleId;
+	/** リクエスト元ユーザーID */ requesterUserId: UserId;
 };
 
+/**
+ * 牛詳細取得ユースケース。
+ *
+ * 牛の基本情報、イベント履歴、血統情報、母牛情報、繁殖状況、繁殖サマリーを
+ * 並行取得して統合した詳細情報を提供します。
+ *
+ * @param deps - 依存関係
+ * @param cmd - 牛詳細取得コマンド
+ * @returns 成功時は牛の詳細情報、失敗時はドメインエラー
+ */
 export const getDetail =
 	(deps: Deps) =>
 	async (

@@ -15,34 +15,52 @@ import type {
 import { createInitialBreedingStatus } from "../../../cattle/domain/model/breedingStatus";
 import type { BreedingRepoPort } from "../../ports";
 
-// Dependencies for breeding management use cases
+/**
+ * 繁殖管理ユースケースの依存関係。
+ */
 type Deps = {
-	breedingRepo: BreedingRepoPort;
-	clock: ClockPort;
+	/** 繁殖リポジトリ */ breedingRepo: BreedingRepoPort;
+	/** クロック */ clock: ClockPort;
 };
 
-// Command for recording breeding event
+/**
+ * 繁殖イベント記録コマンド。
+ *
+ * 繁殖イベントを記録する際に必要な情報を定義します。
+ */
 export type RecordBreedingEventCmd = {
-	requesterUserId: UserId;
-	cattleId: CattleId;
-	event: {
-		type: BreedingEvent["type"];
-		memo?: string | null;
-		expectedCalvingDate?: Date;
-		scheduledPregnancyCheckDate?: Date | null;
-		isDifficultBirth?: boolean;
+	/** リクエスト元ユーザーID */ requesterUserId: UserId;
+	/** 牛ID */ cattleId: CattleId;
+	/** イベント情報 */ event: {
+		/** イベントタイプ */ type: BreedingEvent["type"];
+		/** メモ */ memo?: string | null;
+		/** 予定分娩日 */ expectedCalvingDate?: Date;
+		/** 予定妊娠鑑定日 */ scheduledPregnancyCheckDate?: Date | null;
+		/** 難産フラグ */ isDifficultBirth?: boolean;
 	};
 };
 
-// Command for initializing breeding aggregate
+/**
+ * 繁殖集約初期化コマンド。
+ *
+ * 新規牛の繁殖集約を初期化する際に必要な情報を定義します。
+ */
 export type InitializeBreedingCmd = {
-	requesterUserId: UserId;
-	cattleId: CattleId;
-	initialParity: number;
-	memo?: string | null;
+	/** リクエスト元ユーザーID */ requesterUserId: UserId;
+	/** 牛ID */ cattleId: CattleId;
+	/** 初期産次数 */ initialParity: number;
+	/** メモ */ memo?: string | null;
 };
 
-// Pure function for recording breeding event
+/**
+ * 繁殖イベント記録ユースケース。
+ *
+ * 繁殖イベントを記録し、繁殖集約を更新します。
+ * 集約が存在しない場合は自動的に初期化されます。
+ *
+ * @param deps - 依存関係
+ * @returns 成功時は更新された繁殖集約、失敗時はドメインエラー
+ */
 export const recordBreedingEventUseCase =
 	(deps: Deps) =>
 	async (
@@ -101,7 +119,15 @@ export const recordBreedingEventUseCase =
 		}
 	};
 
-// Pure function for initializing breeding aggregate
+/**
+ * 繁殖集約初期化ユースケース。
+ *
+ * 新規牛の繁殖集約を初期化します。
+ * 既に集約が存在する場合は競合エラーを返します。
+ *
+ * @param deps - 依存関係
+ * @returns 成功時は作成された繁殖集約、失敗時はドメインエラー
+ */
 export const initializeBreedingUseCase =
 	(deps: Deps) =>
 	async (
@@ -144,7 +170,15 @@ export const initializeBreedingUseCase =
 		}
 	};
 
-// Query function for getting breeding status
+/**
+ * 繁殖状況取得ユースケース。
+ *
+ * 指定された牛の繁殖状況を取得します。
+ *
+ * @param deps - 依存関係
+ * @param cattleId - 牛ID
+ * @returns 成功時は繁殖集約（存在しない場合はnull）、失敗時はドメインエラー
+ */
 export const getBreedingStatusUseCase =
 	(deps: Deps) =>
 	async (
@@ -162,7 +196,15 @@ export const getBreedingStatusUseCase =
 		}
 	};
 
-// Query function for getting cattle needing breeding attention
+/**
+ * 繁殖注意が必要な牛取得ユースケース。
+ *
+ * 繁殖管理で注意が必要な牛のID一覧を取得します。
+ *
+ * @param deps - 依存関係
+ * @param ownerUserId - 所有者ユーザーID
+ * @returns 成功時は注意が必要な牛のID一覧、失敗時はドメインエラー
+ */
 export const getCattleNeedingBreedingAttentionUseCase =
 	(deps: Deps) =>
 	async (ownerUserId: UserId): Promise<Result<CattleId[], DomainError>> => {
@@ -182,21 +224,29 @@ export const getCattleNeedingBreedingAttentionUseCase =
 		}
 	};
 
-// Query function for getting breeding statistics
+/**
+ * 繁殖統計取得ユースケース。
+ *
+ * 指定された期間の繁殖統計情報を取得します。
+ *
+ * @param deps - 依存関係
+ * @param params - 統計取得パラメータ
+ * @returns 成功時は繁殖統計情報、失敗時はドメインエラー
+ */
 export const getBreedingStatisticsUseCase =
 	(deps: Deps) =>
 	async (params: {
-		ownerUserId: UserId;
-		startDate: Date;
-		endDate: Date;
+		/** 所有者ユーザーID */ ownerUserId: UserId;
+		/** 開始日 */ startDate: Date;
+		/** 終了日 */ endDate: Date;
 	}): Promise<
 		Result<
 			{
-				totalInseminations: number;
-				totalPregnancies: number;
-				totalCalvings: number;
-				averagePregnancyRate: number;
-				difficultBirthRate: number;
+				/** 総授精回数 */ totalInseminations: number;
+				/** 総妊娠数 */ totalPregnancies: number;
+				/** 総分娩数 */ totalCalvings: number;
+				/** 平均妊娠率 */ averagePregnancyRate: number;
+				/** 難産率 */ difficultBirthRate: number;
 			},
 			DomainError
 		>

@@ -5,7 +5,8 @@ import type { Brand } from "../../../../shared/brand";
 // ============================================================================
 
 /**
- * アラートタイプの定数
+ * アラートタイプの定数配列。
+ * 繁殖管理、健康管理、スケジュール管理などの各種アラートを定義します。
  */
 export const ALERT_TYPES = [
 	"OPEN_DAYS_OVER60_NO_AI",
@@ -15,22 +16,26 @@ export const ALERT_TYPES = [
 ] as const;
 
 /**
- * アラートタイプの型
+ * アラートタイプの型。
+ * 定数配列から生成される型安全なアラートタイプです。
  */
 export type AlertType = (typeof ALERT_TYPES)[number];
 
 /**
- * アラート重要度の定数
+ * アラート重要度の定数配列。
+ * アラートの緊急度を表現します。
  */
 export const ALERT_SEVERITIES = ["high", "medium", "low"] as const;
 
 /**
- * アラート重要度の型
+ * アラート重要度の型。
+ * 定数配列から生成される型安全な重要度です。
  */
 export type AlertSeverity = (typeof ALERT_SEVERITIES)[number];
 
 /**
- * アラートステータスの定数
+ * アラートステータスの定数配列。
+ * アラートの処理状況を表現します。
  */
 export const ALERT_STATUSES = [
 	"active",
@@ -40,17 +45,20 @@ export const ALERT_STATUSES = [
 ] as const;
 
 /**
- * アラートステータスの型
+ * アラートステータスの型。
+ * 定数配列から生成される型安全なステータスです。
  */
 export type AlertStatus = (typeof ALERT_STATUSES)[number];
 
 /**
- * アラートメッセージの最大長
+ * アラートメッセージの最大長。
+ * データベース制約に基づく制限です。
  */
 export const MAX_ALERT_MESSAGE_LENGTH = 500;
 
 /**
- * アラートIDの最大長
+ * アラートIDの最大長。
+ * データベース制約に基づく制限です。
  */
 export const MAX_ALERT_ID_LENGTH = 100;
 
@@ -59,42 +67,50 @@ export const MAX_ALERT_ID_LENGTH = 100;
 // ============================================================================
 
 /**
- * アラートID
+ * アラートIDのブランド型。
+ * アラートの一意識別子を表現します。
  */
 export type AlertId = Brand<string, "AlertId">;
 
 /**
- * 牛ID（CattleIdの再エクスポート）
+ * 牛IDのブランド型。
+ * 牛の一意識別子を表現します。
  */
 export type CattleId = Brand<number, "CattleId">;
 
 /**
- * ユーザーID（UserIdの再エクスポート）
+ * ユーザーIDのブランド型。
+ * ユーザーの一意識別子を表現します。
  */
 export type UserId = Brand<number, "UserId">;
 
 /**
- * アラートメッセージ
+ * アラートメッセージのブランド型。
+ * アラートの内容を表現する文字列です。
  */
 export type AlertMessage = Brand<string, "AlertMessage">;
 
 /**
- * 牛の名前
+ * 牛の名前のブランド型。
+ * 牛の名前を表現する文字列です。
  */
 export type CattleName = Brand<string, "CattleName">;
 
 /**
- * 耳標番号
+ * 耳標番号のブランド型。
+ * 牛の耳標番号を表現する文字列です。
  */
 export type EarTagNumber = Brand<string, "EarTagNumber">;
 
 /**
- * 期限日時
+ * 期限日時のブランド型。
+ * アラートの期限を表現するISO8601形式の文字列です。
  */
 export type DueDate = Brand<string, "DueDate">;
 
 /**
- * タイムスタンプ
+ * タイムスタンプのブランド型。
+ * UNIXタイムスタンプを表現する数値です。
  */
 export type Timestamp = Brand<number, "Timestamp">;
 

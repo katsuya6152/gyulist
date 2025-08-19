@@ -8,15 +8,26 @@ import type {
 	MotherGreatGrandFatherName
 } from "./types";
 
-// Bloodline Value Object
+/**
+ * 血統の値オブジェクト。
+ *
+ * - fatherName: 父の名前
+ * - motherFatherName: 母方の父（外祖父）の名前
+ * - motherGrandFatherName: 母方の祖父の名前
+ * - motherGreatGrandFatherName: 母方の曾祖父の名前
+ */
 export type Bloodline = {
-	readonly fatherName: FatherName | null;
-	readonly motherFatherName: MotherFatherName | null;
-	readonly motherGrandFatherName: MotherGrandFatherName | null;
-	readonly motherGreatGrandFatherName: MotherGreatGrandFatherName | null;
+	/** 父名 */ readonly fatherName: FatherName | null;
+	/** 母方父名 */ readonly motherFatherName: MotherFatherName | null;
+	/** 母方祖父名 */ readonly motherGrandFatherName: MotherGrandFatherName | null;
+	/** 母方曾祖父名 */ readonly motherGreatGrandFatherName: MotherGreatGrandFatherName | null;
 };
 
-// Factory function for creating bloodline with validation
+/**
+ * 血統のファクトリ（バリデーション付き）。
+ *
+ * 空文字は null として扱い、型の不一致はエラーとします。
+ */
 export function createBloodline(props: {
 	fatherName?: string | null;
 	motherFatherName?: string | null;
@@ -67,7 +78,9 @@ export function createBloodline(props: {
 	}
 }
 
-// Pure function to check if bloodline has any data
+/**
+ * いずれかの血統情報が設定されているかを判定します。
+ */
 export function hasBloodlineData(bloodline: Bloodline): boolean {
 	return !!(
 		bloodline.fatherName ||
@@ -77,7 +90,9 @@ export function hasBloodlineData(bloodline: Bloodline): boolean {
 	);
 }
 
-// Pure function to get bloodline depth (how many generations are recorded)
+/**
+ * 記録されている血統の世代の深さを返します（最大4）。
+ */
 export function getBloodlineDepth(bloodline: Bloodline): number {
 	let depth = 0;
 	if (bloodline.fatherName) depth = Math.max(depth, 1);

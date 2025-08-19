@@ -9,49 +9,54 @@ import type { CattleId } from "../../../../shared/brand";
 import type { BreedingEventType } from "./types";
 
 /**
- * KPIイベントエンティティ
+ * KPIイベントエンティティ。
  *
  * 繁殖指標計算に必要なイベント情報を管理します。
  * 不変性を保ち、ビジネスルールに基づく検証を提供します。
  */
 export type KpiEvent = {
-	readonly eventId: string;
-	readonly cattleId: CattleId;
-	readonly eventType: BreedingEventType;
-	readonly eventDatetime: Date;
-	readonly metadata: KpiEventMetadata;
-	readonly createdAt: Date;
-	readonly updatedAt: Date;
+	/** イベントID */ readonly eventId: string;
+	/** 牛ID */ readonly cattleId: CattleId;
+	/** イベントタイプ */ readonly eventType: BreedingEventType;
+	/** イベント日時 */ readonly eventDatetime: Date;
+	/** メタデータ */ readonly metadata: KpiEventMetadata;
+	/** 作成日時 */ readonly createdAt: Date;
+	/** 更新日時 */ readonly updatedAt: Date;
 };
 
 /**
- * KPIイベントのメタデータ
+ * KPIイベントのメタデータ。
  *
  * イベント固有の追加情報を管理します。
  */
 export type KpiEventMetadata = {
-	readonly notes?: string | null;
-	readonly result?: string | null;
-	readonly technician?: string | null;
-	readonly location?: string | null;
-	readonly equipment?: string | null;
-	readonly [key: string]: unknown;
+	/** 備考 */ readonly notes?: string | null;
+	/** 結果 */ readonly result?: string | null;
+	/** 技術者 */ readonly technician?: string | null;
+	/** 場所 */ readonly location?: string | null;
+	/** 設備 */ readonly equipment?: string | null;
+	/** その他のメタデータ */ readonly [key: string]: unknown;
 };
 
 /**
- * 新規KPIイベント作成時のプロパティ
+ * 新規KPIイベント作成時のプロパティ。
  */
 export type NewKpiEventProps = {
-	cattleId: CattleId;
-	eventType: BreedingEventType;
-	eventDatetime: Date;
-	metadata?: KpiEventMetadata;
+	/** 牛ID */ cattleId: CattleId;
+	/** イベントタイプ */ eventType: BreedingEventType;
+	/** イベント日時 */ eventDatetime: Date;
+	/** メタデータ（オプション） */ metadata?: KpiEventMetadata;
 };
 
 /**
- * KPIイベントの作成
+ * KPIイベントの作成。
  *
  * 新規イベントを作成し、ドメインルールに基づく検証を実行します。
+ * @param props - 新規イベントのプロパティ
+ * @param eventId - イベントID
+ * @param currentTime - 現在時刻
+ * @returns 作成されたKPIイベント
+ * @throws ドメインルール違反の場合
  */
 export function createKpiEvent(
 	props: NewKpiEventProps,
@@ -73,7 +78,11 @@ export function createKpiEvent(
 }
 
 /**
- * KPIイベントプロパティの検証
+ * KPIイベントプロパティの検証。
+ *
+ * ドメインルールに基づいてプロパティの妥当性をチェックします。
+ * @param props - 検証するプロパティ
+ * @throws ドメインルール違反の場合
  */
 function validateKpiEventProps(props: NewKpiEventProps): void {
 	if (!props.cattleId) {

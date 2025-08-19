@@ -9,18 +9,23 @@ import type { MetricType, MetricValue } from "./types";
 import { isValidMetricValue, roundMetricValue } from "./types";
 
 /**
- * 受胎率の値オブジェクト
+ * 受胎率の値オブジェクト。
  *
  * 受胎率を0-100%の範囲で管理し、適切な丸め処理を提供します。
  */
 export type ConceptionRate = {
-	readonly value: number; // 0-100
-	readonly unit: "%";
-	readonly displayValue: string;
+	/** 受胎率値（0-100） */ readonly value: number;
+	/** 単位 */ readonly unit: "%";
+	/** 表示用文字列 */ readonly displayValue: string;
 };
 
 /**
- * 受胎率の作成
+ * 受胎率の作成。
+ *
+ * 受胎率の値オブジェクトを生成し、検証と丸め処理を行います。
+ * @param value - 受胎率（0-100）
+ * @returns 受胎率値オブジェクト
+ * @throws 無効な値の場合
  */
 export function createConceptionRate(value: number): ConceptionRate {
 	if (!isValidMetricValue(value)) {
@@ -41,25 +46,34 @@ export function createConceptionRate(value: number): ConceptionRate {
 }
 
 /**
- * 受胎率の検証
+ * 受胎率の検証。
+ *
+ * 受胎率が有効な範囲内かどうかをチェックします。
+ * @param value - 検証する受胎率
+ * @returns 有効な受胎率の場合は true
  */
 export function isValidConceptionRate(value: number): boolean {
 	return isValidMetricValue(value) && value >= 0 && value <= 100;
 }
 
 /**
- * 平均空胎日数の値オブジェクト
+ * 平均空胎日数の値オブジェクト。
  *
  * 平均空胎日数を日単位で管理します。
  */
 export type AverageDaysOpen = {
-	readonly value: number; // 0以上の整数
-	readonly unit: "日";
-	readonly displayValue: string;
+	/** 平均空胎日数（0以上の整数） */ readonly value: number;
+	/** 単位 */ readonly unit: "日";
+	/** 表示用文字列 */ readonly displayValue: string;
 };
 
 /**
- * 平均空胎日数の作成
+ * 平均空胎日数の作成。
+ *
+ * 平均空胎日数の値オブジェクトを生成し、検証と丸め処理を行います。
+ * @param value - 平均空胎日数
+ * @returns 平均空胎日数値オブジェクト
+ * @throws 無効な値の場合
  */
 export function createAverageDaysOpen(value: number): AverageDaysOpen {
 	if (!isValidMetricValue(value)) {
@@ -76,25 +90,34 @@ export function createAverageDaysOpen(value: number): AverageDaysOpen {
 }
 
 /**
- * 平均空胎日数の検証
+ * 平均空胎日数の検証。
+ *
+ * 平均空胎日数が有効な値かどうかをチェックします。
+ * @param value - 検証する平均空胎日数
+ * @returns 有効な値の場合は true
  */
 export function isValidAverageDaysOpen(value: number): boolean {
 	return isValidMetricValue(value) && value >= 0;
 }
 
 /**
- * 平均分娩間隔の値オブジェクト
+ * 平均分娩間隔の値オブジェクト。
  *
  * 平均分娩間隔を日単位で管理します。
  */
 export type AverageCalvingInterval = {
-	readonly value: number; // 0以上の整数
-	readonly unit: "日";
-	readonly displayValue: string;
+	/** 平均分娩間隔（0以上の整数） */ readonly value: number;
+	/** 単位 */ readonly unit: "日";
+	/** 表示用文字列 */ readonly displayValue: string;
 };
 
 /**
- * 平均分娩間隔の作成
+ * 平均分娩間隔の作成。
+ *
+ * 平均分娩間隔の値オブジェクトを生成し、検証と丸め処理を行います。
+ * @param value - 平均分娩間隔
+ * @returns 平均分娩間隔値オブジェクト
+ * @throws 無効な値の場合
  */
 export function createAverageCalvingInterval(
 	value: number
@@ -113,25 +136,34 @@ export function createAverageCalvingInterval(
 }
 
 /**
- * 平均分娩間隔の検証
+ * 平均分娩間隔の検証。
+ *
+ * 平均分娩間隔が有効な値かどうかをチェックします。
+ * @param value - 検証する平均分娩間隔
+ * @returns 有効な値の場合は true
  */
 export function isValidAverageCalvingInterval(value: number): boolean {
 	return isValidMetricValue(value) && value >= 0;
 }
 
 /**
- * 受胎あたりの人工授精回数の値オブジェクト
+ * 受胎あたりの人工授精回数の値オブジェクト。
  *
  * 受胎あたりの人工授精回数を回数単位で管理します。
  */
 export type AIPerConception = {
-	readonly value: number; // 1以上の数値
-	readonly unit: "回";
-	readonly displayValue: string;
+	/** 受胎あたりの人工授精回数（1以上の数値） */ readonly value: number;
+	/** 単位 */ readonly unit: "回";
+	/** 表示用文字列 */ readonly displayValue: string;
 };
 
 /**
- * 受胎あたりの人工授精回数の作成
+ * 受胎あたりの人工授精回数の作成。
+ *
+ * 受胎あたりの人工授精回数の値オブジェクトを生成し、検証と丸め処理を行います。
+ * @param value - 受胎あたりの人工授精回数
+ * @returns 受胎あたりの人工授精回数値オブジェクト
+ * @throws 無効な値の場合
  */
 export function createAIPerConception(value: number): AIPerConception {
 	if (!isValidMetricValue(value)) {
@@ -152,14 +184,18 @@ export function createAIPerConception(value: number): AIPerConception {
 }
 
 /**
- * 受胎あたりの人工授精回数の検証
+ * 受胎あたりの人工授精回数の検証。
+ *
+ * 受胎あたりの人工授精回数が有効な値かどうかをチェックします。
+ * @param value - 検証する受胎あたりの人工授精回数
+ * @returns 有効な値の場合は true
  */
 export function isValidAIPerConception(value: number): boolean {
 	return isValidMetricValue(value) && value >= 1;
 }
 
 /**
- * 繁殖指標の集約
+ * 繁殖指標の集約。
  *
  * すべての繁殖指標を一つのオブジェクトにまとめます。
  */
@@ -171,7 +207,14 @@ export type BreedingMetrics = {
 };
 
 /**
- * 繁殖指標の作成
+ * 繁殖指標の作成。
+ *
+ * 繁殖指標の値オブジェクトを生成し、検証と丸め処理を行います。
+ * @param conceptionRate - 受胎率
+ * @param averageDaysOpen - 平均空胎日数
+ * @param averageCalvingInterval - 平均分娩間隔
+ * @param aiPerConception - 受胎あたりの人工授精回数
+ * @returns 繁殖指標値オブジェクト
  */
 export function createBreedingMetrics(
 	conceptionRate: number | null,
@@ -194,7 +237,11 @@ export function createBreedingMetrics(
 }
 
 /**
- * 繁殖指標の検証
+ * 繁殖指標の検証。
+ *
+ * 繁殖指標の値オブジェクトが有効な範囲内かどうかをチェックします。
+ * @param metrics - 検証する繁殖指標
+ * @returns 有効な値の場合は true
  */
 export function validateBreedingMetrics(metrics: BreedingMetrics): boolean {
 	if (
@@ -229,7 +276,7 @@ export function validateBreedingMetrics(metrics: BreedingMetrics): boolean {
 }
 
 /**
- * 繁殖指標の比較
+ * 繁殖指標の比較。
  *
  * 二つの指標セットを比較し、改善度を判定します。
  */
@@ -267,7 +314,13 @@ export function compareBreedingMetrics(
 }
 
 /**
- * 指標値の比較
+ * 指標値の比較。
+ *
+ * 現在の指標値と前回の指標値を比較し、改善度を判定します。
+ * @param current - 現在の指標値
+ * @param previous - 前回の指標値
+ * @param betterDirection - 改善度を判定する方向（"higher" または "lower"）
+ * @returns 改善度
  */
 function compareMetricValues(
 	current: number | null,
@@ -294,9 +347,11 @@ function compareMetricValues(
 }
 
 /**
- * 繁殖指標の要約
+ * 繁殖指標の要約。
  *
  * 指標の概要を人間が読みやすい形式で提供します。
+ * @param metrics - 要約する繁殖指標
+ * @returns 指標の概要文字列
  */
 export function summarizeBreedingMetrics(metrics: BreedingMetrics): string {
 	const parts: string[] = [];
@@ -325,9 +380,11 @@ export function summarizeBreedingMetrics(metrics: BreedingMetrics): string {
 }
 
 /**
- * 繁殖指標のJSON変換
+ * 繁殖指標のJSON変換。
  *
  * APIレスポンス用の形式に変換します。
+ * @param metrics - 変換する繁殖指標
+ * @returns APIレスポンス用のオブジェクト
  */
 export function breedingMetricsToJson(metrics: BreedingMetrics): {
 	conceptionRate: number | null;

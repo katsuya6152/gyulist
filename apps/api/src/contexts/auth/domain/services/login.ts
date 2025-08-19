@@ -3,15 +3,30 @@ import { err, ok } from "../../../../shared/result";
 import type { AuthDeps } from "../../../auth/ports";
 import type { DomainError } from "../errors";
 
+/**
+ * ログインコマンド。
+ */
 export type LoginCmd = {
-	email: string;
-	password: string;
+	/** メールアドレス */ email: string;
+	/** パスワード */ password: string;
 };
 
+/**
+ * ログイン結果。
+ */
 export type LoginResult = {
-	token: string;
+	/** JWTトークン */ token: string;
 };
 
+/**
+ * ログインユースケース。
+ *
+ * メールアドレスとパスワードによる認証を行い、
+ * 成功時はJWTトークンを返します。
+ *
+ * @param deps - 認証依存関係
+ * @returns 成功時はログイン結果、失敗時はドメインエラー
+ */
 export const login =
 	(deps: AuthDeps) =>
 	async (cmd: LoginCmd): Promise<Result<LoginResult, DomainError>> => {

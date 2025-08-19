@@ -11,16 +11,25 @@ import type { BreedingStatus } from "../model/breedingStatus";
 import type { BreedingSummary } from "../model/breedingSummary";
 import type { Cattle } from "../model/cattle";
 
+/**
+ * 牛更新の依存関係。
+ */
 type Deps = {
-	repo: CattleRepoPort;
-	clock: ClockPort;
-	breedingRepo: BreedingRepoPort;
+	/** 牛リポジトリ */ repo: CattleRepoPort;
+	/** クロック */ clock: ClockPort;
+	/** 繁殖リポジトリ */ breedingRepo: BreedingRepoPort;
 };
 
+/**
+ * 牛更新コマンド。
+ *
+ * 牛の情報を更新する際に必要な情報を定義します。
+ * 基本情報と繁殖関連情報の両方を更新できます。
+ */
 export type UpdateCattleCmd = {
-	requesterUserId: UserId;
-	id: CattleId;
-	patch: Partial<
+	/** リクエスト元ユーザーID */ requesterUserId: UserId;
+	/** 牛ID */ id: CattleId;
+	/** 更新データ */ patch: Partial<
 		Pick<
 			Cattle,
 			| "name"
@@ -35,30 +44,41 @@ export type UpdateCattleCmd = {
 			| "notes"
 		>
 	> & {
-		breedingStatus?: {
-			parity?: number | null;
-			expectedCalvingDate?: string | null;
-			scheduledPregnancyCheckDate?: string | null;
-			daysAfterCalving?: number | null;
-			daysOpen?: number | null;
-			pregnancyDays?: number | null;
-			daysAfterInsemination?: number | null;
-			inseminationCount?: number | null;
-			breedingMemo?: string | null;
-			isDifficultBirth?: boolean | null;
+		/** 繁殖状況更新データ */ breedingStatus?: {
+			/** 産次数 */ parity?: number | null;
+			/** 予定分娩日 */ expectedCalvingDate?: string | null;
+			/** 予定妊娠鑑定日 */ scheduledPregnancyCheckDate?: string | null;
+			/** 分娩後日数 */ daysAfterCalving?: number | null;
+			/** 空胎日数 */ daysOpen?: number | null;
+			/** 妊娠日数 */ pregnancyDays?: number | null;
+			/** 授精後日数 */ daysAfterInsemination?: number | null;
+			/** 授精回数 */ inseminationCount?: number | null;
+			/** 繁殖メモ */ breedingMemo?: string | null;
+			/** 難産フラグ */ isDifficultBirth?: boolean | null;
 		};
-		breedingSummary?: {
-			totalInseminationCount?: number | null;
-			averageDaysOpen?: number | null;
-			averagePregnancyPeriod?: number | null;
-			averageCalvingInterval?: number | null;
-			difficultBirthCount?: number | null;
-			pregnancyHeadCount?: number | null;
-			pregnancySuccessRate?: number | null;
+		/** 繁殖サマリー更新データ */ breedingSummary?: {
+			/** 総授精回数 */ totalInseminationCount?: number | null;
+			/** 平均空胎日数 */ averageDaysOpen?: number | null;
+			/** 平均妊娠期間 */ averagePregnancyPeriod?: number | null;
+			/** 平均分娩間隔 */ averageCalvingInterval?: number | null;
+			/** 難産回数 */ difficultBirthCount?: number | null;
+			/** 妊娠頭数 */ pregnancyHeadCount?: number | null;
+			/** 妊娠成功率 */ pregnancySuccessRate?: number | null;
 		};
 	};
 };
 
+/**
+ * 牛更新ユースケース。
+ *
+ * 牛の基本情報と繁殖関連情報を更新します。
+ * 誕生日が変更された場合は年齢派生値を自動計算します。
+ * 繁殖関連情報の更新時は繁殖集約も同時に更新されます。
+ *
+ * @param deps - 依存関係
+ * @param cmd - 牛更新コマンド
+ * @returns 成功時は更新された牛情報、失敗時はドメインエラー
+ */
 export const update =
 	(deps: Deps) =>
 	async (cmd: UpdateCattleCmd): Promise<Result<Cattle, DomainError>> => {

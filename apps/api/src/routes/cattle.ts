@@ -139,7 +139,46 @@ const app = new Hono<{ Bindings: Bindings }>()
 		);
 	})
 
-	// 牛の詳細（FDMユースケースへ移譲）+ イベント/血統/繁殖データを含める
+	/**
+	 * 牛の詳細情報取得エンドポイント
+	 *
+	 * 認証されたユーザーが所有する牛の詳細情報を取得します。
+	 * 基本情報に加えて、関連するイベント、血統情報、母牛情報、繁殖状況も含まれます。
+	 *
+	 * @param c - Honoコンテキスト
+	 * @returns 牛の詳細情報（JSON形式）
+	 *
+	 * @throws {401} 認証されていない場合
+	 * @throws {403} 他のユーザーの牛にアクセスしようとした場合
+	 * @throws {404} 指定された牛が見つからない場合
+	 *
+	 * @example
+	 * ```bash
+	 * GET /api/v1/cattle/123
+	 * Authorization: Bearer <jwt_token>
+	 * ```
+	 *
+	 * @example Response
+	 * ```json
+	 * {
+	 *   "data": {
+	 *     "cattleId": 123,
+	 *     "name": "サンプル牛",
+	 *     "identificationNumber": 1001,
+	 *     "earTagNumber": 2001,
+	 *     "gender": "FEMALE",
+	 *     "birthday": "2020-01-15T00:00:00.000Z",
+	 *     "growthStage": "FIRST_CALVED",
+	 *     "status": "HEALTHY",
+	 *     "events": [...],
+	 *     "bloodline": {...},
+	 *     "motherInfo": {...},
+	 *     "breedingStatus": {...},
+	 *     "breedingSummary": {...}
+	 *   }
+	 * }
+	 * ```
+	 */
 	.get("/:id", async (c) => {
 		const id = Number.parseInt(c.req.param("id")) as unknown as CattleId;
 		const userId = c.get("jwtPayload").userId as unknown as UserId;
@@ -164,6 +203,71 @@ const app = new Hono<{ Bindings: Bindings }>()
 	})
 
 	// 牛を新規登録（FDMユースケースへ完全移行。契約は維持）
+	/**
+	 * 牛の新規登録エンドポイント
+	 *
+	 * 認証されたユーザーの所有牛として、新しい牛レコードを作成します。
+	 * 入力は `createCattleSchema` によりバリデーションされ、作成後は
+	 * 作成された牛の情報を返します。`breedingStatus` が含まれる場合は、
+	 * 繁殖初期データを関連ユースケースで初期化します。
+	 *
+	 * @remarks
+	 * - リクエストボディ主要フィールドの一例:
+	 *   - `name` (string | null): 名称
+	 *   - `identificationNumber` (number): 識別番号（必須、正の数）
+	 *   - `earTagNumber` (number | null): 耳標番号
+	 *   - `gender` ("MALE" | "FEMALE")
+	 *   - `birthday` (string | null, ISO8601): 生年月日
+	 *   - `growthStage` (enum | null): 成育段階
+	 *   - `status` (enum | null): 健康/出荷などの状態（未指定時は HEALTHY）
+	 *   - `breedingStatus` (object | null): 初期繁殖データ（任意）
+	 *
+	 * @see ../contexts/cattle/domain/services/createCattle.createCattleUseCase
+	 * @see ../contexts/cattle/domain/model/cattle.NewCattleProps
+	 *
+	 * @param c - Honoコンテキスト
+	 * @returns 作成された牛の詳細（JSON形式）。成功時は 201 を返します。
+	 *
+	 * @throws {400} 入力バリデーションに失敗した場合
+	 * @throws {401} 認証されていない場合
+	 * @throws {403} 他ユーザーの資源に対する操作が行われた場合
+	 * @throws {409} 競合（識別番号の重複など）が発生した場合
+	 * @throws {500} サーバー内部エラー
+	 *
+	 * @example
+	 * ```bash
+	 * POST /api/v1/cattle
+	 * Authorization: Bearer <jwt_token>
+	 * Content-Type: application/json
+	 *
+	 * {
+	 *   "name": "サンプル牛",
+	 *   "identificationNumber": 1001,
+	 *   "earTagNumber": 2001,
+	 *   "gender": "FEMALE",
+	 *   "birthday": "2020-01-15T00:00:00.000Z",
+	 *   "growthStage": "FIRST_CALVED",
+	 *   "status": "HEALTHY",
+	 *   "breedingStatus": { "parity": 0, "breedingMemo": "初期登録" }
+	 * }
+	 * ```
+	 *
+	 * @example Response
+	 * ```json
+	 * {
+	 *   "data": {
+	 *     "cattleId": 456,
+	 *     "name": "サンプル牛",
+	 *     "identificationNumber": 1001,
+	 *     "earTagNumber": 2001,
+	 *     "gender": "FEMALE",
+	 *     "birthday": "2020-01-15T00:00:00.000Z",
+	 *     "growthStage": "FIRST_CALVED",
+	 *     "status": "HEALTHY"
+	 *   }
+	 * }
+	 * ```
+	 */
 	.post("/", zValidator("json", createCattleSchema), async (c) => {
 		const data = c.req.valid("json");
 		const userId = c.get("jwtPayload").userId;
@@ -179,10 +283,10 @@ const app = new Hono<{ Bindings: Bindings }>()
 					...data,
 					ownerUserId: userId as unknown as UserId,
 					identificationNumber: data.identificationNumber as unknown as import(
-						"../contexts/cattle/domain/model/cattle"
+						"../contexts/cattle/domain/model"
 					).IdentificationNumber,
 					earTagNumber: data.earTagNumber as unknown as import(
-						"../contexts/cattle/domain/model/cattle"
+						"../contexts/cattle/domain/model"
 					).EarTagNumber,
 					birthday: data.birthday ? new Date(data.birthday) : null
 				});

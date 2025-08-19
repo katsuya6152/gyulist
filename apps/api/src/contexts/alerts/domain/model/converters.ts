@@ -17,77 +17,99 @@ import type {
 // ============================================================================
 
 /**
- * 文字列をAlertIdに変換
+ * 文字列をAlertIdに変換します。
+ * @param id - アラートID文字列
+ * @returns AlertIdブランド型
  */
 export function toAlertId(id: string): AlertId {
 	return id as AlertId;
 }
 
 /**
- * 数値をCattleIdに変換
+ * 数値をCattleIdに変換します。
+ * @param id - 牛ID数値
+ * @returns CattleIdブランド型
  */
 export function toCattleId(id: number): CattleId {
 	return id as CattleId;
 }
 
 /**
- * 数値をUserIdに変換
+ * 数値をUserIdに変換します。
+ * @param id - ユーザーID数値
+ * @returns UserIdブランド型
  */
 export function toUserId(id: number): UserId {
 	return id as UserId;
 }
 
 /**
- * 文字列をAlertMessageに変換
+ * 文字列をAlertMessageに変換します。
+ * @param message - アラートメッセージ文字列
+ * @returns AlertMessageブランド型
  */
 export function toAlertMessage(message: string): AlertMessage {
 	return message as AlertMessage;
 }
 
 /**
- * 文字列をCattleNameに変換
+ * 文字列をCattleNameに変換します。
+ * @param name - 牛名文字列（null可）
+ * @returns CattleNameブランド型（null可）
  */
 export function toCattleName(name: string | null): CattleName | null {
 	return name as CattleName | null;
 }
 
 /**
- * 文字列をEarTagNumberに変換
+ * 文字列をEarTagNumberに変換します。
+ * @param number - 耳標番号文字列（null可）
+ * @returns EarTagNumberブランド型（null可）
  */
 export function toEarTagNumber(number: string | null): EarTagNumber | null {
 	return number as EarTagNumber | null;
 }
 
 /**
- * 文字列をDueDateに変換
+ * 文字列をDueDateに変換します。
+ * @param date - 期限日時文字列（null可）
+ * @returns DueDateブランド型（null可）
  */
 export function toDueDate(date: string | null): DueDate | null {
 	return date as DueDate | null;
 }
 
 /**
- * 数値をTimestampに変換
+ * 数値をTimestampに変換します。
+ * @param timestamp - UNIXタイムスタンプ数値
+ * @returns Timestampブランド型
  */
 export function toTimestamp(timestamp: number): Timestamp {
 	return timestamp as Timestamp;
 }
 
 /**
- * 文字列をAlertTypeに変換
+ * 文字列をAlertTypeに変換します。
+ * @param type - アラートタイプ文字列
+ * @returns AlertTypeブランド型
  */
 export function toAlertType(type: string): AlertType {
 	return type as AlertType;
 }
 
 /**
- * 文字列をAlertSeverityに変換
+ * 文字列をAlertSeverityに変換します。
+ * @param severity - 重要度文字列
+ * @returns AlertSeverityブランド型
  */
 export function toAlertSeverity(severity: string): AlertSeverity {
 	return severity as AlertSeverity;
 }
 
 /**
- * 文字列をAlertStatusに変換
+ * 文字列をAlertStatusに変換します。
+ * @param status - ステータス文字列
+ * @returns AlertStatusブランド型
  */
 export function toAlertStatus(status: string): AlertStatus {
 	return status as AlertStatus;
