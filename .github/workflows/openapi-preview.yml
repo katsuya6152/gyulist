@@ -105,12 +105,60 @@ jobs:
 
       - name: Generate TypeDoc
         working-directory: apps/api
-        run: pnpm run docs:gen
+        run: |
+          echo "🔧 Generating TypeDoc documentation..."
+          pnpm run docs:gen
+          echo "✅ TypeDoc generation completed"
+          
+          # Check if files were generated
+          if [ -d "docs/tsdoc/api" ]; then
+            echo "📁 TypeDoc output directory exists"
+            ls -la docs/tsdoc/api/
+          else
+            echo "⚠️ TypeDoc output directory not found"
+            exit 1
+          fi
 
       - name: Prepare TypeDoc for deployment
         run: |
-          # Copy TypeDoc to public directory alongside Swagger UI
-          cp -r docs/tsdoc/api/* public/typedoc/
+          # Create typedoc directory and copy TypeDoc to public directory alongside Swagger UI
+          mkdir -p public/typedoc
+          
+          # Check if TypeDoc files exist before copying
+          if [ -d "docs/tsdoc/api" ] && [ "$(ls -A docs/tsdoc/api)" ]; then
+            echo "✅ TypeDoc files found, copying to public/typedoc/"
+            cp -r docs/tsdoc/api/* public/typedoc/
+            echo "✅ TypeDoc files copied successfully"
+          else
+            echo "⚠️ TypeDoc files not found or directory is empty"
+            echo "Creating placeholder index.html"
+            cat > public/typedoc/index.html <<'HTML'
+            <!doctype html>
+            <html>
+            <head>
+              <meta charset="utf-8"/>
+              <title>TypeDoc - Not Available</title>
+            </head>
+            <body>
+              <h1>TypeDoc Documentation</h1>
+              <p>TypeDoc documentation is not available at this time.</p>
+              <p>Please check the build logs for more information.</p>
+            </body>
+            </html>
+            HTML
+          fi
+
+      - name: Verify deployment structure
+        run: |
+          echo "📋 Final deployment structure:"
+          echo "Public directory contents:"
+          ls -la public/
+          echo ""
+          echo "Swagger directory contents:"
+          ls -la public/swagger/ || echo "Swagger directory not found"
+          echo ""
+          echo "TypeDoc directory contents:"
+          ls -la public/typedoc/ || echo "TypeDoc directory not found"
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
