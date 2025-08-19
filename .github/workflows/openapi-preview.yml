@@ -63,7 +63,7 @@ jobs:
           unzip public/swagger-ui.zip -d public
           mv public/swagger-ui-master/dist public/swagger
           # create index.html pointing to openapi.json
-          cat > public/swagger/index.html <<'HTML'
+          cat > public/swagger/index.html << 'EOF'
           <!doctype html>
           <html>
           <head>
@@ -82,7 +82,7 @@ jobs:
           </script>
           </body>
           </html>
-          HTML
+          EOF
           # place openapi.json beside the swagger index for reliable relative loading
           mv docs/openapi.json public/swagger/openapi.json
 
@@ -136,7 +136,7 @@ jobs:
           else
             echo "⚠️ TypeDoc files not found or directory is empty"
             echo "Creating placeholder index.html"
-            cat > public/typedoc/index.html <<'HTML'
+            cat > public/typedoc/index.html << 'EOF'
             <!doctype html>
             <html>
             <head>
@@ -149,7 +149,7 @@ jobs:
               <p>Please check the build logs for more information.</p>
             </body>
             </html>
-            HTML
+            EOF
           fi
 
       - name: Verify deployment structure
