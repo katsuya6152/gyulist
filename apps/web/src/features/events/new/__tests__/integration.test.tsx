@@ -35,15 +35,26 @@ vi.mock("sonner", () => ({
 describe("Events New Integration", () => {
 	const user = userEvent.setup();
 
-	const mockCattle: GetCattleDetailResType = {
+	const mockCattle = {
 		cattleId: 1,
+		ownerUserId: 1,
 		identificationNumber: 1,
 		earTagNumber: 1,
 		name: "テスト牛1",
-		gender: "FEMALE",
+		gender: "雌",
 		birthday: "2020-01-01",
+		age: 4,
+		monthsOld: 48,
+		daysOld: 1460,
 		growthStage: "CALF",
 		breed: "ホルスタイン",
+		weight: 500,
+		score: 85,
+		status: "HEALTHY",
+		healthStatus: "健康",
+		producerName: "テスト生産者",
+		barn: "テスト牛舎",
+		breedingValue: "AAAAAA",
 		notes: "テスト用の牛",
 		bloodline: {
 			bloodlineId: 1,
@@ -63,11 +74,11 @@ describe("Events New Integration", () => {
 			isDifficultBirth: false,
 			breedingMemo: "",
 			createdAt: "2023-01-01T00:00:00Z",
-			updatedAt: null
+			updatedAt: "2023-01-01T00:00:00Z"
 		},
 		createdAt: "2023-01-01T00:00:00Z",
-		updatedAt: null
-	} as GetCattleDetailResType;
+		updatedAt: "2023-01-01T00:00:00Z"
+	} as unknown as GetCattleDetailResType;
 
 	beforeEach(() => {
 		vi.clearAllMocks();
