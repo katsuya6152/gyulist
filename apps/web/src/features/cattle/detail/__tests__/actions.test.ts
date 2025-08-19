@@ -1,10 +1,17 @@
+import type { GetCattleDetailResType } from "@/services/cattleService";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { deleteCattleAction, updateStatusAction } from "../actions";
+import {
+	deleteCattleAction,
+	updateNotesAction,
+	updateStatusAction
+} from "../actions";
 
 // Mock the cattle service
 vi.mock("@/services/cattleService", () => ({
 	DeleteCattle: vi.fn(),
-	updateStatus: vi.fn()
+	updateStatus: vi.fn(),
+	UpdateCattle: vi.fn(),
+	GetCattleDetail: vi.fn()
 }));
 
 // Mock JWT verification
@@ -124,5 +131,154 @@ describe("updateStatusAction", () => {
 			success: false,
 			error: "ステータスの更新に失敗しました"
 		});
+	});
+});
+
+describe("updateNotesAction", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	const mockCattle = {
+		cattleId: 1,
+		identificationNumber: 12345,
+		earTagNumber: 54321,
+		name: "テスト牛",
+		gender: "雌" as const,
+		birthday: "2020-01-01",
+		growthStage: "MULTI_PAROUS" as const,
+		breed: "ホルスタイン",
+		notes: "元のメモ",
+		createdAt: "2023-01-01T00:00:00Z",
+		updatedAt: "2023-12-01T00:00:00Z",
+		ownerUserId: 1,
+		age: 4,
+		monthsOld: 48,
+		daysOld: 1460,
+		score: 85,
+		producerName: "テスト生産者",
+		barn: "A棟",
+		breedingValue: "120",
+		weight: null,
+		bloodline: null,
+		breedingStatus: null,
+		motherInfo: null,
+		breedingSummary: null,
+		events: [],
+		status: "HEALTHY" as const,
+		healthStatus: "健康"
+	} as GetCattleDetailResType;
+
+	it("should update notes successfully", async () => {
+		const { UpdateCattle, GetCattleDetail } = await import(
+			"@/services/cattleService"
+		);
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
+
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
+		vi.mocked(GetCattleDetail).mockResolvedValue(mockCattle);
+		vi.mocked(UpdateCattle).mockResolvedValue(undefined);
+
+		const result = await updateNotesAction(1, "新しいメモ");
+
+		expect(GetCattleDetail).toHaveBeenCalledWith(1);
+		expect(UpdateCattle).toHaveBeenCalledWith(1, {
+			identificationNumber: 12345,
+			earTagNumber: 54321,
+			name: "テスト牛",
+			gender: "雌",
+			birthday: "2020-01-01",
+			growthStage: "MULTI_PAROUS",
+			breed: "ホルスタイン",
+			notes: "新しいメモ"
+		});
+		expect(result).toEqual({ success: true });
+	});
+
+	it("should return demo response for demo user", async () => {
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
+
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(1);
+
+		const result = await updateNotesAction(1, "新しいメモ");
+
+		expect(result).toEqual({
+			success: true,
+			message: "demo"
+		});
+	});
+
+	it("should handle null values in cattle data", async () => {
+		const { UpdateCattle, GetCattleDetail } = await import(
+			"@/services/cattleService"
+		);
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
+
+		const cattleWithNulls = {
+			...mockCattle,
+			identificationNumber: undefined,
+			earTagNumber: null,
+			name: null,
+			gender: null,
+			birthday: null,
+			growthStage: null,
+			breed: null
+		};
+
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
+		vi.mocked(GetCattleDetail).mockResolvedValue(cattleWithNulls);
+		vi.mocked(UpdateCattle).mockResolvedValue(undefined);
+
+		const result = await updateNotesAction(1, "新しいメモ");
+
+		expect(UpdateCattle).toHaveBeenCalledWith(1, {
+			identificationNumber: 0,
+			earTagNumber: 0,
+			name: "",
+			gender: "雌",
+			birthday: "",
+			growthStage: "CALF",
+			breed: null,
+			notes: "新しいメモ"
+		});
+		expect(result).toEqual({ success: true });
+	});
+
+	it("should handle errors", async () => {
+		const { GetCattleDetail } = await import("@/services/cattleService");
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
+
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
+		vi.mocked(GetCattleDetail).mockRejectedValue(new Error("Network error"));
+
+		const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+		const result = await updateNotesAction(1, "新しいメモ");
+
+		expect(consoleSpy).toHaveBeenCalledWith(
+			"Failed to update cattle notes:",
+			expect.any(Error)
+		);
+		expect(result).toEqual({
+			success: false,
+			error: "メモの更新に失敗しました"
+		});
+
+		consoleSpy.mockRestore();
+	});
+
+	it("should redirect to login on 401 error", async () => {
+		const { GetCattleDetail } = await import("@/services/cattleService");
+		const { verifyAndGetUserId } = await import("@/lib/jwt");
+		const { redirect } = await import("next/navigation");
+
+		vi.mocked(verifyAndGetUserId).mockResolvedValue(2);
+		vi.mocked(GetCattleDetail).mockRejectedValue(
+			new Error("API request failed: 401 Unauthorized")
+		);
+
+		await updateNotesAction(1, "新しいメモ");
+
+		expect(redirect).toHaveBeenCalledWith("/login");
 	});
 });

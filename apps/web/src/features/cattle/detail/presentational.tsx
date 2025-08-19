@@ -2,6 +2,7 @@
 
 import { SlideTransition } from "@/components/ui/slide-transition";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { updateNotesAction } from "@/features/cattle/detail/actions";
 import { CloseButton } from "@/features/cattle/detail/components/close-button";
 import type { GetCattleDetailResType } from "@/services/cattleService";
 import useEmblaCarousel from "embla-carousel-react";
@@ -9,6 +10,7 @@ import { useCallback, useEffect, useState } from "react";
 import { BasicInfo } from "./components/basic-info";
 import { Bloodline } from "./components/bllodline";
 import { Breeding } from "./components/breeding";
+import { EditableSummary } from "./components/editable-summary";
 import { CattleDetailHeader } from "./components/hedear";
 import { History } from "./components/history";
 
@@ -17,21 +19,34 @@ type Props = {
 	error?: string;
 };
 
-export default function CattleDetailPresentation({ cattle, error }: Props) {
+export default function CattleDetailPresentation({
+	cattle: initialCattle,
+	error
+}: Props) {
+	const [cattle, setCattle] = useState(initialCattle);
 	const [selectedTab, setSelectedTab] = useState("basic");
 	const [emblaRef, emblaApi] = useEmblaCarousel({
 		align: "start",
 		skipSnaps: false
 	});
 
+	// 初期データが変更された場合にcattleを更新
+	useEffect(() => {
+		setCattle(initialCattle);
+	}, [initialCattle]);
+
+	// 成長段階に応じてタブを決定
+	const isBreedingCattle =
+		cattle?.growthStage === "FIRST_CALVED" ||
+		cattle?.growthStage === "MULTI_PAROUS";
+	const tabConfig = isBreedingCattle
+		? ["basic", "bloodline", "breeding", "history"]
+		: ["basic", "bloodline", "summary", "history"];
+
 	const onSelect = useCallback(() => {
 		if (!emblaApi) return;
-		setSelectedTab(
-			["basic", "bloodline", "breeding", "history"][
-				emblaApi.selectedScrollSnap()
-			]
-		);
-	}, [emblaApi]);
+		setSelectedTab(tabConfig[emblaApi.selectedScrollSnap()]);
+	}, [emblaApi, tabConfig]);
 
 	useEffect(() => {
 		if (!emblaApi) return;
@@ -49,6 +64,24 @@ export default function CattleDetailPresentation({ cattle, error }: Props) {
 		},
 		[emblaApi]
 	);
+
+	// メモ保存用の関数
+	const onSave = async (updatedData: Partial<GetCattleDetailResType>) => {
+		if (!cattle) return;
+
+		const result = await updateNotesAction(
+			cattle.cattleId,
+			updatedData.notes || ""
+		);
+		if (!result.success) {
+			throw new Error(result.error || "保存に失敗しました");
+		}
+	};
+
+	// cattleオブジェクト更新用の関数
+	const onUpdate = (updatedCattle: GetCattleDetailResType) => {
+		setCattle(updatedCattle);
+	};
 
 	if (error) {
 		return <div className="p-4">{error}</div>;
@@ -74,8 +107,11 @@ export default function CattleDetailPresentation({ cattle, error }: Props) {
 								<TabsTrigger value="bloodline" onClick={() => scrollTo(1)}>
 									血統
 								</TabsTrigger>
-								<TabsTrigger value="breeding" onClick={() => scrollTo(2)}>
-									繁殖
+								<TabsTrigger
+									value={isBreedingCattle ? "breeding" : "summary"}
+									onClick={() => scrollTo(2)}
+								>
+									{isBreedingCattle ? "繁殖" : "メモ"}
 								</TabsTrigger>
 								<TabsTrigger value="history" onClick={() => scrollTo(3)}>
 									活動履歴
@@ -91,7 +127,15 @@ export default function CattleDetailPresentation({ cattle, error }: Props) {
 										<Bloodline cattle={cattle} />
 									</div>
 									<div className="flex-[0_0_calc(100%-1rem)] min-w-0 h-[calc(100vh-12rem)] overflow-y-auto">
-										<Breeding cattle={cattle} />
+										{isBreedingCattle ? (
+											<Breeding cattle={cattle} />
+										) : (
+											<EditableSummary
+												cattle={cattle}
+												onSave={onSave}
+												onUpdate={onUpdate}
+											/>
+										)}
 									</div>
 									<div className="flex-[0_0_calc(100%-1rem)] min-w-0 h-[calc(100vh-12rem)] overflow-y-auto">
 										<History cattle={cattle} />
