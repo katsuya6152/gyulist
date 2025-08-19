@@ -86,6 +86,32 @@ jobs:
           # place openapi.json beside the swagger index for reliable relative loading
           mv docs/openapi.json public/swagger/openapi.json
 
+      # --- TypeDoc生成と配置 ---
+      - name: Setup Node for TypeDoc
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm for TypeDoc
+        run: npm install -g pnpm
+
+      - name: Install API dependencies
+        working-directory: apps/api
+        run: pnpm install --frozen-lockfile
+
+      - name: Build API for TypeDoc
+        working-directory: apps/api
+        run: pnpm run build
+
+      - name: Generate TypeDoc
+        working-directory: apps/api
+        run: pnpm run docs:gen
+
+      - name: Prepare TypeDoc for deployment
+        run: |
+          # Copy TypeDoc to public directory alongside Swagger UI
+          cp -r docs/tsdoc/api/* public/typedoc/
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
