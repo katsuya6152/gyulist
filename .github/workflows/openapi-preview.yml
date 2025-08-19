@@ -63,26 +63,24 @@ jobs:
           unzip public/swagger-ui.zip -d public
           mv public/swagger-ui-master/dist public/swagger
           # create index.html pointing to openapi.json
-          cat > public/swagger/index.html << 'EOF'
-          <!doctype html>
-          <html>
-          <head>
-            <meta charset="utf-8"/>
-            <title>Gyulist API - Swagger UI</title>
-            <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
-          </head>
-          <body>
-          <div id="swagger-ui"></div>
-          <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
-          <script>
-            window.onload = () => {
-              // Use relative path so it works under project pages path
-              window.ui = SwaggerUIBundle({ url: 'openapi.json', dom_id: '#swagger-ui' });
-            };
-          </script>
-          </body>
-          </html>
-          EOF
+          echo '<!doctype html>' > public/swagger/index.html
+          echo '<html>' >> public/swagger/index.html
+          echo '<head>' >> public/swagger/index.html
+          echo '  <meta charset="utf-8"/>' >> public/swagger/index.html
+          echo '  <title>Gyulist API - Swagger UI</title>' >> public/swagger/index.html
+          echo '  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />' >> public/swagger/index.html
+          echo '</head>' >> public/swagger/index.html
+          echo '<body>' >> public/swagger/index.html
+          echo '<div id="swagger-ui"></div>' >> public/swagger/index.html
+          echo '<script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>' >> public/swagger/index.html
+          echo '<script>' >> public/swagger/index.html
+          echo '  window.onload = () => {' >> public/swagger/index.html
+          echo '    // Use relative path so it works under project pages path' >> public/swagger/index.html
+          echo '    window.ui = SwaggerUIBundle({ url: "openapi.json", dom_id: "#swagger-ui" });' >> public/swagger/index.html
+          echo '  };' >> public/swagger/index.html
+          echo '</script>' >> public/swagger/index.html
+          echo '</body>' >> public/swagger/index.html
+          echo '</html>' >> public/swagger/index.html
           # place openapi.json beside the swagger index for reliable relative loading
           mv docs/openapi.json public/swagger/openapi.json
 
@@ -136,20 +134,18 @@ jobs:
           else
             echo "⚠️ TypeDoc files not found or directory is empty"
             echo "Creating placeholder index.html"
-            cat > public/typedoc/index.html << 'EOF'
-            <!doctype html>
-            <html>
-            <head>
-              <meta charset="utf-8"/>
-              <title>TypeDoc - Not Available</title>
-            </head>
-            <body>
-              <h1>TypeDoc Documentation</h1>
-              <p>TypeDoc documentation is not available at this time.</p>
-              <p>Please check the build logs for more information.</p>
-            </body>
-            </html>
-            EOF
+            echo '<!doctype html>' > public/typedoc/index.html
+            echo '<html>' >> public/typedoc/index.html
+            echo '<head>' >> public/typedoc/index.html
+            echo '  <meta charset="utf-8"/>' >> public/typedoc/index.html
+            echo '  <title>TypeDoc - Not Available</title>' >> public/typedoc/index.html
+            echo '</head>' >> public/typedoc/index.html
+            echo '<body>' >> public/typedoc/index.html
+            echo '  <h1>TypeDoc Documentation</h1>' >> public/typedoc/index.html
+            echo '  <p>TypeDoc documentation is not available at this time.</p>' >> public/typedoc/index.html
+            echo '  <p>Please check the build logs for more information.</p>' >> public/typedoc/index.html
+            echo '</body>' >> public/typedoc/index.html
+            echo '</html>' >> public/typedoc/index.html
           fi
 
       - name: Verify deployment structure
