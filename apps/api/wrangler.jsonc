@@ -3,9 +3,11 @@
 	"name": "gyulist-api",
 	"main": "src/index.ts",
 	"compatibility_date": "2025-04-27",
-	// "compatibility_flags": [
-	//   "nodejs_compat"
-	// ],
+	"triggers": {
+		"crons": [
+			"0 2 * * *" // 毎日午前2時に実行
+		]
+	},
 	"vars": {
 		"APP_URL": "http://localhost:8787",
 		"ENVIRONMENT": "development",

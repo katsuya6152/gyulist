@@ -4,6 +4,7 @@ import type { Bindings } from "../types";
 import adminRoutes from "./admin";
 import alertsRoutes from "./alerts";
 import authRoutes from "./auth";
+import batchRoutes from "./batch";
 import cattleRoutes from "./cattle";
 import eventsRoutes from "./events";
 import healthRoutes from "./health";
@@ -23,6 +24,7 @@ return app
 .route("/pre-register", preRegisterRoutes)
 .route("/admin", adminRoutes)
 .route("/auth", authRoutes)
+.route("/batch", batchRoutes)
 .route("/oauth", oauthRoutes)
 .route("/users", usersRoutes)
 .route("/alerts", alertsRoutes)

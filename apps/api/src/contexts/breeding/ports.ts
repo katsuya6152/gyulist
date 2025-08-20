@@ -80,6 +80,16 @@ export interface BreedingRepoPort {
 		/** 平均妊娠率 */ averagePregnancyRate: number;
 		/** 難産率 */ difficultBirthRate: number;
 	}>;
+
+	/**
+	 * 繁殖状態の日数を更新します（バッチ処理用）。
+	 * @param cattleId - 牛ID
+	 * @param currentTime - 現在時刻
+	 */
+	updateBreedingStatusDays(
+		cattleId: CattleId,
+		currentTime: Date
+	): Promise<void>;
 }
 
 /**

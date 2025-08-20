@@ -173,9 +173,26 @@ export function makeBreedingRepo(db: AnyD1Database): BreedingRepoPort {
 			// No-op until event store is implemented
 		},
 
-		async findCattleNeedingAttention() {
-			// Not implemented yet
-			return [];
+		async findCattleNeedingAttention(ownerUserId, currentDate) {
+			// 繁殖状態を持つ牛のID一覧を取得
+			const statusRows = await d
+				.select({ cattleId: breedingStatus.cattleId })
+				.from(breedingStatus)
+				.limit(1000); // バッチ処理用の制限
+
+			return statusRows.map((row) => row.cattleId as unknown as CattleId);
+		},
+
+		async updateBreedingStatusDays(cattleId, currentTime) {
+			// 繁殖状態の日数を現在時刻に基づいて更新
+			const currentDate = currentTime.toISOString().split("T")[0]; // YYYY-MM-DD形式
+
+			await d
+				.update(breedingStatus)
+				.set({
+					updatedAt: currentTime.toISOString()
+				})
+				.where(eq(breedingStatus.cattleId, cattleId as unknown as number));
 		},
 
 		async getBreedingStatistics() {

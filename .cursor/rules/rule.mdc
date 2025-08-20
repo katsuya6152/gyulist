@@ -1,0 +1,650 @@
+---
+alwaysApply: true
+---
+
+# Gyulist - 牛群管理システム Cursorルール
+
+## プロジェクト概要
+Gyulistは牛の個体管理アプリケーションで、Next.js 15 + Hono + Cloudflare Workersを使用したモノレポ構成です。
+
+## アーキテクチャ原則
+
+### バックエンド（API）
+- **Functional Domain Modeling (FDM)** + **ヘキサゴナルアーキテクチャ**を採用
+- **Result型**による明示的エラーハンドリング
+- **Brand型**による型安全性の強化
+- **構造化ログ**による運用性向上
+- **依存注入**によるテスタビリティ確保
+
+### フロントエンド（Web）
+- **Container/Presentational**パターンによる責務分離
+- **Server Components**によるデータ取得最適化
+- **Server Actions**によるフォーム処理
+- **Zod**による型安全バリデーション
+
+## ディレクトリ構造ルール
+
+### バックエンド（apps/api/src/）
+```
+contexts/[domain]/
+├── domain/              # ドメインロジック（純粋関数）
+│   ├── codecs/         # 入出力変換（input.ts, output.ts）
+│   ├── errors.ts       # ドメインエラー定義
+│   ├── model/          # ドメインモデル
+│   └── services/       # ユースケース
+├── infra/              # インフラ実装
+│   ├── drizzle/        # DB実装
+│   └── mappers/        # データ変換（dbToDomain.ts, domainToDb.ts）
+├── presentation/       # HTTP層
+├── ports.ts           # インターフェース定義
+└── tests/             # ドメイン固有テスト
+```
+
+### フロントエンド（apps/web/src/）
+```
+features/[feature]/[operation]/
+├── container.tsx          # Server Component（データ取得）
+├── presentational.tsx     # Client Component（UI表示）
+├── actions.ts             # Server Actions（フォーム処理）
+├── schema.ts              # Zodバリデーションスキーマ
+├── constants.ts           # 定数定義
+├── types.ts               # 型定義
+├── components/            # 専用コンポーネント
+└── __tests__/             # テストファイル
+```
+
+## コーディング規約
+
+### 命名規則
+- **ファイル**: `kebab-case.tsx`（コンポーネント）, `camelCase.ts`（ユーティリティ）
+- **変数・関数**: `camelCase`
+- **定数**: `UPPER_SNAKE_CASE`
+- **型・インターフェース**: `PascalCase`
+- **Brand型**: `EntityId`（例: `CattleId`, `UserId`）
+
+### バックエンド実装ルール
+
+#### FDMパターンの徹底
+```typescript
+// ✅ 正しい例: ドメインサービス
+export function createCattle(deps: CattleDeps) {
+  return async (input: CreateCattleInput): Promise<Result<CattleId, CattleError>> => {
+    // 純粋なビジネスロジック
+    const validation = validateCattleData(input);
+    if (!validation.ok) return validation;
+    
+    const cattleId = await deps.repo.create(input);
+    return { ok: true, value: cattleId };
+  };
+}
+
+// ✅ 正しい例: Repository実装（Mappers使用）
+export function makeCattleRepo(db: AnyD1Database): CattleRepoPort {
+  return {
+    async findById(id: CattleId): Promise<Cattle | null> {
+      const [row] = await dbInstance.select().from(cattleTable).where(eq(cattleTable.id, id as number));
+      return row ? toDomain(row) : null; // Mappers使用
+    }
+  };
+}
+```
+
+#### Result型によるエラーハンドリング
+```typescript
+// ✅ 正しい例: 明示的エラー型
+export type CattleError = 
+  | { type: "ValidationError"; field: string; message: string }
+  | { type: "NotFound"; message: string }
+  | { type: "InfraError"; cause: unknown };
+
+// ✅ 正しい例: Result型使用
+export async function getCattle(id: CattleId): Promise<Result<Cattle, CattleError>> {
+  const cattle = await repo.findById(id);
+  if (!cattle) {
+    return { ok: false, error: { type: "NotFound", message: "牛が見つかりません" } };
+  }
+  return { ok: true, value: cattle };
+}
+```
+
+#### 構造化ログの使用
+```typescript
+// ✅ 正しい例: 構造化ログ
+import { getLogger } from "../shared/logging/logger";
+
+const logger = getLogger(c);
+logger.apiRequest("POST /cattle", { userId, cattleId });
+logger.unexpectedError("Failed to create cattle", error, { input });
+```
+
+### フロントエンド実装ルール
+
+#### Container/Presentationalパターン
+```typescript
+// ✅ 正しい例: Container Component
+export default async function CattleDetailContainer({ id }: { id: string }) {
+  try {
+    const cattle = await GetCattleDetail(id);
+    return <CattleDetailPresentation cattle={cattle} />;
+  } catch (error) {
+    console.error("Failed to fetch cattle:", error);
+    return <CattleDetailPresentation cattle={undefined} error="牛の情報の取得に失敗しました" />;
+  }
+}
+
+// ✅ 正しい例: Presentational Component
+"use client";
+export default function CattleDetailPresentation({ cattle, error }: Props) {
+  if (error) return <ErrorDisplay message={error} />;
+  if (!cattle) return <LoadingSpinner />;
+  
+  return (
+    <div className="space-y-6">
+      <CattleBasicInfo cattle={cattle} />
+      <CattleBreedingInfo cattle={cattle} />
+    </div>
+  );
+}
+```
+
+#### Server Actions実装
+```typescript
+// ✅ 正しい例: Server Actions
+"use server";
+export async function createCattleAction(prevState: unknown, formData: FormData) {
+  const submission = parseWithZod(formData, { schema: createCattleSchema });
+  
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
+
+  try {
+    const userId = await verifyAndGetUserId();
+    if (isDemo(userId)) {
+      return createDemoResponse("success");
+    }
+
+    await CreateCattle(submission.value);
+    return submission.reply();
+  } catch (error) {
+    return submission.reply({
+      formErrors: ["作成に失敗しました"]
+    });
+  }
+}
+```
+
+## 禁止事項
+
+### バックエンド
+- ❌ `console.log`の使用（構造化ログを使用）
+- ❌ 直接DB操作（Repository経由で実行）
+- ❌ 危険な型キャスト（`as any`等）
+- ❌ 例外スロー（Result型を使用）
+- ❌ 分散したバリデーション（`domain/codecs/input.ts`に統合）
+
+### フロントエンド
+- ❌ Container内でのClient Component実装
+- ❌ 複雑な状態管理ライブラリの導入
+- ❌ 直接API呼び出し（Service層経由）
+- ❌ ハードコードされた設定値
+
+## テスト規約
+
+### バックエンドテスト
+```typescript
+// ✅ 正しい例: ドメインサービステスト
+describe("createCattle", () => {
+  it("should create cattle successfully", async () => {
+    const mockRepo = { create: vi.fn().mockResolvedValue(1) };
+    const mockClock = { now: () => new Date() };
+    
+    const result = await createCattle({ repo: mockRepo, clock: mockClock })(input);
+    
+    expect(result.ok).toBe(true);
+    expect(mockRepo.create).toHaveBeenCalledWith(input);
+  });
+});
+```
+
+### フロントエンドテスト
+```typescript
+// ✅ 正しい例: Presentational Componentテスト
+describe("CattleDetailPresentation", () => {
+  it("should render cattle data correctly", () => {
+    render(<CattleDetailPresentation cattle={mockCattle} />);
+    expect(screen.getByText(mockCattle.name)).toBeInTheDocument();
+  });
+
+  it("should render error state", () => {
+    render(<CattleDetailPresentation cattle={undefined} error="Error" />);
+    expect(screen.getByText("Error")).toBeInTheDocument();
+  });
+});
+```
+
+## 開発ワークフロー
+
+### 新機能追加手順
+1. **バックエンド**: FDMパターンでドメイン→インフラ→HTTP層の順で実装
+2. **フロントエンド**: Service→Container→Presentationalの順で実装
+3. **テスト**: 各層で独立したテストを実装
+4. **ドキュメント**: 必要に応じてAPI仕様書を更新
+
+### 品質チェック
+- Biomeによるフォーマット・リントチェック
+- TypeScript型チェック
+- テストカバレッジ確認
+- パフォーマンス確認
+
+## 技術スタック
+
+### バックエンド
+- **フレームワーク**: Hono + Cloudflare Workers
+- **データベース**: Cloudflare D1 + Drizzle ORM
+- **認証**: JWT + Arctic
+- **バリデーション**: Zod
+- **テスト**: Vitest
+
+### フロントエンド
+- **フレームワーク**: Next.js 15 + React 19
+- **UI**: shadcn/ui + Tailwind CSS
+- **フォーム**: React Hook Form + Conform
+- **バリデーション**: Zod
+- **テスト**: Vitest + Testing Library + Playwright
+
+## 重要なファイル
+
+### 設定ファイル
+- `biome.json`: コードフォーマット・リント設定
+- `apps/api/wrangler.jsonc`: Cloudflare Workers設定
+- `apps/web/next.config.ts`: Next.js設定
+- `apps/api/drizzle.config.ts`: Drizzle ORM設定
+
+### 共通ファイル
+- `apps/api/src/shared/result.ts`: Result型定義
+- `apps/api/src/shared/logging/logger.ts`: 構造化ログ
+- `apps/api/src/shared/types/safe-cast.ts`: 型安全キャスト
+- `apps/web/src/lib/api-client.ts`: APIクライアント設定
+
+## デプロイ・運用
+
+### 環境
+- **開発**: `pnpm dev`（API + Web並行起動）
+- **テスト**: `pnpm test:run`
+- **デプロイ**: Cloudflare Pages + Workers
+
+### 監視
+- 構造化ログによる障害追跡
+- 型安全性によるランタイムエラー削減
+- 統一エラーハンドリングによる一貫した品質
+
+このルールに従うことで、Gyulistプロジェクトの一貫性と品質を維持しながら開発を進めることができます。
+
+## 追加設計・実装ルール
+
+### 🔧 依存注入（DI）パターン
+
+#### 統一DI設定の使用
+```typescript
+// ✅ 正しい例: 統一DI設定を使用
+import { makeDeps } from "../shared/config/di";
+
+const deps = makeDeps(c.env.DB, { now: () => new Date() });
+const result = await createCattle(deps)(input);
+
+// ❌ 間違い: 個別にDI設定
+const cattleRepo = makeCattleRepo(c.env.DB);
+const clock = { now: () => new Date() };
+const deps = { repo: cattleRepo, clock };
+```
+
+#### 遅延評価の活用
+```typescript
+// ✅ 正しい例: 遅延評価によるパフォーマンス最適化
+export function makeDeps(db: AnyD1Database, clock: ClockPort): CoreDeps {
+  return {
+    get cattleRepo() { return makeCattleRepo(db); }, // 遅延評価
+    get eventsRepo() { return makeEventsRepo(db); }, // 遅延評価
+    clock
+  };
+}
+```
+
+### 🛡️ 型安全キャストシステム
+
+#### Brand型の一貫した使用
+```typescript
+// ✅ 正しい例: 型安全キャスト関数使用
+import { toUserId, toCattleId } from "../shared/types/safe-cast";
+
+const userId = toUserId(jwtPayload.userId);
+const cattleId = toCattleId(params.id);
+
+// ❌ 間違い: 直接キャスト
+const userId = jwtPayload.userId as UserId;
+const cattleId = Number(params.id) as CattleId;
+```
+
+#### Result型パターンでのキャスト
+```typescript
+// ✅ 正しい例: 失敗しうるキャスト
+import { tryCastUserId } from "../shared/types/safe-cast";
+
+const userIdResult = tryCastUserId(input);
+if (!userIdResult.success) {
+  return err({ type: "ValidationError", message: userIdResult.error });
+}
+const userId = userIdResult.value;
+```
+
+### 📊 統一エラーハンドリング
+
+#### executeUseCaseヘルパーの使用
+```typescript
+// ✅ 正しい例: 統一エラーハンドリング
+import { executeUseCase } from "../shared/http/route-helpers";
+
+app.post("/", async (c) => {
+  return executeUseCase(c, async () => {
+    const result = await createCattle(deps)(input);
+    if (!result.ok) return result;
+    return { ok: true, value: { cattleId: result.value } };
+  });
+});
+
+// ❌ 間違い: 個別エラーハンドリング
+app.post("/", async (c) => {
+  try {
+    const result = await createCattle(deps)(input);
+    if (!result.ok) {
+      c.status(400);
+      return c.json({ error: result.error });
+    }
+    return c.json({ cattleId: result.value }, 201);
+  } catch (error) {
+    console.error(error);
+    return c.json({ message: "Internal Server Error" }, 500);
+  }
+});
+```
+
+### 🔍 構造化ログの統一使用
+
+#### 専用ログメソッドの活用
+```typescript
+// ✅ 正しい例: 専用ログメソッド
+const logger = getLogger(c);
+logger.apiRequest("POST", "/cattle", userId, requestId);
+logger.businessError("Duplicate cattle ID", "ValidationError", { cattleId });
+logger.unexpectedError("Database connection failed", error, { endpoint });
+
+// ❌ 間違い: 汎用ログ
+console.log("API request", { method: "POST", endpoint: "/cattle" });
+console.error("Error occurred", error);
+```
+
+### 🎯 Mappers層の必須実装
+
+#### データ変換の一元化
+```typescript
+// ✅ 正しい例: Mappers使用
+import { toDomain, toDomainList } from "../mappers/dbToDomain";
+import { toDbInsert } from "../mappers/domainToDb";
+
+// Repository実装
+async findById(id: CattleId): Promise<Cattle | null> {
+  const [row] = await dbInstance.select().from(cattleTable).where(eq(cattleTable.id, id as number));
+  return row ? toDomain(row) : null; // Mappers使用
+}
+
+async create(entity: Cattle): Promise<Cattle> {
+  const dbData = toDbInsert(entity);
+  const [created] = await dbInstance.insert(cattleTable).values(dbData).returning();
+  return toDomain(created);
+}
+
+// ❌ 間違い: 直接変換
+async findById(id: CattleId): Promise<Cattle | null> {
+  const [row] = await dbInstance.select().from(cattleTable).where(eq(cattleTable.id, id as number));
+  return row ? { id: row.id as CattleId, name: row.name } : null; // 直接変換禁止
+}
+```
+
+### 🔄 フロントエンド認証パターン
+
+#### fetchWithAuthの統一使用
+```typescript
+// ✅ 正しい例: 統一認証ヘルパー
+import { fetchWithAuth } from "@/lib/api-client";
+
+export async function GetCattleDetail(id: string): Promise<CattleDetail> {
+  return fetchWithAuth<CattleDetail>((token) =>
+    client.api.v1.cattle[id].$get(
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+  );
+}
+
+// ❌ 間違い: 個別認証処理
+export async function GetCattleDetail(id: string): Promise<CattleDetail> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  if (!token) redirect("/login");
+  
+  const res = await client.api.v1.cattle[id].$get(
+    {},
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  if (!res.ok) throw new Error("API request failed");
+  return res.json();
+}
+```
+
+### 🧪 テストデータファクトリ
+
+#### 一貫したモックデータ生成
+```typescript
+// ✅ 正しい例: テストデータファクトリ
+export function createMockCattle(overrides: Partial<Cattle> = {}): Cattle {
+  return {
+    id: 1 as CattleId,
+    name: "Test Cattle",
+    identificationNumber: 12345,
+    gender: "FEMALE",
+    status: "HEALTHY",
+    createdAt: "2025-01-01T00:00:00Z",
+    updatedAt: "2025-01-01T00:00:00Z",
+    ...overrides
+  };
+}
+
+export function createMockCattleRepo(): CattleRepoPort {
+  return {
+    findById: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    search: vi.fn(),
+  };
+}
+
+// テストでの使用
+describe("createCattle", () => {
+  it("should create cattle successfully", async () => {
+    const mockRepo = createMockCattleRepo();
+    const mockCattle = createMockCattle({ name: "New Cattle" });
+    vi.mocked(mockRepo.create).mockResolvedValue(mockCattle);
+    
+    const result = await createCattle({ repo: mockRepo, clock: mockClock })(input);
+    expect(result.ok).toBe(true);
+  });
+});
+```
+
+### 📝 バリデーション統合
+
+#### スキーマの一元管理
+```typescript
+// ✅ 正しい例: 統合バリデーション
+// contexts/cattle/domain/codecs/input.ts
+export const createCattleSchema = z.object({
+  name: z.string().min(1).max(100),
+  identificationNumber: z.number().positive(),
+  gender: z.enum(["MALE", "FEMALE"]),
+  birthDate: z.string().datetime().optional(),
+});
+
+export const updateCattleSchema = z.object({
+  name: z.string().min(1).max(100).optional(),
+  status: z.enum(["HEALTHY", "SICK", "PREGNANT"]).optional(),
+});
+
+// Routeでの使用
+app.post("/", zValidator("json", createCattleSchema), async (c) => {
+  const data = c.req.valid("json"); // 既にバリデーション済み
+  // ユースケースはビジネスロジックに集中
+});
+
+// ❌ 間違い: 分散したバリデーション
+// validators/cattleValidator.ts (使用禁止)
+// 各ファイルで個別にスキーマ定義
+```
+
+### 🔒 セキュリティ実装
+
+#### 認可チェックの明示化
+```typescript
+// ✅ 正しい例: 明示的認可チェック
+export const updateCattle = (deps: Deps) => async (cmd: UpdateCattleCmd) => {
+  // 存在確認
+  const existing = await deps.repo.findById(cmd.cattleId);
+  if (!existing) {
+    return err({ type: "NotFound", message: "Cattle not found" });
+  }
+
+  // 認可チェック
+  if (existing.ownerUserId !== cmd.requesterUserId) {
+    return err({ type: "Forbidden", message: "Not authorized" });
+  }
+
+  // 更新処理
+  return await deps.repo.update(cmd.cattleId, cmd.updates);
+};
+```
+
+### 🚀 パフォーマンス最適化
+
+#### 並列データ取得
+```typescript
+// ✅ 正しい例: 並列実行
+export default async function CattleDetailContainer({ id }: { id: string }) {
+  try {
+    const [cattle, events, breedingInfo] = await Promise.all([
+      GetCattleDetail(id),
+      GetCattleEvents(id),
+      GetBreedingInfo(id)
+    ]);
+    
+    return <CattleDetailPresentation 
+      cattle={cattle} 
+      events={events} 
+      breedingInfo={breedingInfo} 
+    />;
+  } catch (error) {
+    // エラーハンドリング
+  }
+}
+
+// ❌ 間違い: 直列実行
+export default async function SlowContainer({ id }: { id: string }) {
+  const cattle = await GetCattleDetail(id);
+  const events = await GetCattleEvents(id);
+  const breedingInfo = await GetBreedingInfo(id);
+  // 遅い
+}
+```
+
+### 📊 監視・運用
+
+#### メトリクス収集
+```typescript
+// ✅ 正しい例: パフォーマンス監視
+const startTime = Date.now();
+const result = await useCase(deps)(input);
+const duration = Date.now() - startTime;
+
+logger.apiResponse("POST", "/cattle", 201, duration, userId, requestId);
+
+// レスポンスヘッダーでのメトリクス提供
+c.header("X-Response-Time", `${duration}ms`);
+c.header("X-Request-ID", requestId);
+```
+
+### 🔄 データベース設計
+
+#### マイグレーション管理
+```typescript
+// ✅ 正しい例: 段階的マイグレーション
+export async function up(db: AnyD1Database) {
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS cattle_status_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      cattle_id INTEGER NOT NULL,
+      old_status TEXT,
+      new_status TEXT NOT NULL,
+      changed_by INTEGER NOT NULL,
+      reason TEXT,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (cattle_id) REFERENCES cattle(cattle_id),
+      FOREIGN KEY (changed_by) REFERENCES users(user_id)
+    );
+    
+    CREATE INDEX IF NOT EXISTS idx_cattle_status_history_cattle_id 
+    ON cattle_status_history(cattle_id);
+  `);
+}
+```
+
+### 🎨 UI/UX設計
+
+#### アクセシビリティ対応
+```typescript
+// ✅ 正しい例: アクセシビリティ配慮
+export function CattleForm({ onSubmit }: Props) {
+  return (
+    <form onSubmit={onSubmit}>
+      <label htmlFor="cattle-name">牛の名前</label>
+      <input 
+        id="cattle-name"
+        name="name"
+        aria-describedby="name-help"
+        aria-required="true"
+      />
+      <div id="name-help">牛の名前を入力してください（1-100文字）</div>
+      
+      <button type="submit" aria-label="牛を登録">
+        登録
+      </button>
+    </form>
+  );
+}
+```
+
+### 🔧 開発ツール
+
+#### デバッグ支援
+```typescript
+// ✅ 正しい例: 開発環境でのデバッグ支援
+if (process.env.NODE_ENV === "development") {
+  logger.debug("Request details", {
+    method: c.req.method,
+    url: c.req.url,
+    headers: Object.fromEntries(c.req.header()),
+    body: await c.req.json().catch(() => "Unable to parse body")
+  });
+}
+```
+
+これらの追加ルールにより、プロジェクトの品質、保守性、セキュリティ、パフォーマンスがさらに向上します。
