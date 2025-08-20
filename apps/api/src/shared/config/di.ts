@@ -31,9 +31,7 @@ export type CoreDeps = {
 	breedingRepo: import("../../contexts/breeding/ports").BreedingRepoPort;
 	bloodlineRepo: import("../../contexts/breeding/ports").BloodlineRepoPort;
 	motherInfoRepo: import("../../contexts/breeding/ports").MotherInfoRepoPort;
-	cattleDetails: import(
-		"../../contexts/cattle/ports.details"
-	).CattleDetailsQueryPort;
+	cattleDetails: import("../../contexts/cattle/ports").CattleDetailsQueryPort;
 	clock: ClockPort;
 };
 
