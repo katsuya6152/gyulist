@@ -167,11 +167,12 @@ function inferGrowthStageFromAge(
 ): import("../model/types").GrowthStage | null {
 	if (!birthday) return null;
 
+	// Calculate age in months more accurately
 	const ageInMonths = Math.floor(
-		(currentDate.getTime() - birthday.getTime()) / (1000 * 60 * 60 * 24 * 30)
+		(currentDate.getTime() - birthday.getTime()) / (1000 * 60 * 60 * 24 * 30.44)
 	);
 
-	if (ageInMonths < 6) return "CALF";
+	if (ageInMonths <= 6) return "CALF";
 	if (ageInMonths < 24) return "GROWING";
 	if (ageInMonths < 36) return "FATTENING";
 	if (ageInMonths < 48) return "FIRST_CALVED";

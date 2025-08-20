@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { CattleId, UserId } from "../../../../shared/brand";
 import type { Cattle, NewCattleProps } from "../../domain/model/cattle";
-import { create } from "../../domain/services/create";
+import {
+	create,
+	generateCattleDefaults,
+	validateCreateCattleCmd
+} from "../../domain/services/create";
 import type { CattleRepoPort } from "../../ports";
 
 const fixedNow = new Date("2024-01-01T00:00:00.000Z");
@@ -136,5 +140,296 @@ describe("create cattle UC", () => {
 			expect(r.value.createdAt).toEqual(fixedNow);
 			expect(r.value.updatedAt).toEqual(fixedNow);
 		}
+	});
+
+	it("handles repository errors gracefully", async () => {
+		const repo = makeRepo();
+		// Mock repository to throw error
+		const originalCreate = repo.create;
+		repo.create = async () => {
+			throw new Error("Database connection failed");
+		};
+
+		const uc = create({ cattleRepo: repo, clock });
+		const r = await uc({
+			ownerUserId: 1 as unknown as UserId,
+			identificationNumber: 1001 as Cattle["identificationNumber"],
+			name: "X",
+			gender: "雌",
+			birthday: null,
+			growthStage: null,
+			breed: null,
+			status: "HEALTHY",
+			producerName: null,
+			barn: null,
+			breedingValue: null,
+			notes: null,
+			earTagNumber: null
+		});
+
+		expect(r.ok).toBe(false);
+		if (!r.ok) {
+			expect(r.error.type).toBe("InfraError");
+			expect(r.error.message).toBe("Failed to create cattle");
+		}
+
+		// Restore original method
+		repo.create = originalCreate;
+	});
+
+	it("handles domain validation errors", async () => {
+		const repo = makeRepo();
+		const uc = create({ cattleRepo: repo, clock });
+
+		// Test with invalid data that should fail domain validation
+		const r = await uc({
+			ownerUserId: 1 as unknown as UserId,
+			identificationNumber: 0 as Cattle["identificationNumber"], // Invalid: should be positive
+			name: "X",
+			gender: "雌",
+			birthday: null,
+			growthStage: null,
+			breed: null,
+			status: "HEALTHY",
+			producerName: null,
+			barn: null,
+			breedingValue: null,
+			notes: null,
+			earTagNumber: null
+		});
+
+		expect(r.ok).toBe(false);
+		if (!r.ok) {
+			expect(r.error.type).toBe("ValidationError");
+			if (r.error.type === "ValidationError") {
+				expect(r.error.field).toBe("identificationNumber");
+			}
+		}
+	});
+});
+
+describe("validateCreateCattleCmd", () => {
+	it("validates required fields", () => {
+		// Test missing ownerUserId
+		const result1 = validateCreateCattleCmd({
+			identificationNumber: 1001 as Cattle["identificationNumber"],
+			name: "X",
+			gender: "雌" as Cattle["gender"],
+			birthday: null,
+			growthStage: null,
+			breed: null,
+			status: "HEALTHY",
+			producerName: null,
+			barn: null,
+			breedingValue: null,
+			notes: null,
+			earTagNumber: null
+		} as Parameters<typeof validateCreateCattleCmd>[0]);
+
+		expect(result1.ok).toBe(false);
+		if (!result1.ok) {
+			expect(result1.error.type).toBe("ValidationError");
+			if (result1.error.type === "ValidationError") {
+				expect(result1.error.field).toBe("ownerUserId");
+			}
+		}
+
+		// Test missing identificationNumber
+		const result2 = validateCreateCattleCmd({
+			ownerUserId: 1 as unknown as UserId,
+			name: "X",
+			gender: "雌" as Cattle["gender"],
+			birthday: null,
+			growthStage: null,
+			breed: null,
+			status: "HEALTHY",
+			producerName: null,
+			barn: null,
+			breedingValue: null,
+			notes: null,
+			earTagNumber: null
+		} as Parameters<typeof validateCreateCattleCmd>[0]);
+
+		expect(result2.ok).toBe(false);
+		if (!result2.ok) {
+			expect(result2.error.type).toBe("ValidationError");
+			if (result2.error.type === "ValidationError") {
+				expect(result2.error.field).toBe("identificationNumber");
+			}
+		}
+	});
+
+	it("validates business rules", () => {
+		// Test invalid identification number
+		const result1 = validateCreateCattleCmd({
+			ownerUserId: 1 as unknown as UserId,
+			identificationNumber: 0 as Cattle["identificationNumber"],
+			name: "X",
+			gender: "雌" as Cattle["gender"],
+			birthday: null,
+			growthStage: null,
+			breed: null,
+			status: "HEALTHY",
+			producerName: null,
+			barn: null,
+			breedingValue: null,
+			notes: null,
+			earTagNumber: null
+		} as Parameters<typeof validateCreateCattleCmd>[0]);
+
+		expect(result1.ok).toBe(false);
+		if (!result1.ok) {
+			expect(result1.error.type).toBe("ValidationError");
+			if (result1.error.type === "ValidationError") {
+				expect(result1.error.field).toBe("identificationNumber");
+			}
+		}
+
+		// Test invalid weight
+		const result2 = validateCreateCattleCmd({
+			ownerUserId: 1 as unknown as UserId,
+			identificationNumber: 1001 as Cattle["identificationNumber"],
+			name: "X",
+			gender: "雌" as Cattle["gender"],
+			birthday: null,
+			growthStage: null,
+			breed: null,
+			status: "HEALTHY",
+			producerName: null,
+			barn: null,
+			breedingValue: null,
+			notes: null,
+			earTagNumber: null,
+			weight: 0
+		} as Parameters<typeof validateCreateCattleCmd>[0]);
+
+		expect(result2.ok).toBe(false);
+		if (!result2.ok) {
+			expect(result2.error.type).toBe("ValidationError");
+			if (result2.error.type === "ValidationError") {
+				expect(result2.error.field).toBe("weight");
+			}
+		}
+
+		// Test invalid score
+		const result3 = validateCreateCattleCmd({
+			ownerUserId: 1 as unknown as UserId,
+			identificationNumber: 1001 as Cattle["identificationNumber"],
+			name: "X",
+			gender: "雌" as Cattle["gender"],
+			birthday: null,
+			growthStage: null,
+			breed: null,
+			status: "HEALTHY",
+			producerName: null,
+			barn: null,
+			breedingValue: null,
+			notes: null,
+			earTagNumber: null,
+			score: 101
+		} as Parameters<typeof validateCreateCattleCmd>[0]);
+
+		expect(result3.ok).toBe(false);
+		if (!result3.ok) {
+			expect(result3.error.type).toBe("ValidationError");
+			if (result3.error.type === "ValidationError") {
+				expect(result3.error.field).toBe("score");
+			}
+		}
+	});
+
+	it("accepts valid data", () => {
+		const result = validateCreateCattleCmd({
+			ownerUserId: 1 as unknown as UserId,
+			identificationNumber: 1001 as Cattle["identificationNumber"],
+			name: "X",
+			gender: "雌" as Cattle["gender"],
+			birthday: null,
+			growthStage: null,
+			breed: null,
+			status: "HEALTHY",
+			producerName: null,
+			barn: null,
+			breedingValue: null,
+			notes: null,
+			earTagNumber: null,
+			weight: 500,
+			score: 85
+		} as Parameters<typeof validateCreateCattleCmd>[0]);
+
+		expect(result.ok).toBe(true);
+	});
+});
+
+describe("generateCattleDefaults", () => {
+	it("generates default values", () => {
+		const cmd = {
+			ownerUserId: 1 as unknown as UserId,
+			identificationNumber: 1001 as Cattle["identificationNumber"],
+			name: "X",
+			gender: "雌" as Cattle["gender"],
+			birthday: null,
+			growthStage: null,
+			breed: null,
+			producerName: null,
+			barn: null,
+			breedingValue: null,
+			notes: null,
+			earTagNumber: null
+		} as Parameters<typeof generateCattleDefaults>[0];
+
+		const result = generateCattleDefaults(cmd, fixedNow);
+
+		expect(result.status).toBe("HEALTHY");
+		expect(result.growthStage).toBeNull(); // No birthday provided
+	});
+
+	it("infers growth stage from birthday", () => {
+		const birthday = new Date("2024-01-01T00:00:00.000Z");
+		const cmd = {
+			ownerUserId: 1 as unknown as UserId,
+			identificationNumber: 1001 as Cattle["identificationNumber"],
+			name: "X",
+			gender: "雌" as Cattle["gender"],
+			birthday,
+			growthStage: null,
+			breed: null,
+			producerName: null,
+			barn: null,
+			breedingValue: null,
+			notes: null,
+			earTagNumber: null
+		};
+
+		const result = generateCattleDefaults(
+			cmd,
+			new Date("2024-07-01T00:00:00.000Z")
+		); // 6 months later
+
+		expect(result.status).toBe("HEALTHY");
+		expect(result.growthStage).toBe("CALF"); // 6 months = CALF
+	});
+
+	it("preserves existing values", () => {
+		const cmd = {
+			ownerUserId: 1 as unknown as UserId,
+			identificationNumber: 1001 as Cattle["identificationNumber"],
+			name: "X",
+			gender: "雌" as Cattle["gender"],
+			birthday: null,
+			growthStage: "GROWING" as Cattle["growthStage"],
+			breed: null,
+			status: "SICK" as Cattle["status"],
+			producerName: null,
+			barn: null,
+			breedingValue: null,
+			notes: null,
+			earTagNumber: null
+		};
+
+		const result = generateCattleDefaults(cmd, fixedNow);
+
+		expect(result.status).toBe("SICK"); // Preserved
+		expect(result.growthStage).toBe("GROWING"); // Preserved
 	});
 });

@@ -64,7 +64,7 @@ export function createKpiEvent(
 	currentTime: Date
 ): KpiEvent {
 	// ドメインルールの検証
-	validateKpiEventProps(props);
+	validateKpiEventProps(props, currentTime);
 
 	return {
 		eventId,
@@ -82,9 +82,13 @@ export function createKpiEvent(
  *
  * ドメインルールに基づいてプロパティの妥当性をチェックします。
  * @param props - 検証するプロパティ
+ * @param currentTime - 現在時刻（テスト用）
  * @throws ドメインルール違反の場合
  */
-function validateKpiEventProps(props: NewKpiEventProps): void {
+function validateKpiEventProps(
+	props: NewKpiEventProps,
+	currentTime: Date
+): void {
 	if (!props.cattleId) {
 		throw new Error("Cattle ID is required");
 	}
@@ -98,12 +102,12 @@ function validateKpiEventProps(props: NewKpiEventProps): void {
 	}
 
 	// 未来の日付は許可しない
-	if (props.eventDatetime > new Date()) {
+	if (props.eventDatetime > currentTime) {
 		throw new Error("Event datetime cannot be in the future");
 	}
 
 	// 過去30年より前の日付は許可しない
-	const thirtyYearsAgo = new Date();
+	const thirtyYearsAgo = new Date(currentTime);
 	thirtyYearsAgo.setFullYear(thirtyYearsAgo.getFullYear() - 30);
 	if (props.eventDatetime < thirtyYearsAgo) {
 		throw new Error("Event datetime cannot be more than 30 years ago");
@@ -131,12 +135,15 @@ export function updateKpiEvent(
 
 	// 更新後の検証
 	if (updates.eventDatetime) {
-		validateKpiEventProps({
-			cattleId: event.cattleId,
-			eventType: updates.eventType || event.eventType,
-			eventDatetime: updates.eventDatetime,
-			metadata: updates.metadata || event.metadata
-		});
+		validateKpiEventProps(
+			{
+				cattleId: event.cattleId,
+				eventType: updates.eventType || event.eventType,
+				eventDatetime: updates.eventDatetime,
+				metadata: updates.metadata || event.metadata
+			},
+			currentTime
+		);
 	}
 
 	return updatedEvent;
