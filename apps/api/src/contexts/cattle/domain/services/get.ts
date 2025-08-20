@@ -3,7 +3,7 @@ import type { Result } from "../../../../shared/result";
 import { err, ok } from "../../../../shared/result";
 import type { EventsRepoPort } from "../../../events/ports";
 import type { CattleRepoPort } from "../../ports";
-import type { CattleDetailsQueryPort } from "../../ports.details";
+import type { CattleDetailsQueryPort } from "../../ports";
 import type { DomainError } from "../errors";
 
 /**
