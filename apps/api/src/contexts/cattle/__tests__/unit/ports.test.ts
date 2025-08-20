@@ -122,12 +122,6 @@ function makeFakeRepo(): CattleRepoPort {
 		},
 		async appendStatusHistory(e) {
 			// Mock implementation - no-op
-		},
-		async upsertBreedingStatus(cattleId, data) {
-			// Mock implementation - no-op
-		},
-		async upsertBreedingSummary(cattleId, data) {
-			// Mock implementation - no-op
 		}
 	};
 }
@@ -157,5 +151,64 @@ describe("CattleRepoPort contract", () => {
 		expect((await repo.findById(created.cattleId))?.name).toBe("B");
 		await repo.delete(created.cattleId);
 		expect(await repo.findById(created.cattleId)).toBeNull();
+	});
+
+	it("should get age distribution", async () => {
+		const repo = makeFakeRepo();
+		const owner = 1 as unknown as UserId;
+		const distribution = await repo.getAgeDistribution(owner);
+		expect(Array.isArray(distribution)).toBe(true);
+	});
+
+	it("should get breed distribution", async () => {
+		const repo = makeFakeRepo();
+		const owner = 1 as unknown as UserId;
+		const distribution = await repo.getBreedDistribution(owner);
+		expect(Array.isArray(distribution)).toBe(true);
+	});
+
+	it("should get cattle needing attention", async () => {
+		const repo = makeFakeRepo();
+		const owner = 1 as unknown as UserId;
+		const cattle = await repo.getCattleNeedingAttention(owner, new Date());
+		expect(Array.isArray(cattle)).toBe(true);
+	});
+
+	it("should batch update cattle", async () => {
+		const repo = makeFakeRepo();
+		const owner = 1 as unknown as UserId;
+		const updates = [
+			{ id: 1 as CattleId, updates: { status: "HEALTHY" as Cattle["status"] } },
+			{ id: 2 as CattleId, updates: { status: "RESTING" as Cattle["status"] } }
+		];
+		const results = await repo.batchUpdate(updates);
+		expect(Array.isArray(results)).toBe(true);
+	});
+
+	it("should update with version", async () => {
+		const repo = makeFakeRepo();
+		const owner = 1 as unknown as UserId;
+		const cattle = await repo.create({
+			ownerUserId: owner,
+			identificationNumber: 9999 as unknown as Cattle["identificationNumber"],
+			earTagNumber: null,
+			name: "Version Test Cow" as unknown as Cattle["name"],
+			gender: "雌",
+			birthday: null,
+			growthStage: null,
+			breed: null,
+			status: "HEALTHY",
+			producerName: null,
+			barn: null,
+			breedingValue: null,
+			notes: null
+		});
+
+		const updated = await repo.updateWithVersion(
+			cattle.cattleId,
+			{ status: "RESTING" as Cattle["status"] },
+			cattle.version
+		);
+		expect(updated.status).toBe("RESTING");
 	});
 });

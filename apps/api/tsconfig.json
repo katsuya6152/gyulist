@@ -7,7 +7,17 @@
 		"skipLibCheck": true,
 		"lib": ["ESNext", "DOM"],
 		"jsx": "react-jsx",
-		"jsxImportSource": "hono/jsx"
+		"jsxImportSource": "hono/jsx",
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["src/*"],
+			"@/shared/*": ["src/shared/*"],
+			"@/contexts/*": ["src/contexts/*"],
+			"@/db/*": ["src/db/*"],
+			"@/lib/*": ["src/lib/*"],
+			"@/middleware/*": ["src/middleware/*"],
+			"@/routes/*": ["src/routes/*"]
+		}
 	},
 	"include": ["src/**/*"]
 }

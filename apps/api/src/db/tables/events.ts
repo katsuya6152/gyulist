@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { EVENT_TYPES } from "../../contexts/events/domain/constants";
+import { EVENT_TYPES } from "../../contexts/events/domain/model/constants";
 import { cattle } from "./cattle";
 import { users } from "./users";
 

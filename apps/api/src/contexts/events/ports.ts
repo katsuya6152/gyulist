@@ -1,4 +1,5 @@
 import type { Brand } from "../../shared/brand";
+import type { Event, EventType } from "./domain/model";
 
 /**
  * イベントIDのブランド型。
@@ -15,29 +16,8 @@ export type CattleId = Brand<number, "CattleId">;
  */
 export type UserId = Brand<number, "UserId">;
 
-/**
- * イベントタイプ。
- * 繁殖、健康管理、計測などの各種イベントを分類します。
- */
-export type EventType = "INSEMINATION" | "CALVING" | "ESTRUS" | (string & {});
-
-/**
- * イベントエンティティ。
- *
- * 牛のライフサイクルにおける各種イベントを管理します。
- * 繁殖、健康管理、計測、出荷などのイベントが含まれます。
- */
-export type Event = {
-	/** イベントID */ eventId: EventId;
-	/** 牛ID */ cattleId: CattleId;
-	/** イベントタイプ */ eventType: EventType;
-	/** イベント日時（ISO8601） */ eventDatetime: string;
-	/** 備考・メモ */ notes: string | null;
-	/** 作成日時 */ createdAt: string;
-	/** 更新日時 */ updatedAt: string;
-	/** 牛名（結合時） */ cattleName?: string | null;
-	/** 耳標番号（結合時） */ cattleEarTagNumber?: number | null;
-};
+// Event型とEventType型はdomain/modelから再エクスポート
+export type { Event, EventType };
 
 /**
  * イベントリポジトリポート。

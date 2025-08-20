@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { EventType } from "../../../events/ports";
+import type { EventType } from "../model";
 
 export const searchEventsSchema = z.object({
 	cattleId: z.number().int().positive().optional(),

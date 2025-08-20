@@ -12,7 +12,7 @@ export type AppType = typeof routes;
 
 // 🎯 共通定数 (値と型の両方をエクスポート)
 export * from "./contexts/cattle/domain/model/types";
-export * from "./contexts/events/domain/constants";
+export * from "./contexts/events/domain/model/constants";
 export * from "./contexts/alerts/domain/constants";
 
 // 🔒 型のみエクスポート (Tree Shaking対応)

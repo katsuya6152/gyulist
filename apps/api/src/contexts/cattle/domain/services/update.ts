@@ -1,7 +1,7 @@
-import type { CattleId, UserId } from "../../../../shared/brand";
-import type { ClockPort } from "../../../../shared/ports/clock";
-import type { Result } from "../../../../shared/result";
-import { err, ok } from "../../../../shared/result";
+import type { CattleId, UserId } from "@/shared/brand";
+import type { ClockPort } from "@/shared/ports/clock";
+import type { Result } from "@/shared/result";
+import { err, ok } from "@/shared/result";
 import type { BreedingRepoPort } from "../../../breeding/ports";
 import type { CattleRepoPort } from "../../../cattle/ports";
 import type { DomainError } from "../errors";

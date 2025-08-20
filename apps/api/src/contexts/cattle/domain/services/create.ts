@@ -1,6 +1,6 @@
-import type { ClockPort } from "../../../../shared/ports/clock";
-import type { Result } from "../../../../shared/result";
-import { err, ok } from "../../../../shared/result";
+import type { ClockPort } from "@/shared/ports/clock";
+import type { Result } from "@/shared/result";
+import { err, ok } from "@/shared/result";
 import type { CattleRepoPort } from "../../ports";
 import type { DomainError } from "../errors";
 import type { Cattle, NewCattleProps } from "../model/cattle";

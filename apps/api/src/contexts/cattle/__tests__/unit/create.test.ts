@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { CattleId, UserId } from "../../../../shared/brand";
 import type { Cattle, NewCattleProps } from "../../domain/model/cattle";
-import { createCattleUseCase as create } from "../../domain/services/createCattle";
+import { create } from "../../domain/services/create";
 import type { CattleRepoPort } from "../../ports";
 
 const fixedNow = new Date("2024-01-01T00:00:00.000Z");
@@ -107,12 +107,6 @@ function makeRepo(): CattleRepoPort {
 			return this.update(id, updates);
 		},
 		async appendStatusHistory(e) {
-			// Mock implementation - no-op
-		},
-		async upsertBreedingStatus(cattleId, data) {
-			// Mock implementation - no-op
-		},
-		async upsertBreedingSummary(cattleId, data) {
 			// Mock implementation - no-op
 		}
 	};

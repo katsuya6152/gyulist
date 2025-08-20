@@ -1,8 +1,10 @@
-import type { Result } from "../../../../shared/result";
-import { err, ok } from "../../../../shared/result";
-import type { Event, EventsRepoPort } from "../../../events/ports";
+import type { EventsRepoPort } from "@/contexts/events/ports";
+import type { Result } from "@/shared/result";
+import { err, ok } from "@/shared/result";
 import type { CreateEventInput } from "../codecs/input";
 import type { DomainError } from "../errors";
+import type { Event, NewEventProps } from "../model";
+import { createEvent } from "../model";
 
 /**
  * イベント作成の依存関係。
@@ -24,14 +26,25 @@ export const create =
 	(deps: Deps) =>
 	async (input: CreateEventInput): Promise<Result<Event, DomainError>> => {
 		try {
-			const created = await deps.repo.create({
+			// ドメインモデルを使用してイベントを作成
+			const eventProps: NewEventProps = {
 				cattleId: input.cattleId as unknown as Event["cattleId"],
 				eventType: input.eventType as Event["eventType"],
-				eventDatetime: input.eventDatetime,
-				notes: (input.notes ?? null) as Event["notes"],
-				createdAt: new Date().toISOString(),
-				updatedAt: new Date().toISOString()
+				eventDatetime: new Date(input.eventDatetime),
+				notes: input.notes ?? null
+			};
+
+			const eventResult = createEvent(eventProps, new Date());
+			if (!eventResult.ok) return eventResult;
+
+			// リポジトリに保存
+			const created = await deps.repo.create({
+				...eventResult.value,
+				eventDatetime: eventResult.value.eventDatetime.toISOString(),
+				createdAt: eventResult.value.createdAt.toISOString(),
+				updatedAt: eventResult.value.updatedAt.toISOString()
 			} as unknown as Omit<Event, "eventId">);
+
 			return ok(created);
 		} catch (cause) {
 			return err({

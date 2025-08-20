@@ -1,8 +1,9 @@
-import type { EventsRepoPort } from "@/contexts/events/ports";
-import type { CattleId, UserId } from "@/shared/brand";
-import type { Result } from "@/shared/result";
-import { err, ok } from "@/shared/result";
-import type { CattleDetailsQueryPort, CattleRepoPort } from "../../ports";
+import type { CattleId, UserId } from "../../../../shared/brand";
+import type { Result } from "../../../../shared/result";
+import { err, ok } from "../../../../shared/result";
+import type { EventsRepoPort } from "../../../events/ports";
+import type { CattleRepoPort } from "../../ports";
+import type { CattleDetailsQueryPort } from "../../ports.details";
 import type { DomainError } from "../errors";
 
 /**

@@ -1,6 +1,6 @@
-import type { UserId } from "../../../../shared/brand";
-import type { Result } from "../../../../shared/result";
-import { err, ok } from "../../../../shared/result";
+import type { UserId } from "@/shared/brand";
+import type { Result } from "@/shared/result";
+import { err, ok } from "@/shared/result";
 import type { CattleRepoPort } from "../../../cattle/ports";
 import type { DomainError } from "../errors";
 import type { Cattle } from "../model/cattle";

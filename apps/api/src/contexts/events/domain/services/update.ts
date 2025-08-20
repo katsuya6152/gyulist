@@ -1,6 +1,6 @@
-import type { Result } from "../../../../shared/result";
-import { err, ok } from "../../../../shared/result";
-import type { Event, EventId, EventsRepoPort } from "../../../events/ports";
+import type { Event, EventId, EventsRepoPort } from "@/contexts/events/ports";
+import type { Result } from "@/shared/result";
+import { err, ok } from "@/shared/result";
 import type { UpdateEventInput } from "../codecs/input";
 import type { DomainError } from "../errors";
 
@@ -31,7 +31,7 @@ export const update =
 		try {
 			const updated = await deps.repo.update(id, {
 				...(input as Partial<Event>),
-				updatedAt: new Date().toISOString()
+				updatedAt: new Date()
 			});
 			return ok(updated);
 		} catch (cause) {

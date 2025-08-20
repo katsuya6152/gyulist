@@ -1,5 +1,5 @@
-import type { Result } from "../../../../shared/result";
-import { err, ok } from "../../../../shared/result";
+import type { Result } from "@/shared/result";
+import { err, ok } from "@/shared/result";
 import type { EventsRepoPort } from "../../../events/ports";
 import type { CattleId, UserId } from "../../../events/ports";
 import type { SearchEventsInput } from "../codecs/input";

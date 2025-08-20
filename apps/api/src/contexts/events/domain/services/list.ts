@@ -1,5 +1,5 @@
-import type { Result } from "../../../../shared/result";
-import { err, ok } from "../../../../shared/result";
+import type { Result } from "@/shared/result";
+import { err, ok } from "@/shared/result";
 import type { CattleId, Event, EventsRepoPort, UserId } from "../../ports";
 import type { DomainError } from "../errors";
 
