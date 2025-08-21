@@ -151,15 +151,6 @@ function validateEventProps(props: NewEventProps): Result<true, DomainError> {
 		});
 	}
 
-	// 日時の妥当性チェック
-	if (props.eventDatetime > new Date()) {
-		return err({
-			type: "ValidationError",
-			message: "Event datetime cannot be in the future",
-			field: "eventDatetime"
-		});
-	}
-
 	// メモの長さチェック
 	if (props.notes && props.notes.length > 1000) {
 		return err({
@@ -178,15 +169,6 @@ function validateEventProps(props: NewEventProps): Result<true, DomainError> {
 function validateUpdateProps(
 	updates: UpdateEventProps
 ): Result<true, DomainError> {
-	// 日時の妥当性チェック
-	if (updates.eventDatetime && updates.eventDatetime > new Date()) {
-		return err({
-			type: "ValidationError",
-			message: "Event datetime cannot be in the future",
-			field: "eventDatetime"
-		});
-	}
-
 	// メモの長さチェック
 	if (updates.notes && updates.notes.length > 1000) {
 		return err({

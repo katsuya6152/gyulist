@@ -93,6 +93,14 @@ export const get =
 				}
 			: null;
 
+		// イベントデータの日時フィールドを文字列に変換
+		const normalizedEvents = events.map((event) => ({
+			...event,
+			eventDatetime: event.eventDatetime.toISOString(),
+			createdAt: event.createdAt.toISOString(),
+			updatedAt: event.updatedAt.toISOString()
+		}));
+
 		// アラート情報を構築（エラーが発生した場合はデフォルト値を使用）
 		const hasActiveAlerts =
 			Array.isArray(alerts) &&
@@ -122,7 +130,7 @@ export const get =
 
 		return ok({
 			...(found as unknown as Record<string, unknown>),
-			events,
+			events: normalizedEvents,
 			bloodline,
 			motherInfo,
 			breedingStatus: normalizedBreedingStatus,

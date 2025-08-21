@@ -23,7 +23,20 @@ export async function fetchWithAuth<T>(
 		if (res.status === 401 || res.status === 403) {
 			redirect("/login");
 		}
-		throw new Error(`API request failed: ${res.status} ${res.statusText}`);
+
+		// エラーの詳細を取得
+		let errorMessage = `API request failed: ${res.status} ${res.statusText}`;
+		try {
+			const errorData = (await res.json()) as { error?: string };
+			console.error("API Error details:", errorData);
+			if (errorData.error) {
+				errorMessage = errorData.error;
+			}
+		} catch {
+			// JSON解析に失敗した場合はデフォルトメッセージを使用
+		}
+
+		throw new Error(errorMessage);
 	}
 
 	// Handle 204 No Content and empty bodies gracefully

@@ -14,7 +14,7 @@ export function toDbInsert(
 	return {
 		cattleId: event.cattleId as unknown as number,
 		eventType: event.eventType,
-		eventDatetime: event.eventDatetime,
+		eventDatetime: event.eventDatetime.toISOString(),
 		notes: event.notes
 	};
 }
@@ -33,14 +33,22 @@ export function toDbUpdate(
 	if (partial.eventType !== undefined) {
 		result.eventType = partial.eventType;
 	}
-	if (partial.eventDatetime !== undefined) {
-		result.eventDatetime = partial.eventDatetime;
+	if (
+		partial.eventDatetime !== undefined &&
+		partial.eventDatetime instanceof Date &&
+		!Number.isNaN(partial.eventDatetime.getTime())
+	) {
+		result.eventDatetime = partial.eventDatetime.toISOString();
 	}
 	if (partial.notes !== undefined) {
 		result.notes = partial.notes;
 	}
-	if (partial.updatedAt !== undefined) {
-		result.updatedAt = partial.updatedAt;
+	if (
+		partial.updatedAt !== undefined &&
+		partial.updatedAt instanceof Date &&
+		!Number.isNaN(partial.updatedAt.getTime())
+	) {
+		result.updatedAt = partial.updatedAt.toISOString();
 	}
 
 	return result;

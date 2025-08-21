@@ -22,7 +22,7 @@
 				{
 					"binding": "DB",
 					"database_name": "gyulist",
-					"database_id": "7caf92b9-b864-48ca-a69a-bdc006b8bf4f",
+					"database_id": "86fe25a4-2336-462a-8a6a-236c36d0e96a",
 					"migrations_dir": "drizzle/migrations"
 				}
 			]
@@ -36,7 +36,7 @@
 				{
 					"binding": "DB",
 					"database_name": "gyulist",
-					"database_id": "7caf92b9-b864-48ca-a69a-bdc006b8bf4f",
+					"database_id": "86fe25a4-2336-462a-8a6a-236c36d0e96a",
 					"migrations_dir": "drizzle/migrations"
 				}
 			],

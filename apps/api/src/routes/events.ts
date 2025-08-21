@@ -41,9 +41,22 @@ const app = new Hono<{ Bindings: Bindings }>()
 
 				if (!result.ok) return result;
 
+				// イベントデータの日時フィールドを文字列に変換
+				const normalizedResults = result.value.results.map((event) => ({
+					...event,
+					eventDatetime: event.eventDatetime.toISOString(),
+					createdAt: event.createdAt.toISOString(),
+					updatedAt: event.updatedAt.toISOString()
+				}));
+
+				const normalizedValue = {
+					...result.value,
+					results: normalizedResults
+				};
+
 				return {
 					ok: true,
-					value: eventsSearchResponseSchema.parse(result.value)
+					value: eventsSearchResponseSchema.parse(normalizedValue)
 				};
 			},
 			{ envelope: "data" }
@@ -73,9 +86,19 @@ const app = new Hono<{ Bindings: Bindings }>()
 
 				if (!res.ok) return res;
 
+				// イベントデータの日時フィールドを文字列に変換
+				const normalizedResults = res.value.map((event) => ({
+					...event,
+					eventDatetime: event.eventDatetime.toISOString(),
+					createdAt: event.createdAt.toISOString(),
+					updatedAt: event.updatedAt.toISOString()
+				}));
+
 				return {
 					ok: true,
-					value: eventsOfCattleResponseSchema.parse({ results: res.value })
+					value: eventsOfCattleResponseSchema.parse({
+						results: normalizedResults
+					})
 				};
 			},
 			{ envelope: "data" }
@@ -105,9 +128,17 @@ const app = new Hono<{ Bindings: Bindings }>()
 
 				if (!res.ok) return res;
 
+				// イベントデータの日時フィールドを文字列に変換
+				const normalizedEvent = {
+					...res.value,
+					eventDatetime: res.value.eventDatetime.toISOString(),
+					createdAt: res.value.createdAt.toISOString(),
+					updatedAt: res.value.updatedAt.toISOString()
+				};
+
 				return {
 					ok: true,
-					value: eventResponseSchema.parse(res.value)
+					value: eventResponseSchema.parse(normalizedEvent)
 				};
 			},
 			{ envelope: "data" }
@@ -118,6 +149,8 @@ const app = new Hono<{ Bindings: Bindings }>()
 	.post("/", zValidator("json", createEventSchema), async (c) => {
 		const data = c.req.valid("json");
 		const userId = c.get("jwtPayload").userId;
+
+		console.log("Received event creation request:", data);
 
 		return executeUseCase(
 			c,
@@ -147,10 +180,18 @@ const app = new Hono<{ Bindings: Bindings }>()
 					if (!res.ok) return res;
 				}
 
-				const parsed = eventResponseSchema.safeParse(created);
+				// イベントデータの日時フィールドを文字列に変換
+				const normalizedCreated = {
+					...created,
+					eventDatetime: created.eventDatetime.toISOString(),
+					createdAt: created.createdAt.toISOString(),
+					updatedAt: created.updatedAt.toISOString()
+				};
+
+				const parsed = eventResponseSchema.safeParse(normalizedCreated);
 				return {
 					ok: true,
-					value: parsed.success ? parsed.data : created
+					value: parsed.success ? parsed.data : normalizedCreated
 				};
 			},
 			{ successStatus: 201, envelope: "data" }
@@ -184,10 +225,18 @@ const app = new Hono<{ Bindings: Bindings }>()
 
 				if (!updatedRes.ok) return updatedRes;
 
-				const parsed = eventResponseSchema.safeParse(updatedRes.value);
+				// イベントデータの日時フィールドを文字列に変換
+				const normalizedUpdated = {
+					...updatedRes.value,
+					eventDatetime: updatedRes.value.eventDatetime.toISOString(),
+					createdAt: updatedRes.value.createdAt.toISOString(),
+					updatedAt: updatedRes.value.updatedAt.toISOString()
+				};
+
+				const parsed = eventResponseSchema.safeParse(normalizedUpdated);
 				return {
 					ok: true,
-					value: parsed.success ? parsed.data : updatedRes.value
+					value: parsed.success ? parsed.data : normalizedUpdated
 				};
 			},
 			{ envelope: "data" }
