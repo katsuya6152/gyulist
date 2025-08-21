@@ -1,3 +1,6 @@
+import type { Result } from "@/shared/result";
+import type { AlertsDomainError } from "./domain/errors";
+import type { Alert, AlertHistory } from "./domain/model";
 import type {
 	AlertId,
 	AlertSeverity,
@@ -117,4 +120,87 @@ export interface AlertsRepoPort {
 		ownerUserId: number,
 		nowIso: string
 	): Promise<RawAlertRow[]>;
+
+	// ============================================================================
+	// 新規追加メソッド
+	// ============================================================================
+
+	/**
+	 * ユーザーのアクティブなアラートを取得します。
+	 * @param userId - ユーザーID
+	 * @returns アクティブなアラート一覧
+	 */
+	findActiveAlertsByUserId(userId: number): Promise<Alert[]>;
+
+	/**
+	 * アラートIDでアラートを取得します。
+	 * @param alertId - アラートID
+	 * @returns アラート、見つからない場合はnull
+	 */
+	findAlertById(alertId: AlertId): Promise<Alert | null>;
+
+	/**
+	 * アラートのステータスを更新します。
+	 * @param alertId - アラートID
+	 * @param newStatus - 新しいステータス
+	 * @param currentTime - 現在時刻
+	 * @returns 更新されたアラート
+	 */
+	updateAlertStatus(
+		alertId: AlertId,
+		newStatus: AlertStatus,
+		currentTime: Timestamp
+	): Promise<Result<Alert, AlertsDomainError>>;
+
+	/**
+	 * アラートのメモを更新します。
+	 * @param alertId - アラートID
+	 * @param memo - 新しいメモ
+	 * @param currentTime - 現在時刻
+	 * @returns 更新されたアラート
+	 */
+	updateAlertMemo(
+		alertId: AlertId,
+		memo: string,
+		currentTime: Timestamp
+	): Promise<Result<Alert, AlertsDomainError>>;
+
+	/**
+	 * 新規アラートを作成します。
+	 * @param alert - 作成するアラート
+	 * @returns 作成結果
+	 */
+	createAlert(alert: Alert): Promise<Result<Alert, AlertsDomainError>>;
+
+	/**
+	 * アラート履歴を追加します。
+	 * @param history - 追加するアラート履歴
+	 * @returns 追加結果
+	 */
+	addAlertHistory(
+		history: AlertHistory
+	): Promise<Result<void, AlertsDomainError>>;
+
+	/**
+	 * ユーザーのアラートを生成します。
+	 * @param userId - ユーザーID
+	 * @param nowIso - 現在日時（ISO8601）
+	 * @returns 生成されたアラート一覧
+	 */
+	generateAlertsForUser(
+		userId: number,
+		nowIso: string
+	): Promise<Result<Alert[], AlertsDomainError>>;
+
+	/**
+	 * アラートテーブルから重複除去したユーザーID一覧を取得します。
+	 * @returns ユーザーID一覧
+	 */
+	findDistinctUserIds(): Promise<UserId[]>;
+
+	/**
+	 * アラートテーブルからユーザーIDを取得するフォールバックメソッド。
+	 * @returns ユーザーID一覧
+	 */
+	findDistinctUserIdsFallback(): Promise<UserId[]>;
 }

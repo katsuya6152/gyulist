@@ -4,22 +4,33 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getGrowthStage } from "@/lib/utils";
+import type { AlertItem } from "@repo/api";
 import classNames from "classnames";
 import { clsx } from "clsx";
-import { CalendarPlus, ChevronRight } from "lucide-react";
-import { memo } from "react";
+import {
+	AlertTriangle,
+	Bell,
+	CalendarPlus,
+	ChevronRight,
+	Info
+} from "lucide-react";
+import { memo, useState } from "react";
 import { type Status, statusLabelMap } from "../../constants";
 import type { CattleListItem } from "../constants";
+import { AlertDetailModal } from "./AlertDetailModal";
 
 interface CattleItemProps {
 	cattle: CattleListItem;
 	index: number;
+	alerts: AlertItem[];
 	onItemClick: (cattleId: number) => void;
 	onAddEvent: (cattleId: number) => void;
 }
 
 export const CattleItem = memo(
-	({ cattle, index, onItemClick, onAddEvent }: CattleItemProps) => {
+	({ cattle, index, alerts, onItemClick, onAddEvent }: CattleItemProps) => {
+		const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+
 		const handleItemClick = () => {
 			onItemClick(cattle.cattleId);
 		};
@@ -29,18 +40,115 @@ export const CattleItem = memo(
 			onAddEvent(cattle.cattleId);
 		};
 
+		const handleAlertClick = (e: React.MouseEvent) => {
+			e.stopPropagation();
+			setIsAlertModalOpen(true);
+		};
+
+		const handleAlertKeyDown = (e: React.KeyboardEvent) => {
+			if (e.key === "Enter" || e.key === " ") {
+				e.preventDefault();
+				e.stopPropagation();
+				setIsAlertModalOpen(true);
+			}
+		};
+
+		// この牛のアラートを取得
+		const cattleAlerts = alerts.filter(
+			(alert) => alert.cattleId === cattle.cattleId
+		);
+
+		// アラート表示用のヘルパー関数
+		const getAlertDisplay = () => {
+			if (cattleAlerts.length === 0) return null;
+
+			const highPriority = cattleAlerts.filter((a) => a.severity === "high");
+			const mediumPriority = cattleAlerts.filter(
+				(a) => a.severity === "medium"
+			);
+			const lowPriority = cattleAlerts.filter((a) => a.severity === "low");
+
+			return (
+				<div className="flex items-center gap-1">
+					{highPriority.length > 0 && (
+						<button
+							type="button"
+							className="inline-flex items-center rounded-md bg-red-500 px-2 py-1 text-xs font-medium text-white ring-offset-background transition-all hover:bg-red-600 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 cursor-pointer shadow-md"
+							onClick={handleAlertClick}
+							onKeyDown={handleAlertKeyDown}
+							aria-label={`高優先度アラート${highPriority.length}件を表示`}
+						>
+							<AlertTriangle className="h-3 w-3 mr-1" />
+							{highPriority.length}
+						</button>
+					)}
+					{mediumPriority.length > 0 && (
+						<button
+							type="button"
+							className="inline-flex items-center rounded-md bg-yellow-500 px-2 py-1 text-xs font-medium text-white ring-offset-background transition-all hover:bg-yellow-600 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2 cursor-pointer shadow-md"
+							onClick={handleAlertClick}
+							onKeyDown={handleAlertKeyDown}
+							aria-label={`中優先度アラート${mediumPriority.length}件を表示`}
+						>
+							<Bell className="h-3 w-3 mr-1" />
+							{mediumPriority.length}
+						</button>
+					)}
+					{lowPriority.length > 0 && (
+						<button
+							type="button"
+							className="inline-flex items-center rounded-md bg-blue-500 px-2 py-1 text-xs font-medium text-white ring-offset-background transition-all hover:bg-blue-600 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 cursor-pointer shadow-md"
+							onClick={handleAlertClick}
+							onKeyDown={handleAlertKeyDown}
+							aria-label={`低優先度アラート${lowPriority.length}件を表示`}
+						>
+							<Info className="h-3 w-3 mr-1" />
+							{lowPriority.length}
+						</button>
+					)}
+					<button
+						type="button"
+						className="text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+						onClick={handleAlertClick}
+						onKeyDown={handleAlertKeyDown}
+						aria-label={`アラート${cattleAlerts.length}件の詳細を表示`}
+					>
+						{cattleAlerts.length}件
+					</button>
+				</div>
+			);
+		};
+
+		// アラートの有無に基づいてスタイルを決定
+		const hasAlerts = cattleAlerts.length > 0;
+		const alertCount = cattleAlerts.length;
+		const isHighPriority = cattleAlerts.some((a) => a.severity === "high");
+
+		// アラートの重要度に基づいて背景色を決定
+		const getBackgroundStyle = () => {
+			if (isHighPriority) {
+				return "bg-red-50 border-l-red-500 hover:bg-red-100";
+			}
+			if (hasAlerts) {
+				return "bg-yellow-50 border-l-yellow-500 hover:bg-yellow-100";
+			}
+			return "hover:bg-muted/50";
+		};
+
 		return (
 			<div
 				key={cattle.cattleId}
-				className="animate-fade-in-up hover-lift"
+				className={"animate-fade-in-up hover-lift"}
 				style={{ animationDelay: `${index * 0.05}s` }}
 			>
 				<div
-					className="w-full flex items-center justify-between p-3 transition-all duration-200 hover:bg-muted/50 rounded-lg cursor-pointer tap-feedback"
+					className={`w-full flex items-center justify-between p-3 transition-all duration-200 cursor-pointer tap-feedback border-l-4 ${getBackgroundStyle()}`}
 					onClick={handleItemClick}
 					onKeyDown={handleItemClick}
 				>
 					<div className="flex flex-col gap-4">
+						{/* アラート表示 */}
+						{getAlertDisplay()}
 						<div className="flex gap-2">
 							<p className="font-bold transition-colors duration-200">
 								{cattle.name}
@@ -112,6 +220,14 @@ export const CattleItem = memo(
 					</div>
 				</div>
 				<Separator className="opacity-50" />
+
+				{/* アラート詳細モーダル */}
+				<AlertDetailModal
+					isOpen={isAlertModalOpen}
+					onClose={() => setIsAlertModalOpen(false)}
+					alerts={cattleAlerts}
+					cattleName={cattle.name || "名前なし"}
+				/>
 			</div>
 		);
 	}

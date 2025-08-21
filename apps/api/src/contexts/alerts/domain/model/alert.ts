@@ -182,6 +182,7 @@ export type NewAlertProps = {
 	/** 耳標番号 */ readonly cattleEarTagNumber: EarTagNumber | null;
 	/** 期限日時 */ readonly dueAt: DueDate | null;
 	/** アラートメッセージ */ readonly message: AlertMessage;
+	/** メモ */ readonly memo: string | null;
 	/** 所有者ユーザーID */ readonly ownerUserId: UserId;
 };
 
@@ -201,6 +202,7 @@ export type Alert = {
 	/** 耳標番号 */ readonly cattleEarTagNumber: EarTagNumber | null;
 	/** 期限日時 */ readonly dueAt: DueDate | null;
 	/** アラートメッセージ */ readonly message: AlertMessage;
+	/** メモ */ readonly memo: string | null;
 	/** 所有者ユーザーID */ readonly ownerUserId: UserId;
 	/** 作成日時 */ readonly createdAt: Timestamp;
 	/** 更新日時 */ readonly updatedAt: Timestamp;
@@ -232,6 +234,7 @@ export function createAlert(
 		cattleEarTagNumber: props.cattleEarTagNumber,
 		dueAt: props.dueAt,
 		message: props.message,
+		memo: props.memo,
 		ownerUserId: props.ownerUserId,
 		createdAt: currentTime,
 		updatedAt: currentTime,
@@ -251,7 +254,7 @@ export function createAlert(
  */
 export function updateAlert(
 	alert: Alert,
-	updates: Partial<Pick<Alert, "status" | "severity" | "message">>,
+	updates: Partial<Pick<Alert, "status" | "severity" | "message" | "memo">>,
 	currentTime: Timestamp
 ): Alert {
 	return {

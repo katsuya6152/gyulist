@@ -59,6 +59,13 @@ const breedingSummarySchema = z.object({
 	updatedAt: z.date().transform((date) => date.toISOString())
 });
 
+// アラート情報スキーマ
+const alertInfoSchema = z.object({
+	hasActiveAlerts: z.boolean(),
+	alertCount: z.number(),
+	highestSeverity: z.enum(["high", "medium", "low"]).nullable()
+});
+
 const cattleSchema = z.object({
 	cattleId: z.number(),
 	ownerUserId: z.number(),
@@ -83,7 +90,8 @@ const cattleSchema = z.object({
 	weight: z.number().nullable(),
 	score: z.number().nullable(),
 	createdAt: z.date().transform((date) => date.toISOString()),
-	updatedAt: z.date().transform((date) => date.toISOString())
+	updatedAt: z.date().transform((date) => date.toISOString()),
+	alerts: alertInfoSchema
 });
 
 export const cattleListResponseSchema = z.object({

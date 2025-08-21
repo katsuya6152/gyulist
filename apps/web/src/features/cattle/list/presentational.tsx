@@ -1,6 +1,7 @@
 "use client";
 
 import { Separator } from "@/components/ui/separator";
+import type { AlertItem } from "@repo/api";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CattleItem } from "./components/CattleItem";
 import { FilterSheet } from "./components/FilterSheet";
@@ -11,10 +12,12 @@ import type { CattleListItem, FilterFormData } from "./constants";
 
 interface CattleListPresentationProps {
 	cattleList: CattleListItem[];
+	alerts: AlertItem[];
 }
 
 export function CattleListPresentation({
-	cattleList
+	cattleList,
+	alerts
 }: CattleListPresentationProps) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
@@ -131,12 +134,13 @@ export function CattleListPresentation({
 				/>
 			)}
 
-			<div className="grid gap-4 w-full">
+			<div className="grid gap-0 w-full">
 				{cattleList.map((cattle, index) => (
 					<CattleItem
 						key={cattle.cattleId}
 						cattle={cattle}
 						index={index}
+						alerts={alerts}
 						onItemClick={handleItemClick}
 						onAddEvent={handleAddEvent}
 					/>

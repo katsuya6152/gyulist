@@ -15,6 +15,7 @@ export const alertSchema = z.object({
 	cattleEarTagNumber: z.string().nullable(),
 	dueAt: z.string().nullable(),
 	message: z.string(),
+	memo: z.string().nullable(),
 	ownerUserId: z.number(),
 	createdAt: z.number(),
 	updatedAt: z.number(),

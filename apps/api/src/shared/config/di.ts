@@ -32,6 +32,7 @@ export type CoreDeps = {
 	bloodlineRepo: import("../../contexts/breeding/ports").BloodlineRepoPort;
 	motherInfoRepo: import("../../contexts/breeding/ports").MotherInfoRepoPort;
 	cattleDetails: import("../../contexts/cattle/ports").CattleDetailsQueryPort;
+	alertsRepo: AlertsRepoPort;
 	clock: ClockPort;
 };
 
@@ -55,6 +56,9 @@ export function makeDeps(db: AnyD1Database, clock: ClockPort): CoreDeps {
 		get cattleDetails() {
 			return makeCattleDetailsQuery(db);
 		},
+		get alertsRepo() {
+			return makeAlertsRepo(db);
+		}, // Lazy evaluation
 		clock
 	};
 }

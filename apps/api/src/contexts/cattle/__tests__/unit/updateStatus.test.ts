@@ -37,7 +37,12 @@ function setupRepo(initial: Cattle): CattleRepoPort {
 					null) as unknown as Cattle["breedingValue"],
 				notes: (dto.notes ?? null) as unknown as Cattle["notes"],
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
+				alerts: {
+					hasActiveAlerts: false,
+					alertCount: 0,
+					highestSeverity: null
+				}
 			};
 			current = cattle;
 			return cattle;
@@ -109,7 +114,12 @@ describe("updateStatus UC", () => {
 			score: null,
 			version: 1,
 			createdAt: new Date(),
-			updatedAt: new Date()
+			updatedAt: new Date(),
+			alerts: {
+				hasActiveAlerts: false,
+				alertCount: 0,
+				highestSeverity: null
+			}
 		};
 		const repo = setupRepo(cow);
 		const fixedNow = new Date("2024-01-01T00:00:00.000Z");
