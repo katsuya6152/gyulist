@@ -578,6 +578,58 @@ class DrizzleAlertsRepo implements AlertsRepoPort {
 			throw error;
 		}
 	}
+
+	async listByCattleId(cattleId: CattleId, userId: UserId): Promise<Alert[]> {
+		try {
+			const rows = await this.db
+				.prepare(`
+					SELECT *
+					FROM alerts
+					WHERE cattle_id = ? AND owner_user_id = ?
+				`)
+				.bind(cattleId as unknown as number, userId as unknown as number)
+				.all<{
+					id: string;
+					type: string;
+					severity: string;
+					status: string;
+					cattleId: number;
+					cattleName: string | null;
+					cattleEarTagNumber: string | null;
+					dueAt: string | null;
+					message: string;
+					memo: string | null;
+					ownerUserId: number;
+					createdAt: number;
+					updatedAt: number;
+					acknowledgedAt: number | null;
+					resolvedAt: number | null;
+				}>();
+
+			return rows.results.map((row: (typeof rows.results)[0]) => ({
+				id: row.id,
+				type: row.type as AlertType,
+				severity: row.severity as AlertSeverity,
+				status: row.status as AlertStatus,
+				cattleId: toCattleId(row.cattleId),
+				cattleName: toCattleName(row.cattleName),
+				cattleEarTagNumber: toEarTagNumber(row.cattleEarTagNumber),
+				dueAt: toDueDate(row.dueAt),
+				message: toAlertMessage(row.message),
+				memo: row.memo,
+				ownerUserId: toUserId(row.ownerUserId),
+				createdAt: toTimestamp(row.createdAt),
+				updatedAt: toTimestamp(row.updatedAt),
+				acknowledgedAt: row.acknowledgedAt
+					? toTimestamp(row.acknowledgedAt)
+					: null,
+				resolvedAt: row.resolvedAt ? toTimestamp(row.resolvedAt) : null
+			}));
+		} catch (error) {
+			console.error("Failed to get alerts by cattle ID:", error);
+			return [];
+		}
+	}
 }
 
 export function makeAlertsRepo(db: AnyD1Database): AlertsRepoPort {

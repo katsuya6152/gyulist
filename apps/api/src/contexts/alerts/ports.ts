@@ -203,4 +203,12 @@ export interface AlertsRepoPort {
 	 * @returns ユーザーID一覧
 	 */
 	findDistinctUserIdsFallback(): Promise<UserId[]>;
+
+	/**
+	 * 特定の牛に関連するアラートを取得します。
+	 * @param cattleId - 牛ID
+	 * @param userId - ユーザーID
+	 * @returns アラート一覧
+	 */
+	listByCattleId(cattleId: CattleId, userId: UserId): Promise<Alert[]>;
 }

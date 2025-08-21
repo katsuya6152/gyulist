@@ -110,7 +110,12 @@ export const cattleResponseSchema = cattleSchema.extend({
 	bloodline: bloodlineSchema.nullable().optional(),
 	motherInfo: motherInfoSchema.nullable().optional(),
 	breedingStatus: breedingStatusSchema.nullable().optional(),
-	breedingSummary: breedingSummarySchema.nullable().optional()
+	breedingSummary: breedingSummarySchema.nullable().optional(),
+	alerts: alertInfoSchema.optional().default({
+		hasActiveAlerts: false,
+		alertCount: 0,
+		highestSeverity: null
+	})
 });
 export const cattleStatusUpdateResponseSchema = cattleSchema;
 

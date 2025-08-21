@@ -1,4 +1,12 @@
 import { describe, expect, it } from "vitest";
+import type {
+	AlertId,
+	CattleId,
+	CattleName,
+	EarTagNumber,
+	Timestamp,
+	UserId
+} from "../../domain/model/types";
 import { getAlerts } from "../../domain/services/get";
 import type { AlertRecord, AlertsRepoPort } from "../../ports";
 
@@ -37,6 +45,77 @@ describe("Alerts domain - get", () => {
 					cattleEarTagNumber: "1004"
 				}
 			],
+			findActiveAlertsByUserId: async () => [
+				{
+					id: "alert-1",
+					type: "OPEN_DAYS_OVER60_NO_AI",
+					severity: "high",
+					status: "active",
+					cattleId: 1 as CattleId,
+					cattleName: "Test",
+					cattleEarTagNumber: "1001" as EarTagNumber,
+					dueAt: null,
+					message: "Test alert 1",
+					memo: null,
+					ownerUserId: 1 as UserId,
+					createdAt: Date.now() as Timestamp,
+					updatedAt: Date.now() as Timestamp,
+					acknowledgedAt: null,
+					resolvedAt: null
+				},
+				{
+					id: "alert-2",
+					type: "CALVING_WITHIN_60",
+					severity: "medium",
+					status: "active",
+					cattleId: 2 as CattleId,
+					cattleName: "Test",
+					cattleEarTagNumber: "1002" as EarTagNumber,
+					dueAt: new Date().toISOString(),
+					message: "Test alert 2",
+					memo: null,
+					ownerUserId: 1 as UserId,
+					createdAt: Date.now(),
+					updatedAt: Date.now(),
+					acknowledgedAt: null,
+					resolvedAt: null
+				},
+				{
+					id: "alert-3",
+					type: "CALVING_OVERDUE",
+					severity: "low",
+					status: "active",
+					cattleId: 3 as CattleId,
+					cattleName: "Test",
+					cattleEarTagNumber: "1003" as EarTagNumber,
+					dueAt: new Date().toISOString(),
+					message: "Test alert 3",
+					memo: null,
+					ownerUserId: 1 as UserId,
+					createdAt: Date.now(),
+					updatedAt: Date.now(),
+					acknowledgedAt: null,
+					resolvedAt: null
+				},
+				{
+					id: "alert-4",
+					type: "ESTRUS_OVER20_NOT_PREGNANT",
+					severity: "medium",
+					status: "active",
+					cattleId: 4 as CattleId,
+					cattleName: "Test",
+					cattleEarTagNumber: "1004" as EarTagNumber,
+					dueAt: null,
+					message: "Test alert 4",
+					memo: null,
+					ownerUserId: 1 as UserId,
+					createdAt: Date.now(),
+					updatedAt: Date.now(),
+					acknowledgedAt: null,
+					resolvedAt: null
+				}
+			],
+			listByCattleId: async () => [],
 			search: async () => ({ items: [], total: 0 }),
 			findById: async () => null,
 			create: async () => {},
@@ -88,7 +167,12 @@ describe("Alerts domain - get", () => {
 				updatedAt: 0,
 				acknowledgedAt: null,
 				resolvedAt: null
-			})
+			}),
+			findDistinctUserIds: async () => [],
+			findDistinctUserIdsFallback: async () => [],
+			generateAlertsForUser: async () => ({ ok: true, value: [] }),
+			addAlertHistory: async () => ({ ok: true, value: undefined }),
+			updateAlertMemo: async () => ({ ok: true, value: {} as AlertRecord })
 		};
 
 		const deps = {

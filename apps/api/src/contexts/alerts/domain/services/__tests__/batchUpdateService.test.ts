@@ -24,7 +24,17 @@ const mockAlertsRepo = {
 	findCalvingWithin60: vi.fn(),
 	findCalvingOverdue: vi.fn(),
 	findEstrusOver20NotPregnant: vi.fn(),
-	getAllUserIds: vi.fn()
+	getAllUserIds: vi.fn(),
+	findDistinctUserIds: vi.fn(),
+	findDistinctUserIdsFallback: vi.fn(),
+	listByCattleId: vi.fn(),
+	search: vi.fn(),
+	findById: vi.fn(),
+	update: vi.fn(),
+	delete: vi.fn(),
+	updateStatus: vi.fn(),
+	updateSeverity: vi.fn(),
+	updateAlertMemo: vi.fn()
 };
 
 const mockTime = {
@@ -147,7 +157,9 @@ describe("updateAlertsBatch", () => {
 
 describe("getAllUserIds", () => {
 	it("should return mock user IDs", async () => {
-		vi.mocked(mockAlertsRepo.getAllUserIds).mockResolvedValue([1 as UserId]);
+		vi.mocked(mockAlertsRepo.findDistinctUserIds).mockResolvedValue([
+			1 as UserId
+		]);
 		const result = await getAllUserIds(mockAlertsRepo);
 		expect(result).toEqual([1 as UserId]);
 	});

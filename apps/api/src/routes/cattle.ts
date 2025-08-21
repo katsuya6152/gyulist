@@ -18,7 +18,10 @@ import {
 import { create as createUC } from "../contexts/cattle/domain/services/create";
 import { delete_ as deleteUC } from "../contexts/cattle/domain/services/delete";
 
-import { get as getDetailUC } from "../contexts/cattle/domain/services/get";
+import {
+	type Deps as GetDetailDeps,
+	get as getDetailUC
+} from "../contexts/cattle/domain/services/getDetail";
 import { search as searchUC } from "../contexts/cattle/domain/services/search";
 import { update as updateUC } from "../contexts/cattle/domain/services/update";
 import { updateStatus as updateStatusUC } from "../contexts/cattle/domain/services/updateStatus";
@@ -190,6 +193,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 				const result = await getDetailUC({
 					repo: deps.cattleRepo,
 					eventsRepo: deps.eventsRepo,
+					alertsRepo: deps.alertsRepo,
 					details: deps.cattleDetails
 				})({ id, requesterUserId: userId });
 
