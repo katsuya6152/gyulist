@@ -7,6 +7,12 @@ import {
 	needsBreedingSummaryUpdate,
 	updateBreedingSummary
 } from "../../domain/model/breedingSummary";
+import type {
+	AverageDaysOpen,
+	AveragePregnancyPeriod,
+	AverageCalvingInterval,
+	PregnancySuccessRate
+} from "../../domain/model/types";
 
 describe("BreedingSummary Domain Model", () => {
 	describe("createInitialBreedingSummary", () => {
@@ -28,12 +34,12 @@ describe("BreedingSummary Domain Model", () => {
 		it("should create breeding summary with valid data", () => {
 			const props = {
 				totalInseminationCount: 10,
-				averageDaysOpen: 120,
-				averagePregnancyPeriod: 280,
-				averageCalvingInterval: 400,
+				averageDaysOpen: 120 as AverageDaysOpen,
+				averagePregnancyPeriod: 280 as AveragePregnancyPeriod,
+				averageCalvingInterval: 400 as AverageCalvingInterval,
 				difficultBirthCount: 2,
 				pregnancyHeadCount: 8,
-				pregnancySuccessRate: 80,
+				pregnancySuccessRate: 80 as PregnancySuccessRate,
 				lastUpdated: new Date("2025-01-01")
 			};
 
@@ -136,7 +142,7 @@ describe("BreedingSummary Domain Model", () => {
 				totalInseminationCount: 0,
 				difficultBirthCount: 0,
 				pregnancyHeadCount: 0,
-				pregnancySuccessRate: -1
+				pregnancySuccessRate: -1 as PregnancySuccessRate
 			};
 
 			const result = createBreedingSummary(props);
@@ -156,7 +162,7 @@ describe("BreedingSummary Domain Model", () => {
 				totalInseminationCount: 0,
 				difficultBirthCount: 0,
 				pregnancyHeadCount: 0,
-				pregnancySuccessRate: 101
+				pregnancySuccessRate: 101 as PregnancySuccessRate
 			};
 
 			const result = createBreedingSummary(props);
@@ -176,7 +182,7 @@ describe("BreedingSummary Domain Model", () => {
 				totalInseminationCount: 0,
 				difficultBirthCount: 0,
 				pregnancyHeadCount: 0,
-				pregnancySuccessRate: 0
+				pregnancySuccessRate: 0 as PregnancySuccessRate
 			};
 
 			const result = createBreedingSummary(props);
@@ -192,7 +198,7 @@ describe("BreedingSummary Domain Model", () => {
 				totalInseminationCount: 0,
 				difficultBirthCount: 0,
 				pregnancyHeadCount: 0,
-				pregnancySuccessRate: 100
+				pregnancySuccessRate: 100 as PregnancySuccessRate
 			};
 
 			const result = createBreedingSummary(props);
@@ -208,7 +214,7 @@ describe("BreedingSummary Domain Model", () => {
 				totalInseminationCount: 0,
 				difficultBirthCount: 0,
 				pregnancyHeadCount: 0,
-				averageDaysOpen: 0
+				averageDaysOpen: 0 as AverageDaysOpen
 			};
 
 			const result = createBreedingSummary(props);
@@ -226,7 +232,7 @@ describe("BreedingSummary Domain Model", () => {
 				totalInseminationCount: 0,
 				difficultBirthCount: 0,
 				pregnancyHeadCount: 0,
-				averagePregnancyPeriod: -1
+				averagePregnancyPeriod: -1 as AveragePregnancyPeriod
 			};
 
 			const result = createBreedingSummary(props);
@@ -246,7 +252,7 @@ describe("BreedingSummary Domain Model", () => {
 				totalInseminationCount: 0,
 				difficultBirthCount: 0,
 				pregnancyHeadCount: 0,
-				averageCalvingInterval: 0
+				averageCalvingInterval: 0 as AverageCalvingInterval
 			};
 
 			const result = createBreedingSummary(props);
@@ -369,7 +375,7 @@ describe("BreedingSummary Domain Model", () => {
 				totalInseminationCount: 0,
 				difficultBirthCount: 0,
 				pregnancyHeadCount: 0,
-				pregnancySuccessRate: 90
+				pregnancySuccessRate: 90 as PregnancySuccessRate
 			});
 
 			if (summary.ok) {
@@ -383,7 +389,7 @@ describe("BreedingSummary Domain Model", () => {
 				totalInseminationCount: 0,
 				difficultBirthCount: 0,
 				pregnancyHeadCount: 0,
-				pregnancySuccessRate: 100
+				pregnancySuccessRate: 100 as PregnancySuccessRate
 			});
 
 			if (summary.ok) {
@@ -397,7 +403,7 @@ describe("BreedingSummary Domain Model", () => {
 				totalInseminationCount: 0,
 				difficultBirthCount: 0,
 				pregnancyHeadCount: 0,
-				pregnancySuccessRate: 75
+				pregnancySuccessRate: 75 as PregnancySuccessRate
 			});
 
 			if (summary.ok) {
@@ -411,7 +417,7 @@ describe("BreedingSummary Domain Model", () => {
 				totalInseminationCount: 0,
 				difficultBirthCount: 0,
 				pregnancyHeadCount: 0,
-				pregnancySuccessRate: 89
+				pregnancySuccessRate: 89 as PregnancySuccessRate
 			});
 
 			if (summary.ok) {
@@ -425,7 +431,7 @@ describe("BreedingSummary Domain Model", () => {
 				totalInseminationCount: 0,
 				difficultBirthCount: 0,
 				pregnancyHeadCount: 0,
-				pregnancySuccessRate: 60
+				pregnancySuccessRate: 60 as PregnancySuccessRate
 			});
 
 			if (summary.ok) {
@@ -439,7 +445,7 @@ describe("BreedingSummary Domain Model", () => {
 				totalInseminationCount: 0,
 				difficultBirthCount: 0,
 				pregnancyHeadCount: 0,
-				pregnancySuccessRate: 74
+				pregnancySuccessRate: 74 as PregnancySuccessRate
 			});
 
 			if (summary.ok) {
@@ -453,7 +459,7 @@ describe("BreedingSummary Domain Model", () => {
 				totalInseminationCount: 0,
 				difficultBirthCount: 0,
 				pregnancyHeadCount: 0,
-				pregnancySuccessRate: 59
+				pregnancySuccessRate: 59 as PregnancySuccessRate
 			});
 
 			if (summary.ok) {
@@ -467,7 +473,7 @@ describe("BreedingSummary Domain Model", () => {
 				totalInseminationCount: 0,
 				difficultBirthCount: 0,
 				pregnancyHeadCount: 0,
-				pregnancySuccessRate: 0
+				pregnancySuccessRate: 0 as PregnancySuccessRate
 			});
 
 			if (summary.ok) {

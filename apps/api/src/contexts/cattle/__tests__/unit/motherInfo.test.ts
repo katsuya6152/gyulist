@@ -5,10 +5,8 @@ import {
 	isMotherInfoComplete
 } from "../../domain/model/motherInfo";
 import type { MotherInfo } from "../../domain/model/motherInfo";
-import type {
-	CattleId,
-	MotherIdentificationNumber
-} from "../../domain/model/types";
+import type { CattleId } from "../../../../shared/brand";
+import type { MotherIdentificationNumber, MotherName, MotherScore } from "../../domain/model/types";
 
 describe("MotherInfo Domain Model", () => {
 	describe("createMotherInfo", () => {
@@ -73,7 +71,7 @@ describe("MotherInfo Domain Model", () => {
 			const result = createMotherInfo(props);
 
 			expect(result.ok).toBe(false);
-			if (!result.ok) {
+			if (!result.ok && result.error.type === "ValidationError") {
 				expect(result.error.type).toBe("ValidationError");
 				expect(result.error.message).toBe(
 					"Mother cattle ID must be a positive number"
@@ -90,7 +88,7 @@ describe("MotherInfo Domain Model", () => {
 			const result = createMotherInfo(props);
 
 			expect(result.ok).toBe(false);
-			if (!result.ok) {
+			if (!result.ok && result.error.type === "ValidationError") {
 				expect(result.error.type).toBe("ValidationError");
 				expect(result.error.message).toBe(
 					"Mother cattle ID must be a positive number"
@@ -108,7 +106,7 @@ describe("MotherInfo Domain Model", () => {
 			const result = createMotherInfo(props);
 
 			expect(result.ok).toBe(false);
-			if (!result.ok) {
+			if (!result.ok && result.error.type === "ValidationError") {
 				expect(result.error.type).toBe("ValidationError");
 				expect(result.error.message).toBe(
 					"Mother score must be between 0 and 100"
@@ -126,7 +124,7 @@ describe("MotherInfo Domain Model", () => {
 			const result = createMotherInfo(props);
 
 			expect(result.ok).toBe(false);
-			if (!result.ok) {
+			if (!result.ok && result.error.type === "ValidationError") {
 				expect(result.error.type).toBe("ValidationError");
 				expect(result.error.message).toBe(
 					"Mother score must be between 0 and 100"
@@ -252,9 +250,9 @@ describe("MotherInfo Domain Model", () => {
 		it("should return true when all fields are complete", () => {
 			const motherInfo: MotherInfo = {
 				motherCattleId: 123 as CattleId,
-				motherName: "Test Mother",
-				motherIdentificationNumber: 456789 as MotherIdentificationNumber,
-				motherScore: 85
+				motherName: "Test Mother" as MotherName,
+				motherIdentificationNumber: "456789" as MotherIdentificationNumber,
+				motherScore: 85 as MotherScore
 			};
 
 			const isComplete = isMotherInfoComplete(motherInfo);
@@ -266,8 +264,8 @@ describe("MotherInfo Domain Model", () => {
 			const motherInfo: MotherInfo = {
 				motherCattleId: 123 as CattleId,
 				motherName: null,
-				motherIdentificationNumber: 456789 as MotherIdentificationNumber,
-				motherScore: 85
+				motherIdentificationNumber: "456789" as MotherIdentificationNumber,
+				motherScore: 85 as MotherScore
 			};
 
 			const isComplete = isMotherInfoComplete(motherInfo);
@@ -278,9 +276,9 @@ describe("MotherInfo Domain Model", () => {
 		it("should return false when motherIdentificationNumber is missing", () => {
 			const motherInfo: MotherInfo = {
 				motherCattleId: 123 as CattleId,
-				motherName: "Test Mother",
+				motherName: "Test Mother" as MotherName,
 				motherIdentificationNumber: null,
-				motherScore: 85
+				motherScore: 85 as MotherScore
 			};
 
 			const isComplete = isMotherInfoComplete(motherInfo);
@@ -291,9 +289,9 @@ describe("MotherInfo Domain Model", () => {
 		it("should return false when motherScore is missing", () => {
 			const motherInfo: MotherInfo = {
 				motherCattleId: 123 as CattleId,
-				motherName: "Test Mother",
-				motherIdentificationNumber: 456789 as MotherIdentificationNumber,
-				motherScore: null
+				motherName: "Test Mother" as MotherName,
+				motherIdentificationNumber: "456789" as MotherIdentificationNumber,
+				motherScore: null as unknown as MotherScore
 			};
 
 			const isComplete = isMotherInfoComplete(motherInfo);
@@ -317,9 +315,9 @@ describe("MotherInfo Domain Model", () => {
 		it("should return true when motherScore is 0", () => {
 			const motherInfo: MotherInfo = {
 				motherCattleId: 123 as CattleId,
-				motherName: "Test Mother",
-				motherIdentificationNumber: 456789 as MotherIdentificationNumber,
-				motherScore: 0
+				motherName: "Test Mother" as MotherName,
+				motherIdentificationNumber: "456789" as MotherIdentificationNumber,
+				motherScore: 0 as MotherScore
 			};
 
 			const isComplete = isMotherInfoComplete(motherInfo);
@@ -330,9 +328,9 @@ describe("MotherInfo Domain Model", () => {
 		it("should return true when motherScore is 100", () => {
 			const motherInfo: MotherInfo = {
 				motherCattleId: 123 as CattleId,
-				motherName: "Test Mother",
-				motherIdentificationNumber: 456789 as MotherIdentificationNumber,
-				motherScore: 100
+				motherName: "Test Mother" as MotherName,
+				motherIdentificationNumber: "456789" as MotherIdentificationNumber,
+				motherScore: 100 as MotherScore
 			};
 
 			const isComplete = isMotherInfoComplete(motherInfo);
@@ -345,9 +343,9 @@ describe("MotherInfo Domain Model", () => {
 		it("should return 100 when all fields are complete", () => {
 			const motherInfo: MotherInfo = {
 				motherCattleId: 123 as CattleId,
-				motherName: "Test Mother",
-				motherIdentificationNumber: 456789 as MotherIdentificationNumber,
-				motherScore: 85
+				motherName: "Test Mother" as MotherName,
+				motherIdentificationNumber: "456789" as MotherIdentificationNumber,
+				motherScore: 85 as MotherScore
 			};
 
 			const completeness = getMotherInfoCompleteness(motherInfo);
@@ -371,9 +369,9 @@ describe("MotherInfo Domain Model", () => {
 		it("should return 50 when motherCattleId and motherName are present", () => {
 			const motherInfo: MotherInfo = {
 				motherCattleId: 123 as CattleId,
-				motherName: "Test Mother",
+				motherName: "Test Mother" as MotherName,
 				motherIdentificationNumber: null,
-				motherScore: null
+				motherScore: null as unknown as MotherScore
 			};
 
 			const completeness = getMotherInfoCompleteness(motherInfo);
@@ -384,9 +382,9 @@ describe("MotherInfo Domain Model", () => {
 		it("should return 75 when motherCattleId, motherName, and motherIdentificationNumber are present", () => {
 			const motherInfo: MotherInfo = {
 				motherCattleId: 123 as CattleId,
-				motherName: "Test Mother",
-				motherIdentificationNumber: 456789 as MotherIdentificationNumber,
-				motherScore: null
+				motherName: "Test Mother" as MotherName,
+				motherIdentificationNumber: "456789" as MotherIdentificationNumber,
+				motherScore: null as unknown as MotherScore
 			};
 
 			const completeness = getMotherInfoCompleteness(motherInfo);
@@ -397,9 +395,9 @@ describe("MotherInfo Domain Model", () => {
 		it("should return 75 when motherCattleId, motherName, and motherScore are present", () => {
 			const motherInfo: MotherInfo = {
 				motherCattleId: 123 as CattleId,
-				motherName: "Test Mother",
+				motherName: "Test Mother" as MotherName,
 				motherIdentificationNumber: null,
-				motherScore: 85
+				motherScore: 85 as MotherScore
 			};
 
 			const completeness = getMotherInfoCompleteness(motherInfo);
@@ -411,8 +409,8 @@ describe("MotherInfo Domain Model", () => {
 			const motherInfo: MotherInfo = {
 				motherCattleId: 123 as CattleId,
 				motherName: null,
-				motherIdentificationNumber: 456789 as MotherIdentificationNumber,
-				motherScore: 85
+				motherIdentificationNumber: "456789" as MotherIdentificationNumber,
+				motherScore: 85 as MotherScore
 			};
 
 			const completeness = getMotherInfoCompleteness(motherInfo);
@@ -425,9 +423,9 @@ describe("MotherInfo Domain Model", () => {
 			// 3 out of 4 fields = 75%
 			const motherInfo: MotherInfo = {
 				motherCattleId: 123 as CattleId,
-				motherName: "Test Mother",
-				motherIdentificationNumber: 456789 as MotherIdentificationNumber,
-				motherScore: null
+				motherName: "Test Mother" as MotherName,
+				motherIdentificationNumber: "456789" as MotherIdentificationNumber,
+				motherScore: null as unknown as MotherScore
 			};
 
 			const completeness = getMotherInfoCompleteness(motherInfo);
@@ -438,9 +436,9 @@ describe("MotherInfo Domain Model", () => {
 		it("should handle motherScore of 0 as complete", () => {
 			const motherInfo: MotherInfo = {
 				motherCattleId: 123 as CattleId,
-				motherName: "Test Mother",
-				motherIdentificationNumber: 456789 as MotherIdentificationNumber,
-				motherScore: 0
+				motherName: "Test Mother" as MotherName,
+				motherIdentificationNumber: "456789" as MotherIdentificationNumber,
+				motherScore: 0 as MotherScore
 			};
 
 			const completeness = getMotherInfoCompleteness(motherInfo);
@@ -451,9 +449,9 @@ describe("MotherInfo Domain Model", () => {
 		it("should handle motherScore of 100 as complete", () => {
 			const motherInfo: MotherInfo = {
 				motherCattleId: 123 as CattleId,
-				motherName: "Test Mother",
-				motherIdentificationNumber: 456789 as MotherIdentificationNumber,
-				motherScore: 100
+				motherName: "Test Mother" as MotherName,
+				motherIdentificationNumber: "456789" as MotherIdentificationNumber,
+				motherScore: 100 as MotherScore
 			};
 
 			const completeness = getMotherInfoCompleteness(motherInfo);

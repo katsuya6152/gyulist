@@ -119,7 +119,8 @@ const mockBreedingRepo = {
 		totalCalvings: 0,
 		averagePregnancyRate: 0,
 		difficultBirthRate: 0
-	})
+	}),
+	updateBreedingStatusDays: async () => {}
 };
 
 function baseCattle(owner: UserId, idNum: number, id: number): Cattle {
