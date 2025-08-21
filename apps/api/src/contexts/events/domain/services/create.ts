@@ -39,11 +39,11 @@ export const create =
 
 			// リポジトリに保存
 			const created = await deps.repo.create({
-				...eventResult.value,
-				eventDatetime: eventResult.value.eventDatetime.toISOString(),
-				createdAt: eventResult.value.createdAt.toISOString(),
-				updatedAt: eventResult.value.updatedAt.toISOString()
-			} as unknown as Omit<Event, "eventId">);
+				cattleId: eventResult.value.cattleId,
+				eventType: eventResult.value.eventType,
+				eventDatetime: eventResult.value.eventDatetime,
+				notes: eventResult.value.notes
+			});
 
 			return ok(created);
 		} catch (cause) {

@@ -29,10 +29,28 @@ export const update =
 		input: UpdateEventInput
 	): Promise<Result<Event, DomainError>> => {
 		try {
-			const updated = await deps.repo.update(id, {
-				...(input as Partial<Event>),
+			// 入力データをドメインモデルに変換
+			const updateData: Partial<Event> = {
 				updatedAt: new Date()
-			});
+			} as Partial<Event>;
+
+			// 各フィールドを安全に設定
+			if (input.eventType !== undefined) {
+				(
+					updateData as Partial<Event> & { eventType?: Event["eventType"] }
+				).eventType = input.eventType;
+			}
+			if (input.notes !== undefined) {
+				(updateData as Partial<Event> & { notes?: string | null }).notes =
+					input.notes;
+			}
+			if (input.eventDatetime && input.eventDatetime.trim() !== "") {
+				(
+					updateData as Partial<Event> & { eventDatetime?: Date }
+				).eventDatetime = new Date(input.eventDatetime);
+			}
+
+			const updated = await deps.repo.update(id, updateData);
 			return ok(updated);
 		} catch (cause) {
 			return err({
