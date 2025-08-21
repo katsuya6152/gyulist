@@ -261,4 +261,78 @@ INSERT INTO events (cattleId, eventType, eventDatetime, notes) VALUES
   -- 受胎率の分母が0にならないよう、7月のAIをもう1本（cattleId=7）
   (7, 'INSEMINATION', '2025-07-02T00:00:00Z', 'KPI: 7月のAI（分母用）');
 
+-- =============================
+-- 8) alerts テーブル（アラート用ダミーデータ）
+-- =============================
+-- 既存のアラートをクリア
+DELETE FROM alerts;
+DELETE FROM alert_history;
+
+-- アラートのダミーデータ（様々な状況のアラートを作成）
+INSERT INTO alerts (
+  id,
+  type,
+  severity,
+  status,
+  cattle_id,
+  cattle_name,
+  cattle_ear_tag_number,
+  due_at,
+  message,
+  memo,
+  owner_user_id,
+  created_at,
+  updated_at,
+  acknowledged_at,
+  resolved_at
+) VALUES
+  -- 1. 空胎60日以上（AI未実施）のアラート
+  ('alert_dummy_001', 'OPEN_DAYS_OVER60_NO_AI', 'high', 'active', 2, 'ハナコ', '21002', '2024-12-03', '空胎60日以上（AI未実施）', '繁殖指導員に相談が必要', 1, strftime('%s', 'now', '-7 days'), strftime('%s', 'now', '-7 days'), NULL, NULL),
+  
+  -- 2. 60日以内分娩予定のアラート
+  ('alert_dummy_002', 'CALVING_WITHIN_60', 'medium', 'active', 5, 'さくら', '21005', '2025-08-14', '60日以内分娩予定', '分娩準備を開始してください', 1, strftime('%s', 'now', '-5 days'), strftime('%s', 'now', '-5 days'), NULL, NULL),
+  ('alert_dummy_003', 'CALVING_WITHIN_60', 'medium', 'active', 6, 'みずき', '21006', '2026-04-10', '60日以内分娩予定', '妊娠経過良好、定期検診を継続', 1, strftime('%s', 'now', '-3 days'), strftime('%s', 'now', '-3 days'), NULL, NULL),
+  
+  -- 3. 分娩予定日超過のアラート
+  ('alert_dummy_004', 'CALVING_OVERDUE', 'high', 'active', 10, 'りん', '22010', '2025-10-10', '分娩予定日超過', '緊急対応が必要、獣医師に連絡', 2, strftime('%s', 'now', '-10 days'), strftime('%s', 'now', '-10 days'), NULL, NULL),
+  
+  -- 4. 発情から20日以上未妊娠のアラート
+  ('alert_dummy_005', 'ESTRUS_OVER20_NOT_PREGNANT', 'medium', 'active', 7, 'ゆき', '22007', '2024-12-07', '発情から20日以上未妊娠', '再発情の確認が必要', 2, strftime('%s', 'now', '-15 days'), strftime('%s', 'now', '-15 days'), NULL, NULL),
+  
+  -- 5. 既に解決済みのアラート（履歴確認用）
+  ('alert_dummy_006', 'OPEN_DAYS_OVER60_NO_AI', 'high', 'resolved', 1, 'あやめ', '21001', '2024-12-01', '空胎60日以上（AI未実施）', '人工授精を実施、解決済み', 1, strftime('%s', 'now', '-20 days'), strftime('%s', 'now', '-20 days'), strftime('%s', 'now', '-18 days'), strftime('%s', 'now', '-18 days')),
+  
+  -- 6. 承認済みのアラート（対応中）
+  ('alert_dummy_007', 'CALVING_WITHIN_60', 'medium', 'acknowledged', 14, 'あおい', '21014', '2025-12-01', '60日以内分娩予定', '分娩準備を開始済み、順調に推移', 1, strftime('%s', 'now', '-12 days'), strftime('%s', 'now', '-12 days'), strftime('%s', 'now', '-10 days'), NULL);
+
+-- =============================
+-- 9) alert_history テーブル（アラート履歴用ダミーデータ）
+-- =============================
+INSERT INTO alert_history (
+  id,
+  alert_id,
+  action,
+  previous_status,
+  new_status,
+  changed_by,
+  reason,
+  created_at
+) VALUES
+  -- アラート作成履歴
+  ('history_dummy_001', 'alert_dummy_001', 'created', NULL, 'active', 1, '自動生成', strftime('%s', 'now', '-7 days')),
+  ('history_dummy_002', 'alert_dummy_002', 'created', NULL, 'active', 1, '自動生成', strftime('%s', 'now', '-5 days')),
+  ('history_dummy_003', 'alert_dummy_003', 'created', NULL, 'active', 1, '自動生成', strftime('%s', 'now', '-3 days')),
+  ('history_dummy_004', 'alert_dummy_004', 'created', NULL, 'active', 2, '自動生成', strftime('%s', 'now', '-10 days')),
+  ('history_dummy_005', 'alert_dummy_005', 'created', NULL, 'active', 2, '自動生成', strftime('%s', 'now', '-15 days')),
+  
+  -- アラート解決履歴
+  ('history_dummy_006', 'alert_dummy_006', 'resolved', 'active', 'resolved', 1, '人工授精を実施、受胎確認済み', strftime('%s', 'now', '-18 days')),
+  
+  -- アラート承認履歴
+  ('history_dummy_007', 'alert_dummy_007', 'acknowledged', 'active', 'acknowledged', 1, '分娩準備を開始、対応中', strftime('%s', 'now', '-10 days')),
+  
+  -- アラート更新履歴
+  ('history_dummy_008', 'alert_dummy_001', 'updated', 'active', 'active', 1, 'メモを追加：繁殖指導員に相談予定', strftime('%s', 'now', '-2 days')),
+  ('history_dummy_009', 'alert_dummy_004', 'updated', 'active', 'active', 2, '獣医師に連絡済み、経過観察中', strftime('%s', 'now', '-1 days'));
+
 

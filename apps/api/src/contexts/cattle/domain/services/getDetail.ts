@@ -1,3 +1,5 @@
+import type { Alert } from "@/contexts/alerts/domain/model";
+import type { AlertsRepoPort } from "@/contexts/alerts/ports";
 import type { EventsRepoPort } from "@/contexts/events/ports";
 import type { CattleId, UserId } from "@/shared/brand";
 import type { Result } from "@/shared/result";
@@ -8,9 +10,10 @@ import type { DomainError } from "../errors";
 /**
  * 牛詳細取得の依存関係。
  */
-type Deps = {
+export type Deps = {
 	/** 牛リポジトリ */ repo: CattleRepoPort;
 	/** イベントリポジトリ */ eventsRepo: EventsRepoPort;
+	/** アラートリポジトリ */ alertsRepo: AlertsRepoPort;
 	/** 詳細クエリポート */ details: CattleDetailsQueryPort;
 };
 
@@ -61,13 +64,17 @@ export const get =
 			bloodline,
 			motherInfo,
 			breedingStatusRaw,
-			breedingSummaryRaw
+			breedingSummaryRaw,
+			alerts
 		] = await Promise.all([
 			deps.eventsRepo.listByCattleId(cmd.id, cmd.requesterUserId),
 			deps.details.getBloodline(cmd.id),
 			deps.details.getMotherInfo(cmd.id),
 			deps.details.getBreedingStatus(cmd.id),
-			deps.details.getBreedingSummary(cmd.id)
+			deps.details.getBreedingSummary(cmd.id),
+			deps.alertsRepo
+				.listByCattleId(cmd.id, cmd.requesterUserId)
+				.catch(() => [])
 		]);
 
 		const normalizedBreedingStatus = breedingStatusRaw
@@ -86,12 +93,44 @@ export const get =
 				}
 			: null;
 
+		// アラート情報を構築（エラーが発生した場合はデフォルト値を使用）
+		const hasActiveAlerts =
+			Array.isArray(alerts) &&
+			alerts.some(
+				(alert: Alert) =>
+					alert.status === "active" || alert.status === "acknowledged"
+			);
+		const alertCount = Array.isArray(alerts) ? alerts.length : 0;
+		const highestSeverity =
+			Array.isArray(alerts) && alerts.length > 0
+				? alerts.reduce(
+						(highest: "high" | "medium" | "low", alert: Alert) => {
+							if (alert.severity === "high") return "high";
+							if (alert.severity === "medium" && highest !== "high")
+								return "medium";
+							if (
+								alert.severity === "low" &&
+								highest !== "high" &&
+								highest !== "medium"
+							)
+								return "low";
+							return highest;
+						},
+						"low" as "high" | "medium" | "low"
+					)
+				: null;
+
 		return ok({
 			...(found as unknown as Record<string, unknown>),
 			events,
 			bloodline,
 			motherInfo,
 			breedingStatus: normalizedBreedingStatus,
-			breedingSummary: normalizedBreedingSummary
+			breedingSummary: normalizedBreedingSummary,
+			alerts: {
+				hasActiveAlerts,
+				alertCount,
+				highestSeverity
+			}
 		});
 	};

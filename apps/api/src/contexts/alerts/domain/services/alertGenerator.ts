@@ -114,7 +114,8 @@ export const generateAlerts =
 					"medium",
 					"最終分娩から60日以上、人工授精未実施",
 					deps,
-					currentTime
+					currentTime,
+					cmd.ownerUserId
 				);
 				alerts.push(alert);
 			}
@@ -127,7 +128,8 @@ export const generateAlerts =
 					"medium",
 					"分娩予定日まで60日以内（エサ強化）",
 					deps,
-					currentTime
+					currentTime,
+					cmd.ownerUserId
 				);
 				alerts.push(alert);
 			}
@@ -140,7 +142,8 @@ export const generateAlerts =
 					"high",
 					"分娩予定日を経過",
 					deps,
-					currentTime
+					currentTime,
+					cmd.ownerUserId
 				);
 				alerts.push(alert);
 			}
@@ -153,7 +156,8 @@ export const generateAlerts =
 					"low",
 					"発情から20日経過（再発情を確認）",
 					deps,
-					currentTime
+					currentTime,
+					cmd.ownerUserId
 				);
 				alerts.push(alert);
 			}
@@ -191,7 +195,8 @@ function createAlertFromRow(
 	severity: AlertSeverity,
 	message: string,
 	deps: AlertGeneratorDeps,
-	currentTime: Timestamp
+	currentTime: Timestamp,
+	ownerUserId: UserId
 ): Alert {
 	const alertId = toAlertId(deps.id.uuid());
 	const cattleId = toCattleId(row.cattleId);
@@ -209,7 +214,8 @@ function createAlertFromRow(
 			cattleEarTagNumber: earTagNumber,
 			dueAt,
 			message: alertMessage,
-			ownerUserId: toUserId(row.cattleId) // TODO: 実際のownerUserIdを取得する必要がある
+			memo: null,
+			ownerUserId: ownerUserId
 		},
 		alertId,
 		currentTime

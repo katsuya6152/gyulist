@@ -69,21 +69,23 @@ export const getAlerts =
 		cmd: GetAlertsCmd
 	): Promise<Result<GetAlertsResult, AlertsDomainError>> => {
 		try {
-			// 新しいアラート生成サービスを使用
-			const alertGenerator = generateAlerts(deps);
-			const result = await alertGenerator({
-				ownerUserId: toUserId(cmd.ownerUserId),
-				now: cmd.now
-			});
+			// 既存のデータベースからアラートを取得
+			const existingAlerts = await deps.repo.findActiveAlertsByUserId(
+				cmd.ownerUserId
+			);
 
-			if (!result.ok) {
-				return result;
-			}
+			// 重要度別の統計を計算
+			const summary = {
+				high: existingAlerts.filter((a) => a.severity === "high").length,
+				medium: existingAlerts.filter((a) => a.severity === "medium").length,
+				low: existingAlerts.filter((a) => a.severity === "low").length,
+				urgent: 0 // 現在は緊急レベルなし
+			};
 
 			return ok({
-				results: result.value.alerts,
-				total: result.value.total,
-				summary: result.value.summary
+				results: existingAlerts,
+				total: existingAlerts.length,
+				summary
 			});
 		} catch (cause) {
 			return err({

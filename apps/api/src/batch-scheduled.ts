@@ -1,4 +1,8 @@
 import {
+	getAllUserIds,
+	updateAlertsBatch
+} from "./contexts/alerts/domain/services/batchUpdateService";
+import {
 	calculateBreedingStatusBatch,
 	calculateBreedingSummaryBatch
 } from "./contexts/breeding/domain/services/batchCalculation";
@@ -84,6 +88,45 @@ export default {
 				timestamp: new Date().toISOString()
 			});
 
+			// 3. アラートの更新
+			logger.info("アラート更新のバッチ処理を開始");
+
+			// 全ユーザーIDを取得
+			const userIds = await getAllUserIds(deps.alertsRepo);
+
+			// アラート更新用の依存関係を設定
+			const alertDeps = {
+				repo: deps.alertsRepo,
+				time: { nowSeconds: () => Math.floor(Date.now() / 1000) },
+				idGenerator: {
+					generate: () =>
+						`alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+				}
+			};
+
+			const alertsResult = await updateAlertsBatch(alertDeps)({
+				userIds,
+				now: () => new Date()
+			});
+
+			if (!alertsResult.ok) {
+				logger.error("アラート更新のバッチ処理でエラーが発生", {
+					environment: "production",
+					timestamp: new Date().toISOString()
+				});
+				return;
+			}
+
+			logger.info("アラート更新のバッチ処理が完了", {
+				processedCount: alertsResult.value.totalUsers,
+				updatedCount: alertsResult.value.totalUpdated,
+				createdCount: alertsResult.value.totalCreated,
+				resolvedCount: alertsResult.value.totalResolved,
+				errors: alertsResult.value.errors,
+				environment: "production",
+				timestamp: new Date().toISOString()
+			});
+
 			const duration = Date.now() - startTime;
 			logger.info("Cronバッチ処理が完了", {
 				event: "scheduled",
@@ -98,16 +141,12 @@ export default {
 				timestamp: new Date().toISOString()
 			});
 		} catch (error) {
-			const duration = Date.now() - startTime;
 			logger.error("Cronバッチ処理で予期しないエラーが発生", {
 				event: "scheduled",
 				environment: "production",
-				duration,
+				error: error instanceof Error ? error.message : String(error),
 				timestamp: new Date().toISOString()
 			});
-
-			// エラーが発生した場合でも、Workerが停止しないようにする
-			// 必要に応じてアラート通知を実装
 		}
 	},
 
@@ -141,6 +180,22 @@ export default {
 				force: false
 			});
 
+			// アラート更新（開発環境では常に実行）
+			const userIds = await getAllUserIds(deps.alertsRepo);
+			const alertDeps = {
+				repo: deps.alertsRepo,
+				time: { nowSeconds: () => Math.floor(Date.now() / 1000) },
+				idGenerator: {
+					generate: () =>
+						`alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+				}
+			};
+
+			const alertsResult = await updateAlertsBatch(alertDeps)({
+				userIds,
+				now: () => new Date()
+			});
+
 			const result = {
 				success: true,
 				breedingStatus: statusResult.ok
@@ -157,6 +212,15 @@ export default {
 							errors: summaryResult.value.errors.length
 						}
 					: { error: summaryResult.error },
+				alerts: alertsResult.ok
+					? {
+							processedCount: alertsResult.value.totalUsers,
+							updatedCount: alertsResult.value.totalUpdated,
+							createdCount: alertsResult.value.totalCreated,
+							resolvedCount: alertsResult.value.totalResolved,
+							errors: alertsResult.value.errors
+						}
+					: { error: alertsResult.error },
 				timestamp: new Date().toISOString()
 			};
 

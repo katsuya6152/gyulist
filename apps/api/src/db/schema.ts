@@ -4,3 +4,5 @@ export * from "./tables/users";
 export * from "./tables/sessions";
 export * from "./tables/registrations";
 export * from "./tables/emailLogs";
+export * from "./tables/alerts";
+export * from "./tables/alertHistory";

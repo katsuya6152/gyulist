@@ -73,6 +73,13 @@ export type Cattle = {
 	readonly createdAt: Date; // 作成日時
 	readonly updatedAt: Date; // 更新日時
 	readonly version: number; // バージョン（楽観的ロック制御用）
+
+	// アラート情報
+	readonly alerts: {
+		readonly hasActiveAlerts: boolean; // アクティブなアラートの有無
+		readonly alertCount: number; // アラート数
+		readonly highestSeverity: "high" | "medium" | "low" | null; // 最高重要度
+	};
 };
 
 /**
@@ -210,7 +217,12 @@ export function createCattle(
 		score: props.score as Score | null,
 		createdAt: currentDate,
 		updatedAt: currentDate,
-		version: 1 // 初期バージョン
+		version: 1, // 初期バージョン
+		alerts: {
+			hasActiveAlerts: false,
+			alertCount: 0,
+			highestSeverity: null
+		}
 	});
 }
 

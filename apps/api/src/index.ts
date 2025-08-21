@@ -1,6 +1,10 @@
 import { Hono } from "hono";
 import { hc } from "hono/client";
 import {
+	getAllUserIds,
+	updateAlertsBatch
+} from "./contexts/alerts/domain/services/batchUpdateService";
+import {
 	calculateBreedingStatusBatch,
 	calculateBreedingSummaryBatch
 } from "./contexts/breeding/domain/services/batchCalculation";
@@ -55,6 +59,32 @@ app.get("/cron/batch", async (c) => {
 			return c.json({ error: "Breeding summary batch failed" }, 500);
 		}
 
+		// 3. アラート更新のバッチ処理
+		logger.info("Alert update batch processing started");
+		const userIds = await getAllUserIds(deps.alertsRepo);
+
+		const alertDeps = {
+			repo: deps.alertsRepo,
+			time: { nowSeconds: () => Math.floor(Date.now() / 1000) },
+			idGenerator: {
+				generate: () =>
+					`alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+			}
+		};
+
+		const alertsResult = await updateAlertsBatch(alertDeps)({
+			userIds,
+			now: () => new Date()
+		});
+
+		if (!alertsResult.ok) {
+			logger.error("Alert update batch processing failed", {
+				error: alertsResult.error,
+				endpoint: "/cron/batch"
+			});
+			return c.json({ error: "Alert update batch failed" }, 500);
+		}
+
 		const duration = Date.now() - startTime;
 
 		logger.info("Cron batch job completed", {
@@ -62,6 +92,11 @@ app.get("/cron/batch", async (c) => {
 			statusUpdated: statusResult.value.updatedCount,
 			summaryProcessed: summaryResult.value.processedCount,
 			summaryUpdated: summaryResult.value.updatedCount,
+			alertsProcessed: alertsResult.value.totalUsers,
+			alertsUpdated: alertsResult.value.totalUpdated,
+			alertsCreated: alertsResult.value.totalCreated,
+			alertsResolved: alertsResult.value.totalResolved,
+			alertsErrors: alertsResult.value.errors,
 			duration,
 			endpoint: "/cron/batch"
 		});
@@ -78,6 +113,13 @@ app.get("/cron/batch", async (c) => {
 				processedCount: summaryResult.value.processedCount,
 				updatedCount: summaryResult.value.updatedCount,
 				errors: summaryResult.value.errors.length
+			},
+			alerts: {
+				processedCount: alertsResult.value.totalUsers,
+				updatedCount: alertsResult.value.totalUpdated,
+				createdCount: alertsResult.value.totalCreated,
+				resolvedCount: alertsResult.value.totalResolved,
+				errors: alertsResult.value.errors
 			},
 			duration: `${duration}ms`,
 			timestamp: new Date().toISOString()
@@ -125,3 +167,6 @@ export const createClient = (
 };
 
 export default app;
+
+// Cloudflare Workers Cronトリガー用のエクスポート
+export { default as scheduled } from "./batch-scheduled";

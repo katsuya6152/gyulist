@@ -21,3 +21,39 @@ export async function GetAlerts(): Promise<GetAlertsRes> {
 		)
 	).then((r) => r.data);
 }
+
+// メモ更新用の関数
+export async function UpdateAlertMemo(
+	alertId: string,
+	memo: string
+): Promise<{ message: string }> {
+	return fetchWithAuth<{ message: string }>((token) =>
+		client.api.v1.alerts[":id"].memo.$put(
+			{
+				param: { id: alertId },
+				json: { memo }
+			},
+			{
+				headers: { Authorization: `Bearer ${token}` }
+			}
+		)
+	);
+}
+
+// アラートステータス更新用の関数
+export async function UpdateAlertStatus(
+	alertId: string,
+	status: "acknowledged" | "resolved" | "dismissed"
+): Promise<{ message: string }> {
+	return fetchWithAuth<{ message: string }>((token) =>
+		client.api.v1.alerts[":id"].status.$put(
+			{
+				param: { id: alertId },
+				json: { status }
+			},
+			{
+				headers: { Authorization: `Bearer ${token}` }
+			}
+		)
+	);
+}

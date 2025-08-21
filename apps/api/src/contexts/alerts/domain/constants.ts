@@ -30,3 +30,27 @@ export const ALERT_SEVERITY_LABELS: Record<AlertSeverity, string> = {
 	medium: "中",
 	low: "低"
 };
+
+// Alert statuses
+export const ALERT_STATUSES = [
+	"active",
+	"acknowledged",
+	"resolved",
+	"dismissed"
+] as const;
+
+export type AlertStatus = (typeof ALERT_STATUSES)[number];
+
+export const ALERT_STATUS_LABELS: Record<AlertStatus, string> = {
+	active: "アクティブ",
+	acknowledged: "確認済み",
+	resolved: "解決済み",
+	dismissed: "却下"
+};
+
+// Status update messages
+export const STATUS_UPDATE_MESSAGES = {
+	acknowledged: "アラートが確認済みに更新されました",
+	resolved: "アラートが解決済みに更新されました",
+	dismissed: "アラートが却下されました"
+} as const;

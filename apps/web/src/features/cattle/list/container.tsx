@@ -1,3 +1,4 @@
+import { GetAlerts } from "@/services/alertsService";
 import { GetCattleList } from "@/services/cattleService";
 import { CattleListPresentation } from "./presentational";
 
@@ -21,8 +22,15 @@ export default async function CattleListContainer({ searchParams }: Props) {
 		gender: Array.isArray(params.gender) ? params.gender[0] : params.gender,
 		status: Array.isArray(params.status) ? params.status[0] : params.status
 	};
-	const data = await GetCattleList(queryParams);
-	const cattleList = data.results;
 
-	return <CattleListPresentation cattleList={cattleList} />;
+	// 牛一覧とアラート情報を並行取得
+	const [cattleData, alertsData] = await Promise.all([
+		GetCattleList(queryParams),
+		GetAlerts()
+	]);
+
+	const cattleList = cattleData.results;
+	const alerts = alertsData.results;
+
+	return <CattleListPresentation cattleList={cattleList} alerts={alerts} />;
 }

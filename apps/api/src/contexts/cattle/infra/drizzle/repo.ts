@@ -8,6 +8,57 @@ import type { CattleRepoPort } from "../../ports";
 import { toDomain } from "../mappers/dbToDomain";
 import { toDbInsert, toDbUpdate } from "../mappers/domainToDb";
 
+// アラート情報を取得するヘルパー関数
+async function getAlertInfoForCattle(
+	db: AnyD1Database,
+	cattleId: number,
+	ownerUserId: number
+) {
+	try {
+		const alertRows = await db
+			.prepare(`
+				SELECT severity, status
+				FROM alerts 
+				WHERE cattle_id = ? AND owner_user_id = ? AND status IN ('active', 'acknowledged')
+				ORDER BY severity DESC
+			`)
+			.bind(cattleId, ownerUserId)
+			.all<{ severity: string; status: string }>();
+
+		const alerts = alertRows.results;
+		const hasActiveAlerts = alerts.length > 0;
+		const alertCount = alerts.length;
+
+		// 最高重要度を決定
+		let highestSeverity: "high" | "medium" | "low" | null = null;
+		if (alerts.length > 0) {
+			const severities = alerts.map(
+				(a: { severity: string; status: string }) => a.severity
+			);
+			if (severities.includes("high")) {
+				highestSeverity = "high";
+			} else if (severities.includes("medium")) {
+				highestSeverity = "medium";
+			} else if (severities.includes("low")) {
+				highestSeverity = "low";
+			}
+		}
+
+		return {
+			hasActiveAlerts,
+			alertCount,
+			highestSeverity
+		};
+	} catch (error) {
+		// エラーが発生した場合はデフォルト値を返す
+		return {
+			hasActiveAlerts: false,
+			alertCount: 0,
+			highestSeverity: null
+		};
+	}
+}
+
 export function makeCattleRepo(db: AnyD1Database): CattleRepoPort {
 	const d = drizzle(db);
 	return {
@@ -89,7 +140,25 @@ export function makeCattleRepo(db: AnyD1Database): CattleRepoPort {
 						: asc(getSortColumn(q.sortBy))
 				)
 				.limit(q.limit + 1);
-			return rows.map(toDomain);
+
+			// 各牛にアラート情報を追加
+			const cattleWithAlerts = await Promise.all(
+				rows.map(async (row) => {
+					const cattleData = toDomain(row);
+					const alertInfo = await getAlertInfoForCattle(
+						db,
+						row.cattleId,
+						q.ownerUserId as unknown as number
+					);
+
+					return {
+						...cattleData,
+						alerts: alertInfo
+					};
+				})
+			);
+
+			return cattleWithAlerts;
 		},
 		async create(dto) {
 			// Convert NewCattleProps to Cattle-like object for database insertion
