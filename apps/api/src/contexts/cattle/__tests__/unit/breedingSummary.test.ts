@@ -8,9 +8,9 @@ import {
 	updateBreedingSummary
 } from "../../domain/model/breedingSummary";
 import type {
+	AverageCalvingInterval,
 	AverageDaysOpen,
 	AveragePregnancyPeriod,
-	AverageCalvingInterval,
 	PregnancySuccessRate
 } from "../../domain/model/types";
 

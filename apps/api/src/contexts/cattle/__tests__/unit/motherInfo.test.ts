@@ -1,12 +1,16 @@
 import { describe, expect, it } from "vitest";
+import type { CattleId } from "../../../../shared/brand";
 import {
 	createMotherInfo,
 	getMotherInfoCompleteness,
 	isMotherInfoComplete
 } from "../../domain/model/motherInfo";
 import type { MotherInfo } from "../../domain/model/motherInfo";
-import type { CattleId } from "../../../../shared/brand";
-import type { MotherIdentificationNumber, MotherName, MotherScore } from "../../domain/model/types";
+import type {
+	MotherIdentificationNumber,
+	MotherName,
+	MotherScore
+} from "../../domain/model/types";
 
 describe("MotherInfo Domain Model", () => {
 	describe("createMotherInfo", () => {
