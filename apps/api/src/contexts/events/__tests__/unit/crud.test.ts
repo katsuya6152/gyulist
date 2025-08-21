@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { create } from "../../domain/services/create";
-import { remove } from "../../domain/services/delete";
+import { delete_ } from "../../domain/services/delete";
 import { update } from "../../domain/services/update";
 import type { EventId, EventsRepoPort } from "../../ports";
 
@@ -56,7 +56,7 @@ describe("Events domain - create/update/delete", () => {
 				delete: vi.fn().mockResolvedValue(undefined)
 			} as unknown as EventsRepoPort
 		};
-		const res = await remove(deps)(1 as unknown as EventId);
+		const res = await delete_(deps)(1 as unknown as EventId);
 		expect(res.ok).toBe(true);
 	});
 
@@ -66,7 +66,7 @@ describe("Events domain - create/update/delete", () => {
 				delete: vi.fn().mockRejectedValue(new Error("db"))
 			} as unknown as EventsRepoPort
 		};
-		const r = await remove(deps)(1 as unknown as EventId);
+		const r = await delete_(deps)(1 as unknown as EventId);
 		expect(r.ok).toBe(false);
 	});
 });

@@ -71,7 +71,6 @@ export type AlertSearchParams = {
 /**
  * アラートリポジトリポート。
  *
- * アラートの永続化、検索、更新などの操作を提供します。
  * 繁殖管理、健康管理、スケジュール管理などの各種アラートを統合管理します。
  */
 export interface AlertsRepoPort {
@@ -118,68 +117,4 @@ export interface AlertsRepoPort {
 		ownerUserId: number,
 		nowIso: string
 	): Promise<RawAlertRow[]>;
-
-	/**
-	 * アラートを検索します。
-	 * @param ownerUserId - 所有者ユーザーID
-	 * @param params - 検索パラメータ
-	 * @returns 検索結果と総件数
-	 */
-	search(
-		ownerUserId: number,
-		params: AlertSearchParams
-	): Promise<{ items: AlertRecord[]; total: number }>;
-
-	/**
-	 * アラートをIDで取得します。
-	 * @param id - アラートID
-	 * @returns 見つからない場合は null
-	 */
-	findById(id: string): Promise<AlertRecord | null>;
-
-	/**
-	 * アラートを作成します。
-	 * @param alert - アラートレコード
-	 */
-	create(alert: AlertRecord): Promise<void>;
-
-	/**
-	 * アラートを更新します。
-	 * @param id - アラートID
-	 * @param updates - 更新データ
-	 * @returns 更新されたアラートレコード
-	 */
-	update(id: string, updates: Partial<AlertRecord>): Promise<AlertRecord>;
-
-	/**
-	 * アラートを削除します。
-	 * @param id - アラートID
-	 */
-	delete(id: string): Promise<void>;
-
-	/**
-	 * アラートステータスを更新します。
-	 * @param id - アラートID
-	 * @param status - 新しいステータス
-	 * @param reason - 更新理由（オプション）
-	 * @returns 更新されたアラートレコード
-	 */
-	updateStatus(
-		id: string,
-		status: string,
-		reason?: string
-	): Promise<AlertRecord>;
-
-	/**
-	 * アラート重要度を更新します。
-	 * @param id - アラートID
-	 * @param severity - 新しい重要度
-	 * @param reason - 更新理由（オプション）
-	 * @returns 更新されたアラートレコード
-	 */
-	updateSeverity(
-		id: string,
-		severity: string,
-		reason?: string
-	): Promise<AlertRecord>;
 }

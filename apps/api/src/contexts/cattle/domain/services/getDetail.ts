@@ -1,9 +1,8 @@
-import type { CattleId, UserId } from "../../../../shared/brand";
-import type { Result } from "../../../../shared/result";
-import { err, ok } from "../../../../shared/result";
-import type { EventsRepoPort } from "../../../events/ports";
-import type { CattleRepoPort } from "../../ports";
-import type { CattleDetailsQueryPort } from "../../ports.details";
+import type { EventsRepoPort } from "@/contexts/events/ports";
+import type { CattleId, UserId } from "@/shared/brand";
+import type { Result } from "@/shared/result";
+import { err, ok } from "@/shared/result";
+import type { CattleDetailsQueryPort, CattleRepoPort } from "../../ports";
 import type { DomainError } from "../errors";
 
 /**
@@ -35,7 +34,7 @@ export type GetCattleDetailCmd = {
  * @param cmd - 牛詳細取得コマンド
  * @returns 成功時は牛の詳細情報、失敗時はドメインエラー
  */
-export const getDetail =
+export const get =
 	(deps: Deps) =>
 	async (
 		cmd: GetCattleDetailCmd

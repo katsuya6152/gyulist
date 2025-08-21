@@ -33,6 +33,9 @@ export function History({ cattle }: { cattle: GetCattleDetailResType }) {
 
 	return (
 		<div className="relative space-y-2 py-4">
+			<p className="text-sm text-gray-600 dark:text-gray-400 text-right">
+				{sortedEventsArray.length}件のイベント
+			</p>
 			{sortedEventsArray.map((event) => (
 				<EventCard
 					key={event.eventId}

@@ -15,10 +15,10 @@ import {
 	cattleStatusCountsResponseSchema,
 	cattleStatusUpdateResponseSchema
 } from "../contexts/cattle/domain/codecs/output";
-import { createCattleUseCase as createUC } from "../contexts/cattle/domain/services/createCattle";
-import { remove as deleteUC } from "../contexts/cattle/domain/services/delete";
+import { create as createUC } from "../contexts/cattle/domain/services/create";
+import { delete_ as deleteUC } from "../contexts/cattle/domain/services/delete";
 
-import { getDetail as getDetailUC } from "../contexts/cattle/domain/services/getDetail";
+import { get as getDetailUC } from "../contexts/cattle/domain/services/get";
 import { search as searchUC } from "../contexts/cattle/domain/services/search";
 import { update as updateUC } from "../contexts/cattle/domain/services/update";
 import { updateStatus as updateStatusUC } from "../contexts/cattle/domain/services/updateStatus";
@@ -222,7 +222,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 	 *   - `status` (enum | null): 健康/出荷などの状態（未指定時は HEALTHY）
 	 *   - `breedingStatus` (object | null): 初期繁殖データ（任意）
 	 *
-	 * @see ../contexts/cattle/domain/services/createCattle.createCattleUseCase
+	 * @see ../contexts/cattle/domain/services/create.create
 	 * @see ../contexts/cattle/domain/model/cattle.NewCattleProps
 	 *
 	 * @param c - Honoコンテキスト
@@ -296,10 +296,10 @@ const app = new Hono<{ Bindings: Bindings }>()
 				// Initialize breeding data via breeding UC when provided
 				if (data.breedingStatus && result.value.cattleId) {
 					const deps2 = makeDeps(c.env.DB, { now: () => new Date() });
-					const { initializeBreedingUseCase } = await import(
-						"../contexts/breeding/domain/services/breedingManagement"
+					const { initializeBreeding } = await import(
+						"../contexts/breeding/domain/services/breeding"
 					);
-					await initializeBreedingUseCase({
+					await initializeBreeding({
 						breedingRepo: deps2.breedingRepo,
 						clock: deps2.clock
 					})({

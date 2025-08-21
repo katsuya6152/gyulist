@@ -1,6 +1,6 @@
-import type { Result } from "../../../../shared/result";
-import { err, ok } from "../../../../shared/result";
-import type { EventId, EventsRepoPort } from "../../../events/ports";
+import type { EventId, EventsRepoPort } from "@/contexts/events/ports";
+import type { Result } from "@/shared/result";
+import { err, ok } from "@/shared/result";
 import type { DomainError } from "../errors";
 
 /**
@@ -20,7 +20,7 @@ type Deps = {
  * @param id - イベントID
  * @returns 成功時は削除完了、失敗時はドメインエラー
  */
-export const remove =
+export const delete_ =
 	(deps: Deps) =>
 	async (id: EventId): Promise<Result<{ success: true }, DomainError>> => {
 		try {

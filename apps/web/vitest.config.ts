@@ -35,8 +35,10 @@ export default defineConfig({
 	},
 	resolve: {
 		alias: {
-			"@": path.resolve(__dirname, "./src"),
-			"@repo/api": path.resolve(__dirname, "../api/src")
+			// APIの定数・型を軽量なpublic.tsから参照
+			"@repo/api": path.resolve(__dirname, "../api/src/public.ts"),
+			// 最後にweb側の"@"を解決
+			"@": path.resolve(__dirname, "./src")
 		}
 	}
 });

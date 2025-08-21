@@ -1,6 +1,6 @@
-import type { CattleId, UserId } from "../../../../shared/brand";
-import type { Result } from "../../../../shared/result";
-import { err, ok } from "../../../../shared/result";
+import type { CattleId, UserId } from "@/shared/brand";
+import type { Result } from "@/shared/result";
+import { err, ok } from "@/shared/result";
 import type {
 	BloodlineRepoPort,
 	BreedingRepoPort,
@@ -39,7 +39,7 @@ export type DeleteCattleCmd = {
  * @param cmd - 牛削除コマンド
  * @returns 成功時はvoid、失敗時はドメインエラー
  */
-export const remove =
+export const delete_ =
 	(deps: Deps) =>
 	async (cmd: DeleteCattleCmd): Promise<Result<void, DomainError>> => {
 		const current = await deps.repo.findById(cmd.id);

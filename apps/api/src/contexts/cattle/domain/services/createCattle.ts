@@ -33,7 +33,7 @@ export type CreateCattleCmd = NewCattleProps;
  * @param deps - ユースケースが利用する依存関係
  * @returns 成功時は作成された `Cattle`、失敗時は `DomainError` を含む `Result`
  */
-export const createCattleUseCase =
+export const create =
 	(deps: Deps) =>
 	async (cmd: CreateCattleCmd): Promise<Result<Cattle, DomainError>> => {
 		const currentTime = deps.clock.now();

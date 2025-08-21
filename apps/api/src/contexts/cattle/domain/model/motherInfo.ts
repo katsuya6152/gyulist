@@ -50,12 +50,21 @@ export function createMotherInfo(props: {
 	// Validation: motherName should not be empty string
 	const motherName = props.motherName === "" ? null : props.motherName;
 
+	// Convert undefined values to null for consistency
+	const normalizedMotherName = motherName === undefined ? null : motherName;
+	const motherIdentificationNumber =
+		props.motherIdentificationNumber === undefined
+			? null
+			: props.motherIdentificationNumber;
+	const motherScore =
+		props.motherScore === undefined ? null : props.motherScore;
+
 	return ok({
 		motherCattleId: props.motherCattleId as CattleId,
-		motherName: motherName as MotherName | null,
+		motherName: normalizedMotherName as MotherName | null,
 		motherIdentificationNumber:
-			props.motherIdentificationNumber as MotherIdentificationNumber | null,
-		motherScore: props.motherScore as MotherScore | null
+			motherIdentificationNumber as MotherIdentificationNumber | null,
+		motherScore: motherScore as MotherScore | null
 	});
 }
 

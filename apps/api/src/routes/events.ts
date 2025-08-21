@@ -12,9 +12,9 @@ import {
 	eventsSearchResponseSchema
 } from "../contexts/events/domain/codecs/output";
 import { create as createEventUC } from "../contexts/events/domain/services/create";
-import { remove as deleteEventUC } from "../contexts/events/domain/services/delete";
-import { getById as getEventByIdUC } from "../contexts/events/domain/services/getById";
-import { listByCattle as listEventsByCattleUC } from "../contexts/events/domain/services/listByCattle";
+import { delete_ as deleteEventUC } from "../contexts/events/domain/services/delete";
+import { getById as getEventByIdUC } from "../contexts/events/domain/services/get";
+import { listByCattle as listEventsByCattleUC } from "../contexts/events/domain/services/list";
 import { search as searchEventsUC } from "../contexts/events/domain/services/search";
 import { update as updateEventUC } from "../contexts/events/domain/services/update";
 import { jwtMiddleware } from "../middleware/jwt";

@@ -27,7 +27,9 @@
 		"openapi:gen": "tsx ./scripts/generate-openapi.ts",
 		"docs:gen": "typedoc --options ./typedoc.json",
 		"docs:serve": "http-server ../../docs/tsdoc/api -p 4321 -a 127.0.0.1 -c-1",
-		"docs:regen-serve": "pnpm run docs:gen && pnpm run docs:serve"
+		"docs:regen-serve": "pnpm run docs:gen && pnpm run docs:serve",
+		"batch:dev": "wrangler dev --env development --local",
+		"batch:test": "curl -X GET http://localhost:8787/"
 	},
 	"dependencies": {
 		"@hono/swagger-ui": "^0.4.0",

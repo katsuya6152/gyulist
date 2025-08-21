@@ -47,12 +47,12 @@ export function createInitialBreedingSummary(): BreedingSummary {
  */
 export function createBreedingSummary(props: {
 	totalInseminationCount: number;
-	averageDaysOpen?: number | null;
-	averagePregnancyPeriod?: number | null;
-	averageCalvingInterval?: number | null;
+	averageDaysOpen?: AverageDaysOpen | null;
+	averagePregnancyPeriod?: AveragePregnancyPeriod | null;
+	averageCalvingInterval?: AverageCalvingInterval | null;
 	difficultBirthCount: number;
 	pregnancyHeadCount: number;
-	pregnancySuccessRate?: number | null;
+	pregnancySuccessRate?: PregnancySuccessRate | null;
 	lastUpdated?: Date;
 }): Result<BreedingSummary, DomainError> {
 	// Validation: counts must be non-negative
@@ -130,60 +130,52 @@ export function createBreedingSummary(props: {
 	return ok({
 		totalInseminationCount:
 			props.totalInseminationCount as TotalInseminationCount,
-		averageDaysOpen: props.averageDaysOpen as AverageDaysOpen | null,
-		averagePregnancyPeriod:
-			props.averagePregnancyPeriod as AveragePregnancyPeriod | null,
-		averageCalvingInterval:
-			props.averageCalvingInterval as AverageCalvingInterval | null,
+		averageDaysOpen: props.averageDaysOpen ?? null,
+		averagePregnancyPeriod: props.averagePregnancyPeriod ?? null,
+		averageCalvingInterval: props.averageCalvingInterval ?? null,
 		difficultBirthCount: props.difficultBirthCount as DifficultBirthCount,
 		pregnancyHeadCount: props.pregnancyHeadCount as PregnancyHeadCount,
-		pregnancySuccessRate:
-			props.pregnancySuccessRate as PregnancySuccessRate | null,
+		pregnancySuccessRate: props.pregnancySuccessRate ?? null,
 		lastUpdated: props.lastUpdated || new Date()
 	});
 }
 
 /**
- * 新しいイベントを適用して繁殖サマリを更新します。
+ * 繁殖サマリを更新します。
  */
 export function updateBreedingSummary(
 	summary: BreedingSummary,
 	event: BreedingEvent,
 	breedingHistory: BreedingEvent[]
 ): BreedingSummary {
-	const newSummary = { ...summary };
-
-	switch (event.type) {
-		case "Inseminate":
-			newSummary.totalInseminationCount = (summary.totalInseminationCount +
-				1) as TotalInseminationCount;
-			break;
-
-		case "ConfirmPregnancy":
-			newSummary.pregnancyHeadCount = (summary.pregnancyHeadCount +
-				1) as PregnancyHeadCount;
-			break;
-
-		case "Calve":
-			if (event.isDifficultBirth) {
-				newSummary.difficultBirthCount = (summary.difficultBirthCount +
-					1) as DifficultBirthCount;
-			}
-			break;
-	}
-
-	// Recalculate averages based on full history
+	// Recalculate all metrics based on full history
 	const metrics = calculateBreedingMetrics(breedingHistory);
 
+	// Count events from history
+	const inseminationEvents = breedingHistory.filter(
+		(e) => e.type === "Inseminate"
+	);
+	const pregnancyEvents = breedingHistory.filter(
+		(e) => e.type === "ConfirmPregnancy"
+	);
+	const calvingEvents = breedingHistory.filter((e) => e.type === "Calve");
+
+	// Count difficult births
+	let difficultBirthCount = 0;
+	for (const calvingEvent of calvingEvents) {
+		if (calvingEvent.isDifficultBirth) {
+			difficultBirthCount++;
+		}
+	}
+
 	return {
-		...newSummary,
-		averageDaysOpen: metrics.averageDaysOpen as AverageDaysOpen | null,
-		averagePregnancyPeriod:
-			metrics.averagePregnancyPeriod as AveragePregnancyPeriod | null,
-		averageCalvingInterval:
-			metrics.averageCalvingInterval as AverageCalvingInterval | null,
-		pregnancySuccessRate:
-			metrics.pregnancySuccessRate as PregnancySuccessRate | null,
+		totalInseminationCount: inseminationEvents.length as TotalInseminationCount,
+		averageDaysOpen: metrics.averageDaysOpen,
+		averagePregnancyPeriod: metrics.averagePregnancyPeriod,
+		averageCalvingInterval: metrics.averageCalvingInterval,
+		difficultBirthCount: difficultBirthCount as DifficultBirthCount,
+		pregnancyHeadCount: pregnancyEvents.length as PregnancyHeadCount,
+		pregnancySuccessRate: metrics.pregnancySuccessRate,
 		lastUpdated: new Date()
 	};
 }
@@ -192,10 +184,10 @@ export function updateBreedingSummary(
  * 履歴から集計指標を計算します。
  */
 function calculateBreedingMetrics(history: BreedingEvent[]): {
-	averageDaysOpen: number | null;
-	averagePregnancyPeriod: number | null;
-	averageCalvingInterval: number | null;
-	pregnancySuccessRate: number | null;
+	averageDaysOpen: AverageDaysOpen | null;
+	averagePregnancyPeriod: AveragePregnancyPeriod | null;
+	averageCalvingInterval: AverageCalvingInterval | null;
+	pregnancySuccessRate: PregnancySuccessRate | null;
 } {
 	if (history.length === 0) {
 		return {
@@ -237,7 +229,9 @@ function calculateBreedingMetrics(history: BreedingEvent[]): {
 
 	const averagePregnancyPeriod =
 		pregnancyPeriodCount > 0
-			? Math.round(totalPregnancyDays / pregnancyPeriodCount)
+			? (Math.round(
+					totalPregnancyDays / pregnancyPeriodCount
+				) as AveragePregnancyPeriod)
 			: null;
 
 	// Calculate average calving interval
@@ -254,7 +248,9 @@ function calculateBreedingMetrics(history: BreedingEvent[]): {
 
 	const averageCalvingInterval =
 		calvingIntervalCount > 0
-			? Math.round(totalCalvingInterval / calvingIntervalCount)
+			? (Math.round(
+					totalCalvingInterval / calvingIntervalCount
+				) as AverageCalvingInterval)
 			: null;
 
 	// Average days open is complex to calculate without more context
@@ -265,7 +261,7 @@ function calculateBreedingMetrics(history: BreedingEvent[]): {
 		averageDaysOpen,
 		averagePregnancyPeriod,
 		averageCalvingInterval,
-		pregnancySuccessRate
+		pregnancySuccessRate: pregnancySuccessRate as PregnancySuccessRate | null
 	};
 }
 
@@ -275,7 +271,11 @@ function calculateBreedingMetrics(history: BreedingEvent[]): {
 export function getBreedingPerformanceRating(
 	summary: BreedingSummary
 ): "Excellent" | "Good" | "Average" | "Poor" | "Unknown" {
-	if (!summary.pregnancySuccessRate) return "Unknown";
+	if (
+		summary.pregnancySuccessRate === null ||
+		summary.pregnancySuccessRate === undefined
+	)
+		return "Unknown";
 
 	if (summary.pregnancySuccessRate >= 90) return "Excellent";
 	if (summary.pregnancySuccessRate >= 75) return "Good";
