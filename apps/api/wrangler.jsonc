@@ -1,30 +1,22 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "gyulist-api",
-	"main": "src/index.ts",
+	"main": "src/batch-scheduled.ts",
 	"compatibility_date": "2025-04-27",
 	"triggers": {
-		"crons": [
-			"0 2 * * *" // 毎日午前2時に実行
-		]
+		"crons": ["0 2 * * *"]
 	},
 	"vars": {
 		"APP_URL": "http://localhost:8787",
 		"ENVIRONMENT": "development",
 		"JWT_SECRET": "secret"
-		// Google OAuth設定は .dev.vars で管理
-		// ローカル開発: .dev.vars ファイルに記載
-		// 本番環境: wrangler secret put コマンドで設定
 	},
 	"env": {
-		"production": {
+		"development": {
 			"vars": {
-				"APP_URL": "https://api.gyulist.com",
-				"ENVIRONMENT": "production"
-				// 本番環境の機密情報は wrangler secret put で設定:
-				// wrangler secret put GOOGLE_CLIENT_ID
-				// wrangler secret put GOOGLE_CLIENT_SECRET
-				// wrangler secret put JWT_SECRET
+				"APP_URL": "http://localhost:8787",
+				"ENVIRONMENT": "development",
+				"JWT_SECRET": "secret"
 			},
 			"d1_databases": [
 				{
@@ -34,20 +26,29 @@
 					"migrations_dir": "drizzle/migrations"
 				}
 			]
+		},
+		"production": {
+			"vars": {
+				"APP_URL": "https://api.gyulist.com",
+				"ENVIRONMENT": "production"
+			},
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "gyulist",
+					"database_id": "7caf92b9-b864-48ca-a69a-bdc006b8bf4f",
+					"migrations_dir": "drizzle/migrations"
+				}
+			],
+			"triggers": {
+				"crons": ["0 2 * * *"]
+			},
+			"observability": {
+				"enabled": true,
+				"head_sampling_rate": 1
+			}
 		}
 	},
-	// "kv_namespaces": [
-	//   {
-	//     "binding": "MY_KV_NAMESPACE",
-	//     "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	//   }
-	// ],
-	// "r2_buckets": [
-	//   {
-	//     "binding": "MY_BUCKET",
-	//     "bucket_name": "my-bucket"
-	//   }
-	// ],
 	"d1_databases": [
 		{
 			"binding": "DB",
@@ -56,11 +57,4 @@
 			"migrations_dir": "drizzle/migrations"
 		}
 	]
-	// "ai": {
-	//   "binding": "AI"
-	// },
-	// "observability": {
-	//   "enabled": true,
-	//   "head_sampling_rate": 1
-	// }
 }
