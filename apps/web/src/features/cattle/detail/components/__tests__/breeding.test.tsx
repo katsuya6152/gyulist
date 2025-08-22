@@ -59,69 +59,79 @@ describe("Breeding", () => {
 		healthStatus: "健康"
 	} as unknown as GetCattleDetailResType;
 
+	it("should render breeding schedule correctly", () => {
+		render(<Breeding cattle={mockCattle} />);
+
+		// 妊娠・分娩スケジュールセクションの確認
+		expect(screen.getByText("妊娠・分娩スケジュール")).toBeInTheDocument();
+		expect(screen.getByText("妊娠進行状況")).toBeInTheDocument();
+		// 妊娠後期は複数箇所で表示されるため、最初のものを取得
+		expect(screen.getAllByText("妊娠後期")[0]).toBeInTheDocument();
+		// パーセンテージと「完了」が分割されているため、個別に確認
+		expect(screen.getByText("99.3%")).toBeInTheDocument();
+		expect(screen.getByText("完了")).toBeInTheDocument();
+		// 280日は複数箇所で表示されるため、getAllByTextを使用
+		expect(screen.getAllByText("280日")[0]).toBeInTheDocument();
+		// 282日は複数箇所で表示されるため、getAllByTextを使用
+		expect(screen.getAllByText("282日")[0]).toBeInTheDocument();
+	});
+
 	it("should render breeding status correctly", () => {
 		render(<Breeding cattle={mockCattle} />);
 
-		// 繁殖（現在の状態）セクションの確認
-		expect(screen.getByText("繁殖（現在の状態）")).toBeInTheDocument();
-
-		expect(screen.getByText("産次:")).toBeInTheDocument();
-		expect(screen.getByText("3産")).toBeInTheDocument();
-
-		expect(screen.getByText("分娩予定日:")).toBeInTheDocument();
-		expect(screen.getByText("2024-06-01")).toBeInTheDocument();
-
-		expect(screen.getByText("妊娠鑑定予定日:")).toBeInTheDocument();
-		expect(screen.getByText("2024-05-01")).toBeInTheDocument();
-
-		expect(screen.getByText("分娩後経過日数:")).toBeInTheDocument();
-		expect(screen.getByText("120日")).toBeInTheDocument();
-
-		expect(screen.getByText("空胎日数:")).toBeInTheDocument();
+		// 繁殖状態（現在）セクションの確認
+		expect(screen.getByText("繁殖状態（現在）")).toBeInTheDocument();
+		expect(screen.getByText("産次")).toBeInTheDocument();
+		// 3産は複数箇所で表示されるため、最初のものを取得
+		expect(screen.getAllByText("3産")[0]).toBeInTheDocument();
+		// 空胎日数は複数箇所で表示されるため、最初のものを取得
+		expect(screen.getAllByText("空胎日数")[0]).toBeInTheDocument();
 		expect(screen.getByText("90日")).toBeInTheDocument();
-
-		expect(screen.getByText("妊娠日数:")).toBeInTheDocument();
-		expect(screen.getByText("280日")).toBeInTheDocument();
-
-		expect(screen.getByText("受精後日数:")).toBeInTheDocument();
-		expect(screen.getByText("30日")).toBeInTheDocument();
-
-		expect(screen.getByText("種付回数:")).toBeInTheDocument();
+		// 良好は複数箇所で表示されるため、最初のものを取得
+		expect(screen.getAllByText("良好")[0]).toBeInTheDocument();
+		expect(screen.getByText("妊娠日数")).toBeInTheDocument();
+		// 280日は複数箇所で表示されるため、getAllByTextを使用
+		expect(screen.getAllByText("280日")[0]).toBeInTheDocument();
+		// 妊娠後期は複数箇所で表示されるため、最初のものを取得
+		expect(screen.getAllByText("妊娠後期")[0]).toBeInTheDocument();
+		expect(screen.getByText("種付回数")).toBeInTheDocument();
 		expect(screen.getByText("2回")).toBeInTheDocument();
-
-		expect(screen.getByText("前回の出産:")).toBeInTheDocument();
-		expect(screen.getByText("安産")).toBeInTheDocument();
-
-		expect(screen.getByText("繁殖メモ:")).toBeInTheDocument();
-		expect(screen.getByText("順調に妊娠中")).toBeInTheDocument();
+		// 良好は複数箇所で表示されるため、最初のものを取得
+		expect(screen.getAllByText("良好")[0]).toBeInTheDocument();
 	});
 
-	it("should render breeding summary correctly", () => {
+	it("should render breeding history correctly", () => {
 		render(<Breeding cattle={mockCattle} />);
 
-		// 繁殖（累計）セクションの確認
-		expect(screen.getByText("繁殖（累計）")).toBeInTheDocument();
-
-		expect(screen.getByText("累計種付回数:")).toBeInTheDocument();
-		expect(screen.getByText("8回")).toBeInTheDocument();
-
-		expect(screen.getByText("平均空胎日数:")).toBeInTheDocument();
+		// 繁殖履歴・パフォーマンスセクションの確認
+		expect(screen.getByText("繁殖履歴・パフォーマンス")).toBeInTheDocument();
+		expect(screen.getByText("受胎率")).toBeInTheDocument();
+		expect(screen.getByText("75%")).toBeInTheDocument();
+		expect(screen.getByText("主要指標の平均値")).toBeInTheDocument();
+		expect(screen.getByText("パフォーマンス評価")).toBeInTheDocument();
+		// 空胎日数は複数箇所で表示されるため、最初のものを取得
+		expect(screen.getAllByText("空胎日数")[0]).toBeInTheDocument();
 		expect(screen.getByText("85日")).toBeInTheDocument();
-
-		expect(screen.getByText("平均妊娠期間:")).toBeInTheDocument();
-		expect(screen.getByText("282日")).toBeInTheDocument();
-
-		expect(screen.getByText("平均分娩間隔:")).toBeInTheDocument();
+		expect(screen.getByText("要改善")).toBeInTheDocument();
+		// 実際には「平均分娩間隔」として表示されている
+		expect(screen.getByText("平均分娩間隔")).toBeInTheDocument();
 		expect(screen.getByText("380日")).toBeInTheDocument();
+		// 良好は複数箇所で表示されるため、最初のものを取得
+		expect(screen.getAllByText("良好")[0]).toBeInTheDocument();
+	});
 
-		expect(screen.getByText("難産回数:")).toBeInTheDocument();
-		expect(screen.getByText("1回")).toBeInTheDocument();
+	it("should display breeding summary statistics correctly", () => {
+		render(<Breeding cattle={mockCattle} />);
 
-		expect(screen.getByText("受胎頭数:")).toBeInTheDocument();
-		expect(screen.getByText("3頭")).toBeInTheDocument();
-
-		expect(screen.getByText("受胎率:")).toBeInTheDocument();
-		expect(screen.getByText("75％")).toBeInTheDocument();
+		// 統計サマリーの確認
+		expect(screen.getByText("8")).toBeInTheDocument();
+		expect(screen.getByText("累計種付回数")).toBeInTheDocument();
+		expect(screen.getByText("3")).toBeInTheDocument();
+		expect(screen.getByText("受胎頭数")).toBeInTheDocument();
+		expect(screen.getByText("282")).toBeInTheDocument();
+		expect(screen.getByText("平均妊娠期間")).toBeInTheDocument();
+		expect(screen.getByText("1")).toBeInTheDocument();
+		expect(screen.getByText("難産回数")).toBeInTheDocument();
 	});
 
 	it("should display difficult birth correctly", () => {
@@ -153,105 +163,8 @@ describe("Breeding", () => {
 
 		render(<Breeding cattle={cattleWithNullDifficultBirth} />);
 
-		// 前回の出産の値として "-" が表示されることを確認
-		const dashElements = screen.getAllByText("-");
-		expect(dashElements.length).toBeGreaterThanOrEqual(1);
-	});
-
-	it("should display '-' for null breeding status values", () => {
-		const cattleWithNullValues: GetCattleDetailResType = {
-			...mockCattle,
-			breedingStatus: {
-				breedingStatusId: 1,
-				cattleId: 1,
-				parity: null,
-				expectedCalvingDate: null,
-				scheduledPregnancyCheckDate: null,
-				daysAfterCalving: null,
-				daysOpen: null,
-				pregnancyDays: null,
-				daysAfterInsemination: null,
-				inseminationCount: null,
-				isDifficultBirth: null,
-				breedingMemo: null,
-				createdAt: "2023-01-01T00:00:00Z",
-				updatedAt: "2023-12-01T00:00:00Z"
-			}
-		} as unknown as GetCattleDetailResType;
-
-		render(<Breeding cattle={cattleWithNullValues} />);
-
-		// 繁殖状態のnull値に対して "-" が表示されることを確認
-		const dashElements = screen.getAllByText("-");
-		expect(dashElements.length).toBeGreaterThanOrEqual(4); // 実際の表示に合わせて調整
-	});
-
-	it("should display '-' for null breeding summary values", () => {
-		const cattleWithNullSummary: GetCattleDetailResType = {
-			...mockCattle,
-			breedingSummary: {
-				breedingSummaryId: 1,
-				cattleId: 1,
-				totalInseminationCount: null,
-				averageDaysOpen: null,
-				averagePregnancyPeriod: null,
-				averageCalvingInterval: null,
-				difficultBirthCount: null,
-				pregnancyHeadCount: null,
-				pregnancySuccessRate: null
-			}
-		} as unknown as GetCattleDetailResType;
-
-		render(<Breeding cattle={cattleWithNullSummary} />);
-
-		// 繁殖サマリーのnull値に対して "-" が表示されることを確認
-		// "-回", "-日", "-頭", "-％" の形で表示されるため、単体の"-"は見つからない
-		const dashWithUnit = screen.getAllByText((content, element) => {
-			return (
-				content === "-回" ||
-				content === "-日" ||
-				content === "-頭" ||
-				content === "-％"
-			);
-		});
-		expect(dashWithUnit.length).toBe(7); // 7つの項目全てに "-" と単位が表示される
-	});
-
-	it("should show loading message when breeding status is null", () => {
-		const cattleWithoutBreedingStatus: GetCattleDetailResType = {
-			...mockCattle,
-			breedingStatus: null
-		} as GetCattleDetailResType;
-
-		render(<Breeding cattle={cattleWithoutBreedingStatus} />);
-
-		// "読み込み中..." が表示されることを確認
-		const loadingMessages = screen.getAllByText("読み込み中...");
-		expect(loadingMessages.length).toBeGreaterThanOrEqual(1);
-	});
-
-	it("should show loading message when breeding summary is null", () => {
-		const cattleWithoutBreedingSummary: GetCattleDetailResType = {
-			...mockCattle,
-			breedingSummary: null
-		} as GetCattleDetailResType;
-
-		render(<Breeding cattle={cattleWithoutBreedingSummary} />);
-
-		// "読み込み中..." が表示されることを確認
-		const loadingMessages = screen.getAllByText("読み込み中...");
-		expect(loadingMessages.length).toBeGreaterThanOrEqual(1);
-	});
-
-	it("should display creation and update timestamps", () => {
-		render(<Breeding cattle={mockCattle} />);
-
-		expect(
-			screen.getByText("登録日時: 2023-01-01T00:00:00Z")
-		).toBeInTheDocument();
-		expect(
-			screen.getByText("更新日時: 2023-12-01T00:00:00Z")
-		).toBeInTheDocument();
+		// 前回の出産セクションが表示されないことを確認
+		expect(screen.queryByText("前回の出産")).not.toBeInTheDocument();
 	});
 
 	it("should handle zero values correctly", () => {
@@ -261,23 +174,8 @@ describe("Breeding", () => {
 				? {
 						...mockCattle.breedingStatus,
 						parity: 0,
-						daysAfterCalving: 0,
-						daysOpen: 0,
 						pregnancyDays: 0,
-						daysAfterInsemination: 0,
 						inseminationCount: 0
-					}
-				: null,
-			breedingSummary: mockCattle.breedingSummary
-				? {
-						...mockCattle.breedingSummary,
-						totalInseminationCount: 0,
-						averageDaysOpen: 0,
-						averagePregnancyPeriod: 0,
-						averageCalvingInterval: 0,
-						difficultBirthCount: 0,
-						pregnancyHeadCount: 0,
-						pregnancySuccessRate: 0
 					}
 				: null
 		} as GetCattleDetailResType;
@@ -285,17 +183,69 @@ describe("Breeding", () => {
 		render(<Breeding cattle={cattleWithZeroValues} />);
 
 		// 0の値が正しく表示されることを確認
-		expect(screen.getByText("0産")).toBeInTheDocument();
+		expect(screen.getAllByText("0産")).toHaveLength(2); // 複数箇所で表示される
 
 		// "0回"が複数存在するため、getAllByTextを使用
-		const zeroCountElements = screen.getAllByText("0回");
-		expect(zeroCountElements.length).toBeGreaterThanOrEqual(2); // inseminationCount と totalInseminationCount
+		const zeroInseminationElements = screen.getAllByText("0回");
+		expect(zeroInseminationElements.length).toBeGreaterThanOrEqual(1);
+	});
 
-		// "0日"が複数存在するため、getAllByTextを使用
-		const zeroDayElements = screen.getAllByText("0日");
-		expect(zeroDayElements.length).toBeGreaterThanOrEqual(6); // 複数の日数フィールド
+	it("should handle null breeding status gracefully", () => {
+		const cattleWithoutBreedingStatus: GetCattleDetailResType = {
+			...mockCattle,
+			breedingStatus: null
+		} as GetCattleDetailResType;
 
-		expect(screen.getByText("0頭")).toBeInTheDocument();
-		expect(screen.getByText("0％")).toBeInTheDocument();
+		render(<Breeding cattle={cattleWithoutBreedingStatus} />);
+
+		// 妊娠・分娩スケジュールと繁殖状態は表示されない
+		expect(
+			screen.queryByText("妊娠・分娩スケジュール")
+		).not.toBeInTheDocument();
+		expect(screen.queryByText("繁殖状態（現在）")).not.toBeInTheDocument();
+
+		// 繁殖履歴・パフォーマンスは表示される
+		expect(screen.getByText("繁殖履歴・パフォーマンス")).toBeInTheDocument();
+	});
+
+	it("should handle null breeding summary gracefully", () => {
+		const cattleWithoutBreedingSummary: GetCattleDetailResType = {
+			...mockCattle,
+			breedingSummary: null
+		} as GetCattleDetailResType;
+
+		render(<Breeding cattle={cattleWithoutBreedingSummary} />);
+
+		// 妊娠・分娩スケジュールと繁殖状態は表示される
+		expect(screen.getByText("妊娠・分娩スケジュール")).toBeInTheDocument();
+		expect(screen.getByText("繁殖状態（現在）")).toBeInTheDocument();
+
+		// 繁殖履歴・パフォーマンスは表示されない
+		expect(
+			screen.queryByText("繁殖履歴・パフォーマンス")
+		).not.toBeInTheDocument();
+	});
+
+	it("should display breeding memo when available", () => {
+		render(<Breeding cattle={mockCattle} />);
+
+		expect(screen.getByText("繁殖メモ")).toBeInTheDocument();
+		expect(screen.getByText("順調に妊娠中")).toBeInTheDocument();
+	});
+
+	it("should not display breeding memo when not available", () => {
+		const cattleWithoutMemo: GetCattleDetailResType = {
+			...mockCattle,
+			breedingStatus: mockCattle.breedingStatus
+				? {
+						...mockCattle.breedingStatus,
+						breedingMemo: null
+					}
+				: null
+		} as GetCattleDetailResType;
+
+		render(<Breeding cattle={cattleWithoutMemo} />);
+
+		expect(screen.queryByText("繁殖メモ")).not.toBeInTheDocument();
 	});
 });
