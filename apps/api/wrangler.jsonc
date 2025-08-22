@@ -4,7 +4,7 @@
 	"main": "src/index.ts",
 	"compatibility_date": "2025-04-27",
 	"triggers": {
-		"crons": ["0 2 * * *"]
+		"crons": ["0 17 * * *"] // 2:00 JST
 	},
 	"vars": {
 		"APP_URL": "http://localhost:8787",
