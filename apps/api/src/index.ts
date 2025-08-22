@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { hc } from "hono/client";
+import { scheduled } from "./batch-scheduled";
 import {
 	getAllUserIds,
 	updateAlertsBatch
@@ -166,7 +167,8 @@ export const createClient = (
 	return hc<AppType>(...args);
 };
 
-export default app;
-
-// Cloudflare Workers Cronトリガー用のエクスポート
-export { scheduled } from "./batch-scheduled";
+// Cloudflare WorkersのCron TriggersとHonoアプリを統合
+export default {
+	fetch: app.fetch,
+	scheduled
+};
