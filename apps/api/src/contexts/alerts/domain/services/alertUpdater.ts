@@ -1,5 +1,6 @@
 import type { Result } from "../../../../shared/result";
 import { err, ok } from "../../../../shared/result";
+import type { EventsRepoPort } from "../../../events/ports";
 import type { AlertsRepoPort } from "../../ports";
 import type { AlertsDomainError } from "../errors";
 import type {
@@ -13,6 +14,7 @@ import type {
 } from "../model";
 import { toTimestamp } from "../model";
 import { createAlertHistory } from "../model/alertHistory";
+import type { CattleId } from "../model/types";
 
 // ============================================================================
 // 依存関係とコマンド
@@ -23,6 +25,7 @@ import { createAlertHistory } from "../model/alertHistory";
  */
 export type AlertUpdaterDeps = {
 	/** アラートリポジトリ */ repo: AlertsRepoPort;
+	/** イベントリポジトリ */ eventsRepo?: EventsRepoPort;
 	/** 時刻取得器 */ time: { nowSeconds(): number };
 	/** ID生成器 */ idGenerator: { generate(): string };
 };
@@ -92,6 +95,10 @@ export const updateAlertsForUser =
 			const existingAlerts = await deps.repo.findActiveAlertsByUserId(userId);
 			let resolvedCount = 0;
 
+			console.log(
+				`[Alert Update] User ${userId}: Checking ${existingAlerts.length} existing alerts for resolution`
+			);
+
 			for (const alert of existingAlerts) {
 				const shouldResolve = await checkIfAlertShouldBeResolved(
 					deps,
@@ -99,6 +106,9 @@ export const updateAlertsForUser =
 					now
 				);
 				if (shouldResolve) {
+					console.log(
+						`[Alert Update] Resolving alert ${alert.id} (${alert.type}) for cattle ${alert.cattleId}`
+					);
 					const updateResult = await updateAlertStatus(deps)({
 						alertId: alert.id,
 						newStatus: "resolved",
@@ -109,9 +119,21 @@ export const updateAlertsForUser =
 
 					if (updateResult.ok) {
 						resolvedCount++;
+						console.log(
+							`[Alert Update] Successfully resolved alert ${alert.id}`
+						);
+					} else {
+						console.error(
+							`[Alert Update] Failed to resolve alert ${alert.id}:`,
+							updateResult.error
+						);
 					}
 				}
 			}
+
+			console.log(
+				`[Alert Update] User ${userId}: Resolved ${resolvedCount} alerts`
+			);
 
 			// 2. 新規アラートを生成
 			const newAlertsResult = await deps.repo.generateAlertsForUser(
@@ -271,17 +293,265 @@ export const updateAlertMemo =
 
 /**
  * アラートが解決されるべきかチェック
- * 現在は簡易的な実装（将来的に詳細な条件チェックを実装可能）
+ * 各アラートタイプに応じた解決条件を実装
  */
 async function checkIfAlertShouldBeResolved(
 	deps: AlertUpdaterDeps,
 	alert: Alert,
 	now: Date
 ): Promise<boolean> {
-	// 現在は簡易的な実装
-	// 将来的に詳細な条件チェックが必要になった場合は、
-	// 各アラートタイプに応じた解決条件を実装
-	return false;
+	try {
+		switch (alert.type) {
+			case "OPEN_DAYS_OVER60_NO_AI":
+				// 空胎60日以上（AI未実施）の解決条件
+				// 人工授精が実施された場合、または分娩が発生した場合
+				return await checkOpenDaysResolution(deps, alert, now);
+
+			case "CALVING_WITHIN_60":
+				// 60日以内分娩予定の解決条件
+				// 分娩が発生した場合、または分娩予定日を過ぎた場合
+				return await checkCalvingWithinResolution(deps, alert, now);
+
+			case "CALVING_OVERDUE":
+				// 分娩予定日超過の解決条件
+				// 分娩が発生した場合
+				return await checkCalvingOverdueResolution(deps, alert, now);
+
+			case "ESTRUS_OVER20_NOT_PREGNANT":
+				// 発情から20日以上未妊娠の解決条件
+				// 妊娠確認が実施された場合、または再発情が確認された場合
+				return await checkEstrusOverResolution(deps, alert, now);
+
+			default:
+				console.warn(`Unknown alert type: ${alert.type}`);
+				return false;
+		}
+	} catch (error) {
+		console.error(`Error checking alert resolution for ${alert.type}:`, error);
+		return false;
+	}
+}
+
+// ============================================================================
+// アラート解決条件チェック関数
+// ============================================================================
+
+/**
+ * 空胎60日以上（AI未実施）アラートの解決条件チェック
+ */
+async function checkOpenDaysResolution(
+	deps: AlertUpdaterDeps,
+	alert: Alert,
+	now: Date
+): Promise<boolean> {
+	try {
+		// アラート作成日以降の人工授精イベントまたは分娩イベントをチェック
+		const alertCreatedAt = new Date(alert.createdAt);
+
+		// 人工授精イベントをチェック（INSEMINATION）
+		const hasInseminationAfterAlert = await checkEventAfterDate(
+			deps,
+			alert.cattleId,
+			alert.ownerUserId,
+			["INSEMINATION"],
+			alertCreatedAt
+		);
+
+		// 分娩イベントをチェック（CALVING）
+		const hasCalvingAfterAlert = await checkEventAfterDate(
+			deps,
+			alert.cattleId,
+			alert.ownerUserId,
+			["CALVING"],
+			alertCreatedAt
+		);
+
+		const shouldResolve = hasInseminationAfterAlert || hasCalvingAfterAlert;
+
+		if (shouldResolve) {
+			console.log(
+				`[Alert Resolution] OPEN_DAYS_OVER60_NO_AI resolved for cattle ${alert.cattleId}: ${hasInseminationAfterAlert ? "INSEMINATION" : "CALVING"} event found`
+			);
+		}
+
+		return shouldResolve;
+	} catch (error) {
+		console.error("Error checking open days resolution:", error);
+		return false;
+	}
+}
+
+/**
+ * 60日以内分娩予定アラートの解決条件チェック
+ */
+async function checkCalvingWithinResolution(
+	deps: AlertUpdaterDeps,
+	alert: Alert,
+	now: Date
+): Promise<boolean> {
+	try {
+		const alertCreatedAt = new Date(alert.createdAt);
+
+		// 分娩イベントをチェック（CALVING）
+		const hasCalvingAfterAlert = await checkEventAfterDate(
+			deps,
+			alert.cattleId,
+			alert.ownerUserId,
+			["CALVING"],
+			alertCreatedAt
+		);
+
+		// 分娩予定日を過ぎた場合もアラートを解決
+		// alert.dueAtが分娩予定日を示している
+		const isPastDueDate = alert.dueAt ? now > new Date(alert.dueAt) : false;
+
+		const shouldResolve = hasCalvingAfterAlert || isPastDueDate;
+
+		if (shouldResolve) {
+			console.log(
+				`[Alert Resolution] CALVING_WITHIN_60 resolved for cattle ${alert.cattleId}: ${hasCalvingAfterAlert ? "CALVING event found" : "Past due date"}`
+			);
+		}
+
+		return shouldResolve;
+	} catch (error) {
+		console.error("Error checking calving within resolution:", error);
+		return false;
+	}
+}
+
+/**
+ * 分娩予定日超過アラートの解決条件チェック
+ */
+async function checkCalvingOverdueResolution(
+	deps: AlertUpdaterDeps,
+	alert: Alert,
+	now: Date
+): Promise<boolean> {
+	try {
+		const alertCreatedAt = new Date(alert.createdAt);
+
+		// 分娩イベントをチェック（CALVING）
+		const hasCalvingAfterAlert = await checkEventAfterDate(
+			deps,
+			alert.cattleId,
+			alert.ownerUserId,
+			["CALVING"],
+			alertCreatedAt
+		);
+
+		if (hasCalvingAfterAlert) {
+			console.log(
+				`[Alert Resolution] CALVING_OVERDUE resolved for cattle ${alert.cattleId}: CALVING event found`
+			);
+		}
+
+		return hasCalvingAfterAlert;
+	} catch (error) {
+		console.error("Error checking calving overdue resolution:", error);
+		return false;
+	}
+}
+
+/**
+ * 発情から20日以上未妊娠アラートの解決条件チェック
+ */
+async function checkEstrusOverResolution(
+	deps: AlertUpdaterDeps,
+	alert: Alert,
+	now: Date
+): Promise<boolean> {
+	try {
+		const alertCreatedAt = new Date(alert.createdAt);
+
+		// 妊娠確認イベントをチェック（PREGNANCY_CHECK）
+		const hasPregnancyCheckAfterAlert = await checkEventAfterDate(
+			deps,
+			alert.cattleId,
+			alert.ownerUserId,
+			["PREGNANCY_CHECK"],
+			alertCreatedAt
+		);
+
+		// 再発情イベントをチェック（ESTRUS）
+		const hasEstrusAfterAlert = await checkEventAfterDate(
+			deps,
+			alert.cattleId,
+			alert.ownerUserId,
+			["ESTRUS"],
+			alertCreatedAt
+		);
+
+		// 人工授精イベントをチェック（INSEMINATION）
+		const hasInseminationAfterAlert = await checkEventAfterDate(
+			deps,
+			alert.cattleId,
+			alert.ownerUserId,
+			["INSEMINATION"],
+			alertCreatedAt
+		);
+
+		const shouldResolve =
+			hasPregnancyCheckAfterAlert ||
+			hasEstrusAfterAlert ||
+			hasInseminationAfterAlert;
+
+		if (shouldResolve) {
+			const reason = hasPregnancyCheckAfterAlert
+				? "PREGNANCY_CHECK"
+				: hasEstrusAfterAlert
+					? "ESTRUS"
+					: "INSEMINATION";
+			console.log(
+				`[Alert Resolution] ESTRUS_OVER20_NOT_PREGNANT resolved for cattle ${alert.cattleId}: ${reason} event found`
+			);
+		}
+
+		return shouldResolve;
+	} catch (error) {
+		console.error("Error checking estrus over resolution:", error);
+		return false;
+	}
+}
+
+// ============================================================================
+// 共通ヘルパー関数
+// ============================================================================
+
+/**
+ * 指定した日付以降に特定のイベントタイプが発生したかチェック
+ */
+async function checkEventAfterDate(
+	deps: AlertUpdaterDeps,
+	cattleId: CattleId,
+	ownerUserId: UserId,
+	eventTypes: string[],
+	afterDate: Date
+): Promise<boolean> {
+	try {
+		// イベントリポジトリが利用できない場合はfalseを返す
+		if (!deps.eventsRepo) {
+			console.warn("Events repository not available for alert resolution");
+			return false;
+		}
+
+		// 指定した牛のイベント一覧を取得
+		const events = await deps.eventsRepo.listByCattleId(cattleId, ownerUserId);
+
+		// 指定した日付以降の対象イベントタイプをチェック
+		const hasEventAfterDate = events.some((event) => {
+			const eventDate = new Date(event.eventDatetime);
+			return eventTypes.includes(event.eventType) && eventDate >= afterDate;
+		});
+
+		return hasEventAfterDate;
+	} catch (error) {
+		console.error(
+			`Error checking events after date for cattle ${cattleId}:`,
+			error
+		);
+		return false;
+	}
 }
 
 /**

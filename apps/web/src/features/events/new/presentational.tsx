@@ -50,8 +50,8 @@ export function EventNewPresentation({ cattle }: EventNewPresentationProps) {
 		shouldRevalidate: "onInput",
 		defaultValue: {
 			cattleId: cattle.cattleId.toString(),
-			eventDate: new Date().toISOString().split("T")[0], // 今日の日付
-			eventTime: new Date().toTimeString().slice(0, 5) // 現在時刻
+			eventDate: new Date().toISOString().split("T")[0], // 今日の日付（YYYY-MM-DD形式）
+			eventTime: new Date().toTimeString().slice(0, 5) // 現在時刻（HH:MM形式）
 		}
 	});
 

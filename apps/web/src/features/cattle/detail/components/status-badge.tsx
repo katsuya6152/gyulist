@@ -112,6 +112,8 @@ export function StatusBadge({ cattleId, status }: StatusBadgeProps) {
 								currentStatus === "RESTING",
 							"text-red-500 border-red-500 hover:bg-red-50 hover:border-red-600 active:bg-red-100":
 								currentStatus === "TREATING",
+							"text-orange-500 border-orange-500 hover:bg-orange-50 hover:border-orange-600 active:bg-orange-100":
+								currentStatus === "SCHEDULED_FOR_SHIPMENT",
 							"text-gray-500 border-gray-500 hover:bg-gray-50 hover:border-gray-600 active:bg-gray-100":
 								currentStatus === "SHIPPED",
 							"text-red-600 border-red-600 hover:bg-red-50 hover:border-red-700 active:bg-red-100":

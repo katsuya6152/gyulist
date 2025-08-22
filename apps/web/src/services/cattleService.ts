@@ -11,7 +11,64 @@ import type {
 
 export type GetCattleListResType = CattleListResponse;
 
-export type GetCattleDetailResType = CattleResponse;
+// CattleResponseではなく、cattleResponseSchemaの型を使用
+export type GetCattleDetailResType = CattleResponse & {
+	breedingSummary?: {
+		breedingSummaryId: number;
+		cattleId: number;
+		totalInseminationCount: number | null;
+		averageDaysOpen: number | null;
+		averagePregnancyPeriod: number | null;
+		averageCalvingInterval: number | null;
+		difficultBirthCount: number | null;
+		pregnancyHeadCount: number | null;
+		pregnancySuccessRate: number | null;
+		createdAt: string;
+		updatedAt: string;
+	} | null;
+	bloodline?: {
+		bloodlineId: number;
+		cattleId: number;
+		fatherCattleName: string | null;
+		motherFatherCattleName: string | null;
+		motherGrandFatherCattleName: string | null;
+		motherGreatGrandFatherCattleName: string | null;
+	} | null;
+	motherInfo?: {
+		motherInfoId: number;
+		cattleId: number;
+		motherCattleId: number;
+		motherName: string | null;
+		motherIdentificationNumber: string | null;
+		motherScore: number | null;
+	} | null;
+	breedingStatus?: {
+		breedingStatusId: number;
+		cattleId: number;
+		parity: number | null;
+		expectedCalvingDate: string | null;
+		scheduledPregnancyCheckDate: string | null;
+		daysAfterCalving: number | null;
+		daysOpen: number | null;
+		pregnancyDays: number | null;
+		daysAfterInsemination: number | null;
+		inseminationCount: number | null;
+		breedingMemo: string | null;
+		isDifficultBirth: boolean | null;
+		createdAt: string;
+		updatedAt: string;
+	} | null;
+	events?: Array<{
+		eventId: number;
+		cattleId: number;
+		eventType: string;
+		eventDatetime: string;
+		notes: string | null;
+		createdAt: string;
+		updatedAt: string;
+	}>;
+	daysOpen?: number | null;
+};
 
 export type CattleListQueryParams = {
 	cursor?: string;

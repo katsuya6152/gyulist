@@ -108,13 +108,21 @@ export function makeRegistrationDeps(db: AnyD1Database): RegistrationDeps {
 // Alerts dependencies
 export type AlertsDeps = {
 	repo: AlertsRepoPort;
+	eventsRepo: EventsRepoPort;
+	time: { nowSeconds: () => number };
+	idGenerator: { generate: () => string };
 };
 
 export function makeAlertsDeps(db: AnyD1Database): AlertsDeps {
 	return {
 		get repo() {
 			return makeAlertsRepo(db);
-		} // Lazy evaluation to avoid hoisting issues
+		}, // Lazy evaluation to avoid hoisting issues
+		get eventsRepo() {
+			return makeEventsRepo(db);
+		}, // Lazy evaluation
+		time: { nowSeconds: () => Math.floor(Date.now() / 1000) },
+		idGenerator: { generate: () => crypto.randomUUID() }
 	};
 }
 

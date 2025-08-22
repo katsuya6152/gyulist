@@ -25,7 +25,7 @@
 		"./src/contexts/auth/domain/services/verify.ts",
 		"./src/contexts/auth/domain/services/updateTheme.ts",
 		"./src/contexts/events/ports.ts",
-		"./src/contexts/events/domain/constants.ts",
+		"./src/contexts/events/domain/model/constants.ts",
 		"./src/contexts/events/domain/errors.ts",
 		"./src/contexts/events/domain/services/create.ts",
 		"./src/contexts/events/domain/services/search.ts",

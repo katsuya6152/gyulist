@@ -9,14 +9,18 @@
 	"vars": {
 		"APP_URL": "http://localhost:8787",
 		"ENVIRONMENT": "development",
-		"JWT_SECRET": "secret"
+		"JWT_SECRET": "secret",
+		"ADMIN_USER": "admin",
+		"ADMIN_PASS": "admin"
 	},
 	"env": {
 		"development": {
 			"vars": {
 				"APP_URL": "http://localhost:8787",
 				"ENVIRONMENT": "development",
-				"JWT_SECRET": "secret"
+				"JWT_SECRET": "secret",
+				"ADMIN_USER": "admin",
+				"ADMIN_PASS": "admin"
 			},
 			"d1_databases": [
 				{

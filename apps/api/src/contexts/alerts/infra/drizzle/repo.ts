@@ -383,79 +383,120 @@ class DrizzleAlertsRepo implements AlertsRepoPort {
 			const now = new Date(nowIso);
 			const currentTime = toTimestamp(Math.floor(now.getTime() / 1000));
 
+			// 既存のアクティブアラートを取得（重複チェック用）
+			const existingAlerts = await this.findActiveAlertsByUserId(userId);
+			console.log(
+				`[Alert Generation] User ${userId}: Found ${existingAlerts.length} existing active alerts`
+			);
+
 			// 1. 空胎60日以上（AI未実施）の牛を検索
 			const openDaysOver60NoAI = await this.findOpenDaysOver60NoAI(
 				userId,
 				nowIso
 			);
 
+			let newAlertsCount = 0;
 			for (const cattle of openDaysOver60NoAI) {
-				const alert: Alert = {
-					id: `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` as AlertId,
-					type: "OPEN_DAYS_OVER60_NO_AI",
-					severity: "high",
-					status: "active",
-					cattleId: toCattleId(cattle.cattleId),
-					cattleName: toCattleName(cattle.cattleName),
-					cattleEarTagNumber: toEarTagNumber(cattle.cattleEarTagNumber),
-					dueAt: toDueDate(cattle.dueAt),
-					message: toAlertMessage("空胎60日以上（AI未実施）"),
-					memo: null,
-					ownerUserId: toUserId(userId),
-					createdAt: currentTime,
-					updatedAt: currentTime,
-					acknowledgedAt: null,
-					resolvedAt: null
-				};
-				alerts.push(alert);
+				// 既存の同じタイプのアラートが存在するかチェック
+				const existingAlert = existingAlerts.find(
+					(alert) =>
+						alert.type === "OPEN_DAYS_OVER60_NO_AI" &&
+						alert.cattleId === toCattleId(cattle.cattleId)
+				);
+
+				// 既存アラートが存在しない場合のみ新規作成
+				if (!existingAlert) {
+					const alert: Alert = {
+						id: `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` as AlertId,
+						type: "OPEN_DAYS_OVER60_NO_AI",
+						severity: "high",
+						status: "active",
+						cattleId: toCattleId(cattle.cattleId),
+						cattleName: toCattleName(cattle.cattleName),
+						cattleEarTagNumber: toEarTagNumber(cattle.cattleEarTagNumber),
+						dueAt: toDueDate(cattle.dueAt),
+						message: toAlertMessage("空胎60日以上（AI未実施）"),
+						memo: null,
+						ownerUserId: toUserId(userId),
+						createdAt: currentTime,
+						updatedAt: currentTime,
+						acknowledgedAt: null,
+						resolvedAt: null
+					};
+					alerts.push(alert);
+					newAlertsCount++;
+				}
 			}
+			console.log(
+				`[Alert Generation] User ${userId}: OPEN_DAYS_OVER60_NO_AI - Found ${openDaysOver60NoAI.length} cattle, Created ${newAlertsCount} new alerts`
+			);
 
 			// 2. 60日以内分娩予定の牛を検索
 			const calvingWithin60 = await this.findCalvingWithin60(userId, nowIso);
 
 			for (const cattle of calvingWithin60) {
-				const alert: Alert = {
-					id: `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` as AlertId,
-					type: "CALVING_WITHIN_60",
-					severity: "medium",
-					status: "active",
-					cattleId: toCattleId(cattle.cattleId),
-					cattleName: toCattleName(cattle.cattleName),
-					cattleEarTagNumber: toEarTagNumber(cattle.cattleEarTagNumber),
-					dueAt: toDueDate(cattle.dueAt),
-					message: toAlertMessage("60日以内分娩予定"),
-					memo: null,
-					ownerUserId: toUserId(userId),
-					createdAt: currentTime,
-					updatedAt: currentTime,
-					acknowledgedAt: null,
-					resolvedAt: null
-				};
-				alerts.push(alert);
+				// 既存の同じタイプのアラートが存在するかチェック
+				const existingAlert = existingAlerts.find(
+					(alert) =>
+						alert.type === "CALVING_WITHIN_60" &&
+						alert.cattleId === toCattleId(cattle.cattleId)
+				);
+
+				// 既存アラートが存在しない場合のみ新規作成
+				if (!existingAlert) {
+					const alert: Alert = {
+						id: `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` as AlertId,
+						type: "CALVING_WITHIN_60",
+						severity: "medium",
+						status: "active",
+						cattleId: toCattleId(cattle.cattleId),
+						cattleName: toCattleName(cattle.cattleName),
+						cattleEarTagNumber: toEarTagNumber(cattle.cattleEarTagNumber),
+						dueAt: toDueDate(cattle.dueAt),
+						message: toAlertMessage("60日以内分娩予定"),
+						memo: null,
+						ownerUserId: toUserId(userId),
+						createdAt: currentTime,
+						updatedAt: currentTime,
+						acknowledgedAt: null,
+						resolvedAt: null
+					};
+					alerts.push(alert);
+				}
 			}
 
 			// 3. 分娩予定日超過の牛を検索
 			const calvingOverdue = await this.findCalvingOverdue(userId, nowIso);
 
 			for (const cattle of calvingOverdue) {
-				const alert: Alert = {
-					id: `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` as AlertId,
-					type: "CALVING_OVERDUE",
-					severity: "high",
-					status: "active",
-					cattleId: toCattleId(cattle.cattleId),
-					cattleName: toCattleName(cattle.cattleName),
-					cattleEarTagNumber: toEarTagNumber(cattle.cattleEarTagNumber),
-					dueAt: toDueDate(cattle.dueAt),
-					message: toAlertMessage("分娩予定日超過"),
-					memo: null,
-					ownerUserId: toUserId(userId),
-					createdAt: currentTime,
-					updatedAt: currentTime,
-					acknowledgedAt: null,
-					resolvedAt: null
-				};
-				alerts.push(alert);
+				// 既存の同じタイプのアラートが存在するかチェック
+				const existingAlert = existingAlerts.find(
+					(alert) =>
+						alert.type === "CALVING_OVERDUE" &&
+						alert.cattleId === toCattleId(cattle.cattleId)
+				);
+
+				// 既存アラートが存在しない場合のみ新規作成
+				if (!existingAlert) {
+					const alert: Alert = {
+						id: `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` as AlertId,
+						type: "CALVING_OVERDUE",
+						severity: "high",
+						status: "active",
+						cattleId: toCattleId(cattle.cattleId),
+						cattleName: toCattleName(cattle.cattleName),
+						cattleEarTagNumber: toEarTagNumber(cattle.cattleEarTagNumber),
+						dueAt: toDueDate(cattle.dueAt),
+						message: toAlertMessage("分娩予定日超過"),
+						memo: null,
+						ownerUserId: toUserId(userId),
+						createdAt: currentTime,
+						updatedAt: currentTime,
+						acknowledgedAt: null,
+						resolvedAt: null
+					};
+					alerts.push(alert);
+				}
 			}
 
 			// 4. 発情から20日以上未妊娠の牛を検索
@@ -465,24 +506,34 @@ class DrizzleAlertsRepo implements AlertsRepoPort {
 			);
 
 			for (const cattle of estrusOver20NotPregnant) {
-				const alert: Alert = {
-					id: `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` as AlertId,
-					type: "ESTRUS_OVER20_NOT_PREGNANT",
-					severity: "medium",
-					status: "active",
-					cattleId: toCattleId(cattle.cattleId),
-					cattleName: toCattleName(cattle.cattleName),
-					cattleEarTagNumber: toEarTagNumber(cattle.cattleEarTagNumber),
-					dueAt: toDueDate(cattle.dueAt),
-					message: toAlertMessage("発情から20日以上未妊娠"),
-					memo: null,
-					ownerUserId: toUserId(userId),
-					createdAt: currentTime,
-					updatedAt: currentTime,
-					acknowledgedAt: null,
-					resolvedAt: null
-				};
-				alerts.push(alert);
+				// 既存の同じタイプのアラートが存在するかチェック
+				const existingAlert = existingAlerts.find(
+					(alert) =>
+						alert.type === "ESTRUS_OVER20_NOT_PREGNANT" &&
+						alert.cattleId === toCattleId(cattle.cattleId)
+				);
+
+				// 既存アラートが存在しない場合のみ新規作成
+				if (!existingAlert) {
+					const alert: Alert = {
+						id: `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` as AlertId,
+						type: "ESTRUS_OVER20_NOT_PREGNANT",
+						severity: "medium",
+						status: "active",
+						cattleId: toCattleId(cattle.cattleId),
+						cattleName: toCattleName(cattle.cattleName),
+						cattleEarTagNumber: toEarTagNumber(cattle.cattleEarTagNumber),
+						dueAt: toDueDate(cattle.dueAt),
+						message: toAlertMessage("発情から20日以上未妊娠"),
+						memo: null,
+						ownerUserId: toUserId(userId),
+						createdAt: currentTime,
+						updatedAt: currentTime,
+						acknowledgedAt: null,
+						resolvedAt: null
+					};
+					alerts.push(alert);
+				}
 			}
 
 			return ok(alerts);

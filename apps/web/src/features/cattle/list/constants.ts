@@ -1,4 +1,4 @@
-import type { CattleOutput } from "@repo/api";
+import type { CattleResponse } from "@repo/api";
 import {
 	GENDERS,
 	GENDER_LABELS,
@@ -8,7 +8,7 @@ import {
 import { z } from "zod";
 import { statusOptions } from "../constants";
 
-export type CattleListItem = CattleOutput;
+export type CattleListItem = CattleResponse;
 
 export const filterOptions = [
 	...GROWTH_STAGES.map((id) => ({
@@ -21,7 +21,8 @@ export const filterOptions = [
 export const sortOptions = [
 	{ id: "id", label: "ID" },
 	{ id: "name", label: "名前" },
-	{ id: "days_old", label: "日齢" }
+	{ id: "days_old", label: "日齢" },
+	{ id: "days_open", label: "空胎日数" }
 ] as const;
 
 export const FormSchema = z.object({

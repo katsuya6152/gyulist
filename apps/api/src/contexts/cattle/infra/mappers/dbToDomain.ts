@@ -19,9 +19,6 @@ export function toDomain(
 		gender: (row.gender ?? null) as DomainCattle["gender"],
 		birthday: row.birthday ? new Date(row.birthday) : null,
 		growthStage: (row.growthStage ?? null) as DomainCattle["growthStage"],
-		age: (row.age ?? null) as DomainCattle["age"],
-		monthsOld: (row.monthsOld ?? null) as DomainCattle["monthsOld"],
-		daysOld: (row.daysOld ?? null) as DomainCattle["daysOld"],
 		breed: (row.breed ?? null) as DomainCattle["breed"],
 		status: (row.status ?? null) as DomainCattle["status"],
 		producerName: (row.producerName ?? null) as DomainCattle["producerName"],
@@ -32,6 +29,11 @@ export function toDomain(
 		score: (row.score ?? null) as DomainCattle["score"],
 		createdAt: new Date(row.createdAt ?? new Date(0).toISOString()),
 		updatedAt: new Date(row.updatedAt ?? new Date(0).toISOString()),
-		version: 1 // Default version for existing records
+		version: 1, // Default version for existing records
+		alerts: {
+			hasActiveAlerts: false,
+			alertCount: 0,
+			highestSeverity: null
+		}
 	};
 }

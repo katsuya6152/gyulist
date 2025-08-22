@@ -19,9 +19,9 @@
 |                      | barn                            | 牛舎                          | ユーザー入力       | No   |
 |                      | breedingValue                  | 育種価                        | ユーザー入力       | No   |
 |                      | notes                           | 備考                          | ユーザー入力       | No   |
-|                      | age                             | 年齢（満何歳）                | システム自動計算   | No   |
-|                      | monthsOld                       | 月齢                          | システム自動計算   | No   |
-|                      | daysOld                         | 日齢                          | システム自動計算   | No   |
+|                      | age                             | 年齢（満何歳）                | 表示時計算         | No   |
+|                      | monthsOld                       | 月齢                          | 表示時計算         | No   |
+|                      | daysOld                         | 日齢                          | 表示時計算         | No   |
 |                      | createdAt                       | 登録日時                      | システム自動設定   | Yes  |
 |                      | updatedAt                       | 更新日時                      | システム自動設定   | Yes  |
 | **bloodline**        | bloodlineId                     | 血統情報ID                    | システム自動設定   | Yes  |

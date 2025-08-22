@@ -13,7 +13,7 @@ import type {
 	ProducerName,
 	Score,
 	Weight
-} from "../../domain/model/cattle";
+} from "../../domain/model/types";
 
 // Database to Domain mapping
 export function cattleToDomain(
@@ -28,9 +28,6 @@ export function cattleToDomain(
 		gender: (row.gender ?? null) as Cattle["gender"],
 		birthday: row.birthday ? new Date(row.birthday) : null,
 		growthStage: (row.growthStage ?? null) as Cattle["growthStage"],
-		age: (row.age ?? null) as Cattle["age"],
-		monthsOld: (row.monthsOld ?? null) as Cattle["monthsOld"],
-		daysOld: (row.daysOld ?? null) as Cattle["daysOld"],
 		breed: (row.breed ?? null) as Breed | null,
 		status: (row.status ?? null) as Cattle["status"],
 		producerName: (row.producerName ?? null) as ProducerName | null,
@@ -41,7 +38,12 @@ export function cattleToDomain(
 		score: (row.score ?? null) as Score | null,
 		createdAt: new Date(row.createdAt ?? new Date(0).toISOString()),
 		updatedAt: new Date(row.updatedAt ?? new Date(0).toISOString()),
-		version: 1 // Default version for existing records
+		version: 1, // Default version for existing records
+		alerts: {
+			hasActiveAlerts: false,
+			alertCount: 0,
+			highestSeverity: null
+		}
 	};
 }
 
@@ -64,11 +66,7 @@ export function cattleToDbInsert(
 		breedingValue: props.breedingValue ?? null,
 		notes: props.notes ?? null,
 		weight: props.weight ?? null,
-		score: props.score ?? null,
-		// age fields will be calculated by the domain
-		age: null,
-		monthsOld: null,
-		daysOld: null
+		score: props.score ?? null
 	};
 }
 
@@ -78,10 +76,6 @@ export function cattleToDbUpdate(
 ): Partial<InferInsertModel<typeof CattleTable>> {
 	const dbUpdates: Partial<InferInsertModel<typeof CattleTable>> = {};
 
-	if (updates.identificationNumber !== undefined) {
-		dbUpdates.identificationNumber =
-			updates.identificationNumber as unknown as number;
-	}
 	if (updates.earTagNumber !== undefined) {
 		dbUpdates.earTagNumber = updates.earTagNumber as unknown as number | null;
 	}
@@ -123,25 +117,4 @@ export function cattleToDbUpdate(
 	}
 
 	return dbUpdates;
-}
-
-// Helper function to calculate age fields for database storage
-export function calculateAgeFields(
-	birthday: Date | null,
-	currentDate: Date
-): {
-	age: number | null;
-	monthsOld: number | null;
-	daysOld: number | null;
-} {
-	if (!birthday) {
-		return { age: null, monthsOld: null, daysOld: null };
-	}
-
-	const diffMs = currentDate.getTime() - birthday.getTime();
-	return {
-		age: Math.floor(diffMs / (1000 * 60 * 60 * 24 * 365)),
-		monthsOld: Math.floor(diffMs / (1000 * 60 * 60 * 24 * 30)),
-		daysOld: Math.floor(diffMs / (1000 * 60 * 60 * 24))
-	};
 }

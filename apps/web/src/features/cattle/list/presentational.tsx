@@ -13,11 +13,14 @@ import type { CattleListItem, FilterFormData } from "./constants";
 interface CattleListPresentationProps {
 	cattleList: CattleListItem[];
 	alerts: AlertItem[];
+	sortBy?: string;
+	sortOrder?: string;
 }
 
 export function CattleListPresentation({
 	cattleList,
-	alerts
+	alerts,
+	sortBy
 }: CattleListPresentationProps) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
@@ -151,6 +154,7 @@ export function CattleListPresentation({
 						alerts={alerts}
 						onItemClick={handleItemClick}
 						onAddEvent={handleAddEvent}
+						sortBy={sortBy}
 					/>
 				))}
 			</div>

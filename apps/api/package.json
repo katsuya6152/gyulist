@@ -28,8 +28,11 @@
 		"docs:gen": "typedoc --options ./typedoc.json",
 		"docs:serve": "http-server ../../docs/tsdoc/api -p 4321 -a 127.0.0.1 -c-1",
 		"docs:regen-serve": "pnpm run docs:gen && pnpm run docs:serve",
-		"batch:dev": "wrangler dev --env development --local",
-		"batch:test": "curl -X GET http://localhost:8787/"
+		"batch:test": "curl -X GET http://localhost:8787/cron/batch",
+		"batch:breeding-status": "curl -X POST 'http://localhost:8787/api/v1/batch/breeding-status?limit=100&force=false'",
+		"batch:breeding-summary": "curl -X POST 'http://localhost:8787/api/v1/batch/breeding-summary?limit=100&force=false'",
+		"batch:alerts": "curl -X POST 'http://localhost:8787/api/v1/batch/alerts?limit=100&force=false'",
+		"batch:all": "curl -X POST 'http://localhost:8787/api/v1/batch/all?limit=100&force=false'"
 	},
 	"dependencies": {
 		"@hono/swagger-ui": "^0.4.0",

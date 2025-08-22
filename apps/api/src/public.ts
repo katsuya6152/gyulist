@@ -11,10 +11,9 @@
 
 // Cattle関連の型
 export type {
-	CattleOutput,
+	CattleResponse,
 	CattleListResponse,
 	CattleStatusCountsResponse,
-	CattleResponse,
 	CattleStatusUpdateResponse
 } from "./contexts/cattle/domain/codecs/output";
 
