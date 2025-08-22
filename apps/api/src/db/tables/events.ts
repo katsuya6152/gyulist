@@ -35,10 +35,26 @@ export const cattleStatusHistory = sqliteTable("cattle_status_history", {
 		.references(() => cattle.cattleId)
 		.notNull(),
 	oldStatus: text("oldStatus", {
-		enum: ["HEALTHY", "PREGNANT", "RESTING", "TREATING", "SHIPPED", "DEAD"]
+		enum: [
+			"HEALTHY",
+			"PREGNANT",
+			"RESTING",
+			"TREATING",
+			"SCHEDULED_FOR_SHIPMENT",
+			"SHIPPED",
+			"DEAD"
+		]
 	}),
 	newStatus: text("newStatus", {
-		enum: ["HEALTHY", "PREGNANT", "RESTING", "TREATING", "SHIPPED", "DEAD"]
+		enum: [
+			"HEALTHY",
+			"PREGNANT",
+			"RESTING",
+			"TREATING",
+			"SCHEDULED_FOR_SHIPMENT",
+			"SHIPPED",
+			"DEAD"
+		]
 	}).notNull(),
 	changedAt: text().default(sql`(datetime('now', 'utc'))`),
 	changedBy: integer("changedBy", { mode: "number" })

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { calculateAgeInfo } from "../../../../shared/utils/data-helpers";
 import { eventSchema } from "../../../events/domain/codecs/output";
 import {
 	GENDERS_TUPLE,
@@ -66,33 +67,42 @@ const alertInfoSchema = z.object({
 	highestSeverity: z.enum(["high", "medium", "low"]).nullable()
 });
 
-const cattleSchema = z.object({
-	cattleId: z.number(),
-	ownerUserId: z.number(),
-	identificationNumber: z.number().optional(),
-	earTagNumber: z.number().nullable(),
-	name: z.string().nullable(),
-	gender: z.enum(GENDERS_TUPLE).nullable(),
-	birthday: z
-		.date()
-		.nullable()
-		.transform((date) => date?.toISOString() ?? null),
-	growthStage: z.enum(GROWTH_STAGES_TUPLE).nullable(),
-	age: z.number().nullable(),
-	monthsOld: z.number().nullable(),
-	daysOld: z.number().nullable(),
-	breed: z.string().nullable(),
-	status: z.enum(STATUSES_TUPLE).nullable(),
-	producerName: z.string().nullable(),
-	barn: z.string().nullable(),
-	breedingValue: z.string().nullable(),
-	notes: z.string().nullable(),
-	weight: z.number().nullable(),
-	score: z.number().nullable(),
-	createdAt: z.date().transform((date) => date.toISOString()),
-	updatedAt: z.date().transform((date) => date.toISOString()),
-	alerts: alertInfoSchema
-});
+const cattleSchema = z
+	.object({
+		cattleId: z.number(),
+		ownerUserId: z.number(),
+		identificationNumber: z.number().optional(),
+		earTagNumber: z.number().nullable(),
+		name: z.string().nullable(),
+		gender: z.enum(GENDERS_TUPLE).nullable(),
+		birthday: z
+			.date()
+			.nullable()
+			.transform((date) => date?.toISOString() ?? null),
+		growthStage: z.enum(GROWTH_STAGES_TUPLE).nullable(),
+		breed: z.string().nullable(),
+		status: z.enum(STATUSES_TUPLE).nullable(),
+		producerName: z.string().nullable(),
+		barn: z.string().nullable(),
+		breedingValue: z.string().nullable(),
+		notes: z.string().nullable(),
+		weight: z.number().nullable(),
+		score: z.number().nullable(),
+		createdAt: z.date().transform((date) => date.toISOString()),
+		updatedAt: z.date().transform((date) => date.toISOString()),
+		alerts: alertInfoSchema
+	})
+	.transform((data) => {
+		// 誕生日から年齢情報を計算して追加
+		const ageInfo = data.birthday
+			? calculateAgeInfo(new Date(data.birthday))
+			: { age: null, monthsOld: null, daysOld: null };
+
+		return {
+			...data,
+			...ageInfo
+		};
+	});
 
 export const cattleListResponseSchema = z.object({
 	results: z.array(cattleSchema),
@@ -104,28 +114,86 @@ export const cattleStatusCountsResponseSchema = z.object({
 	counts: z.record(z.number())
 });
 
-// 牛の詳細レスポンス（イベント、血統、繁殖情報を含む）
-export const cattleResponseSchema = cattleSchema.extend({
-	events: z.array(eventSchema).optional(),
-	bloodline: bloodlineSchema.nullable().optional(),
-	motherInfo: motherInfoSchema.nullable().optional(),
-	breedingStatus: breedingStatusSchema.nullable().optional(),
-	breedingSummary: breedingSummarySchema.nullable().optional(),
-	alerts: alertInfoSchema.optional().default({
-		hasActiveAlerts: false,
-		alertCount: 0,
-		highestSeverity: null
-	})
+export const cattleDetailResponseSchema = z.object({
+	cattle: cattleSchema,
+	bloodline: bloodlineSchema.nullable(),
+	motherInfo: motherInfoSchema.nullable(),
+	breedingStatus: breedingStatusSchema.nullable(),
+	breedingSummary: breedingSummarySchema.nullable(),
+	events: z.array(eventSchema)
 });
+
+export const cattleDetailEnvelopeSchema = z.object({
+	data: cattleDetailResponseSchema
+});
+
+export const cattleListEnvelopeSchema = z.object({
+	data: cattleListResponseSchema
+});
+
+export const cattleEnvelopeSchema = z.object({
+	data: cattleSchema
+});
+
+export const cattleStatusCountsEnvelopeSchema = z.object({
+	data: cattleStatusCountsResponseSchema
+});
+
+// 牛の詳細レスポンス（イベント、血統、繁殖情報を含む）
+export const cattleResponseSchema = z
+	.object({
+		cattleId: z.number(),
+		ownerUserId: z.number(),
+		identificationNumber: z.number().optional(),
+		earTagNumber: z.number().nullable(),
+		name: z.string().nullable(),
+		gender: z.enum(GENDERS_TUPLE).nullable(),
+		birthday: z
+			.date()
+			.nullable()
+			.transform((date) => date?.toISOString() ?? null),
+		growthStage: z.enum(GROWTH_STAGES_TUPLE).nullable(),
+		breed: z.string().nullable(),
+		status: z.enum(STATUSES_TUPLE).nullable(),
+		producerName: z.string().nullable(),
+		barn: z.string().nullable(),
+		breedingValue: z.string().nullable(),
+		notes: z.string().nullable(),
+		weight: z.number().nullable(),
+		score: z.number().nullable(),
+		createdAt: z.date().transform((date) => date.toISOString()),
+		updatedAt: z.date().transform((date) => date.toISOString()),
+		alerts: alertInfoSchema.optional().default({
+			hasActiveAlerts: false,
+			alertCount: 0,
+			highestSeverity: null
+		}),
+		events: z.array(eventSchema).optional(),
+		bloodline: bloodlineSchema.nullable().optional(),
+		motherInfo: motherInfoSchema.nullable().optional(),
+		breedingStatus: breedingStatusSchema.nullable().optional(),
+		breedingSummary: breedingSummarySchema.nullable().optional()
+	})
+	.transform((data) => {
+		// 誕生日から年齢情報を計算して追加
+		const ageInfo = data.birthday
+			? calculateAgeInfo(new Date(data.birthday))
+			: { age: null, monthsOld: null, daysOld: null };
+
+		return {
+			...data,
+			...ageInfo
+		};
+	});
+
 export const cattleStatusUpdateResponseSchema = cattleSchema;
 
-// ===== Type Exports (for consumers like apps/web) =====
-export type CattleOutput = z.infer<typeof cattleSchema>;
 export type CattleListResponse = z.infer<typeof cattleListResponseSchema>;
+export type CattleDetailResponse = z.infer<typeof cattleDetailResponseSchema>;
+export type CattleResponse = z.infer<typeof cattleSchema>;
 export type CattleStatusCountsResponse = z.infer<
 	typeof cattleStatusCountsResponseSchema
 >;
-export type CattleResponse = z.infer<typeof cattleResponseSchema>;
 export type CattleStatusUpdateResponse = z.infer<
 	typeof cattleStatusUpdateResponseSchema
 >;

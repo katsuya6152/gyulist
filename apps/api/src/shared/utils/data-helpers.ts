@@ -32,12 +32,97 @@ export function calculateAge(birthday: Date, unit: AgeUnit = "years"): number {
 }
 
 /**
+ * 誕生日から年齢情報を計算（表示用）
+ * @param birthday 誕生日
+ * @param currentDate 現在日時（デフォルト: 現在時刻）
+ * @returns 年齢情報オブジェクト
+ */
+export function calculateAgeInfo(
+	birthday: Date | null,
+	currentDate: Date = new Date()
+): {
+	age: number | null;
+	monthsOld: number | null;
+	daysOld: number | null;
+} {
+	if (!birthday) {
+		return { age: null, monthsOld: null, daysOld: null };
+	}
+
+	const diffMs = currentDate.getTime() - birthday.getTime();
+	return {
+		age: Math.floor(diffMs / (1000 * 60 * 60 * 24 * 365.25)), // 年齢（365.25日で割算）
+		monthsOld: Math.floor(diffMs / (1000 * 60 * 60 * 24 * 30.44)), // 月齢（30.44日で割算）
+		daysOld: Math.floor(diffMs / (1000 * 60 * 60 * 24)) // 日齢（24時間で割算）
+	};
+}
+
+/**
  * 日付を ISO 文字列にフォーマット
  * @param date 日付オブジェクト
  * @returns ISO文字列 (YYYY-MM-DDTHH:mm:ss.sssZ)
  */
-export function formatDateToIso(date: Date): string {
+export function formatDateToISO(date: Date): string {
 	return date.toISOString();
+}
+
+/**
+ * ISO 文字列から日付オブジェクトに変換
+ * @param isoString ISO文字列
+ * @returns 日付オブジェクト
+ */
+export function parseDateFromISO(isoString: string): Date {
+	return new Date(isoString);
+}
+
+/**
+ * 日付が有効かチェック
+ * @param date 日付オブジェクト
+ * @returns 有効な日付かどうか
+ */
+export function isValidDate(date: Date): boolean {
+	return !Number.isNaN(date.getTime());
+}
+
+/**
+ * 日付の差分を日数で計算
+ * @param date1 日付1
+ * @param date2 日付2
+ * @returns 日数差（絶対値）
+ */
+export function calculateDaysDifference(date1: Date, date2: Date): number {
+	const diffMs = Math.abs(date2.getTime() - date1.getTime());
+	return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+}
+
+/**
+ * 日付の差分を月数で計算
+ * @param date1 日付1
+ * @param date2 日付2
+ * @returns 月数差（絶対値）
+ */
+export function calculateMonthsDifference(date1: Date, date2: Date): number {
+	const yearDiff = date2.getFullYear() - date1.getFullYear();
+	const monthDiff = date2.getMonth() - date1.getMonth();
+	return Math.abs(yearDiff * 12 + monthDiff);
+}
+
+/**
+ * 日付の差分を年数で計算
+ * @param date1 日付1
+ * @param date2 日付2
+ * @returns 年数差（絶対値）
+ */
+export function calculateYearsDifference(date1: Date, date2: Date): number {
+	const yearDiff = date2.getFullYear() - date1.getFullYear();
+	const monthDiff = date2.getMonth() - date1.getMonth();
+	const dayDiff = date2.getDate() - date1.getDate();
+
+	// 月日を考慮した年数計算
+	if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+		return Math.abs(yearDiff - 1);
+	}
+	return Math.abs(yearDiff);
 }
 
 /**

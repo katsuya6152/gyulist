@@ -28,7 +28,9 @@ export async function createEventAction(
 		const { cattleId, eventType, eventDate, eventTime, notes } =
 			submission.value as CreateEventFormData;
 
-		// 日付と時刻を結合してISO形式に変換（タイムゾーンを考慮）
+		// 日付と時刻を結合してISO形式に変換
+		// eventDate: YYYY-MM-DD形式、eventTime: HH:MM形式
+		// 結合後: YYYY-MM-DDTHH:MM:00.000Z（ISO 8601形式）
 		const eventDatetime = parseISO(`${eventDate}T${eventTime}`).toISOString();
 
 		await CreateEvent({

@@ -25,12 +25,6 @@ export const cattle = sqliteTable("cattle", {
 	}),
 	// 出生日
 	birthday: text("birthday"),
-	// 年齢
-	age: integer("age", { mode: "number" }),
-	// 月齢
-	monthsOld: integer("monthsOld", { mode: "number" }),
-	// 日齢
-	daysOld: integer("daysOld", { mode: "number" }),
 	// 性別*
 	gender: text("gender"),
 	// 体重

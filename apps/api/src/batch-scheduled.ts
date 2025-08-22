@@ -89,9 +89,10 @@ export async function scheduled(event: ScheduledEvent, env: Bindings) {
 		// 全ユーザーIDを取得
 		const userIds = await getAllUserIds(deps.alertsRepo);
 
-		// アラート更新用の依存関係を設定
+		// アラート更新用の依存関係を設定（イベントリポジトリを含む）
 		const alertDeps = {
 			repo: deps.alertsRepo,
+			eventsRepo: deps.eventsRepo,
 			time: { nowSeconds: () => Math.floor(Date.now() / 1000) },
 			idGenerator: {
 				generate: () =>
@@ -179,6 +180,7 @@ export async function fetch(request: Request, env: Bindings) {
 		const userIds = await getAllUserIds(deps.alertsRepo);
 		const alertDeps = {
 			repo: deps.alertsRepo,
+			eventsRepo: deps.eventsRepo,
 			time: { nowSeconds: () => Math.floor(Date.now() / 1000) },
 			idGenerator: {
 				generate: () =>

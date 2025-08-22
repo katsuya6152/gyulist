@@ -1,5 +1,6 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
+import { update as updateUC } from "../contexts/cattle/domain/services/update";
 import { updateStatus as updateCattleStatusUC } from "../contexts/cattle/domain/services/updateStatus";
 import {
 	createEventSchema,
@@ -161,10 +162,24 @@ const app = new Hono<{ Bindings: Bindings }>()
 
 				const created = createdRes.value;
 
-				// 副作用: CALVING -> RESTING, SHIPMENT -> SHIPPED（契約維持）
-				if (data.eventType === "SHIPMENT" || data.eventType === "CALVING") {
-					const newStatus =
-						data.eventType === "SHIPMENT" ? "SHIPPED" : "RESTING";
+				// 副作用: CALVING -> RESTING, SHIPMENT -> 日付により判別, DEATH -> DEAD（契約維持）
+				if (
+					data.eventType === "SHIPMENT" ||
+					data.eventType === "CALVING" ||
+					data.eventType === "DEATH"
+				) {
+					let newStatus: string;
+					if (data.eventType === "SHIPMENT") {
+						// 日付により出荷予定か出荷完了かを判別
+						const eventDate = new Date(data.eventDatetime);
+						const now = deps.clock.now();
+						newStatus = eventDate > now ? "SCHEDULED_FOR_SHIPMENT" : "SHIPPED";
+					} else if (data.eventType === "CALVING") {
+						newStatus = "RESTING";
+					} else {
+						newStatus = "DEAD";
+					}
+
 					const res = await updateCattleStatusUC({
 						repo: deps.cattleRepo,
 						clock: deps.clock
@@ -178,6 +193,112 @@ const app = new Hono<{ Bindings: Bindings }>()
 					>[0]);
 
 					if (!res.ok) return res;
+				}
+
+				// 副作用: EXPECTED_CALVING -> 繁殖集約の更新（契約維持）
+				if (data.eventType === "EXPECTED_CALVING") {
+					// 繁殖集約の更新
+					const breedingUpdate = await updateUC({
+						repo: deps.cattleRepo,
+						clock: deps.clock,
+						breedingRepo: deps.breedingRepo
+					})({
+						requesterUserId: userId as unknown as number,
+						id: data.cattleId as unknown as number,
+						patch: {},
+						breedingStatus: {
+							expectedCalvingDate: data.eventDatetime,
+							parity: null,
+							scheduledPregnancyCheckDate: null,
+							daysAfterCalving: null,
+							daysOpen: null,
+							pregnancyDays: null,
+							daysAfterInsemination: null,
+							inseminationCount: null,
+							breedingMemo: data.notes || null,
+							isDifficultBirth: null
+						}
+					} as unknown as Parameters<ReturnType<typeof updateUC>>[0]);
+
+					if (!breedingUpdate.ok) return breedingUpdate;
+				}
+
+				// 副作用: EXPECTED_ESTRUS -> 繁殖集約の更新（契約維持）
+				if (data.eventType === "EXPECTED_ESTRUS") {
+					// 繁殖集約の更新
+					const breedingUpdate = await updateUC({
+						repo: deps.cattleRepo,
+						clock: deps.clock,
+						breedingRepo: deps.breedingRepo
+					})({
+						requesterUserId: userId as unknown as number,
+						id: data.cattleId as unknown as number,
+						patch: {},
+						breedingStatus: {
+							expectedCalvingDate: null,
+							parity: null,
+							scheduledPregnancyCheckDate: data.eventDatetime,
+							daysAfterCalving: null,
+							daysOpen: null,
+							pregnancyDays: null,
+							daysAfterInsemination: null,
+							inseminationCount: null,
+							breedingMemo: data.notes || null,
+							isDifficultBirth: null
+						}
+					} as unknown as Parameters<ReturnType<typeof updateUC>>[0]);
+
+					if (!breedingUpdate.ok) return breedingUpdate;
+				}
+
+				// 副作用: ESTRUS -> 21日後の発情予定イベントを自動作成（契約維持）
+				if (data.eventType === "ESTRUS") {
+					// 21日後の発情予定日を計算
+					const estrusDate = new Date(data.eventDatetime);
+					const expectedEstrusDate = new Date(estrusDate);
+					expectedEstrusDate.setDate(estrusDate.getDate() + 21);
+
+					// 発情予定イベントを作成
+					const expectedEstrusEvent = {
+						cattleId: data.cattleId,
+						eventType: "EXPECTED_ESTRUS" as const,
+						eventDatetime: expectedEstrusDate.toISOString(),
+						notes: "前回発情から21日後の発情予定日（自動生成）"
+					};
+
+					const autoCreatedRes = await createEventUC({ repo: deps.eventsRepo })(
+						expectedEstrusEvent
+					);
+					if (!autoCreatedRes.ok) {
+						// 発情予定イベントの作成に失敗しても、元の発情イベントは成功とする
+						// ログに記録するのみ
+						console.warn(
+							"発情予定イベントの自動作成に失敗:",
+							autoCreatedRes.error
+						);
+					}
+				}
+
+				// 副作用: START_FATTENING -> 成長段階を肥育牛に更新（契約維持）
+				if (data.eventType === "START_FATTENING") {
+					const growthStageUpdate = await updateUC({
+						repo: deps.cattleRepo,
+						clock: deps.clock,
+						breedingRepo: deps.breedingRepo
+					})({
+						requesterUserId: userId as unknown as number,
+						id: data.cattleId as unknown as number,
+						patch: {
+							growthStage: "FATTENING"
+						},
+						breedingStatus: null
+					} as unknown as Parameters<ReturnType<typeof updateUC>>[0]);
+
+					if (!growthStageUpdate.ok) {
+						// 成長段階の更新に失敗しても、元のイベントは成功とする
+						// ログに記録するのみ
+						console.warn("成長段階の更新に失敗:", growthStageUpdate.error);
+					}
 				}
 
 				// イベントデータの日時フィールドを文字列に変換

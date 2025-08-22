@@ -220,6 +220,8 @@ export const CattleItem = memo(
 												cattle.status === "RESTING",
 											"border-red-500 text-red-500":
 												cattle.status === "TREATING",
+											"border-orange-500 text-orange-500":
+												cattle.status === "SCHEDULED_FOR_SHIPMENT",
 											"border-gray-500 text-gray-500":
 												cattle.status === "SHIPPED",
 											"border-red-600 text-red-600": cattle.status === "DEAD"

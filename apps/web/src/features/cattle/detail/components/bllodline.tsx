@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatDateTime } from "@/lib/date-utils";
 import type { GetCattleDetailResType } from "@/services/cattleService";
 
 export function Bloodline({ cattle }: { cattle: GetCattleDetailResType }) {
@@ -50,7 +51,8 @@ export function Bloodline({ cattle }: { cattle: GetCattleDetailResType }) {
 				</CardContent>
 			</Card>
 			<div className="flex justify-center gap-2 text-xs text-gray-500">
-				<p>登録日時: {cattle.createdAt}</p>/<p>更新日時: {cattle.updatedAt}</p>
+				<p>登録日時: {formatDateTime(cattle.createdAt)}</p>/
+				<p>更新日時: {formatDateTime(cattle.updatedAt)}</p>
 			</div>
 		</div>
 	);

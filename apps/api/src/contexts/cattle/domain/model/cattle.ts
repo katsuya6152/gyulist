@@ -52,11 +52,6 @@ export type Cattle = {
 	readonly birthday: Date | null; // 誕生日
 	readonly growthStage: GrowthStage | null; // 成長段階
 
-	// 計算フィールド（誕生日から自動計算）
-	readonly age: number | null; // 年齢（満何歳）
-	readonly monthsOld: number | null; // 月齢
-	readonly daysOld: number | null; // 日齢
-
 	// 品種・血統情報
 	readonly breed: Breed | null; // 品種
 	readonly status: Status | null; // 現在の状態
@@ -171,15 +166,6 @@ export function createCattle(
 		}
 	}
 
-	// 年齢関連の計算フィールドを算出
-	const ageValues = props.birthday
-		? calculateAge(props.birthday, currentDate)
-		: {
-				age: null,
-				monthsOld: null,
-				daysOld: null
-			};
-
 	// 文字列フィールドの検証と変換
 	const name = validateAndTransformString(props.name, "name");
 	const breed = validateAndTransformString(props.breed, "breed");
@@ -204,9 +190,6 @@ export function createCattle(
 		gender: props.gender ?? null,
 		birthday: props.birthday ?? null,
 		growthStage: props.growthStage ?? null,
-		age: ageValues.age,
-		monthsOld: ageValues.monthsOld,
-		daysOld: ageValues.daysOld,
 		breed: breed as Breed | null,
 		status: props.status ?? "HEALTHY", // デフォルトは健康状態
 		producerName: producerName as ProducerName | null,
@@ -247,6 +230,53 @@ export function updateCattle(
 	updates: Partial<NewCattleProps>,
 	currentDate: Date = new Date()
 ): Result<Cattle, DomainError> {
+	// バリデーション
+	const validationResult = validateUpdateInput(updates, currentDate);
+	if (!validationResult.ok) return validationResult;
+
+	// 文字列フィールドの検証と変換
+	const name = validateAndTransformString(updates.name, "name");
+	const breed = validateAndTransformString(updates.breed, "breed");
+	const producerName = validateAndTransformString(
+		updates.producerName,
+		"producerName"
+	);
+	const barn = validateAndTransformString(updates.barn, "barn");
+	const breedingValue = validateAndTransformString(
+		updates.breedingValue,
+		"breedingValue"
+	);
+	const notes = validateAndTransformString(updates.notes, "notes");
+
+	// 更新された牛エンティティを作成
+	return ok({
+		...current,
+		earTagNumber: updates.earTagNumber ?? current.earTagNumber,
+		name: (name ?? current.name) as CattleName | null,
+		gender: updates.gender ?? current.gender,
+		birthday: updates.birthday ?? current.birthday,
+		growthStage: updates.growthStage ?? current.growthStage,
+		breed: (breed ?? current.breed) as Breed | null,
+		status: updates.status ?? current.status,
+		producerName: (producerName ?? current.producerName) as ProducerName | null,
+		barn: (barn ?? current.barn) as Barn | null,
+		breedingValue: (breedingValue ??
+			current.breedingValue) as BreedingValue | null,
+		notes: (notes ?? current.notes) as Notes | null,
+		weight: (updates.weight ?? current.weight) as Weight | null,
+		score: (updates.score ?? current.score) as Score | null,
+		updatedAt: currentDate,
+		version: current.version + 1 // バージョンをインクリメント
+	});
+}
+
+/**
+ * 更新入力のバリデーションを行うヘルパー関数
+ */
+function validateUpdateInput(
+	updates: Partial<NewCattleProps>,
+	currentDate: Date
+): Result<true, DomainError> {
 	// 誕生日の更新時の検証
 	if (updates.birthday && updates.birthday > currentDate) {
 		return err({
@@ -280,115 +310,7 @@ export function updateCattle(
 		}
 	}
 
-	// 誕生日が更新された場合の年齢情報の再計算
-	const birthday =
-		updates.birthday !== undefined ? updates.birthday : current.birthday;
-	const ageValues = birthday
-		? calculateAge(birthday, currentDate)
-		: {
-				age: current.age,
-				monthsOld: current.monthsOld,
-				daysOld: current.daysOld
-			};
-
-	// 文字列フィールドの変換
-	const name =
-		updates.name !== undefined
-			? (validateAndTransformString(updates.name, "name") as CattleName | null)
-			: current.name;
-	const breed =
-		updates.breed !== undefined
-			? (validateAndTransformString(updates.breed, "breed") as Breed | null)
-			: current.breed;
-	const producerName =
-		updates.producerName !== undefined
-			? (validateAndTransformString(
-					updates.producerName,
-					"producerName"
-				) as ProducerName | null)
-			: current.producerName;
-	const barn =
-		updates.barn !== undefined
-			? (validateAndTransformString(updates.barn, "barn") as Barn | null)
-			: current.barn;
-	const breedingValue =
-		updates.breedingValue !== undefined
-			? (validateAndTransformString(
-					updates.breedingValue,
-					"breedingValue"
-				) as BreedingValue | null)
-			: current.breedingValue;
-	const notes =
-		updates.notes !== undefined
-			? (validateAndTransformString(updates.notes, "notes") as Notes | null)
-			: current.notes;
-
-	// 更新された牛エンティティの作成
-	return ok({
-		...current,
-		identificationNumber:
-			updates.identificationNumber ?? current.identificationNumber,
-		earTagNumber:
-			updates.earTagNumber !== undefined
-				? updates.earTagNumber
-				: current.earTagNumber,
-		name,
-		gender: updates.gender !== undefined ? updates.gender : current.gender,
-		birthday,
-		growthStage:
-			updates.growthStage !== undefined
-				? updates.growthStage
-				: current.growthStage,
-		age: ageValues.age,
-		monthsOld: ageValues.monthsOld,
-		daysOld: ageValues.daysOld,
-		breed,
-		status: updates.status !== undefined ? updates.status : current.status,
-		producerName,
-		barn,
-		breedingValue,
-		notes,
-		weight:
-			updates.weight !== undefined
-				? (updates.weight as Weight | null)
-				: current.weight,
-		score:
-			updates.score !== undefined
-				? (updates.score as Score | null)
-				: current.score,
-		updatedAt: currentDate,
-		version: current.version + 1 // バージョンをインクリメント
-	});
-}
-
-/**
- * 誕生日から年齢を計算するヘルパー関数
- *
- * 純粋関数として実装され、誕生日と現在日時から年齢情報を算出します。
- * 以下の情報を提供します：
- *
- * - age: 満年齢（年）
- * - monthsOld: 月齢
- * - daysOld: 日齢
- *
- * @param birthday - 誕生日
- * @param currentDate - 現在日時
- * @returns 年齢情報オブジェクト
- */
-function calculateAge(
-	birthday: Date,
-	currentDate: Date
-): {
-	age: number;
-	monthsOld: number;
-	daysOld: number;
-} {
-	const diffMs = currentDate.getTime() - birthday.getTime();
-	return {
-		age: Math.floor(diffMs / (1000 * 60 * 60 * 24 * 365)), // 年齢（365日で割算）
-		monthsOld: Math.floor(diffMs / (1000 * 60 * 60 * 24 * 30)), // 月齢（30日で割算）
-		daysOld: Math.floor(diffMs / (1000 * 60 * 60 * 24)) // 日齢（24時間で割算）
-	};
+	return ok(true);
 }
 
 /**
@@ -432,10 +354,10 @@ function validateAndTransformString(
  * @returns 繁殖可能年齢の場合true、そうでない場合false
  */
 export function isBreedingAge(cattle: Cattle): boolean {
-	if (!cattle.age || !cattle.gender) return false;
+	if (!cattle.birthday || !cattle.gender) return false;
 	if (cattle.gender === "去勢") return false; // 去勢牛は繁殖不可
-	if (cattle.gender === "雄") return cattle.age >= 1;
-	return cattle.age >= 2; // 雌は通常2歳から繁殖可能
+	if (cattle.gender === "雄") return cattle.birthday.getFullYear() + 1 >= 1;
+	return cattle.birthday.getFullYear() + 2 >= 2; // 雌は通常2歳から繁殖可能
 }
 
 /**
@@ -450,11 +372,13 @@ export function isBreedingAge(cattle: Cattle): boolean {
 export function getCattleLifeStage(
 	cattle: Cattle
 ): "Calf" | "Young" | "Adult" | "Senior" | "Unknown" {
-	if (!cattle.age) return "Unknown";
+	if (!cattle.birthday) return "Unknown";
 
-	if (cattle.age < 1) return "Calf"; // 子牛期（0-1歳）
-	if (cattle.age < 3) return "Young"; // 若年期（1-3歳）
-	if (cattle.age < 10) return "Adult"; // 成牛期（3-10歳）
+	const age = new Date().getFullYear() - cattle.birthday.getFullYear();
+
+	if (age < 1) return "Calf"; // 子牛期（0-1歳）
+	if (age < 3) return "Young"; // 若年期（1-3歳）
+	if (age < 10) return "Adult"; // 成牛期（3-10歳）
 	return "Senior"; // 高齢期（10歳以上）
 }
 

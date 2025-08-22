@@ -45,7 +45,7 @@ describe("BasicInfo", () => {
 		expect(screen.getByText("12345")).toBeInTheDocument();
 
 		expect(screen.getByText("出生日:")).toBeInTheDocument();
-		expect(screen.getByText("2020-01-01")).toBeInTheDocument();
+		expect(screen.getByText("2020/01/01 09:00")).toBeInTheDocument();
 
 		expect(screen.getByText("年齢/月齢/日齢:")).toBeInTheDocument();
 		expect(screen.getByText("4歳/48ヶ月/1460日")).toBeInTheDocument();
@@ -90,12 +90,8 @@ describe("BasicInfo", () => {
 	it("should display creation and update timestamps", () => {
 		render(<BasicInfo cattle={mockCattle} />);
 
-		expect(
-			screen.getByText("登録日時: 2023-01-01T00:00:00Z")
-		).toBeInTheDocument();
-		expect(
-			screen.getByText("更新日時: 2023-12-01T00:00:00Z")
-		).toBeInTheDocument();
+		expect(screen.getByText("登録日時: 2023/01/01 09:00")).toBeInTheDocument();
+		expect(screen.getByText("更新日時: 2023/12/01 09:00")).toBeInTheDocument();
 	});
 
 	it("should handle undefined values gracefully", () => {

@@ -139,12 +139,8 @@ describe("Bloodline", () => {
 	it("should display creation and update timestamps", () => {
 		render(<Bloodline cattle={mockCattle} />);
 
-		expect(
-			screen.getByText("登録日時: 2023-01-01T00:00:00Z")
-		).toBeInTheDocument();
-		expect(
-			screen.getByText("更新日時: 2023-12-01T00:00:00Z")
-		).toBeInTheDocument();
+		expect(screen.getByText("登録日時: 2023/01/01 09:00")).toBeInTheDocument();
+		expect(screen.getByText("更新日時: 2023/12/01 09:00")).toBeInTheDocument();
 	});
 
 	it("should handle zero values in mother information", () => {

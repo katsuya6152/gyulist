@@ -1,3 +1,4 @@
+import { updateAlertsBatch } from "@/contexts/alerts/domain/services/batchUpdateService";
 import {
 	calculateBreedingStatusBatch,
 	calculateBreedingSummaryBatch
@@ -210,6 +211,80 @@ app.post("/all", async (c) => {
 						errors: summaryResult.value.errors
 					},
 					duration: `${duration}ms`,
+					timestamp: new Date().toISOString()
+				}
+			} as const;
+		},
+		{ envelope: "data" }
+	);
+});
+
+/**
+ * アラート更新のバッチ処理エンドポイント
+ *
+ * 既存アラートの状態チェック・更新と新規アラートの生成を
+ * バッチ処理で実行します。
+ */
+app.post("/alerts", async (c) => {
+	const parsed = batchQuerySchema.safeParse(c.req.query());
+	if (!parsed.success) {
+		return c.json({ error: "Invalid query parameters" }, 400);
+	}
+
+	const logger = getLogger(c);
+	logger.info("Alerts batch update started", {
+		limit: parsed.data.limit,
+		offset: parsed.data.offset,
+		force: parsed.data.force,
+		endpoint: "/batch/alerts"
+	});
+
+	return executeUseCase(
+		c,
+		async () => {
+			const deps = makeDeps(c.env.DB, { now: () => new Date() });
+
+			// 全ユーザーIDを取得
+			const userIds = await deps.alertsRepo.findDistinctUserIds();
+
+			// アラート更新用の依存関係を設定（イベントリポジトリを含む）
+			const alertDeps = {
+				repo: deps.alertsRepo,
+				eventsRepo: deps.eventsRepo,
+				time: { nowSeconds: () => Math.floor(Date.now() / 1000) },
+				idGenerator: {
+					generate: () =>
+						`alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+				}
+			};
+
+			const result = await updateAlertsBatch(alertDeps)({
+				userIds,
+				now: () => new Date()
+			});
+
+			if (!result.ok) return result;
+
+			logger.info("Alerts batch update completed", {
+				totalUsers: result.value.totalUsers,
+				totalUpdated: result.value.totalUpdated,
+				totalCreated: result.value.totalCreated,
+				totalResolved: result.value.totalResolved,
+				errors: Array.isArray(result.value.errors)
+					? result.value.errors.length
+					: result.value.errors,
+				endpoint: "/batch/alerts"
+			});
+
+			return {
+				ok: true,
+				value: {
+					message: "Alerts batch update completed",
+					totalUsers: result.value.totalUsers,
+					totalUpdated: result.value.totalUpdated,
+					totalCreated: result.value.totalCreated,
+					totalResolved: result.value.totalResolved,
+					errors: result.value.errors,
 					timestamp: new Date().toISOString()
 				}
 			} as const;

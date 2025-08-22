@@ -37,6 +37,7 @@ export type Status =
 	| "PREGNANT" // 妊娠中：繁殖管理の重点化
 	| "RESTING" // 休養中：繁殖休止期間
 	| "TREATING" // 治療中：獣医による治療
+	| "SCHEDULED_FOR_SHIPMENT" // 出荷予定：出荷準備中
 	| "SHIPPED" // 出荷済み：市場への出荷完了
 	| "DEAD"; // 死亡：記録保持のため
 
@@ -74,6 +75,7 @@ export const STATUSES: readonly Status[] = [
 	"PREGNANT",
 	"RESTING",
 	"TREATING",
+	"SCHEDULED_FOR_SHIPMENT",
 	"SHIPPED",
 	"DEAD"
 ] as const;
@@ -112,6 +114,7 @@ export const STATUSES_TUPLE = [
 	"PREGNANT",
 	"RESTING",
 	"TREATING",
+	"SCHEDULED_FOR_SHIPMENT",
 	"SHIPPED",
 	"DEAD"
 ] as const;
@@ -148,6 +151,7 @@ export const STATUS_LABELS: Record<Status, string> = {
 	PREGNANT: "妊娠中",
 	RESTING: "休養中",
 	TREATING: "治療中",
+	SCHEDULED_FOR_SHIPMENT: "出荷予定",
 	SHIPPED: "出荷済み",
 	DEAD: "死亡"
 };

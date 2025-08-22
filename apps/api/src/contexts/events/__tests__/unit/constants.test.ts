@@ -9,7 +9,7 @@ import {
 	EVENT_TYPE_PRIORITIES,
 	type EventPriority,
 	type EventType
-} from "../../domain/constants";
+} from "../../domain/model/constants";
 
 describe("Events Domain Constants", () => {
 	describe("EVENT_TYPES", () => {
@@ -17,11 +17,14 @@ describe("Events Domain Constants", () => {
 			expect(EVENT_TYPES).toEqual([
 				"ARRIVAL",
 				"ESTRUS",
+				"EXPECTED_ESTRUS",
 				"INSEMINATION",
 				"PREGNANCY_CHECK",
+				"EXPECTED_CALVING",
 				"CALVING",
 				"ABORTION",
 				"STILLBIRTH",
+				"DEATH",
 				"WEANING",
 				"START_FATTENING",
 				"WEIGHT_MEASURED",
@@ -95,8 +98,10 @@ describe("Events Domain Constants", () => {
 		it("should have correct breeding group", () => {
 			expect(EVENT_TYPE_GROUPS.BREEDING).toEqual([
 				"ESTRUS",
+				"EXPECTED_ESTRUS",
 				"INSEMINATION",
-				"PREGNANCY_CHECK"
+				"PREGNANCY_CHECK",
+				"EXPECTED_CALVING"
 			]);
 		});
 
@@ -104,7 +109,8 @@ describe("Events Domain Constants", () => {
 			expect(EVENT_TYPE_GROUPS.CALVING).toEqual([
 				"CALVING",
 				"ABORTION",
-				"STILLBIRTH"
+				"STILLBIRTH",
+				"DEATH"
 			]);
 		});
 
@@ -133,9 +139,11 @@ describe("Events Domain Constants", () => {
 			expect(EVENT_TYPE_LABELS.ESTRUS).toBe("発情");
 			expect(EVENT_TYPE_LABELS.INSEMINATION).toBe("人工授精");
 			expect(EVENT_TYPE_LABELS.PREGNANCY_CHECK).toBe("妊娠鑑定");
+			expect(EVENT_TYPE_LABELS.EXPECTED_CALVING).toBe("分娩予定日");
 			expect(EVENT_TYPE_LABELS.CALVING).toBe("分娩");
 			expect(EVENT_TYPE_LABELS.ABORTION).toBe("流産");
 			expect(EVENT_TYPE_LABELS.STILLBIRTH).toBe("死産");
+			expect(EVENT_TYPE_LABELS.DEATH).toBe("死亡");
 			expect(EVENT_TYPE_LABELS.WEANING).toBe("断乳");
 			expect(EVENT_TYPE_LABELS.START_FATTENING).toBe("肥育開始");
 			expect(EVENT_TYPE_LABELS.WEIGHT_MEASURED).toBe("体重計測");
@@ -178,6 +186,10 @@ describe("Events Domain Constants", () => {
 
 		it("should assign correct critical priority to calving", () => {
 			expect(EVENT_TYPE_PRIORITIES.CALVING).toBe("CRITICAL");
+		});
+
+		it("should assign correct critical priority to death", () => {
+			expect(EVENT_TYPE_PRIORITIES.DEATH).toBe("CRITICAL");
 		});
 
 		it("should assign high priority to important breeding events", () => {
@@ -238,13 +250,19 @@ describe("Events Domain Constants", () => {
 			// Calving should be in CALVING group with CRITICAL priority
 			expect(EVENT_TYPE_GROUPS.CALVING).toContain("CALVING");
 			expect(EVENT_TYPE_PRIORITIES.CALVING).toBe("CRITICAL");
+
+			// Death should be in CALVING group with CRITICAL priority
+			expect(EVENT_TYPE_GROUPS.CALVING).toContain("DEATH");
+			expect(EVENT_TYPE_PRIORITIES.DEATH).toBe("CRITICAL");
 		});
 
 		it("should ensure breeding events are properly grouped", () => {
 			// Breeding events should be in BREEDING group
 			expect(EVENT_TYPE_GROUPS.BREEDING).toContain("ESTRUS");
+			expect(EVENT_TYPE_GROUPS.BREEDING).toContain("EXPECTED_ESTRUS");
 			expect(EVENT_TYPE_GROUPS.BREEDING).toContain("INSEMINATION");
 			expect(EVENT_TYPE_GROUPS.BREEDING).toContain("PREGNANCY_CHECK");
+			expect(EVENT_TYPE_GROUPS.BREEDING).toContain("EXPECTED_CALVING");
 		});
 
 		it("should ensure health events are properly grouped", () => {

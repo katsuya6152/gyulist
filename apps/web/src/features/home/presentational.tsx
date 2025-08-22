@@ -37,6 +37,7 @@ const STATUS_ICON_MAP: Record<Status, ReactNode> = {
 	PREGNANT: <Baby className="h-4 w-4 text-yellow-500" />,
 	RESTING: <Bed className="h-4 w-4 text-green-500" />,
 	TREATING: <Syringe className="h-4 w-4 text-red-500" />,
+	SCHEDULED_FOR_SHIPMENT: <Clock className="h-4 w-4 text-orange-500" />,
 	SHIPPED: <Truck className="h-4 w-4 text-gray-500" />,
 	DEAD: <Skull className="h-4 w-4 text-red-600" />
 };
@@ -46,6 +47,7 @@ const STATUS_TEXT_CLASS_MAP: Record<Status, string> = {
 	PREGNANT: "text-yellow-500",
 	RESTING: "text-green-500",
 	TREATING: "text-red-500",
+	SCHEDULED_FOR_SHIPMENT: "text-orange-500",
 	SHIPPED: "text-gray-500",
 	DEAD: "text-red-600"
 };
@@ -55,6 +57,7 @@ const STATUS_BORDER_CLASS_MAP: Record<Status, string> = {
 	PREGNANT: "border-yellow-500",
 	RESTING: "border-green-500",
 	TREATING: "border-red-500",
+	SCHEDULED_FOR_SHIPMENT: "border-orange-500",
 	SHIPPED: "border-gray-500",
 	DEAD: "border-red-600"
 };
@@ -252,25 +255,27 @@ export function HomePresentation({
 				</CardHeader>
 				<CardContent>
 					<div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-						{statusOptions.map((opt) => (
-							<div
-								key={opt.value}
-								className="flex items-center justify-between rounded-md border p-3"
-							>
-								<div className="flex items-center gap-2 min-w-0">
-									{STATUS_ICON_MAP[opt.value as Status]}
-									<Badge
-										variant="outline"
-										className={`truncate max-w-[70%] ${STATUS_TEXT_CLASS_MAP[opt.value as Status]} ${STATUS_BORDER_CLASS_MAP[opt.value as Status]}`}
-									>
-										{statusLabelMap[opt.value]}
-									</Badge>
+						{statusOptions
+							.filter((opt) => opt.value !== "DEAD")
+							.map((opt) => (
+								<div
+									key={opt.value}
+									className="flex items-center justify-between rounded-md border p-3"
+								>
+									<div className="flex items-center gap-2 min-w-0">
+										{STATUS_ICON_MAP[opt.value as Status]}
+										<Badge
+											variant="outline"
+											className={`truncate max-w-[70%] ${STATUS_TEXT_CLASS_MAP[opt.value as Status]} ${STATUS_BORDER_CLASS_MAP[opt.value as Status]}`}
+										>
+											{statusLabelMap[opt.value]}
+										</Badge>
+									</div>
+									<span className="text-base font-semibold">
+										{statusCounts[opt.value as keyof typeof statusCounts] ?? 0}
+									</span>
 								</div>
-								<span className="text-base font-semibold">
-									{statusCounts[opt.value as keyof typeof statusCounts] ?? 0}
-								</span>
-							</div>
-						))}
+							))}
 					</div>
 				</CardContent>
 			</Card>
