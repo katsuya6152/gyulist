@@ -41,7 +41,7 @@
 				}
 			],
 			"triggers": {
-				"crons": ["0 2 * * *"]
+				"crons": ["0 17 * * *"] // 2:00 JST
 			},
 			"observability": {
 				"enabled": true,
