@@ -5,19 +5,7 @@ import type { GetCattleDetailResType } from "@/services/cattleService";
 export function Bloodline({
 	cattle
 }: {
-	cattle: GetCattleDetailResType & {
-		bloodline?: {
-			fatherCattleName?: string | null;
-			motherFatherCattleName?: string | null;
-			motherGrandFatherCattleName?: string | null;
-			motherGreatGrandFatherCattleName?: string | null;
-		};
-		motherInfo?: {
-			motherName?: string | null;
-			motherIdentificationNumber?: string | null;
-			motherScore?: number | null;
-		};
-	};
+	cattle: GetCattleDetailResType;
 }) {
 	// Access bloodline and motherInfo properties directly
 	const { bloodline, motherInfo } = cattle;
