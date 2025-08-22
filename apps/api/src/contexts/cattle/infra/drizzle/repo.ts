@@ -4,6 +4,7 @@ import { drizzle } from "drizzle-orm/d1";
 import {
 	events,
 	alerts,
+	breedingStatus,
 	cattle,
 	cattleStatusHistory
 } from "../../../../db/schema";
@@ -111,6 +112,15 @@ export function makeCattleRepo(db: AnyD1Database): CattleRepoPort {
 			const conditions = [
 				eq(cattle.ownerUserId, q.ownerUserId as unknown as number)
 			];
+
+			// 空胎日数順の並び替えの場合のみ、経産牛と初産牛を表示
+			// 空胎日数が計算可能な牛のみを対象とする
+			if (q.sortBy === "days_open") {
+				conditions.push(
+					inArray(cattle.growthStage, ["FIRST_CALVED", "MULTI_PAROUS"])
+				);
+			}
+
 			if (q.search) {
 				conditions.push(
 					sql`(${cattle.name} LIKE ${`%${q.search}%`} OR CAST(${cattle.identificationNumber} AS TEXT) LIKE ${`%${q.search}%`} OR CAST(${cattle.earTagNumber} AS TEXT) LIKE ${`%${q.search}%`})`
@@ -154,30 +164,78 @@ export function makeCattleRepo(db: AnyD1Database): CattleRepoPort {
 						: sql`${getSortColumn(q.sortBy)} > ${q.cursor.value}`;
 				conditions.push(cursorCondition);
 			}
-			const rows = await d
-				.select()
-				.from(cattle)
-				.where(and(...conditions))
-				.orderBy(
-					q.sortOrder === "desc"
-						? desc(getSortColumn(q.sortBy))
-						: asc(getSortColumn(q.sortBy))
-				)
-				.limit(q.limit + 1);
+
+			// 空胎日数順の並び替えの場合はbreeding_statusテーブルとJOIN
+			const needsBreedingJoin = q.sortBy === "days_open";
+
+			let rows: Record<string, unknown>[];
+			if (needsBreedingJoin) {
+				rows = await d
+					.select({
+						cattleId: cattle.cattleId,
+						ownerUserId: cattle.ownerUserId,
+						identificationNumber: cattle.identificationNumber,
+						earTagNumber: cattle.earTagNumber,
+						name: cattle.name,
+						gender: cattle.gender,
+						birthday: cattle.birthday,
+						growthStage: cattle.growthStage,
+						breed: cattle.breed,
+						status: cattle.status,
+						producerName: cattle.producerName,
+						barn: cattle.barn,
+						breedingValue: cattle.breedingValue,
+						notes: cattle.notes,
+						weight: cattle.weight,
+						score: cattle.score,
+						createdAt: cattle.createdAt,
+						updatedAt: cattle.updatedAt,
+						daysOpen: breedingStatus.daysOpen
+					})
+					.from(cattle)
+					.leftJoin(
+						breedingStatus,
+						eq(cattle.cattleId, breedingStatus.cattleId)
+					)
+					.where(and(...conditions))
+					.orderBy(
+						q.sortOrder === "desc"
+							? desc(getSortColumn(q.sortBy))
+							: asc(getSortColumn(q.sortBy))
+					)
+					.limit(q.limit + 1);
+			} else {
+				rows = await d
+					.select()
+					.from(cattle)
+					.where(and(...conditions))
+					.orderBy(
+						q.sortOrder === "desc"
+							? desc(getSortColumn(q.sortBy))
+							: asc(getSortColumn(q.sortBy))
+					)
+					.limit(q.limit + 1);
+			}
 
 			// 各牛にアラート情報を追加
 			const cattleWithAlerts = await Promise.all(
 				rows.map(async (row) => {
-					const cattleData = toDomain(row);
+					// JOIN結果の場合、daysOpenフィールドを除外してからtoDomainを適用
+					const { daysOpen, ...cattleRow } = row as Record<string, unknown>;
+					const cattleData = toDomain(
+						cattleRow as Parameters<typeof toDomain>[0]
+					);
 					const alertInfo = await getAlertInfoForCattle(
 						db,
-						row.cattleId,
+						(row as Record<string, unknown>).cattleId as number,
 						q.ownerUserId as unknown as number
 					);
 
 					return {
 						...cattleData,
-						alerts: alertInfo
+						alerts: alertInfo,
+						// 空胎日数順で並び替えている場合はdaysOpenも含める
+						...(needsBreedingJoin && { daysOpen })
 					};
 				})
 			);
@@ -194,7 +252,12 @@ export function makeCattleRepo(db: AnyD1Database): CattleRepoPort {
 				daysOld: null,
 				createdAt: new Date(),
 				updatedAt: new Date(),
-				version: 1
+				version: 1,
+				alerts: {
+					hasActiveAlerts: false,
+					alertCount: 0,
+					highestSeverity: null
+				}
 			} as Cattle;
 
 			const [row] = await d
@@ -249,7 +312,10 @@ export function makeCattleRepo(db: AnyD1Database): CattleRepoPort {
 				.from(cattle)
 				.where(eq(cattle.ownerUserId, ownerUserId as unknown as number))
 				.groupBy(cattle.status);
-			return rows as Array<{ status: Cattle["status"]; count: number }>;
+			return rows.map((row) => ({
+				status: row.status as Cattle["status"],
+				count: row.count
+			}));
 		},
 		async updateStatus(id, newStatus, changedBy, reason) {
 			// Update cattle status and log history
@@ -348,7 +414,7 @@ export function makeCattleRepo(db: AnyD1Database): CattleRepoPort {
 }
 
 function getSortColumn(
-	sortBy: "id" | "name" | "days_old" | "created_at" | "updated_at"
+	sortBy: "id" | "name" | "days_old" | "days_open" | "created_at" | "updated_at"
 ) {
 	switch (sortBy) {
 		case "id":
@@ -357,6 +423,8 @@ function getSortColumn(
 			return cattle.name;
 		case "days_old":
 			return sql`CAST((julianday('now') - julianday(${cattle.birthday})) AS INTEGER)`;
+		case "days_open":
+			return sql`COALESCE(breeding_status.daysOpen, 0)`;
 		case "created_at":
 			return cattle.createdAt;
 		case "updated_at":

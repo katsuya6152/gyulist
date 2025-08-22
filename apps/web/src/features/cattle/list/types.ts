@@ -7,7 +7,7 @@ export type CattleListFilter = {
 };
 
 export type CattleListSort = {
-	sortBy: "id" | "name" | "days_old";
+	sortBy: "id" | "name" | "days_old" | "days_open";
 	sortOrder: "asc" | "desc";
 };
 

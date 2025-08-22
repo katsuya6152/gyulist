@@ -35,7 +35,15 @@ export const cattle = sqliteTable("cattle", {
 	breed: text("breed"),
 	// ステータス
 	status: text("status", {
-		enum: ["HEALTHY", "PREGNANT", "RESTING", "TREATING", "SHIPPED", "DEAD"]
+		enum: [
+			"HEALTHY",
+			"PREGNANT",
+			"RESTING",
+			"TREATING",
+			"SCHEDULED_FOR_SHIPMENT",
+			"SHIPPED",
+			"DEAD"
+		]
 	}).default("HEALTHY"),
 	// 生産者
 	producerName: text("producerName"),

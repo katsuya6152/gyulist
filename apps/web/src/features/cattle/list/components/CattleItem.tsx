@@ -26,10 +26,18 @@ interface CattleItemProps {
 	alerts: AlertItem[];
 	onItemClick: (cattleId: number) => void;
 	onAddEvent: (cattleId: number) => void;
+	sortBy?: string;
 }
 
 export const CattleItem = memo(
-	({ cattle, index, alerts, onItemClick, onAddEvent }: CattleItemProps) => {
+	({
+		cattle,
+		index,
+		alerts,
+		onItemClick,
+		onAddEvent,
+		sortBy
+	}: CattleItemProps) => {
 		const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
 
 		const handleItemClick = () => {
@@ -239,6 +247,14 @@ export const CattleItem = memo(
 							<Separator orientation="vertical" />
 							<div>体重：{cattle.weight ? `${cattle.weight}kg` : "-"}</div>
 						</div>
+						{/* 空胎日数表示（空胎日数順で並び替えている場合のみ） */}
+						{sortBy === "days_open" && (
+							<div className="flex items-center gap-2 text-xs text-muted-foreground">
+								<div className="font-medium text-blue-600">
+									空胎日数：{cattle.daysOpen ? `${cattle.daysOpen}日` : "-"}
+								</div>
+							</div>
+						)}
 					</div>
 					<div className="flex items-center gap-2">
 						<Button

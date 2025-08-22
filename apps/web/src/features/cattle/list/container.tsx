@@ -35,5 +35,12 @@ export default async function CattleListContainer({ searchParams }: Props) {
 	const cattleList = cattleData.results;
 	const alerts = alertsData.results;
 
-	return <CattleListPresentation cattleList={cattleList} alerts={alerts} />;
+	return (
+		<CattleListPresentation
+			cattleList={cattleList}
+			alerts={alerts}
+			sortBy={queryParams.sort_by}
+			sortOrder={queryParams.sort_order}
+		/>
+	);
 }

@@ -29,6 +29,11 @@ export function toDomain(
 		score: (row.score ?? null) as DomainCattle["score"],
 		createdAt: new Date(row.createdAt ?? new Date(0).toISOString()),
 		updatedAt: new Date(row.updatedAt ?? new Date(0).toISOString()),
-		version: 1 // Default version for existing records
+		version: 1, // Default version for existing records
+		alerts: {
+			hasActiveAlerts: false,
+			alertCount: 0,
+			highestSeverity: null
+		}
 	};
 }

@@ -13,7 +13,7 @@ import type {
 	ProducerName,
 	Score,
 	Weight
-} from "../../domain/model/cattle";
+} from "../../domain/model/types";
 
 // Database to Domain mapping
 export function cattleToDomain(
@@ -38,7 +38,12 @@ export function cattleToDomain(
 		score: (row.score ?? null) as Score | null,
 		createdAt: new Date(row.createdAt ?? new Date(0).toISOString()),
 		updatedAt: new Date(row.updatedAt ?? new Date(0).toISOString()),
-		version: 1 // Default version for existing records
+		version: 1, // Default version for existing records
+		alerts: {
+			hasActiveAlerts: false,
+			alertCount: 0,
+			highestSeverity: null
+		}
 	};
 }
 

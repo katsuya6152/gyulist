@@ -38,6 +38,7 @@ export interface CattleRepoPort {
 			| "id"
 			| "name"
 			| "days_old"
+			| "days_open"
 			| "created_at"
 			| "updated_at";
 		/** ソート順序 */ sortOrder: "asc" | "desc";

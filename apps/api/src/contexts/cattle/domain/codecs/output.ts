@@ -90,7 +90,8 @@ const cattleSchema = z
 		score: z.number().nullable(),
 		createdAt: z.date().transform((date) => date.toISOString()),
 		updatedAt: z.date().transform((date) => date.toISOString()),
-		alerts: alertInfoSchema
+		alerts: alertInfoSchema,
+		daysOpen: z.number().nullable().optional()
 	})
 	.transform((data) => {
 		// 誕生日から年齢情報を計算して追加
@@ -172,7 +173,8 @@ export const cattleResponseSchema = z
 		bloodline: bloodlineSchema.nullable().optional(),
 		motherInfo: motherInfoSchema.nullable().optional(),
 		breedingStatus: breedingStatusSchema.nullable().optional(),
-		breedingSummary: breedingSummarySchema.nullable().optional()
+		breedingSummary: breedingSummarySchema.nullable().optional(),
+		daysOpen: z.number().nullable().optional()
 	})
 	.transform((data) => {
 		// 誕生日から年齢情報を計算して追加
