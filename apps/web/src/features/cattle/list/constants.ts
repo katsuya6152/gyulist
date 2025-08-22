@@ -27,7 +27,8 @@ export const sortOptions = [
 export const FormSchema = z.object({
 	growth_stage: z.array(z.string()),
 	gender: z.array(z.string()),
-	status: z.array(z.string())
+	status: z.array(z.string()),
+	has_alert: z.enum(["all", "true", "false"]).optional()
 });
 
 export type FilterFormData = z.infer<typeof FormSchema>;

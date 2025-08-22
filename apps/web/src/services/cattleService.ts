@@ -22,6 +22,7 @@ export type CattleListQueryParams = {
 	growth_stage?: string;
 	gender?: string;
 	status?: string;
+	has_alert?: string;
 };
 
 export async function GetCattleList(
@@ -38,8 +39,9 @@ export async function GetCattleList(
 					search: queryParams.search,
 					growth_stage: queryParams.growth_stage,
 					gender: queryParams.gender,
-					status: queryParams.status
-				}
+					status: queryParams.status,
+					has_alert: queryParams.has_alert
+				} as Record<string, string | undefined>
 			},
 			{
 				headers: {

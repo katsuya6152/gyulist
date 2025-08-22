@@ -31,6 +31,7 @@ export type SearchCattleCmd = {
 	/** 成長段階フィルタ（オプション） */ growthStage?: string[];
 	/** 性別フィルタ（オプション） */ gender?: string[];
 	/** ステータスフィルタ（オプション） */ status?: string[];
+	/** アラート有無フィルタ（オプション） */ hasAlert?: boolean;
 };
 
 /**

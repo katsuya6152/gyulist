@@ -121,7 +121,17 @@ export const searchCattleSchema = z.object({
 		.string()
 		.transform((val) => val?.split(","))
 		.pipe(z.enum(STATUSES_TUPLE).array().optional())
-		.optional()
+		.optional(),
+	// has_alert は "true"/"false" の文字列が来るため厳密に変換する
+	has_alert: z.preprocess((v) => {
+		if (v === undefined || v === null) return undefined;
+		if (typeof v === "string") {
+			const s = v.toLowerCase();
+			if (s === "true") return true;
+			if (s === "false") return false;
+		}
+		return v;
+	}, z.boolean().optional())
 });
 
 export type NewCattleInput = z.infer<typeof newCattleSchema>;

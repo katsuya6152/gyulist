@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getGrowthStage } from "@/lib/utils";
 import type { AlertItem } from "@repo/api";
+import { ALERT_TYPE_LABELS } from "@repo/api";
 import classNames from "classnames";
 import { clsx } from "clsx";
 import {
@@ -68,53 +69,84 @@ export const CattleItem = memo(
 			);
 			const lowPriority = cattleAlerts.filter((a) => a.severity === "low");
 
+			const highLabel =
+				highPriority.length > 0
+					? ALERT_TYPE_LABELS[
+							highPriority[0].type as keyof typeof ALERT_TYPE_LABELS
+						] || highPriority[0].type
+					: null;
+			const mediumLabel =
+				mediumPriority.length > 0
+					? ALERT_TYPE_LABELS[
+							mediumPriority[0].type as keyof typeof ALERT_TYPE_LABELS
+						] || mediumPriority[0].type
+					: null;
+			const lowLabel =
+				lowPriority.length > 0
+					? ALERT_TYPE_LABELS[
+							lowPriority[0].type as keyof typeof ALERT_TYPE_LABELS
+						] || lowPriority[0].type
+					: null;
+
 			return (
 				<div className="flex items-center gap-1">
 					{highPriority.length > 0 && (
-						<button
-							type="button"
-							className="inline-flex items-center rounded-md bg-red-500 px-2 py-1 text-xs font-medium text-white ring-offset-background transition-all hover:bg-red-600 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 cursor-pointer shadow-md"
-							onClick={handleAlertClick}
-							onKeyDown={handleAlertKeyDown}
-							aria-label={`高優先度アラート${highPriority.length}件を表示`}
-						>
-							<AlertTriangle className="h-3 w-3 mr-1" />
-							{highPriority.length}
-						</button>
+						<>
+							<button
+								type="button"
+								className="inline-flex items-center rounded-md bg-red-500 px-2 py-1 text-xs font-medium text-white ring-offset-background transition-all hover:bg-red-600 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 cursor-pointer shadow-md"
+								onClick={handleAlertClick}
+								onKeyDown={handleAlertKeyDown}
+								aria-label={`高優先度アラート${highPriority.length}件を表示`}
+							>
+								<AlertTriangle className="h-3 w-3 mr-1" />
+								{/* <span className="mr-1">{highPriority.length}</span> */}
+							</button>
+							{highLabel && (
+								<span className="text-xs font-semibold text-red-600 ml-1 truncate max-w-[10rem]">
+									{highLabel}
+								</span>
+							)}
+						</>
 					)}
 					{mediumPriority.length > 0 && (
-						<button
-							type="button"
-							className="inline-flex items-center rounded-md bg-yellow-500 px-2 py-1 text-xs font-medium text-white ring-offset-background transition-all hover:bg-yellow-600 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2 cursor-pointer shadow-md"
-							onClick={handleAlertClick}
-							onKeyDown={handleAlertKeyDown}
-							aria-label={`中優先度アラート${mediumPriority.length}件を表示`}
-						>
-							<Bell className="h-3 w-3 mr-1" />
-							{mediumPriority.length}
-						</button>
+						<>
+							<button
+								type="button"
+								className="inline-flex items-center rounded-md bg-yellow-500 px-2 py-1 text-xs font-medium text-white ring-offset-background transition-all hover:bg-yellow-600 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2 cursor-pointer shadow-md"
+								onClick={handleAlertClick}
+								onKeyDown={handleAlertKeyDown}
+								aria-label={`中優先度アラート${mediumPriority.length}件を表示`}
+							>
+								<Bell className="h-3 w-3 mr-1" />
+								{/* <span className="mr-1">{mediumPriority.length}</span> */}
+							</button>
+							{mediumLabel && (
+								<span className="text-xs font-semibold text-amber-600 ml-1 truncate max-w-[10rem]">
+									{mediumLabel}
+								</span>
+							)}
+						</>
 					)}
 					{lowPriority.length > 0 && (
-						<button
-							type="button"
-							className="inline-flex items-center rounded-md bg-blue-500 px-2 py-1 text-xs font-medium text-white ring-offset-background transition-all hover:bg-blue-600 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 cursor-pointer shadow-md"
-							onClick={handleAlertClick}
-							onKeyDown={handleAlertKeyDown}
-							aria-label={`低優先度アラート${lowPriority.length}件を表示`}
-						>
-							<Info className="h-3 w-3 mr-1" />
-							{lowPriority.length}
-						</button>
+						<>
+							<button
+								type="button"
+								className="inline-flex items-center rounded-md bg-blue-500 px-2 py-1 text-xs font-medium text-white ring-offset-background transition-all hover:bg-blue-600 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 cursor-pointer shadow-md"
+								onClick={handleAlertClick}
+								onKeyDown={handleAlertKeyDown}
+								aria-label={`低優先度アラート${lowPriority.length}件を表示`}
+							>
+								<Info className="h-3 w-3 mr-1" />
+								{/* <span className="mr-1">{lowPriority.length}</span> */}
+							</button>
+							{lowLabel && (
+								<span className="text-xs font-semibold text-blue-600 ml-1 truncate max-w-[10rem]">
+									{lowLabel}
+								</span>
+							)}
+						</>
 					)}
-					<button
-						type="button"
-						className="text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-						onClick={handleAlertClick}
-						onKeyDown={handleAlertKeyDown}
-						aria-label={`アラート${cattleAlerts.length}件の詳細を表示`}
-					>
-						{cattleAlerts.length}件
-					</button>
 				</div>
 			);
 		};

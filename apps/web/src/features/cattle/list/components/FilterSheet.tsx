@@ -11,11 +11,13 @@ import {
 	CommandList
 } from "@/components/ui/command";
 import { Form } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger
 } from "@/components/ui/popover";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
 	Sheet,
 	SheetClose,
@@ -42,6 +44,7 @@ interface FilterSheetProps {
 	initialGrowthStage: string[];
 	initialGender: string[];
 	initialStatus: string[];
+	initialHasAlert?: string;
 	onSubmit: (data: FilterFormData) => void;
 	onClear: () => void;
 }
@@ -51,6 +54,7 @@ export const FilterSheet = memo(
 		initialGrowthStage,
 		initialGender,
 		initialStatus,
+		initialHasAlert,
 		onSubmit,
 		onClear
 	}: FilterSheetProps) => {
@@ -63,7 +67,9 @@ export const FilterSheet = memo(
 			const growthStageCount = form.watch("growth_stage").length;
 			const genderCount = form.watch("gender").length;
 			const statusCount = form.watch("status").length;
-			return growthStageCount + genderCount + statusCount;
+			const hasAlertCount =
+				form.watch("has_alert") && form.watch("has_alert") !== "all" ? 1 : 0;
+			return growthStageCount + genderCount + statusCount + hasAlertCount;
 		};
 
 		const form = useForm<FilterFormData>({
@@ -71,7 +77,8 @@ export const FilterSheet = memo(
 			defaultValues: {
 				growth_stage: initialGrowthStage,
 				gender: initialGender,
-				status: initialStatus
+				status: initialStatus,
+				has_alert: (initialHasAlert || "all") as "all" | "true" | "false"
 			}
 		});
 
@@ -124,7 +131,8 @@ export const FilterSheet = memo(
 			form.reset({
 				growth_stage: [],
 				gender: [],
-				status: []
+				status: [],
+				has_alert: "all"
 			});
 			onClear();
 		};
@@ -182,6 +190,7 @@ export const FilterSheet = memo(
 					<div className="flex-1 overflow-y-auto p-4">
 						<Form {...form}>
 							<form
+								id="cattle-filter-form"
 								onSubmit={form.handleSubmit(onSubmit)}
 								className="space-y-6"
 							>
@@ -440,6 +449,33 @@ export const FilterSheet = memo(
 											</div>
 										)}
 									</div>
+
+									<div className="space-y-3">
+										<h3 className="font-medium text-lg">アラートの有無</h3>
+										<RadioGroup
+											value={form.watch("has_alert") || "all"}
+											onValueChange={(value) => {
+												form.setValue(
+													"has_alert",
+													value as "all" | "true" | "false"
+												);
+											}}
+											className="space-y-2"
+										>
+											<div className="flex items-center space-x-2">
+												<RadioGroupItem value="all" id="alert-all" />
+												<Label htmlFor="alert-all">すべて</Label>
+											</div>
+											<div className="flex items-center space-x-2">
+												<RadioGroupItem value="true" id="alert-true" />
+												<Label htmlFor="alert-true">アラートあり</Label>
+											</div>
+											<div className="flex items-center space-x-2">
+												<RadioGroupItem value="false" id="alert-false" />
+												<Label htmlFor="alert-false">アラートなし</Label>
+											</div>
+										</RadioGroup>
+									</div>
 								</div>
 							</form>
 						</Form>
@@ -449,7 +485,11 @@ export const FilterSheet = memo(
 					<div className="flex-shrink-0 p-4 bg-background border-t">
 						<div className="flex gap-2">
 							<SheetClose asChild>
-								<Button type="submit" className="flex-1 h-12 text-base">
+								<Button
+									type="submit"
+									form="cattle-filter-form"
+									className="flex-1 h-12 text-base"
+								>
 									絞り込む
 								</Button>
 							</SheetClose>

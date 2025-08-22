@@ -71,7 +71,8 @@ const app = new Hono<{ Bindings: Bindings }>()
 					search: q.search,
 					growthStage: q.growth_stage,
 					gender: q.gender,
-					status: q.status
+					status: q.status,
+					hasAlert: q.has_alert
 				});
 
 				if (!result.ok) return result;

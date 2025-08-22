@@ -45,6 +45,7 @@ export interface CattleRepoPort {
 		/** 成長段階フィルタ */ growthStage?: string[];
 		/** 性別フィルタ */ gender?: string[];
 		/** 状態フィルタ */ status?: string[];
+		/** アラート有無フィルタ */ hasAlert?: boolean;
 		/** 最小年齢（日齢換算可） */ minAge?: number;
 		/** 最大年齢（日齢換算可） */ maxAge?: number;
 		/** 牛舎フィルタ */ barn?: string;

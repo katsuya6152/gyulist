@@ -1,7 +1,12 @@
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, exists, inArray, not, sql } from "drizzle-orm";
 import type { AnyD1Database } from "drizzle-orm/d1";
 import { drizzle } from "drizzle-orm/d1";
-import { events, cattle, cattleStatusHistory } from "../../../../db/schema";
+import {
+	events,
+	alerts,
+	cattle,
+	cattleStatusHistory
+} from "../../../../db/schema";
 import type { CattleId, UserId } from "../../../../shared/brand";
 import type { Cattle } from "../../domain/model/cattle";
 import type { CattleRepoPort } from "../../ports";
@@ -122,6 +127,25 @@ export function makeCattleRepo(db: AnyD1Database): CattleRepoPort {
 			if (q.status && q.status.length > 0) {
 				const quoted = q.status.map((s) => `'${s}'`).join(",");
 				conditions.push(sql`${cattle.status} IN (${sql.raw(quoted)})`);
+			}
+			// アラート有無によるフィルタリング（active/acknowledged を「アクティブ」とみなす）
+			if (q.hasAlert !== undefined) {
+				const alertSubquery = d
+					.select({ cattleId: alerts.cattleId })
+					.from(alerts)
+					.where(
+						and(
+							eq(alerts.cattleId, cattle.cattleId),
+							inArray(alerts.status, ["active", "acknowledged"]),
+							eq(alerts.ownerUserId, q.ownerUserId as unknown as number)
+						)
+					);
+
+				if (q.hasAlert) {
+					conditions.push(exists(alertSubquery));
+				} else {
+					conditions.push(not(exists(alertSubquery)));
+				}
 			}
 			if (q.cursor) {
 				const cursorCondition =
