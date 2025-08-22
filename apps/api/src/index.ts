@@ -169,4 +169,4 @@ export const createClient = (
 export default app;
 
 // Cloudflare Workers Cronトリガー用のエクスポート
-export { default as scheduled } from "./batch-scheduled";
+export { scheduled } from "./batch-scheduled";
