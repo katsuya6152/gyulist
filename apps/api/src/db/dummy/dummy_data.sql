@@ -29,7 +29,7 @@ DELETE FROM sqlite_sequence WHERE name = 'users';
 INSERT INTO users (userName, email, passwordHash, is_verified, verification_token)
 VALUES
   ('Test User', 'test@test.co.jp', '$2a$10$3L5VA0dU9n13/ZHOO.ak.uXmJI1YkyvfLV45OwnJl99DJCznEvdsa', 1, NULL),
-  ('Bob', 'bob@example.com', '$2a$10$uvwxyz0123456789ABCDE', 1, NULL),
+  ('E2E Test User', 'bob@example.com', '$2b$10$XWYy.G3sF3bVUQUhq5bPIeE2goEfWmOcX/12uo4iE8hqjxvXenlf6', 1, NULL),
   ('Charlie', 'charlie@example.com', '$2a$10$ABCD1234EFGH5678IJKL', 0, NULL),
   ('David', 'david@example.com', '$2a$10$MNOPQRSTUVWX01234567', 0, NULL);
 
