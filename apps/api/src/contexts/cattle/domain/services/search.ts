@@ -25,7 +25,7 @@ export type SearchCattleCmd = {
 		value: string | number;
 	};
 	/** 取得件数制限 */ limit: number;
-	/** ソート項目 */ sortBy: "id" | "name" | "days_old";
+	/** ソート項目 */ sortBy: "id" | "name" | "days_old" | "days_open";
 	/** ソート順序 */ sortOrder: "asc" | "desc";
 	/** 検索文字列（オプション） */ search?: string;
 	/** 成長段階フィルタ（オプション） */ growthStage?: string[];

@@ -6,6 +6,7 @@ import {
 	calculateBreedingStatusBatch,
 	calculateBreedingSummaryBatch
 } from "./contexts/breeding/domain/services/batchCalculation";
+import type { UserId } from "./shared/brand";
 import { makeDeps } from "./shared/config/di";
 import { getLogger } from "./shared/logging/logger";
 import type { Bindings } from "./types";
@@ -151,6 +152,8 @@ export async function scheduled(event: ScheduledEvent, env: Bindings) {
  */
 export async function fetch(request: Request, env: Bindings) {
 	const logger = getLogger({ env: { ENVIRONMENT: "development" } });
+	const url = new URL(request.url);
+	const debug = url.searchParams.get("debug") === "true";
 
 	try {
 		logger.info("手動バッチ処理を開始", {
@@ -162,6 +165,43 @@ export async function fetch(request: Request, env: Bindings) {
 		// 開発環境用の依存関係を設定
 		const deps = makeDeps(env.DB, { now: () => new Date() });
 
+		// デバッグ情報を収集
+		let debugInfo = {};
+		if (debug) {
+			// 繁殖状態を持つ牛の数を確認
+			const cattleIds = await deps.breedingRepo.findCattleNeedingAttention(
+				0 as UserId,
+				new Date()
+			);
+
+			// 最初の牛の詳細情報を取得
+			let sampleCattleInfo = null;
+			if (cattleIds.length > 0) {
+				const sampleCattleId = cattleIds[0];
+				const aggregate =
+					await deps.breedingRepo.findByCattleId(sampleCattleId);
+				const events =
+					await deps.breedingRepo.getBreedingHistory(sampleCattleId);
+
+				sampleCattleInfo = {
+					cattleId: sampleCattleId,
+					aggregate: aggregate
+						? {
+								parity: aggregate.currentStatus.parity,
+								lastUpdated: aggregate.lastUpdated.toISOString(),
+								hasEvents: events.length > 0
+							}
+						: null,
+					eventsCount: events.length
+				};
+			}
+
+			debugInfo = {
+				totalCattle: cattleIds.length,
+				sampleCattle: sampleCattleInfo
+			};
+		}
+
 		// 繁殖状態の更新
 		const statusResult = await calculateBreedingStatusBatch(deps)({
 			limit: 100,
@@ -169,11 +209,25 @@ export async function fetch(request: Request, env: Bindings) {
 			force: false
 		});
 
+		console.log("繁殖状態バッチ処理結果:", {
+			success: statusResult.ok,
+			processedCount: statusResult.ok ? statusResult.value.processedCount : 0,
+			updatedCount: statusResult.ok ? statusResult.value.updatedCount : 0,
+			errors: statusResult.ok ? statusResult.value.errors.length : 0
+		});
+
 		// 繁殖サマリーの更新
 		const summaryResult = await calculateBreedingSummaryBatch(deps)({
 			limit: 100,
 			offset: 0,
 			force: false
+		});
+
+		console.log("繁殖サマリーバッチ処理結果:", {
+			success: summaryResult.ok,
+			processedCount: summaryResult.ok ? summaryResult.value.processedCount : 0,
+			updatedCount: summaryResult.ok ? summaryResult.value.updatedCount : 0,
+			errors: summaryResult.ok ? summaryResult.value.errors.length : 0
 		});
 
 		// アラート更新（開発環境では常に実行）
@@ -218,7 +272,8 @@ export async function fetch(request: Request, env: Bindings) {
 						errors: alertsResult.value.errors
 					}
 				: { error: alertsResult.error },
-			timestamp: new Date().toISOString()
+			timestamp: new Date().toISOString(),
+			...(debug && { debug: debugInfo })
 		};
 
 		logger.info("手動バッチ処理が完了", {

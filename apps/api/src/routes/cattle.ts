@@ -22,6 +22,7 @@ import {
 	type Deps as GetDetailDeps,
 	get as getDetailUC
 } from "../contexts/cattle/domain/services/getDetail";
+import { createRealTimeCalculationService } from "../contexts/cattle/domain/services/realTimeCalculation";
 import { search as searchUC } from "../contexts/cattle/domain/services/search";
 import { update as updateUC } from "../contexts/cattle/domain/services/update";
 import { updateStatus as updateStatusUC } from "../contexts/cattle/domain/services/updateStatus";
@@ -186,11 +187,14 @@ const app = new Hono<{ Bindings: Bindings }>()
 	.get("/:id", async (c) => {
 		const id = Number.parseInt(c.req.param("id")) as unknown as CattleId;
 		const userId = c.get("jwtPayload").userId as unknown as UserId;
+		const forceRecalculation = c.req.query("force_recalculation") === "true";
 
 		return executeUseCase(
 			c,
 			async () => {
 				const deps = makeDeps(c.env.DB, { now: () => new Date() });
+
+				// 基本の牛詳細を取得
 				const result = await getDetailUC({
 					repo: deps.cattleRepo,
 					eventsRepo: deps.eventsRepo,
@@ -200,7 +204,42 @@ const app = new Hono<{ Bindings: Bindings }>()
 
 				if (!result.ok) return result;
 
-				const parsed = cattleResponseSchema.parse(result.value);
+				// リアルタイム計算サービスを作成
+				const realTimeCalculationService = createRealTimeCalculationService({
+					clock: deps.clock,
+					breedingRepo: deps.breedingRepo
+				});
+
+				// リアルタイム計算を実行
+				const calculationResult =
+					await realTimeCalculationService.calculateCattleDetails({
+						cattleId: id,
+						existingCattle: result.value as import(
+							"../contexts/cattle/domain/model/cattle"
+						).Cattle,
+						forceRecalculation
+					});
+
+				if (!calculationResult.ok) {
+					// 計算エラーが発生した場合は基本データを返す
+					console.warn(
+						"Real-time calculation failed, returning basic data:",
+						calculationResult.error
+					);
+					const parsed = cattleResponseSchema.parse(result.value);
+					return { ok: true, value: parsed };
+				}
+
+				// 計算結果を基本データに統合
+				const enhancedResult = {
+					...result.value,
+					breedingStatus: calculationResult.value.breedingStatus,
+					breedingSummary: calculationResult.value.breedingSummary,
+					calculatedAt: calculationResult.value.calculatedAt.toISOString(),
+					cacheHit: calculationResult.value.cacheHit
+				};
+
+				const parsed = cattleResponseSchema.parse(enhancedResult);
 				return { ok: true, value: parsed };
 			},
 			{ envelope: "data" }

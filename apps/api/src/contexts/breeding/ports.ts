@@ -21,7 +21,7 @@ export interface BreedingRepoPort {
 	 * @param aggregate - 繁殖集約
 	 * @returns 保存された繁殖集約
 	 */
-	save(aggregate: BreedingAggregate): Promise<BreedingAggregate>;
+	save(aggregate: BreedingAggregate): Promise<void>;
 
 	/**
 	 * 繁殖集約を削除します。
@@ -90,6 +90,23 @@ export interface BreedingRepoPort {
 		cattleId: CattleId,
 		currentTime: Date
 	): Promise<void>;
+
+	/** データベースの繁殖状態生データを取得 */
+	getBreedingStatusRow(cattleId: CattleId): Promise<{
+		breedingStatusId: number;
+		cattleId: number;
+		breedingMemo: string | null;
+		isDifficultBirth: boolean | null;
+		createdAt: string | null;
+		updatedAt: string | null;
+	} | null>;
+	/** データベースの繁殖統計生データを取得 */
+	getBreedingSummaryRow(cattleId: CattleId): Promise<{
+		breedingSummaryId: number;
+		cattleId: number;
+		createdAt: string | null;
+		updatedAt: string | null;
+	} | null>;
 }
 
 /**

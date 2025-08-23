@@ -14,6 +14,8 @@ import {
 } from "../contexts/events/domain/codecs/output";
 import { create as createEventUC } from "../contexts/events/domain/services/create";
 import { delete_ as deleteEventUC } from "../contexts/events/domain/services/delete";
+import { createEventHandlerService } from "../contexts/events/domain/services/eventHandlers";
+import type { EventHandlerInput } from "../contexts/events/domain/services/eventHandlers";
 import { getById as getEventByIdUC } from "../contexts/events/domain/services/get";
 import { listByCattle as listEventsByCattleUC } from "../contexts/events/domain/services/list";
 import { search as searchEventsUC } from "../contexts/events/domain/services/search";
@@ -22,6 +24,71 @@ import { jwtMiddleware } from "../middleware/jwt";
 import { makeDeps } from "../shared/config/di";
 import { executeUseCase } from "../shared/http/route-helpers";
 import type { Bindings } from "../types";
+
+// ヘルパー関数: 繁殖イベントかどうかを判定
+function isBreedingEvent(eventType: string): boolean {
+	return ["CALVING", "INSEMINATION", "PREGNANCY_CHECK", "ESTRUS"].includes(
+		eventType
+	);
+}
+
+// ヘルパー関数: イベントデータを繁殖イベントにマッピング
+function mapToBreedingEvent(
+	data: Record<string, unknown>
+): EventHandlerInput | null {
+	const eventType = data.eventType as string;
+	const cattleId = data.cattleId as number;
+	const eventDatetime = data.eventDatetime as string;
+	const notes = data.notes as string | null;
+
+	switch (eventType) {
+		case "CALVING":
+			return {
+				cattleId: cattleId as unknown as import("../shared/brand").CattleId,
+				eventType: "Calve",
+				eventData: {
+					timestamp: new Date(eventDatetime),
+					memo: notes,
+					isDifficultBirth: (data.isDifficultBirth as boolean) || false
+				}
+			};
+		case "INSEMINATION":
+			return {
+				cattleId: cattleId as unknown as import("../shared/brand").CattleId,
+				eventType: "Inseminate",
+				eventData: {
+					timestamp: new Date(eventDatetime),
+					memo: notes
+				}
+			};
+		case "PREGNANCY_CHECK":
+			return {
+				cattleId: cattleId as unknown as import("../shared/brand").CattleId,
+				eventType: "ConfirmPregnancy",
+				eventData: {
+					timestamp: new Date(eventDatetime),
+					memo: notes,
+					expectedCalvingDate: data.expectedCalvingDate
+						? new Date(data.expectedCalvingDate as string)
+						: undefined,
+					scheduledPregnancyCheckDate: data.scheduledPregnancyCheckDate
+						? new Date(data.scheduledPregnancyCheckDate as string)
+						: undefined
+				}
+			};
+		case "ESTRUS":
+			return {
+				cattleId: cattleId as unknown as import("../shared/brand").CattleId,
+				eventType: "StartNewCycle",
+				eventData: {
+					timestamp: new Date(eventDatetime),
+					memo: notes
+				}
+			};
+		default:
+			return null;
+	}
+}
 
 const app = new Hono<{ Bindings: Bindings }>()
 	.use("*", jwtMiddleware)
@@ -193,6 +260,45 @@ const app = new Hono<{ Bindings: Bindings }>()
 					>[0]);
 
 					if (!res.ok) return res;
+				}
+
+				// 副作用: 繁殖イベントの自動計算処理
+				if (isBreedingEvent(data.eventType)) {
+					const eventHandlerService = createEventHandlerService({
+						clock: deps.clock,
+						breedingRepo: {
+							findByCattleId: deps.breedingRepo.findByCattleId,
+							getBreedingHistory: deps.breedingRepo.getBreedingHistory,
+							save: (aggregate: unknown) =>
+								deps.breedingRepo.save(
+									aggregate as import(
+										"../contexts/cattle/domain/model/breedingAggregate"
+									).BreedingAggregate
+								),
+							updateBreedingStatusDays:
+								deps.breedingRepo.updateBreedingStatusDays
+						}
+					});
+
+					// イベントハンドラーで繁殖状態を更新
+					const breedingEventInput = mapToBreedingEvent(data);
+					if (breedingEventInput) {
+						const breedingResult =
+							await eventHandlerService.handleBreedingEvent(breedingEventInput);
+
+						if (!breedingResult.ok) {
+							console.warn(
+								"Breeding event handling failed:",
+								breedingResult.error
+							);
+							// イベント作成は成功しているので、警告のみで処理を継続
+						} else {
+							console.log(
+								"Breeding status updated successfully:",
+								breedingResult.value.processedEventType
+							);
+						}
+					}
 				}
 
 				// 副作用: EXPECTED_CALVING -> 繁殖集約の更新（契約維持）

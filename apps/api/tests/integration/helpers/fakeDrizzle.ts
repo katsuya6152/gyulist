@@ -271,57 +271,76 @@ export function createFakeDrizzle(store: FakeStore) {
 		insert(tbl: unknown) {
 			return {
 				values: (val: unknown) => {
-					return {
-						returning: async () => {
-							if (isTable(tbl, cattle)) {
-								const nextId = (store.cattle.at(-1)?.cattleId ?? 0) + 1;
-								const row = {
-									...(val as object),
-									cattleId: nextId
-								} as CattleRow;
-								store.cattle.push(row);
-								return [row];
-							}
-							if (isTable(tbl, bloodline)) {
-								const row = { ...(val as object) } as BloodlineRow;
-								store.bloodline.push(row);
-								return [row];
-							}
-							if (isTable(tbl, breedingStatus)) {
-								const row = { ...(val as object) } as BreedingStatusRow;
-								store.breedingStatus.push(row);
-								return [row];
-							}
-							if (isTable(tbl, breedingSummary)) {
-								const row = { ...(val as object) } as BreedingSummaryRow;
-								store.breedingSummary.push(row);
-								return [row];
-							}
-							if (isTable(tbl, events)) {
-								const nextId = (store.events.at(-1)?.eventId ?? 0) + 1;
-								const row = { ...(val as object), eventId: nextId } as EventRow;
-								store.events.push(row);
-								return [row];
-							}
-							if (isTable(tbl, users)) {
-								const nextId = ((store.users ?? []).at(-1)?.id ?? 0) + 1;
-								const row = {
-									id: nextId,
-									...(val as object)
-								} as unknown as UserRow;
-								if (!store.users) {
-									store.users = [];
-								}
-								store.users.push(row);
-								return [row as unknown as Record<string, unknown>];
-							}
-							if (isTable(tbl, cattleStatusHistory)) {
-								const row = { ...(val as object) } as StatusHistoryRow;
-								store.statusHistory.push(row);
-								return [row];
-							}
-							return [{}];
+					// 実際にデータを保存する関数
+					const saveData = () => {
+						if (isTable(tbl, cattle)) {
+							const nextId = (store.cattle.at(-1)?.cattleId ?? 0) + 1;
+							const row = {
+								...(val as object),
+								cattleId: nextId
+							} as CattleRow;
+							store.cattle.push(row);
+							return [row];
 						}
+						if (isTable(tbl, bloodline)) {
+							const nextId = (store.bloodline.at(-1)?.bloodlineId ?? 0) + 1;
+							const row = {
+								bloodlineId: nextId,
+								...(val as object)
+							} as BloodlineRow;
+							store.bloodline.push(row);
+							return [row];
+						}
+						if (isTable(tbl, breedingStatus)) {
+							const nextId =
+								(store.breedingStatus.at(-1)?.breedingStatusId ?? 0) + 1;
+							const row = {
+								breedingStatusId: nextId,
+								...(val as object)
+							} as BreedingStatusRow;
+							store.breedingStatus.push(row);
+							return [row];
+						}
+						if (isTable(tbl, breedingSummary)) {
+							const nextId =
+								(store.breedingSummary.at(-1)?.breedingSummaryId ?? 0) + 1;
+							const row = {
+								breedingSummaryId: nextId,
+								...(val as object)
+							} as BreedingSummaryRow;
+							store.breedingSummary.push(row);
+							return [row];
+						}
+						if (isTable(tbl, events)) {
+							const nextId = (store.events.at(-1)?.eventId ?? 0) + 1;
+							const row = { ...(val as object), eventId: nextId } as EventRow;
+							store.events.push(row);
+							return [row];
+						}
+						if (isTable(tbl, users)) {
+							const nextId = ((store.users ?? []).at(-1)?.id ?? 0) + 1;
+							const row = {
+								id: nextId,
+								...(val as object)
+							} as unknown as UserRow;
+							if (!store.users) {
+								store.users = [];
+							}
+							store.users.push(row);
+							return [row as unknown as Record<string, unknown>];
+						}
+						if (isTable(tbl, cattleStatusHistory)) {
+							const row = { ...(val as object) } as StatusHistoryRow;
+							store.statusHistory.push(row);
+							return [row];
+						}
+						return [{}];
+					};
+
+					// データを保存してreturningメソッドを提供
+					const savedRows = saveData();
+					return {
+						returning: async () => savedRows
 					};
 				}
 			};
@@ -334,48 +353,134 @@ export function createFakeDrizzle(store: FakeStore) {
 							return {
 								returning: async () => {
 									if (isTable(tbl, cattle)) {
+										// 特定のIDの牛を更新（テストデータの整合性を保つため）
+										const updateData = val as Record<string, unknown>;
+										if (updateData.cattleId) {
+											const targetId = updateData.cattleId as number;
+											const index = store.cattle.findIndex(
+												(c) => c.cattleId === targetId
+											);
+											if (index !== -1) {
+												const updated = {
+													...store.cattle[index],
+													...updateData
+												} as CattleRow;
+												store.cattle[index] = updated;
+												return [updated];
+											}
+										}
+										// フォールバック: 最初の牛を更新
 										const current = store.cattle[0];
 										if (current) {
 											const updated = {
 												...current,
-												...(val as object)
+												...updateData
 											} as CattleRow;
 											store.cattle[0] = updated;
 											return [updated];
 										}
 									}
 									if (isTable(tbl, breedingStatus)) {
+										// 特定のIDの繁殖状態を更新
+										const updateData = val as Record<string, unknown>;
+										if (updateData.cattleId) {
+											const targetId = updateData.cattleId as number;
+											const index = store.breedingStatus.findIndex(
+												(s) => s.cattleId === targetId
+											);
+											if (index !== -1) {
+												store.breedingStatus[index] = {
+													...store.breedingStatus[index],
+													...updateData
+												} as BreedingStatusRow;
+												return [store.breedingStatus[index]];
+											}
+										}
+										// フォールバック: 最初の繁殖状態を更新
 										if (store.breedingStatus[0]) {
 											store.breedingStatus[0] = {
 												...store.breedingStatus[0],
-												...(val as object)
+												...updateData
 											} as BreedingStatusRow;
 											return [store.breedingStatus[0]];
 										}
 									}
 									if (isTable(tbl, breedingSummary)) {
+										// 特定のIDの繁殖統計を更新
+										const updateData = val as Record<string, unknown>;
+										if (updateData.cattleId) {
+											const targetId = updateData.cattleId as number;
+											const index = store.breedingSummary.findIndex(
+												(s) => s.cattleId === targetId
+											);
+											if (index !== -1) {
+												store.breedingSummary[index] = {
+													...store.breedingSummary[index],
+													...updateData
+												} as BreedingSummaryRow;
+												return [store.breedingSummary[index]];
+											}
+										}
+										// フォールバック: 最初の繁殖統計を更新
 										if (store.breedingSummary[0]) {
 											store.breedingSummary[0] = {
 												...store.breedingSummary[0],
-												...(val as object)
+												...updateData
 											} as BreedingSummaryRow;
 											return [store.breedingSummary[0]];
 										}
 									}
 									if (isTable(tbl, bloodline)) {
+										// 特定のIDの血統情報を更新
+										const updateData = val as Record<string, unknown>;
+										if (updateData.cattleId) {
+											const targetId = updateData.cattleId as number;
+											const index = store.bloodline.findIndex(
+												(b) => b.cattleId === targetId
+											);
+											if (index !== -1) {
+												store.bloodline[index] = {
+													...store.bloodline[index],
+													...updateData
+												} as BloodlineRow;
+												return [store.bloodline[index]];
+											}
+										}
+										// フォールバック: 最初の血統情報を更新
 										if (store.bloodline[0]) {
 											store.bloodline[0] = {
 												...store.bloodline[0],
-												...(val as object)
+												...updateData
 											} as BloodlineRow;
 											return [store.bloodline[0]];
 										}
 									}
 									if (isTable(tbl, users)) {
+										// 特定のIDのユーザーを更新
+										const updateData = val as Record<string, unknown>;
+										if (updateData.id) {
+											const targetId = updateData.id as number;
+											const index = store.users?.findIndex(
+												(u) => u.id === targetId
+											);
+											if (index !== undefined && index !== -1 && store.users) {
+												store.users[index] = {
+													...store.users[index],
+													...updateData
+												} as UserRow;
+												return [
+													store.users[index] as unknown as Record<
+														string,
+														unknown
+													>
+												];
+											}
+										}
+										// フォールバック: 最初のユーザーを更新
 										if (store.users?.[0]) {
 											store.users[0] = {
 												...store.users[0],
-												...(val as object)
+												...updateData
 											} as UserRow;
 											return [
 												store.users[0] as unknown as Record<string, unknown>
@@ -451,6 +556,92 @@ export function createFakeD1(store?: FakeStore): AnyD1Database {
 				if (sql.includes("SELECT COUNT(*) as count FROM registrations")) {
 					const total = (store?.registrations ?? []).length;
 					return { results: [{ count: total }] as unknown[] };
+				}
+				// breedingStatus query for specific cattleId (drizzle ORM style)
+				if (
+					sql.includes("FROM breeding_status") &&
+					sql.includes("WHERE cattle_id = ?")
+				) {
+					const cattleId = Number(this._binds[0]);
+					const results = (store?.breedingStatus ?? [])
+						.filter((bs) => bs.cattleId === cattleId)
+						.map((bs) => ({
+							breedingStatusId: bs.breedingStatusId,
+							cattleId: bs.cattleId,
+							parity: bs.parity,
+							expectedCalvingDate: bs.expectedCalvingDate,
+							scheduledPregnancyCheckDate: bs.scheduledPregnancyCheckDate,
+							daysAfterCalving: bs.daysAfterCalving,
+							daysOpen: bs.daysOpen,
+							pregnancyDays: bs.pregnancyDays,
+							daysAfterInsemination: bs.daysAfterInsemination,
+							inseminationCount: bs.inseminationCount,
+							breedingMemo: bs.breedingMemo,
+							isDifficultBirth: bs.isDifficultBirth,
+							createdAt: bs.createdAt,
+							updatedAt: bs.updatedAt
+						}));
+					return { results };
+				}
+				// breedingSummary query for specific cattleId (drizzle ORM style)
+				if (
+					sql.includes("FROM breeding_summary") &&
+					sql.includes("WHERE cattle_id = ?")
+				) {
+					const cattleId = Number(this._binds[0]);
+					const results = (store?.breedingSummary ?? [])
+						.filter((bs) => bs.cattleId === cattleId)
+						.map((bs) => ({
+							breedingSummaryId: bs.breedingSummaryId,
+							cattleId: bs.cattleId,
+							totalInseminationCount: bs.totalInseminationCount,
+							averageDaysOpen: bs.averageDaysOpen,
+							averagePregnancyPeriod: bs.averagePregnancyPeriod,
+							averageCalvingInterval: bs.averageCalvingInterval,
+							difficultBirthCount: bs.difficultBirthCount,
+							pregnancyHeadCount: bs.pregnancyHeadCount,
+							pregnancySuccessRate: bs.pregnancySuccessRate,
+							createdAt: bs.createdAt,
+							updatedAt: bs.updatedAt
+						}));
+					return { results };
+				}
+				// Generic breeding_status query (for drizzle ORM)
+				if (sql.includes("FROM breeding_status")) {
+					const results = (store?.breedingStatus ?? []).map((bs) => ({
+						breedingStatusId: bs.breedingStatusId,
+						cattleId: bs.cattleId,
+						parity: bs.parity,
+						expectedCalvingDate: bs.expectedCalvingDate,
+						scheduledPregnancyCheckDate: bs.scheduledPregnancyCheckDate,
+						daysAfterCalving: bs.daysAfterCalving,
+						daysOpen: bs.daysOpen,
+						pregnancyDays: bs.pregnancyDays,
+						daysAfterInsemination: bs.daysAfterInsemination,
+						inseminationCount: bs.inseminationCount,
+						breedingMemo: bs.breedingMemo,
+						isDifficultBirth: bs.isDifficultBirth,
+						createdAt: bs.createdAt,
+						updatedAt: bs.updatedAt
+					}));
+					return { results };
+				}
+				// Generic breeding_summary query (for drizzle ORM)
+				if (sql.includes("FROM breeding_summary")) {
+					const results = (store?.breedingSummary ?? []).map((bs) => ({
+						breedingSummaryId: bs.breedingSummaryId,
+						cattleId: bs.cattleId,
+						totalInseminationCount: bs.totalInseminationCount,
+						averageDaysOpen: bs.averageDaysOpen,
+						averagePregnancyPeriod: bs.averagePregnancyPeriod,
+						averageCalvingInterval: bs.averageCalvingInterval,
+						difficultBirthCount: bs.difficultBirthCount,
+						pregnancyHeadCount: bs.pregnancyHeadCount,
+						pregnancySuccessRate: bs.pregnancySuccessRate,
+						createdAt: bs.createdAt,
+						updatedAt: bs.updatedAt
+					}));
+					return { results };
 				}
 				// KPI events window query
 				if (
@@ -624,27 +815,33 @@ export function createFakeD1(store?: FakeStore): AnyD1Database {
 							(c) => c.ownerUserId === ownerUserId && c.status !== "PREGNANT"
 						)
 						.map((c) => {
-							const last = (store?.events ?? [])
-								.filter(
-									(e) => e.cattleId === c.cattleId && e.eventType === "ESTRUS"
-								)
-								.map((e) => new Date(e.eventDatetime))
-								.sort((a, b) => b.getTime() - a.getTime())[0];
+							const last = (store?.events ?? []).find(
+								(e) => e.cattleId === c.cattleId && e.eventType === "ESTRUS"
+							);
 							if (!last) return null;
 							const days =
-								(now.getTime() - last.getTime()) / (1000 * 60 * 60 * 24);
+								(now.getTime() - new Date(last.eventDatetime).getTime()) /
+								(1000 * 60 * 60 * 24);
 							if (days >= 20) {
 								return {
 									cattleId: c.cattleId,
 									cattleName: c.name ?? null,
 									cattleEarTagNumber: String(c.earTagNumber ?? ""),
-									dueAt: last.toISOString()
+									dueAt: last.eventDatetime
 								} as unknown;
 							}
 							return null;
 						})
 						.filter(Boolean) as unknown[];
 					return { results };
+				}
+				// alerts query for specific cattleId and ownerUserId
+				if (
+					sql.includes("FROM alerts") &&
+					sql.includes("WHERE cattle_id = ? AND owner_user_id = ?")
+				) {
+					// AlertsRepo.listByCattleId query
+					return { results: [] as unknown[] }; // テストでは空のアラートを返す
 				}
 				// default: empty
 				return { results: [] as unknown[] };

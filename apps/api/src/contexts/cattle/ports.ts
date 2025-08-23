@@ -34,13 +34,7 @@ export interface CattleRepoPort {
 			value: string | number;
 		};
 		/** 取得件数（1ページ） */ limit: number;
-		/** ソートキー */ sortBy:
-			| "id"
-			| "name"
-			| "days_old"
-			| "days_open"
-			| "created_at"
-			| "updated_at";
+		/** ソートキー */ sortBy: "id" | "name" | "days_old" | "days_open";
 		/** ソート順序 */ sortOrder: "asc" | "desc";
 		/** 名前・耳標などのキーワード検索 */ search?: string;
 		/** 成長段階フィルタ */ growthStage?: string[];
