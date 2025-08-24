@@ -476,21 +476,6 @@ pnpm type-check
 6. **解決策を検討**
 7. **移行計画を見直し**
 
-### ロールバック手順
-```bash
-# 1. 変更をコミットしていない場合
-git reset --hard HEAD
-
-# 2. 変更をコミットしている場合
-git revert [コミットハッシュ]
-
-# 3. 新しいディレクトリを削除
-rm -rf apps/api/src/{domain,application,infrastructure,interfaces}
-
-# 4. 既存の構造を復元
-git checkout HEAD -- apps/api/src/contexts/
-```
-
 ## 🔍 現行コードの特徴と移行時の注意点
 
 ### 現行コードの特徴
@@ -534,6 +519,8 @@ git checkout HEAD -- apps/api/src/contexts/
    - `AppType`エクスポートの維持
    - フロントエンドの型推論の継続
    - APIクライアントの動作保証
+
+5. **使用しない不要な機能を付け足さない**
 
 ## 🚀 Hono RPC互換性を維持した移行戦略
 

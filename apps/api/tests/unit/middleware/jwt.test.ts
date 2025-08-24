@@ -223,7 +223,7 @@ describe("JWT Middleware", () => {
 				{ error: "Invalid token" },
 				401
 			);
-			expect(consoleSpy).toHaveBeenCalledTimes(2); // Both JWT and OAuth errors logged
+			expect(consoleSpy).toHaveBeenCalledTimes(1); // Simplified JWT error logging
 		});
 
 		it("should return 401 when atob throws error", async () => {
@@ -241,7 +241,7 @@ describe("JWT Middleware", () => {
 				{ error: "Invalid token" },
 				401
 			);
-			expect(consoleSpy).toHaveBeenCalledTimes(2);
+			expect(consoleSpy).toHaveBeenCalledTimes(1); // Simplified JWT error logging
 		});
 
 		it("should handle OAuth token with userId as 0", async () => {

@@ -1,36 +1,30 @@
 import type { Hono } from "hono";
+import { createAlertRoutes } from "../interfaces/http/routes/alertRoutes";
+// New Architecture Routes
+import {
+	createAuthRoutes,
+	createUserRoutes
+} from "../interfaces/http/routes/authRoutes";
+import { createCattleRoutes } from "../interfaces/http/routes/cattleRoutes";
+import { createEventRoutes } from "../interfaces/http/routes/eventRoutes";
+import { createKpiRoutes } from "../interfaces/http/routes/kpiRoutes";
 import { corsMiddleware } from "../middleware/cors";
-import type { Bindings } from "../types";
-import adminRoutes from "./admin";
-import alertsRoutes from "./alerts";
-import authRoutes from "./auth";
-import batchRoutes from "./batch";
-import cattleRoutes from "./cattle";
-import eventsRoutes from "./events";
+import type { Env } from "../shared/ports/d1Database";
 import healthRoutes from "./health";
-import kpiRoutes from "./kpi";
 import oauthRoutes from "./oauth";
-import openapiRoutes from "./openapi";
-import preRegisterRoutes from "./pre-register";
-import usersRoutes from "./users";
 
 // biome-ignore format:
-export const createRoutes = (app: Hono<{ Bindings: Bindings }>) => {
-return app
-.basePath("/api/v1")
-.use("*", corsMiddleware)
-.get("/", (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }))
-.route("/", healthRoutes)
-.route("/pre-register", preRegisterRoutes)
-.route("/admin", adminRoutes)
-.route("/auth", authRoutes)
-.route("/batch", batchRoutes)
-.route("/oauth", oauthRoutes)
-.route("/users", usersRoutes)
-.route("/alerts", alertsRoutes)
-.route("/kpi", kpiRoutes)
-.route("/cattle", cattleRoutes)
-.route("/events", eventsRoutes)
-// OpenAPI doc & Swagger UI are served under /api-docs
-.route("/api-docs", openapiRoutes);
+export const createRoutes = (app: Hono<{ Bindings: Env }>) => {
+	return app
+		.basePath("/api/v1/")
+		.use("*", corsMiddleware)
+		.get("/", (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }))
+		.route("/health", healthRoutes)
+		.route("/auth", createAuthRoutes())
+		.route("/oauth", oauthRoutes)
+		.route("/users", createUserRoutes())
+		.route("/alerts", createAlertRoutes())
+		.route("/events", createEventRoutes())
+		.route("/kpi", createKpiRoutes())
+		.route("/cattle", createCattleRoutes());
 };

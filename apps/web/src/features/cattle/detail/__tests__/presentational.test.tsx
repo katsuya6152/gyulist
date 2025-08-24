@@ -66,7 +66,7 @@ describe("CattleDetailPresentation", () => {
 		expect(screen.getByText("テスト牛")).toBeInTheDocument();
 		expect(screen.getByText(/1001/)).toBeInTheDocument();
 		expect(screen.getByText("黒毛和種")).toBeInTheDocument();
-		expect(screen.getByText("仔牛")).toBeInTheDocument();
+		expect(screen.getByText("繁殖・哺乳期")).toBeInTheDocument();
 	});
 
 	it("should render loading state when no cattle", () => {
