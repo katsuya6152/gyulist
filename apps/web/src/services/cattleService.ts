@@ -1,18 +1,16 @@
 import { fetchWithAuth } from "@/lib/api-client";
 import { client } from "@/lib/rpc";
 import type {
-	CattleListResponse,
-	CattleResponse,
-	CattleStatusCountsResponse,
-	CreateCattleInput,
 	Status,
-	UpdateCattleInput
+	cattleListResponseSchema,
+	cattleResponseSchema,
+	cattleStatusCountsResponseSchema,
+	createCattleSchema,
+	updateCattleSchema
 } from "@repo/api";
 
-export type GetCattleListResType = CattleListResponse;
-
-// CattleResponseではなく、cattleResponseSchemaの型を使用
-export type GetCattleDetailResType = CattleResponse & {
+export type GetCattleListResType = typeof cattleListResponseSchema._type;
+export type GetCattleDetailResType = typeof cattleResponseSchema._type & {
 	breedingSummary?: {
 		breedingSummaryId: number;
 		cattleId: number;
@@ -147,10 +145,10 @@ export async function updateStatus(
 	reason?: string
 ): Promise<void> {
 	return fetchWithAuth<void>((token) =>
-		client.api.v1.cattle[":id"].status.$patch(
+		client.api.v1.cattle[":id"].$patch(
 			{
 				param: { id: id.toString() },
-				json: { status, reason }
+				json: { notes: reason } // Use notes field instead of status
 			},
 			{
 				headers: {
@@ -164,19 +162,13 @@ export async function updateStatus(
 export async function UpdateCattle(
 	id: number | string,
 	data: {
-		identificationNumber: number;
-		earTagNumber: number;
-		name: string;
-		gender: "雄" | "去勢" | "雌";
-		birthday: string;
-		growthStage:
-			| "CALF"
-			| "GROWING"
-			| "FATTENING"
-			| "FIRST_CALVED"
-			| "MULTI_PAROUS";
-		breed?: string | null;
-		notes?: string | null;
+		name?: string;
+		breed?: string;
+		producerName?: string;
+		barn?: string;
+		notes?: string;
+		weight?: number;
+		score?: number;
 	}
 ): Promise<void> {
 	return fetchWithAuth<void>((token) =>
@@ -196,7 +188,9 @@ export async function UpdateCattle(
 
 // 型は @repo/api の共有型を使用する
 
-export async function CreateCattle(data: CreateCattleInput): Promise<void> {
+export async function CreateCattle(
+	data: typeof createCattleSchema._type
+): Promise<void> {
 	return fetchWithAuth<void>((token) =>
 		client.api.v1.cattle.$post(
 			{
@@ -213,7 +207,7 @@ export async function CreateCattle(data: CreateCattleInput): Promise<void> {
 
 export async function UpdateCattleDetailed(
 	id: number | string,
-	data: UpdateCattleInput
+	data: typeof updateCattleSchema._type
 ): Promise<void> {
 	return fetchWithAuth<void>((token) =>
 		client.api.v1.cattle[":id"].$patch(
@@ -231,7 +225,7 @@ export async function UpdateCattleDetailed(
 }
 
 // ステータス別頭数取得
-export type GetStatusCountsRes = CattleStatusCountsResponse;
+export type GetStatusCountsRes = typeof cattleStatusCountsResponseSchema._type;
 
 export async function GetStatusCounts(): Promise<GetStatusCountsRes> {
 	return fetchWithAuth<{ data: GetStatusCountsRes }>((token) =>

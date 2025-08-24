@@ -1,107 +1,99 @@
 /**
  * KPI HTTP Controller
  *
- * KPI管理のHTTPエンドポイントを処理
+ * KPI管理のHTTPエンドポイントを処理するコントローラー
  */
 
 import type { Context } from "hono";
 import type { Dependencies } from "../../../infrastructure/config/dependencies";
-import type { UserId } from "../../../shared/brand";
-import { isErr } from "../../../shared/result";
+import { executeUseCase } from "../../../shared/http/route-helpers";
+import { toUserId } from "../../../shared/types/safe-cast";
 
 /**
- * KPI Controller Class
- *
- * KPI関連のHTTPリクエストを処理し、適切なユースケースに委譲します
+ * コントローラーの依存関係
  */
-export class KpiController {
-	constructor(private deps: Dependencies) {}
+export type KpiControllerDeps = Dependencies;
 
+/**
+ * KPI管理コントローラー
+ */
+export const makeKpiController = (deps: KpiControllerDeps) => ({
 	/**
 	 * 繁殖KPIを取得
-	 * GET /kpi/breeding
 	 */
-	async getBreedingKpi(c: Context) {
-		try {
-			const userId = c.get("jwtPayload")?.userId as UserId;
-			if (!userId) {
-				return c.json({ error: "Unauthorized" }, 401);
-			}
+	async getBreedingKpi(c: Context): Promise<Response> {
+		return executeUseCase(c, async () => {
+			const jwtPayload = c.get("jwtPayload");
+			const userId = toUserId(jwtPayload.userId);
 
-			// 簡易実装 - 実際にはクエリパラメータから期間を取得
-			const result = await this.deps.useCases.getBreedingKpiUseCase({
+			const getBreedingKpiUseCase = deps.useCases.getBreedingKpiUseCase;
+			const result = await getBreedingKpiUseCase({
 				ownerUserId: userId,
 				fromDate: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000),
 				toDate: new Date()
 			});
 
-			if (isErr(result)) {
-				return c.json({ error: result.error.message }, 500);
-			}
-
-			return c.json(result.value);
-		} catch (error) {
-			console.error("Error in getBreedingKpi:", error);
-			return c.json({ error: "Internal server error" }, 500);
-		}
-	}
+			return result;
+		});
+	},
 
 	/**
 	 * 繁殖KPIトレンドを取得
-	 * GET /kpi/breeding/trends
 	 */
-	async getBreedingTrends(c: Context) {
-		try {
-			const userId = c.get("jwtPayload")?.userId as UserId;
-			if (!userId) {
-				return c.json({ error: "Unauthorized" }, 401);
-			}
+	async getBreedingTrends(c: Context): Promise<Response> {
+		return executeUseCase(c, async () => {
+			const jwtPayload = c.get("jwtPayload");
+			const userId = toUserId(jwtPayload.userId);
 
-			// 簡易実装 - 実際にはクエリパラメータから期間を取得
-			const result = await this.deps.useCases.getBreedingTrendsUseCase({
+			const getBreedingTrendsUseCase = deps.useCases.getBreedingTrendsUseCase;
+			const result = await getBreedingTrendsUseCase({
 				ownerUserId: userId,
 				fromMonth: "2024-01",
 				toMonth: "2024-12",
 				months: 12
 			});
 
-			if (isErr(result)) {
-				return c.json({ error: result.error.message }, 500);
-			}
-
-			return c.json(result.value);
-		} catch (error) {
-			console.error("Error in getBreedingTrends:", error);
-			return c.json({ error: "Internal server error" }, 500);
-		}
-	}
+			return result;
+		});
+	},
 
 	/**
-	 * 繁殖メトリクスを計算
-	 * POST /kpi/breeding/calculate
+	 * 繁殖KPIデルタを取得
 	 */
-	async calculateBreedingMetrics(c: Context) {
-		try {
-			const userId = c.get("jwtPayload")?.userId as UserId;
-			if (!userId) {
-				return c.json({ error: "Unauthorized" }, 401);
-			}
+	async getBreedingKpiDelta(c: Context): Promise<Response> {
+		return executeUseCase(c, async () => {
+			const jwtPayload = c.get("jwtPayload");
+			const userId = toUserId(jwtPayload.userId);
 
-			// 簡易実装 - 実際にはリクエストボディから期間を取得
-			const result = await this.deps.useCases.calculateBreedingMetricsUseCase({
+			const getBreedingKpiDeltaUseCase =
+				deps.useCases.getBreedingKpiDeltaUseCase;
+			const result = await getBreedingKpiDeltaUseCase({
 				ownerUserId: userId,
 				fromDate: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000),
 				toDate: new Date()
 			});
 
-			if (isErr(result)) {
-				return c.json({ error: result.error.message }, 500);
-			}
+			return result;
+		});
+	},
 
-			return c.json(result.value);
-		} catch (error) {
-			console.error("Error in calculateBreedingMetrics:", error);
-			return c.json({ error: "Internal server error" }, 500);
-		}
+	/**
+	 * 繁殖メトリクスを計算
+	 */
+	async calculateBreedingMetrics(c: Context): Promise<Response> {
+		return executeUseCase(c, async () => {
+			const jwtPayload = c.get("jwtPayload");
+			const userId = toUserId(jwtPayload.userId);
+
+			const calculateBreedingMetricsUseCase =
+				deps.useCases.calculateBreedingMetricsUseCase;
+			const result = await calculateBreedingMetricsUseCase({
+				ownerUserId: userId,
+				fromDate: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000),
+				toDate: new Date()
+			});
+
+			return result;
+		});
 	}
-}
+});

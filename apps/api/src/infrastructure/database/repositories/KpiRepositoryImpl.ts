@@ -3,7 +3,8 @@
  * Implements the KpiRepository port using Drizzle ORM
  */
 
-import type { AnyD1Database } from "drizzle-orm/d1";
+import { and, count, desc, eq, gte, lte, sql } from "drizzle-orm";
+import { events, cattle } from "../../../db/schema";
 import type { KpiError } from "../../../domain/errors/kpi/KpiErrors";
 import type { KpiRepository, RawKpiEvent } from "../../../domain/ports/kpi";
 import type {
@@ -17,16 +18,23 @@ import type {
 	TrendAnalysisSearchCriteria
 } from "../../../domain/types/kpi";
 import type { UserId } from "../../../shared/brand";
+import type { D1DatabasePort } from "../../../shared/ports/d1Database";
 import type { Result } from "../../../shared/result";
 import { err, ok } from "../../../shared/result";
+import { mapRawKpiEventToKpiEvent } from "../mappers/kpiDbMapper";
 
-import { drizzle } from "drizzle-orm/d1";
+// ============================================================================
+// Repository Implementation
+// ============================================================================
 
+/**
+ * Drizzle ORMを使用したKPIリポジトリの実装
+ */
 export class KpiRepositoryImpl implements KpiRepository {
-	private readonly db: ReturnType<typeof drizzle>;
+	private readonly db: ReturnType<typeof import("drizzle-orm/d1").drizzle>;
 
-	constructor(dbInstance: AnyD1Database) {
-		this.db = drizzle(dbInstance);
+	constructor(dbInstance: D1DatabasePort) {
+		this.db = dbInstance.getDrizzle();
 	}
 
 	async findEventsForBreedingKpi(

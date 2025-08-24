@@ -5,7 +5,6 @@
  */
 
 import { and, asc, desc, eq, gte, inArray, lte, sql } from "drizzle-orm";
-import type { AnyD1Database } from "drizzle-orm/d1";
 import { alerts, cattle } from "../../../db/schema";
 import type { AlertError } from "../../../domain/errors/alerts/AlertErrors";
 import type { AlertRepository } from "../../../domain/ports/alerts";
@@ -19,6 +18,7 @@ import type {
 	AlertType
 } from "../../../domain/types/alerts";
 import type { AlertId, CattleId, UserId } from "../../../shared/brand";
+import type { D1DatabasePort } from "../../../shared/ports/d1Database";
 import type { Result } from "../../../shared/result";
 import { err, ok } from "../../../shared/result";
 import { alertDbMapper } from "../mappers/alertDbMapper";
@@ -26,13 +26,53 @@ import { alertDbMapper } from "../mappers/alertDbMapper";
 /**
  * アラートリポジトリの実装クラス
  */
-import { drizzle } from "drizzle-orm/d1";
+import type { drizzle } from "drizzle-orm/d1";
 
 export class AlertRepositoryImpl implements AlertRepository {
 	private readonly db: ReturnType<typeof drizzle>;
 
-	constructor(dbInstance: AnyD1Database) {
-		this.db = drizzle(dbInstance);
+	constructor(dbInstance: D1DatabasePort) {
+		this.db = dbInstance.getDrizzle();
+	}
+
+	async getById(alertId: AlertId): Promise<Result<Alert | null, AlertError>> {
+		try {
+			const result = await this.db
+				.select({
+					id: alerts.id,
+					type: alerts.type,
+					severity: alerts.severity,
+					status: alerts.status,
+					cattleId: alerts.cattleId,
+					dueAt: alerts.dueAt,
+					message: alerts.message,
+					memo: alerts.memo,
+					ownerUserId: alerts.ownerUserId,
+					createdAt: alerts.createdAt,
+					updatedAt: alerts.updatedAt,
+					acknowledgedAt: alerts.acknowledgedAt,
+					resolvedAt: alerts.resolvedAt,
+					cattleName: cattle.name,
+					cattleEarTagNumber: cattle.earTagNumber
+				})
+				.from(alerts)
+				.innerJoin(cattle, eq(alerts.cattleId, cattle.cattleId))
+				.where(eq(alerts.id, alertId as number))
+				.limit(1);
+
+			if (result.length === 0) {
+				return ok(null);
+			}
+
+			const alert = alertDbMapper.toDomain(result[0]);
+			return ok(alert);
+		} catch (cause) {
+			return err({
+				type: "InfraError",
+				message: "Failed to get alert by ID",
+				cause
+			});
+		}
 	}
 
 	async findById(
@@ -521,5 +561,28 @@ export class AlertRepositoryImpl implements AlertRepository {
 
 	async findEstrusOver20NotPregnant(): Promise<Result<Alert[], AlertError>> {
 		return ok([]);
+	}
+
+	async updateMemo(
+		alertId: AlertId,
+		memo: string
+	): Promise<Result<void, AlertError>> {
+		try {
+			await this.db
+				.update(alerts)
+				.set({
+					memo,
+					updatedAt: Date.now()
+				})
+				.where(eq(alerts.id, alertId as unknown as string));
+
+			return ok(undefined);
+		} catch (cause) {
+			return err({
+				type: "InfraError",
+				message: "Failed to update alert memo",
+				cause
+			});
+		}
 	}
 }

@@ -29,6 +29,13 @@ export interface AlertRepository {
 	/**
 	 * IDでアラートを取得します。
 	 * @param alertId - アラートID
+	 * @returns 見つからない場合は null
+	 */
+	getById(alertId: AlertId): Promise<Result<Alert | null, AlertError>>;
+
+	/**
+	 * IDでアラートを取得します。
+	 * @param alertId - アラートID
 	 * @param ownerUserId - 所有者ユーザーID
 	 * @returns 見つからない場合は null
 	 */
@@ -78,6 +85,14 @@ export interface AlertRepository {
 		updates: Partial<Alert>,
 		ownerUserId: UserId
 	): Promise<Result<Alert, AlertError>>;
+
+	/**
+	 * アラートのメモを更新します。
+	 * @param alertId - アラートID
+	 * @param memo - 新しいメモ
+	 * @returns 更新成功の結果
+	 */
+	updateMemo(alertId: AlertId, memo: string): Promise<Result<void, AlertError>>;
 
 	/**
 	 * アラートを削除します。

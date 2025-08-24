@@ -340,7 +340,25 @@ export class CattleRepositoryImpl implements CattleRepository {
 	): Promise<
 		Result<Array<{ status: Cattle["status"]; count: number }>, CattleError>
 	> {
-		return err({ type: "InfraError", message: "Not implemented" });
+		try {
+			const drizzleDb = this.db.getDrizzle();
+			const statusCounts = await drizzleDb
+				.select({
+					status: cattle.status,
+					count: sql<number>`count(*)`
+				})
+				.from(cattle)
+				.where(eq(cattle.ownerUserId, ownerUserId))
+				.groupBy(cattle.status);
+
+			return ok(statusCounts);
+		} catch (error) {
+			return err({
+				type: "InfraError",
+				message: "Failed to count cattle by status",
+				cause: error
+			});
+		}
 	}
 
 	async getAgeDistribution(

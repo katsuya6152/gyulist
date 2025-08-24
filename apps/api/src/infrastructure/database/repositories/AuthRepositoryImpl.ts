@@ -5,12 +5,11 @@
  */
 
 import { eq, or } from "drizzle-orm";
-import type { AnyD1Database } from "drizzle-orm/d1";
-import { drizzle } from "drizzle-orm/d1";
 import { users } from "../../../db/schema";
 import type { AuthError } from "../../../domain/errors/auth/AuthErrors";
 import type { AuthRepository } from "../../../domain/ports/auth";
 import type { User, UserId } from "../../../domain/types/auth";
+import type { D1DatabasePort } from "../../../shared/ports/d1Database";
 import type { Result } from "../../../shared/result";
 import { err, ok } from "../../../shared/result";
 import {
@@ -30,10 +29,10 @@ import {
  * Drizzle ORMを使用した認証リポジトリの実装
  */
 export class AuthRepositoryImpl implements AuthRepository {
-	private readonly db: ReturnType<typeof drizzle>;
+	private readonly db: ReturnType<typeof import("drizzle-orm/d1").drizzle>;
 
-	constructor(dbInstance: AnyD1Database) {
-		this.db = drizzle(dbInstance);
+	constructor(dbInstance: D1DatabasePort) {
+		this.db = dbInstance.getDrizzle();
 	}
 
 	async findById(id: UserId): Promise<Result<User | null, AuthError>> {

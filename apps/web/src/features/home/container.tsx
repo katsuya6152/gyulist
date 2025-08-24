@@ -33,20 +33,32 @@ export default async function HomeContainer() {
 				GetBreedingKpiDelta({ month: format(today, "yyyy-MM") })
 			]
 		);
+		console.log(alerts);
 		return (
 			<HomePresentation
 				todayEvents={eventsData.results || []}
-				statusCounts={statusCounts.counts}
-				alerts={alerts.results.map((alert) => ({
-					alertId: alert.id,
-					type: alert.type,
-					severity: alert.severity,
-					cattleId: alert.cattleId,
-					cattleName: alert.cattleName,
-					cattleEarTagNumber: alert.cattleEarTagNumber,
-					dueAt: alert.dueAt,
-					message: alert.message
-				}))}
+				statusCounts={statusCounts}
+				alerts={alerts.results.map(
+					(alert: {
+						id: number;
+						type: string;
+						severity: string;
+						cattleId: number;
+						cattleName: string;
+						cattleEarTagNumber: number;
+						dueAt: string;
+						message: string;
+					}) => ({
+						alertId: alert.id,
+						type: alert.type,
+						severity: alert.severity,
+						cattleId: alert.cattleId,
+						cattleName: alert.cattleName,
+						cattleEarTagNumber: alert.cattleEarTagNumber,
+						dueAt: alert.dueAt,
+						message: alert.message
+					})
+				)}
 				breedingKpi={kpi.metrics}
 				// KPIトレンドは前月比のみ使用
 				kpiTrendDeltas={

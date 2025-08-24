@@ -135,6 +135,22 @@ export function createUserRoutes() {
 		new Hono<{ Bindings: Bindings }>()
 			.use("*", jwtMiddleware)
 
+			// ユーザー情報取得
+			.get("/:id", async (c) => {
+				const db = c.env.DB;
+				const deps = makeDependencies(db, { now: () => new Date() });
+				const authController = new AuthController({
+					loginUserUseCase: deps.useCases.loginUserUseCase,
+					registerUserUseCase: deps.useCases.registerUserUseCase,
+					verifyTokenUseCase: deps.useCases.verifyTokenUseCase,
+					completeRegistrationUseCase:
+						deps.useCases.completeRegistrationUseCase,
+					updateUserThemeUseCase: deps.useCases.updateUserThemeUseCase,
+					getUserUseCase: deps.useCases.getUserUseCase
+				});
+				return authController.getUser(c);
+			})
+
 			// ユーザーテーマ更新
 			.patch("/:id/theme", zValidator("json", updateThemeSchema), async (c) => {
 				const db = c.env.DB;
@@ -145,7 +161,8 @@ export function createUserRoutes() {
 					verifyTokenUseCase: deps.useCases.verifyTokenUseCase,
 					completeRegistrationUseCase:
 						deps.useCases.completeRegistrationUseCase,
-					updateUserThemeUseCase: deps.useCases.updateUserThemeUseCase
+					updateUserThemeUseCase: deps.useCases.updateUserThemeUseCase,
+					getUserUseCase: deps.useCases.getUserUseCase
 				});
 				return authController.updateTheme(c);
 			})

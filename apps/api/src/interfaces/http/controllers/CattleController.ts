@@ -43,6 +43,21 @@ export const makeCattleController = (deps: CattleControllerDeps) => ({
 	},
 
 	/**
+	 * ステータス別頭数取得
+	 */
+	async getStatusCounts(c: Context): Promise<Response> {
+		return executeUseCase(c, async () => {
+			const jwtPayload = c.get("jwtPayload");
+			const userId = toUserId(jwtPayload.userId);
+
+			const getStatusCountsUseCase = deps.useCases.getStatusCountsUseCase;
+			const result = await getStatusCountsUseCase({ ownerUserId: userId });
+
+			return result;
+		});
+	},
+
+	/**
 	 * 牛の新規作成
 	 */
 	async create(c: Context): Promise<Response> {

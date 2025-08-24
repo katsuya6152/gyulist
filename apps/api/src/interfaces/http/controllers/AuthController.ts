@@ -8,6 +8,8 @@ import type { Context } from "hono";
 import type {
 	CompleteRegistrationInput,
 	CompleteRegistrationUseCase,
+	GetUserInput,
+	GetUserUseCase,
 	LoginUserInput,
 	LoginUserUseCase,
 	RegisterUserInput,
@@ -62,6 +64,14 @@ export type AuthControllerDeps = {
 	) => Promise<
 		import("../../../shared/result").Result<
 			import("../../../application/use-cases/auth").UpdateUserThemeResult,
+			import("../../../domain/errors/auth/AuthErrors").AuthError
+		>
+	>;
+	readonly getUserUseCase: (
+		input: GetUserInput
+	) => Promise<
+		import("../../../shared/result").Result<
+			import("../../../domain/types/auth").User,
 			import("../../../domain/errors/auth/AuthErrors").AuthError
 		>
 	>;
@@ -208,38 +218,61 @@ export class AuthController {
 	 * PATCH /users/:id/theme
 	 */
 	async updateTheme(c: Context<{ Bindings: Bindings }>) {
-		const userId = Number.parseInt(c.req.param("id")) as UserId;
-		const requestingUserId = c.get("jwtPayload").userId as UserId;
-		const body = await c.req.json();
+		try {
+			const body = await c.req.json();
+			const userId = Number.parseInt(c.req.param("id")) as UserId;
+			const requestingUserId = c.get("jwtPayload").userId as UserId;
 
-		const input: UpdateUserThemeInput = {
-			userId,
-			requestingUserId,
-			theme: body.theme
-		};
+			const input: UpdateUserThemeInput = {
+				userId,
+				requestingUserId,
+				theme: body.theme
+			};
 
-		const result = await this.deps.updateUserThemeUseCase(input);
+			const result = await this.deps.updateUserThemeUseCase(input);
 
-		if (!result.ok) {
-			if (result.error.type === "Forbidden") {
-				return c.json({ error: result.error.message }, 403);
+			if (!result.ok) {
+				return c.json({ error: result.error }, 400);
 			}
-			if (result.error.type === "NotFound") {
-				return c.json({ error: result.error.message }, 404);
-			}
-			if (result.error.type === "ValidationError") {
-				return c.json({ error: result.error.message }, 400);
-			}
+
+			return c.json({ success: true, data: result.value });
+		} catch (error) {
+			console.error("Theme update error:", error);
 			return c.json({ error: "Internal server error" }, 500);
 		}
+	}
 
-		return c.json({
-			user: {
-				id: result.value.user.id,
-				userName: result.value.user.userName,
-				email: result.value.user.email,
-				theme: result.value.user.theme
+	/**
+	 * ユーザー情報取得
+	 * GET /users/:id
+	 */
+	async getUser(c: Context<{ Bindings: Bindings }>) {
+		try {
+			const jwtPayload = c.get("jwtPayload");
+			const requestingUserId = jwtPayload.userId as UserId;
+			const userId = Number.parseInt(c.req.param("id")) as UserId;
+
+			const input: GetUserInput = {
+				userId,
+				requestingUserId
+			};
+
+			const result = await this.deps.getUserUseCase(input);
+
+			if (!result.ok) {
+				if (result.error.type === "Unauthorized") {
+					return c.json({ error: result.error.message }, 403);
+				}
+				if (result.error.type === "NotFound") {
+					return c.json({ error: result.error.message }, 404);
+				}
+				return c.json({ error: result.error.message }, 500);
 			}
-		});
+
+			return c.json({ success: true, data: result.value });
+		} catch (error) {
+			console.error("Get user error:", error);
+			return c.json({ error: "Internal server error" }, 500);
+		}
 	}
 }

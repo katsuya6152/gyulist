@@ -4,9 +4,7 @@
  * イベント管理リポジトリのDrizzle ORM実装
  */
 
-import { and, asc, desc, eq, gte, inArray, lte, sql } from "drizzle-orm";
-import type { AnyD1Database } from "drizzle-orm/d1";
-import { drizzle } from "drizzle-orm/d1";
+import { and, asc, count, desc, eq, gte, inArray, lte, sql } from "drizzle-orm";
 import { events, cattle } from "../../../db/schema";
 import type { EventError } from "../../../domain/errors/events/EventErrors";
 import type { EventRepository, EventStats } from "../../../domain/ports/events";
@@ -17,6 +15,7 @@ import type {
 	EventType
 } from "../../../domain/types/events";
 import type { CattleId, EventId, UserId } from "../../../shared/brand";
+import type { D1DatabasePort } from "../../../shared/ports/d1Database";
 import type { Result } from "../../../shared/result";
 import { err, ok } from "../../../shared/result";
 import { eventDbMapper } from "../mappers/eventDbMapper";
@@ -25,10 +24,10 @@ import { eventDbMapper } from "../mappers/eventDbMapper";
  * イベントリポジトリの実装クラス
  */
 export class EventRepositoryImpl implements EventRepository {
-	private readonly db: ReturnType<typeof drizzle>;
+	private readonly db: ReturnType<typeof import("drizzle-orm/d1").drizzle>;
 
-	constructor(dbInstance: AnyD1Database) {
-		this.db = drizzle(dbInstance);
+	constructor(dbInstance: D1DatabasePort) {
+		this.db = dbInstance.getDrizzle();
 	}
 
 	async findById(

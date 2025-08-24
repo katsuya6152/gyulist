@@ -2,10 +2,12 @@ import {
 	createAlertUseCase,
 	getAlertsUseCase,
 	searchAlertsUseCase,
+	updateAlertMemoUseCase,
 	updateAlertStatusUseCase
 } from "../../application/use-cases/alerts";
 import {
 	completeRegistrationUseCase,
+	getUserUseCase,
 	loginUserUseCase,
 	registerUserUseCase,
 	updateUserThemeUseCase,
@@ -15,6 +17,7 @@ import {
 	createCattleUseCase,
 	deleteCattleUseCase,
 	getCattleUseCase,
+	getStatusCountsUseCase,
 	searchCattleUseCase,
 	updateCattleUseCase
 } from "../../application/use-cases/cattle";
@@ -25,6 +28,7 @@ import {
 } from "../../application/use-cases/events";
 import {
 	calculateBreedingMetricsUseCase,
+	getBreedingKpiDeltaUseCase,
 	getBreedingKpiUseCase,
 	getBreedingTrendsUseCase
 } from "../../application/use-cases/kpi";
@@ -35,8 +39,8 @@ import type {
 	EventRepository,
 	KpiRepository
 } from "../../domain/ports";
-import type { ClockPort, TokenPort } from "../../shared/ports";
-import type { D1DatabasePort } from "../../shared/ports/d1Database";
+import type { ClockPort } from "../../shared/ports/clock";
+import type { TokenPort } from "../../shared/ports/token";
 
 interface RepositoryDependencies {
 	cattleRepo: CattleRepository;
@@ -86,6 +90,10 @@ export function createUseCases(
 		cattleRepo: repositories.cattleRepo
 	});
 
+	const getStatusCounts = getStatusCountsUseCase({
+		cattleRepo: repositories.cattleRepo
+	});
+
 	const searchCattle = searchCattleUseCase({
 		cattleRepo: repositories.cattleRepo
 	});
@@ -127,6 +135,10 @@ export function createUseCases(
 		clock: services.clock
 	});
 
+	const updateAlertMemo = updateAlertMemoUseCase({
+		alertsRepo: repositories.alertRepo
+	});
+
 	const searchAlerts = searchAlertsUseCase({
 		alertRepo: repositories.alertRepo
 	});
@@ -143,6 +155,10 @@ export function createUseCases(
 	const calculateBreedingMetrics = calculateBreedingMetricsUseCase({
 		kpiRepo: repositories.kpiRepo,
 		clock: services.clock
+	});
+
+	const getBreedingKpiDelta = getBreedingKpiDeltaUseCase({
+		kpiRepo: repositories.kpiRepo
 	});
 
 	// Auth ユースケース
@@ -174,9 +190,14 @@ export function createUseCases(
 		clock: services.clock
 	});
 
+	const getUser = getUserUseCase({
+		authRepo: repositories.authRepo
+	});
+
 	return {
 		createCattleUseCase: createCattle,
 		getCattleUseCase: getCattle,
+		getStatusCountsUseCase: getStatusCounts,
 		searchCattleUseCase: searchCattle,
 		updateCattleUseCase: updateCattle,
 		deleteCattleUseCase: deleteCattle,
@@ -186,14 +207,17 @@ export function createUseCases(
 		getAlertsUseCase: getAlerts,
 		createAlertUseCase: createAlert,
 		updateAlertStatusUseCase: updateAlertStatus,
+		updateAlertMemoUseCase: updateAlertMemo,
 		searchAlertsUseCase: searchAlerts,
 		getBreedingKpiUseCase: getBreedingKpi,
+		getBreedingKpiDeltaUseCase: getBreedingKpiDelta,
 		getBreedingTrendsUseCase: getBreedingTrends,
 		calculateBreedingMetricsUseCase: calculateBreedingMetrics,
 		loginUserUseCase: loginUser,
 		registerUserUseCase: registerUser,
 		verifyTokenUseCase: verifyToken,
 		completeRegistrationUseCase: completeRegistration,
-		updateUserThemeUseCase: updateUserTheme
+		updateUserThemeUseCase: updateUserTheme,
+		getUserUseCase: getUser
 	};
 }

@@ -9,14 +9,7 @@ import { Hono } from "hono";
 import {
 	createCattleSchema,
 	searchCattleSchema,
-	updateCattleSchema,
-	updateStatusSchema
-} from "../../../domain/types/cattle";
-import {
-	cattleListResponseSchema,
-	cattleResponseSchema,
-	cattleStatusCountsResponseSchema,
-	cattleStatusUpdateResponseSchema
+	updateCattleSchema
 } from "../../../domain/types/cattle";
 import { makeDependencies } from "../../../infrastructure/config/dependencies";
 import { jwtMiddleware } from "../../../middleware/jwt";
@@ -38,6 +31,14 @@ export function createCattleRoutes() {
 			const deps = makeDependencies(db, { now: () => new Date() });
 			const controller = makeCattleController(deps);
 			return controller.search(c);
+		})
+
+		// ステータス別頭数取得
+		.get("/status-counts", async (c) => {
+			const db = c.env.DB;
+			const deps = makeDependencies(db, { now: () => new Date() });
+			const controller = makeCattleController(deps);
+			return controller.getStatusCounts(c);
 		})
 
 		// 牛の詳細取得

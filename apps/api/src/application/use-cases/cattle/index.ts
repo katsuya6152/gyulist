@@ -4,12 +4,13 @@
  * 牛管理ドメインのユースケース群を集約
  */
 
-// Use case functions
+// Cattle use cases
 export { createCattleUseCase } from "./createCattle";
+export { deleteCattleUseCase } from "./deleteCattle";
 export { getCattleUseCase } from "./getCattle";
+export { getStatusCountsUseCase } from "./getStatusCounts";
 export { searchCattleUseCase } from "./searchCattle";
 export { updateCattleUseCase } from "./updateCattle";
-export { deleteCattleUseCase } from "./deleteCattle";
 
 // Types
 export type {
@@ -39,3 +40,9 @@ export type {
 	GetCattleDeps,
 	GetCattleInput
 } from "./getCattle";
+export type {
+	GetStatusCountsUseCase,
+	GetStatusCountsDeps,
+	GetStatusCountsInput,
+	StatusCounts
+} from "./getStatusCounts";

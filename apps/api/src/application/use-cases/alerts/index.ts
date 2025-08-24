@@ -8,6 +8,7 @@
 export { getAlertsUseCase } from "./getAlerts";
 export { createAlertUseCase } from "./createAlert";
 export { updateAlertStatusUseCase } from "./updateAlertStatus";
+export { updateAlertMemoUseCase } from "./updateAlertMemo";
 export { searchAlertsUseCase } from "./searchAlerts";
 
 // Types
@@ -27,6 +28,10 @@ export type {
 	UpdateAlertStatusDeps,
 	UpdateAlertStatusInput
 } from "./updateAlertStatus";
+export type {
+	UpdateAlertMemoInput,
+	UpdateAlertMemoResult
+} from "./updateAlertMemo";
 export type {
 	SearchAlertsUseCase,
 	SearchAlertsDeps,

@@ -4,41 +4,47 @@
  * 認証・ユーザー管理ドメインのユースケース群を集約
  */
 
-// Use case functions
+// Auth use cases
 export { loginUserUseCase } from "./loginUser";
 export { registerUserUseCase } from "./registerUser";
 export { verifyTokenUseCase } from "./verifyToken";
 export { completeRegistrationUseCase } from "./completeRegistration";
 export { updateUserThemeUseCase } from "./updateUserTheme";
+export { getUserUseCase } from "./getUser";
 
-// Use case types
+// Types
 export type {
-	LoginUserInput,
-	LoginUserResult,
+	LoginUserUseCase,
 	LoginUserDeps,
-	LoginUserUseCase
+	LoginUserInput,
+	LoginUserResult
 } from "./loginUser";
 export type {
-	RegisterUserInput,
-	RegisterUserResult,
+	RegisterUserUseCase,
 	RegisterUserDeps,
-	RegisterUserUseCase
+	RegisterUserInput,
+	RegisterUserResult
 } from "./registerUser";
 export type {
-	VerifyTokenInput,
-	VerifyTokenResult,
+	VerifyTokenUseCase,
 	VerifyTokenDeps,
-	VerifyTokenUseCase
+	VerifyTokenInput,
+	VerifyTokenResult
 } from "./verifyToken";
 export type {
-	CompleteRegistrationInput,
-	CompleteRegistrationResult,
+	CompleteRegistrationUseCase,
 	CompleteRegistrationDeps,
-	CompleteRegistrationUseCase
+	CompleteRegistrationInput,
+	CompleteRegistrationResult
 } from "./completeRegistration";
 export type {
-	UpdateUserThemeInput,
-	UpdateUserThemeResult,
+	UpdateUserThemeUseCase,
 	UpdateUserThemeDeps,
-	UpdateUserThemeUseCase
+	UpdateUserThemeInput,
+	UpdateUserThemeResult
 } from "./updateUserTheme";
+export type {
+	GetUserUseCase,
+	GetUserDeps,
+	GetUserInput
+} from "./getUser";

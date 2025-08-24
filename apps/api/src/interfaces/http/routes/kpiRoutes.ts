@@ -4,11 +4,11 @@
  * KPI管理のHTTPルート定義
  */
 
-import type { AnyD1Database } from "drizzle-orm/d1";
 import { Hono } from "hono";
 import { makeDependencies } from "../../../infrastructure/config/dependencies";
+import { jwtMiddleware } from "../../../middleware/jwt";
 import type { Bindings } from "../../../types";
-import { KpiController } from "../controllers/KpiController";
+import { makeKpiController } from "../controllers/KpiController";
 
 /**
  * KPIルートを作成
@@ -16,27 +16,34 @@ import { KpiController } from "../controllers/KpiController";
  * @returns KPI Honoアプリ
  */
 export function createKpiRoutes() {
-	const app = new Hono<{ Bindings: Bindings }>();
+	const app = new Hono<{ Bindings: Bindings }>()
+		.use("*", jwtMiddleware)
 
-	// ルート定義
-	app.get("/breeding", async (c) => {
-		const db = c.env.DB;
-		const deps = makeDependencies(db, { now: () => new Date() });
-		const kpiController = new KpiController(deps);
-		return kpiController.getBreedingKpi(c);
-	});
-	app.get("/breeding/trends", async (c) => {
-		const db = c.env.DB;
-		const deps = makeDependencies(db, { now: () => new Date() });
-		const kpiController = new KpiController(deps);
-		return kpiController.getBreedingTrends(c);
-	});
-	app.post("/breeding/calculate", async (c) => {
-		const db = c.env.DB;
-		const deps = makeDependencies(db, { now: () => new Date() });
-		const kpiController = new KpiController(deps);
-		return kpiController.calculateBreedingMetrics(c);
-	});
+		// ルート定義
+		.get("/breeding", async (c) => {
+			const db = c.env.DB;
+			const deps = makeDependencies(db, { now: () => new Date() });
+			const controller = makeKpiController(deps);
+			return controller.getBreedingKpi(c);
+		})
+		.get("/breeding/delta", async (c) => {
+			const db = c.env.DB;
+			const deps = makeDependencies(db, { now: () => new Date() });
+			const controller = makeKpiController(deps);
+			return controller.getBreedingKpiDelta(c);
+		})
+		.get("/breeding/trends", async (c) => {
+			const db = c.env.DB;
+			const deps = makeDependencies(db, { now: () => new Date() });
+			const controller = makeKpiController(deps);
+			return controller.getBreedingTrends(c);
+		})
+		.post("/breeding/calculate", async (c) => {
+			const db = c.env.DB;
+			const deps = makeDependencies(db, { now: () => new Date() });
+			const controller = makeKpiController(deps);
+			return controller.calculateBreedingMetrics(c);
+		});
 
 	return app;
 }

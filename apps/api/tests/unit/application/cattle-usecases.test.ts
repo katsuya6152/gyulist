@@ -12,8 +12,11 @@ import {
 	it,
 	vi
 } from "vitest";
-import { createCattleUseCase } from "../../../src/application/use-cases/cattle/createCattle";
-import { getCattleUseCase } from "../../../src/application/use-cases/cattle/getCattle";
+import {
+	createCattleUseCase,
+	getCattleUseCase,
+	getStatusCountsUseCase
+} from "../../../src/application/use-cases/cattle";
 import type {
 	Barn,
 	Breed,
@@ -151,6 +154,70 @@ describe("Cattle Use Cases - New Architecture", () => {
 			expect(result.ok).toBe(false);
 			if (!result.ok) {
 				expect(result.error.type).toBe("NotFound");
+			}
+		});
+	});
+
+	describe("getStatusCountsUseCase", () => {
+		it("should get status counts successfully", async () => {
+			const mockStatusCounts = [
+				{ status: "HEALTHY", count: 10 },
+				{ status: "PREGNANT", count: 5 },
+				{ status: "RESTING", count: 3 },
+				{ status: "TREATING", count: 2 },
+				{ status: "SCHEDULED_FOR_SHIPMENT", count: 1 },
+				{ status: "SHIPPED", count: 0 },
+				{ status: "DEAD", count: 0 }
+			];
+
+			mockCattleRepo.countByStatus.mockResolvedValue({
+				ok: true,
+				value: mockStatusCounts
+			});
+
+			const input = {
+				ownerUserId: 1 as unknown as UserId
+			};
+
+			const deps = {
+				cattleRepo: mockCattleRepo
+			};
+			const result = await getStatusCountsUseCase(deps)(input);
+
+			expect(result.ok).toBe(true);
+			if (result.ok) {
+				expect(result.value.HEALTHY).toBe(10);
+				expect(result.value.PREGNANT).toBe(5);
+				expect(result.value.RESTING).toBe(3);
+				expect(result.value.TREATING).toBe(2);
+				expect(result.value.SCHEDULED_FOR_SHIPMENT).toBe(1);
+				expect(result.value.SHIPPED).toBe(0);
+				expect(result.value.DEAD).toBe(0);
+			}
+			expect(mockCattleRepo.countByStatus).toHaveBeenCalledWith(1);
+		});
+
+		it("should return error when countByStatus fails", async () => {
+			mockCattleRepo.countByStatus.mockResolvedValue({
+				ok: false,
+				error: {
+					type: "InfraError",
+					message: "Database connection failed"
+				}
+			});
+
+			const input = {
+				ownerUserId: 1 as unknown as UserId
+			};
+
+			const deps = {
+				cattleRepo: mockCattleRepo
+			};
+			const result = await getStatusCountsUseCase(deps)(input);
+
+			expect(result.ok).toBe(false);
+			if (!result.ok) {
+				expect(result.error.type).toBe("InfraError");
 			}
 		});
 	});

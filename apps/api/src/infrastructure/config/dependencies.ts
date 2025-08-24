@@ -15,10 +15,12 @@ import {
 	createAlertUseCase,
 	getAlertsUseCase,
 	searchAlertsUseCase,
+	updateAlertMemoUseCase,
 	updateAlertStatusUseCase
 } from "../../application/use-cases/alerts";
 import type {
 	CompleteRegistrationUseCase,
+	GetUserUseCase,
 	LoginUserUseCase,
 	RegisterUserUseCase,
 	UpdateUserThemeUseCase,
@@ -26,6 +28,7 @@ import type {
 } from "../../application/use-cases/auth";
 import {
 	completeRegistrationUseCase,
+	getUserUseCase,
 	loginUserUseCase,
 	registerUserUseCase,
 	updateUserThemeUseCase,
@@ -35,6 +38,7 @@ import type {
 	CreateCattleUseCase,
 	DeleteCattleUseCase,
 	GetCattleUseCase,
+	GetStatusCountsUseCase,
 	SearchCattleUseCase,
 	UpdateCattleUseCase
 } from "../../application/use-cases/cattle";
@@ -42,6 +46,7 @@ import {
 	createCattleUseCase,
 	deleteCattleUseCase,
 	getCattleUseCase,
+	getStatusCountsUseCase,
 	searchCattleUseCase,
 	updateCattleUseCase
 } from "../../application/use-cases/cattle";
@@ -57,11 +62,13 @@ import {
 } from "../../application/use-cases/events";
 import type {
 	CalculateBreedingMetricsUseCase,
+	GetBreedingKpiDeltaUseCase,
 	GetBreedingKpiUseCase,
 	GetBreedingTrendsUseCase
 } from "../../application/use-cases/kpi";
 import {
 	calculateBreedingMetricsUseCase,
+	getBreedingKpiDeltaUseCase,
 	getBreedingKpiUseCase,
 	getBreedingTrendsUseCase
 } from "../../application/use-cases/kpi";
@@ -72,6 +79,7 @@ import type { EventRepository } from "../../domain/ports/events";
 import type { KpiRepository } from "../../domain/ports/kpi";
 import type { ClockPort } from "../../shared/ports/clock";
 import type { TokenPort } from "../../shared/ports/token";
+import { D1DatabaseFactory } from "../database/D1DatabaseFactory";
 import { AlertRepositoryImpl } from "../database/repositories/AlertRepositoryImpl";
 import { AuthRepositoryImpl } from "../database/repositories/AuthRepositoryImpl";
 import { CattleRepositoryImpl } from "../database/repositories/CattleRepositoryImpl";
@@ -107,6 +115,9 @@ export type Dependencies = {
 		getCattleUseCase: (
 			input: Parameters<ReturnType<GetCattleUseCase>>[0]
 		) => ReturnType<ReturnType<GetCattleUseCase>>;
+		getStatusCountsUseCase: (
+			input: Parameters<ReturnType<GetStatusCountsUseCase>>[0]
+		) => ReturnType<ReturnType<GetStatusCountsUseCase>>;
 		searchCattleUseCase: (
 			input: Parameters<ReturnType<SearchCattleUseCase>>[0]
 		) => ReturnType<ReturnType<SearchCattleUseCase>>;
@@ -134,12 +145,18 @@ export type Dependencies = {
 		updateAlertStatusUseCase: (
 			input: Parameters<ReturnType<UpdateAlertStatusUseCase>>[0]
 		) => ReturnType<ReturnType<UpdateAlertStatusUseCase>>;
+		updateAlertMemoUseCase: (
+			input: Parameters<ReturnType<typeof updateAlertMemoUseCase>>[0]
+		) => ReturnType<ReturnType<typeof updateAlertMemoUseCase>>;
 		searchAlertsUseCase: (
 			input: Parameters<ReturnType<SearchAlertsUseCase>>[0]
 		) => ReturnType<ReturnType<SearchAlertsUseCase>>;
 		getBreedingKpiUseCase: (
 			input: Parameters<ReturnType<GetBreedingKpiUseCase>>[0]
 		) => ReturnType<ReturnType<GetBreedingKpiUseCase>>;
+		getBreedingKpiDeltaUseCase: (
+			input: Parameters<ReturnType<GetBreedingKpiDeltaUseCase>>[0]
+		) => ReturnType<ReturnType<GetBreedingKpiDeltaUseCase>>;
 		getBreedingTrendsUseCase: (
 			input: Parameters<ReturnType<GetBreedingTrendsUseCase>>[0]
 		) => ReturnType<ReturnType<GetBreedingTrendsUseCase>>;
@@ -161,6 +178,9 @@ export type Dependencies = {
 		updateUserThemeUseCase: (
 			input: Parameters<ReturnType<UpdateUserThemeUseCase>>[0]
 		) => ReturnType<ReturnType<UpdateUserThemeUseCase>>;
+		getUserUseCase: (
+			input: Parameters<ReturnType<GetUserUseCase>>[0]
+		) => ReturnType<ReturnType<GetUserUseCase>>;
 	};
 
 	// サービス
@@ -180,12 +200,15 @@ export function makeDependencies(
 	db: AnyD1Database,
 	clock: ClockPort
 ): Dependencies {
+	// D1DatabasePortの作成
+	const d1DatabasePort = D1DatabaseFactory.create(db);
+
 	// リポジトリの作成
-	const cattleRepo = new CattleRepositoryImpl(db);
-	const eventRepo = new EventRepositoryImpl(db);
-	const alertRepo = new AlertRepositoryImpl(db);
-	const kpiRepo = new KpiRepositoryImpl(db);
-	const authRepo = new AuthRepositoryImpl(db);
+	const cattleRepo = new CattleRepositoryImpl(d1DatabasePort);
+	const eventRepo = new EventRepositoryImpl(d1DatabasePort);
+	const alertRepo = new AlertRepositoryImpl(d1DatabasePort);
+	const kpiRepo = new KpiRepositoryImpl(d1DatabasePort);
+	const authRepo = new AuthRepositoryImpl(d1DatabasePort);
 
 	// ユースケースの作成（依存関係を注入）
 	const createCattle = createCattleUseCase({
@@ -194,6 +217,10 @@ export function makeDependencies(
 	});
 
 	const getCattle = getCattleUseCase({
+		cattleRepo
+	});
+
+	const getStatusCounts = getStatusCountsUseCase({
 		cattleRepo
 	});
 
@@ -236,11 +263,19 @@ export function makeDependencies(
 		clock
 	});
 
+	const updateAlertMemo = updateAlertMemoUseCase({
+		alertsRepo: alertRepo
+	});
+
 	const searchAlerts = searchAlertsUseCase({
 		alertRepo
 	});
 
 	const getBreedingKpi = getBreedingKpiUseCase({
+		kpiRepo
+	});
+
+	const getBreedingKpiDelta = getBreedingKpiDeltaUseCase({
 		kpiRepo
 	});
 
@@ -251,6 +286,10 @@ export function makeDependencies(
 	const calculateBreedingMetrics = calculateBreedingMetricsUseCase({
 		kpiRepo,
 		clock
+	});
+
+	const getUser = getUserUseCase({
+		authRepo
 	});
 
 	// パスワードハッシュ化・検証サービス
@@ -340,6 +379,7 @@ export function makeDependencies(
 		useCases: {
 			createCattleUseCase: createCattle,
 			getCattleUseCase: getCattle,
+			getStatusCountsUseCase: getStatusCounts,
 			searchCattleUseCase: searchCattle,
 			updateCattleUseCase: updateCattle,
 			deleteCattleUseCase: deleteCattle,
@@ -349,15 +389,18 @@ export function makeDependencies(
 			getAlertsUseCase: getAlerts,
 			createAlertUseCase: createAlert,
 			updateAlertStatusUseCase: updateAlertStatus,
+			updateAlertMemoUseCase: updateAlertMemo,
 			searchAlertsUseCase: searchAlerts,
 			getBreedingKpiUseCase: getBreedingKpi,
+			getBreedingKpiDeltaUseCase: getBreedingKpiDelta,
 			getBreedingTrendsUseCase: getBreedingTrends,
 			calculateBreedingMetricsUseCase: calculateBreedingMetrics,
 			loginUserUseCase: loginUser,
 			registerUserUseCase: registerUser,
 			verifyTokenUseCase: verifyToken,
 			completeRegistrationUseCase: completeRegistration,
-			updateUserThemeUseCase: updateUserTheme
+			updateUserThemeUseCase: updateUserTheme,
+			getUserUseCase: getUser
 		},
 		services: {
 			clock
