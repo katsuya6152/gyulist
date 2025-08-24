@@ -22,7 +22,10 @@ export async function createEventAction(
 	try {
 		const userId = await verifyAndGetUserId();
 		if (isDemo(userId)) {
-			return createDemoResponse("success");
+			return {
+				status: "success" as const,
+				message: "demo"
+			};
 		}
 
 		const { cattleId, eventType, eventDate, eventTime, notes } =

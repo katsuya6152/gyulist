@@ -1,0 +1,902 @@
+
+# Gyulist - ヘキサゴナルアーキテクチャ移行ルール
+
+## 🚀 移行作業の基本原則
+
+### 移行の目的
+- 現在の`contexts/[domain]/`構造から、関数型ドメインモデリング + ヘキサゴナルアーキテクチャへの段階的移行
+- 責務の明確化と依存関係の整理
+- テスタビリティと保守性の向上
+
+### 移行の基本方針
+1. **段階的移行**: 一度に全てを変更せず、段階的に移行
+2. **既存機能の維持**: 移行中も既存のAPIが動作することを保証
+3. **テスト駆動**: 各フェーズ後にテストが通ることを確認
+4. **ロールバック準備**: 問題が発生した場合のロールバック手順を準備
+
+## 📁 新しいディレクトリ構造
+
+### 目標構造
+```
+apps/api/src/
+├── domain/              # ドメイン層（純粋関数）
+│   ├── types/           # ドメインタイプ（データ構造）
+│   ├── functions/       # 純粋関数（ビジネスロジック）
+│   ├── workflows/       # ワークフロー（関数の組み合わせ）
+│   ├── errors/          # ドメインエラー（Union型）
+│   └── ports/           # ポート定義（関数型インターフェース）
+├── application/         # アプリケーション層（ユースケース）
+│   ├── use-cases/       # ユースケース（関数）
+│   ├── commands/        # コマンド型定義
+│   ├── queries/         # クエリ型定義
+│   └── dto/             # DTO（入出力変換）
+├── infrastructure/      # インフラストラクチャ層（副作用）
+│   ├── database/        # データベース実装
+│   ├── external/        # 外部サービス
+│   ├── services/        # インフラサービス
+│   └── config/          # 設定管理
+├── interfaces/          # インターフェース層（HTTP/API）
+│   ├── http/            # HTTP層
+│   └── batch/           # バッチ処理
+└── shared/              # 共通ユーティリティ（移行中は維持）
+```
+
+## 🔄 移行フェーズ
+
+### Phase 1: 基盤整備（1-2週間）
+- [ ] 新しいディレクトリ構造の作成
+- [ ] 共通型の移行（Result, Brand型など）
+- [ ] 依存注入基盤の準備
+- [ ] 移行計画の詳細化
+
+### Phase 2: ドメイン層移行（2-3週間）
+- [ ] ドメインタイプの移行
+- [ ] 純粋関数の移行
+- [ ] ワークフローの作成
+- [ ] エラー定義の整理
+
+### Phase 3: アプリケーション層移行（2-3週間）
+- [ ] ユースケースの移行
+- [ ] DTOとマッパーの作成
+- [ ] コマンド・クエリの定義
+- [ ] 依存関係の整理
+
+### Phase 4: インフラ層移行（2-3週間）
+- [ ] リポジトリの移行
+- [ ] マッパーの移行
+- [ ] 外部サービスの移行
+- [ ] 設定管理の整理
+
+### Phase 5: インターフェース層移行（1-2週間）
+- [ ] コントローラーの移行
+- [ ] バリデーションの移行
+- [ ] ルート定義の移行
+- [ ] エラーハンドリングの統一
+
+### Phase 6: テスト・リファクタリング（1-2週間）
+- [ ] テストの移行
+- [ ] 依存注入の設定
+- [ ] メインアプリケーションの更新
+- [ ] 最終動作確認
+
+## 📋 移行作業のルール
+
+### 1. ファイル移行ルール
+
+#### 移行元と移行先の対応（現行構造に基づく）
+```typescript
+// 移行元: apps/api/src/contexts/cattle/domain/model/cattle.ts
+// 移行先: apps/api/src/domain/types/cattle/Cattle.ts
+
+// 移行元: apps/api/src/contexts/cattle/domain/services/createCattle.ts
+// 移行先: apps/api/src/application/use-cases/cattle/createCattle.ts
+
+// 移行元: apps/api/src/contexts/cattle/infra/drizzle/repo.ts
+// 移行先: apps/api/src/infrastructure/database/repositories/CattleRepository.ts
+
+// 移行元: apps/api/src/contexts/cattle/infra/mappers/dbToDomain.ts
+// 移行先: apps/api/src/infrastructure/database/mappers/cattleDbMapper.ts
+
+// 移行元: apps/api/src/contexts/cattle/domain/codecs/input.ts
+// 移行先: apps/api/src/application/dto/types/CattleDto.ts
+
+// 移行元: apps/api/src/contexts/cattle/domain/codecs/output.ts
+// 移行先: apps/api/src/application/dto/types/CattleResponse.ts
+
+// 移行元: apps/api/src/routes/cattle.ts
+// 移行先: apps/api/src/interfaces/http/controllers/CattleController.ts
+
+// 移行元: apps/api/src/shared/config/di.ts
+// 移行先: apps/api/src/infrastructure/config/dependencies.ts
+```
+
+#### ファイル名の変更ルール
+- **エンティティ**: `cattle.ts` → `Cattle.ts`（PascalCase）
+- **ユースケース**: `createCattle.ts` → `createCattle.ts`（camelCase）
+- **リポジトリ**: `repo.ts` → `CattleRepository.ts`（PascalCase）
+- **マッパー**: `dbToDomain.ts` → `cattleDbMapper.ts`（camelCase）
+- **コーデック**: `input.ts` → `CattleDto.ts`（PascalCase）
+- **ルート**: `cattle.ts` → `CattleController.ts`（PascalCase）
+
+### 2. コード移行ルール
+
+#### ドメイン層の移行（現行のクラスベースから関数型へ）
+```typescript
+// ✅ 移行前: 現行のクラスベース（不変データ構造）
+export type Cattle = {
+  readonly cattleId: CattleId;
+  readonly ownerUserId: UserId;
+  readonly identificationNumber: IdentificationNumber;
+  readonly name: CattleName | null;
+  readonly gender: Gender | null;
+  readonly birthday: Date | null;
+  // ... その他のプロパティ
+};
+
+// ✅ 移行後: 関数型ドメインモデリング
+export type Cattle = Readonly<{
+  id: CattleId;
+  ownerUserId: UserId;
+  identificationNumber: IdentificationNumber;
+  name: NonEmptyString | null;
+  gender: CattleGender | null;
+  birthDate: Date | null;
+  // ... その他のプロパティ
+}>;
+
+export const updateCattleName = (
+  cattle: Cattle, 
+  newName: string
+): Result<Cattle, ValidationError> => {
+  const validation = validateCattleName(newName);
+  if (!validation.ok) return validation;
+  
+  return ok({
+    ...cattle,
+    name: validation.value,
+    updatedAt: new Date()
+  });
+};
+```
+
+#### ユースケースの移行（現行の関数型から型安全性向上へ）
+```typescript
+// ✅ 移行前: 現行の関数型
+export const create = (deps: Deps) => async (cmd: CreateCattleCmd): Promise<Result<Cattle, DomainError>> => {
+  // 実装
+};
+
+// ✅ 移行後: 関数型（型定義を明確化）
+export type CreateCattleUseCase = (
+  deps: CreateCattleDeps
+) => (
+  input: CreateCattleInput
+) => Promise<Result<Cattle, CreateCattleError>>;
+
+export const createCattle: CreateCattleUseCase = (deps) => async (input) => {
+  // 実装
+};
+```
+
+#### リポジトリの移行（現行のmakeCattleRepoからmakeCattleRepositoryへ）
+```typescript
+// ✅ 移行前: 現行の関数型ファクトリー
+export function makeCattleRepo(db: AnyD1Database): CattleRepoPort {
+  return {
+    async findById(id: CattleId) {
+      // 実装
+    }
+  };
+}
+
+// ✅ 移行後: 関数型ファクトリー（型安全性向上）
+export const makeCattleRepository = (db: Database): CattleRepository => ({
+  async findById(id: CattleId): Promise<Option<Cattle>> {
+    try {
+      const row = await db.selectFrom('cattle')
+        .where('id', '=', id)
+        .selectAll()
+        .executeTakeFirst();
+      
+      return row ? some(cattleDbMapper.toDomain(row)) : none;
+    } catch (error) {
+      throw new InfrastructureError('Database query failed', error);
+    }
+  }
+});
+```
+
+#### マッパーの移行（現行の個別関数から統一オブジェクトへ）
+```typescript
+// ✅ 移行前: 現行の個別関数
+export function toDomain(row: InferSelectModel<typeof CattleTable>): DomainCattle {
+  // 実装
+}
+
+export function toDbInsert(cattle: NewCattleProps): InsertCattle {
+  // 実装
+}
+
+// ✅ 移行後: 統一されたマッパーオブジェクト
+export const cattleDbMapper = {
+  toDomain: (row: CattleRow): Cattle => ({
+    id: row.cattleId as CattleId,
+    ownerUserId: row.ownerUserId as UserId,
+    identificationNumber: row.identificationNumber as IdentificationNumber,
+    // ... その他のプロパティ
+  }),
+
+  toDb: (cattle: Cattle): CattleRow => ({
+    cattleId: cattle.id,
+    ownerUserId: cattle.ownerUserId,
+    identificationNumber: cattle.identificationNumber,
+    // ... その他のプロパティ
+  }),
+
+  toDbInsert: (cattle: CreateCattleInput): InsertCattle => ({
+    // ... 実装
+  })
+};
+```
+
+### 3. 依存関係の移行ルール
+
+#### 依存注入の設定（現行のmakeDepsからmakeDependenciesへ）
+```typescript
+// ✅ 移行前: 現行の個別DI設定
+export function makeDeps(db: AnyD1Database, clock: ClockPort): CoreDeps {
+  return {
+    get cattleRepo() {
+      return makeCattleRepo(db);
+    },
+    get eventsRepo() {
+      return makeEventsRepo(db);
+    },
+    // ... その他の依存関係
+    clock
+  };
+}
+
+// ✅ 移行後: 統一DI設定
+export const makeDependencies = (env: Environment): Dependencies => {
+  const database = createDatabase(env.DATABASE_URL);
+  const clock = createClock();
+  const idGenerator = createIdGenerator();
+  
+  const cattleRepo = makeCattleRepository(database);
+  const eventsRepo = makeEventsRepository(database);
+  
+  const createCattleUseCase = createCattle({
+    cattleRepo,
+    clock,
+    idGenerator
+  });
+  
+  return {
+    repositories: { cattleRepo, eventsRepo },
+    useCases: { createCattleUseCase },
+    services: { clock, idGenerator }
+  };
+};
+```
+
+### 4. ルート・コントローラーの移行
+
+#### 現行のルートファイルからコントローラーへの移行
+```typescript
+// ✅ 移行前: 現行のルートファイル
+// apps/api/src/routes/cattle.ts
+const app = new Hono<{ Bindings: Bindings }>()
+  .use("*", jwtMiddleware)
+  .get("/", zValidator("query", searchCattleSchema), async (c) => {
+    // 実装
+  })
+  .post("/", zValidator("json", createCattleSchema), async (c) => {
+    // 実装
+  });
+
+// ✅ 移行後: コントローラー + ルート定義
+// apps/api/src/interfaces/http/controllers/CattleController.ts
+export const makeCattleController = (deps: ControllerDeps) => ({
+  async search(c: Context): Promise<Response> {
+    // 実装
+  },
+  
+  async create(c: Context): Promise<Response> {
+    // 実装
+  }
+});
+
+// apps/api/src/interfaces/http/routes/cattle.ts
+export const createCattleRoutes = (deps: Dependencies) => {
+  const controller = makeCattleController(deps);
+  
+  return (app: Hono) => {
+    app.get('/cattle', async (c) => controller.search(c));
+    app.post('/cattle', async (c) => controller.create(c));
+  };
+};
+```
+
+### 5. テスト移行ルール
+
+#### テストファイルの移行（現行の__tests__構造から新しい構造へ）
+```typescript
+// ✅ 移行前: 現行のテスト構造
+// apps/api/src/contexts/cattle/__tests__/unit/createCattle.test.ts
+
+// ✅ 移行後: 新しいテスト構造
+// apps/api/src/domain/functions/cattle/__tests__/cattleValidation.test.ts
+// apps/api/src/application/use-cases/cattle/__tests__/createCattle.test.ts
+// apps/api/src/infrastructure/database/repositories/__tests__/CattleRepository.test.ts
+```
+
+#### テストデータファクトリーの統一
+```typescript
+// ✅ 移行後: 統一されたテストデータファクトリー
+export const createMockCattle = (overrides: Partial<Cattle> = {}): Cattle => ({
+  id: 1 as CattleId,
+  ownerUserId: 1 as UserId,
+  identificationNumber: 12345 as IdentificationNumber,
+  name: 'Test Cattle' as NonEmptyString,
+  gender: 'FEMALE' as CattleGender,
+  birthDate: new Date('2020-01-01'),
+  status: 'HEALTHY' as CattleStatus,
+  createdAt: new Date('2020-01-01'),
+  updatedAt: new Date('2020-01-01'),
+  ...overrides
+});
+
+export const createMockCattleRepository = (): CattleRepository => ({
+  findById: vi.fn(),
+  save: vi.fn(),
+  existsByIdentificationNumber: vi.fn(),
+  // ... その他のメソッド
+});
+```
+
+## 🚫 移行中の禁止事項
+
+### 1. 一度に全てを変更しない
+- ❌ 全ファイルを同時に移行
+- ❌ 複数のドメインを同時に移行
+- ❌ 移行中に新機能を追加
+
+### 2. 既存のAPIを壊さない
+- ❌ 既存のエンドポイントの変更
+- ❌ 既存のレスポンス形式の変更
+- ❌ 既存のバリデーションルールの変更
+
+### 3. テストを無視しない
+- ❌ テストが通らない状態での次のフェーズ移行
+- ❌ テストファイルの削除
+- ❌ テストカバレッジの低下
+
+## ✅ 移行完了の確認事項
+
+### 1. 構造の確認
+- [ ] 新しいディレクトリ構造が完成している
+- [ ] 古い`contexts/`ディレクトリが削除されている
+- [ ] 全てのファイルが適切な場所に配置されている
+
+### 2. 機能の確認
+- [ ] 既存のAPIエンドポイントが動作している
+- [ ] 新機能が正常に動作している
+- [ ] エラーハンドリングが統一されている
+
+### 3. 品質の確認
+- [ ] 全てのテストが通っている
+- [ ] 型チェックが通っている
+- [ ] リントエラーがない
+- [ ] コードカバレッジが維持されている
+
+### 4. ドキュメントの更新
+- [ ] API仕様書が更新されている
+- [ ] アーキテクチャ図が更新されている
+- [ ] 開発者向けガイドが更新されている
+
+## 🔧 移行作業のツール・コマンド
+
+### 1. ディレクトリ作成
+```bash
+# 新しいディレクトリ構造を作成
+mkdir -p apps/api/src/{domain,application,infrastructure,interfaces}
+mkdir -p apps/api/src/domain/{types,functions,workflows,errors,ports}
+mkdir -p apps/api/src/application/{use-cases,commands,queries,dto}
+mkdir -p apps/api/src/infrastructure/{database,external,services,config}
+mkdir -p apps/api/src/interfaces/{http,batch}
+```
+
+### 2. ファイル移行（現行構造に基づく）
+```bash
+# 既存ファイルを新しい場所にコピー（一時的に）
+cp -r apps/api/src/contexts/cattle/domain/* apps/api/src/domain/types/cattle/
+cp -r apps/api/src/contexts/cattle/infra/* apps/api/src/infrastructure/database/cattle/
+cp -r apps/api/src/routes/* apps/api/src/interfaces/http/
+cp -r apps/api/src/shared/* apps/api/src/domain/
+```
+
+### 3. テスト実行
+```bash
+# 各フェーズ後にテストを実行
+pnpm test:run
+
+# 特定のテストファイルを実行
+pnpm test:run apps/api/src/domain/functions/cattle/
+```
+
+### 4. 型チェック
+```bash
+# TypeScript型チェック
+pnpm build
+
+# 型チェックのみ
+pnpm type-check
+```
+
+## 📝 移行作業の記録
+
+### 移行ログの記録項目
+1. **移行日時**: 各フェーズの開始・完了日時
+2. **移行対象**: 移行したファイル・ディレクトリ
+3. **変更内容**: 具体的な変更内容
+4. **問題点**: 発生した問題とその解決方法
+5. **確認事項**: 動作確認の結果
+6. **次のステップ**: 次のフェーズの準備状況
+
+### 移行ログの記録方法
+```markdown
+## Phase X: [フェーズ名] - [日付]
+
+### 移行対象
+- [ファイル名] → [新しい場所]
+
+### 変更内容
+- 具体的な変更内容
+
+### 問題点
+- 発生した問題と解決方法
+
+### 確認事項
+- テスト結果
+- 動作確認結果
+
+### 次のステップ
+- 次のフェーズの準備状況
+```
+
+## 🚨 緊急時の対応
+
+### 問題が発生した場合
+1. **即座に作業を停止**
+2. **問題の詳細を記録**
+3. **チームメンバーに報告**
+4. **ロールバック手順を実行**
+5. **問題の原因を特定**
+6. **解決策を検討**
+7. **移行計画を見直し**
+
+### ロールバック手順
+```bash
+# 1. 変更をコミットしていない場合
+git reset --hard HEAD
+
+# 2. 変更をコミットしている場合
+git revert [コミットハッシュ]
+
+# 3. 新しいディレクトリを削除
+rm -rf apps/api/src/{domain,application,infrastructure,interfaces}
+
+# 4. 既存の構造を復元
+git checkout HEAD -- apps/api/src/contexts/
+```
+
+## 🔍 現行コードの特徴と移行時の注意点
+
+### 現行コードの特徴
+1. **既に関数型ドメインモデリングの一部を採用**
+   - `create`関数によるユースケース実装
+   - `Result`型によるエラーハンドリング
+   - `Brand`型による型安全性
+
+2. **段階的な移行が可能**
+   - 既存の関数型パターンを活用
+   - クラスベースから関数型への完全移行
+   - 依存注入の統一化
+
+3. **既存のテスト構造を活用**
+   - `__tests__`ディレクトリの構造を参考
+   - テストデータファクトリーの統一
+   - テストカバレッジの維持
+
+4. **Hono RPCの活用**
+   - `@hono/zod-validator`によるバリデーション
+   - フロントエンドでの型安全なAPI呼び出し
+   - `AppType`エクスポートによる型推論
+
+### 移行時の注意点
+1. **既存のAPI契約を維持**
+   - レスポンス形式の変更禁止
+   - エンドポイントの変更禁止
+   - バリデーションルールの変更禁止
+
+2. **段階的な移行の重要性**
+   - ドメインごとの順次移行
+   - 各フェーズでのテスト確認
+   - 依存関係の段階的整理
+
+3. **既存機能の動作保証**
+   - 移行中の動作確認
+   - ロールバック手順の準備
+   - 問題発生時の即座対応
+
+4. **Hono RPCの互換性維持**
+   - `AppType`エクスポートの維持
+   - フロントエンドの型推論の継続
+   - APIクライアントの動作保証
+
+## 🚀 Hono RPC互換性を維持した移行戦略
+
+### Hono RPCの現状分析
+```typescript
+// 現在のHono RPC設定
+// apps/api/src/index.ts
+export type AppType = typeof routes;
+
+// フロントエンドでの使用
+// apps/web/src/lib/rpc.ts
+import { createClient } from "@repo/api";
+export const client = createClient(process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787");
+
+// 型安全なAPI呼び出し
+// apps/web/src/services/cattleService.ts
+client.api.v1.cattle.$get({ query: { ... } })
+```
+
+### Hono RPC互換性を維持する移行アプローチ
+
+#### 1. インターフェース層でのHono RPC維持
+```typescript
+// ✅ 移行後: Hono RPCを維持したコントローラー
+// apps/api/src/interfaces/http/controllers/CattleController.ts
+export const makeCattleController = (deps: ControllerDeps) => ({
+  async search(c: Context): Promise<Response> {
+    // 既存のHono RPCパターンを維持
+    const query = c.req.valid("query");
+    const result = await deps.searchCattleUseCase(query);
+    
+    if (!result.ok) {
+      return this.handleError(c, result.error);
+    }
+    
+    return c.json(result.value);
+  }
+});
+
+// ✅ 移行後: Hono RPCルート定義の維持（大きなアプリケーション対応）
+// apps/api/src/interfaces/http/routes/cattle.ts
+export const createCattleRoutes = (deps: Dependencies) => {
+  const controller = makeCattleController(deps);
+  
+  return (app: Hono) => {
+    // 既存のHono RPCパターンを維持
+    app.get('/cattle', 
+      zValidator("query", searchCattleSchema), 
+      async (c) => controller.search(c)
+    )
+    
+    .post('/cattle', 
+      zValidator("json", createCattleSchema), 
+      async (c) => controller.create(c)
+    )
+    
+    .patch('/:id', 
+      zValidator("json", updateCattleSchema), 
+      async (c) => controller.update(c)
+    )
+    
+    .delete('/:id', 
+      async (c) => controller.delete(c)
+    );
+  };
+};
+```
+
+#### 2. 大きなアプリケーションでのRPC型推論の最適化
+```typescript
+// ✅ 移行後: サブルーターの分離と型推論の最適化
+// apps/api/src/interfaces/http/routes/cattle.ts
+import { Hono } from 'hono';
+
+const cattleApp = new Hono()
+  .get('/', 
+    zValidator("query", searchCattleSchema), 
+    async (c) => controller.search(c)
+  )
+  .post('/', 
+    zValidator("json", createCattleSchema), 
+    async (c) => controller.create(c)
+  )
+  .patch('/:id', 
+    zValidator("json", updateCattleSchema), 
+    async (c) => controller.update(c)
+  )
+  .delete('/:id', 
+    async (c) => controller.delete(c)
+  );
+
+export default cattleApp;
+
+// apps/api/src/interfaces/http/routes/events.ts
+const eventsApp = new Hono()
+  .get('/', 
+    zValidator("query", searchEventSchema), 
+    async (c) => controller.search(c)
+  )
+  .post('/', 
+    zValidator("json", createEventSchema), 
+    async (c) => controller.create(c)
+  );
+
+export default eventsApp;
+
+// apps/api/src/interfaces/http/app.ts
+import { Hono } from 'hono';
+import cattleApp from './routes/cattle';
+import eventsApp from './routes/events';
+
+const app = new Hono();
+
+// サブルーターをチェーンして型推論を最適化
+const routes = app
+  .route('/cattle', cattleApp)
+  .route('/events', eventsApp);
+
+export default app;
+export type AppType = typeof routes; // チェーンされたルーターの型をエクスポート
+```
+
+#### 3. 型定義の維持と移行（大きなアプリケーション対応）
+```typescript
+// ✅ 移行後: AppTypeの維持（大きなアプリケーション対応）
+// apps/api/src/index.ts
+import { createApp } from './interfaces/http/app';
+
+const app = createApp();
+export type AppType = typeof app;
+
+// 既存の型エクスポートを維持
+export * from "./domain/types/cattle";
+export * from "./domain/types/events";
+export * from "./domain/types/alerts";
+
+// Hono RPCクライアントの維持
+export const createClient = (
+  ...args: Parameters<ClientType>
+): ReturnType<ClientType> => {
+  return hc<AppType>(...args);
+};
+
+// 大きなアプリケーションでのパフォーマンス最適化
+// コンパイル時に型を計算してIDEパフォーマンスを向上
+export type Client = ReturnType<typeof hc<AppType>>;
+
+export const hcWithType = (...args: Parameters<typeof hc>): Client =>
+  hc<AppType>(...args);
+```
+
+#### 4. バリデーションスキーマの移行（大きなアプリケーション対応）
+```typescript
+// ✅ 移行後: DTO層でのスキーマ維持（大きなアプリケーション対応）
+// apps/api/src/application/dto/schemas/CattleSchemas.ts
+export const createCattleSchema = z.object({
+  identificationNumber: z.number(),
+  name: z.string().optional(),
+  // ... その他のフィールド
+});
+
+export const searchCattleSchema = z.object({
+  cursor: z.string().optional(),
+  limit: z.string().optional(),
+  sort_by: z.string().optional(),
+  sort_order: z.string().optional(),
+  search: z.string().optional(),
+  growth_stage: z.string().optional(),
+  gender: z.string().optional(),
+  status: z.string().optional(),
+  has_alert: z.string().optional(),
+});
+
+// 既存のHono RPCバリデーションを維持
+import { createCattleSchema, searchCattleSchema } from "../../application/dto/schemas/CattleSchemas";
+```
+
+#### 5. フロントエンドサービスの互換性維持（大きなアプリケーション対応）
+```typescript
+// ✅ 移行後: 既存のAPI呼び出しパターンを維持
+// apps/web/src/services/cattleService.ts
+export async function GetCattleList(
+  queryParams: CattleListQueryParams = {}
+): Promise<GetCattleListResType> {
+  // 既存のHono RPC呼び出しを維持
+  return fetchWithAuth<{ data: GetCattleListResType }>((token) =>
+    client.api.v1.cattle.$get({
+      query: {
+        cursor: queryParams.cursor,
+        limit: queryParams.limit,
+        // ... その他のパラメータ
+      }
+    })
+  );
+}
+
+// 大きなアプリケーションでのパフォーマンス最適化
+// コンパイル済みのクライアントを使用
+import { hcWithType } from "@repo/api";
+
+const optimizedClient = hcWithType(
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787"
+);
+```
+
+### Hono RPC互換性を維持する移行手順（大きなアプリケーション対応）
+
+#### Phase 5: インターフェース層移行（Hono RPC維持版・大きなアプリケーション対応）
+```typescript
+// 1. サブルーターの分離（型推論の最適化）
+// apps/api/src/interfaces/http/routes/cattle.ts
+const cattleApp = new Hono()
+  .get('/', 
+    zValidator("query", searchCattleSchema), 
+    async (c) => controller.search(c)
+  )
+  .post('/', 
+    zValidator("json", createCattleSchema), 
+    async (c) => controller.create(c)
+  )
+  .patch('/:id', 
+    zValidator("json", updateCattleSchema), 
+    async (c) => controller.update(c)
+  )
+  .delete('/:id', 
+    async (c) => controller.delete(c)
+  );
+
+export default cattleApp;
+
+// 2. メインアプリケーションでのルーターチェーン
+// apps/api/src/interfaces/http/app.ts
+export const createApp = (deps: Dependencies): Hono => {
+  const app = new Hono();
+  
+  // 既存のミドルウェアを維持
+  app.use("*", jwtMiddleware);
+  
+  // サブルーターをチェーンして型推論を最適化
+  const routes = app
+    .route('/cattle', cattleApp)
+    .route('/events', eventsApp)
+    .route('/alerts', alertsApp)
+    .route('/kpi', kpiApp);
+  
+  return routes;
+};
+
+// 3. AppTypeのエクスポート（チェーンされたルーターの型）
+export type AppType = typeof routes;
+```
+
+### Hono RPC互換性維持のためのチェックリスト（大きなアプリケーション対応）
+
+#### 移行完了後の確認事項
+- [ ] `AppType`エクスポートが正常に動作している
+- [ ] フロントエンドの型推論が継続している
+- [ ] `client.api.v1.*`の呼び出しが正常に動作している
+- [ ] Zodバリデーションが正常に動作している
+- [ ] 既存のAPIエンドポイントが変更されていない
+- [ ] レスポンス形式が既存と一致している
+- [ ] サブルーターのチェーンが正常に動作している
+- [ ] IDEパフォーマンスが維持されている
+
+#### テストでの確認事項（大きなアプリケーション対応）
+```typescript
+// ✅ 移行後: Hono RPCの動作確認テスト（大きなアプリケーション対応）
+describe('Hono RPC Compatibility (Large Application)', () => {
+  it('should maintain AppType export with chained routers', () => {
+    expect(typeof AppType).toBe('object');
+  });
+
+  it('should maintain existing API endpoints with sub-routers', () => {
+    const app = createApp(mockDeps);
+    expect(app.routes).toContainEqual(
+      expect.objectContaining({
+        path: '/cattle',
+        method: 'GET'
+      })
+    );
+    expect(app.routes).toContainEqual(
+      expect.objectContaining({
+        path: '/events',
+        method: 'GET'
+      })
+    );
+  });
+
+  it('should maintain validation schemas across sub-routers', () => {
+    expect(createCattleSchema).toBeDefined();
+    expect(searchCattleSchema).toBeDefined();
+    expect(createEventSchema).toBeDefined();
+  });
+
+  it('should optimize type inference with chained routers', () => {
+    // チェーンされたルーターの型推論が最適化されていることを確認
+    const routes = app.route('/cattle', cattleApp).route('/events', eventsApp);
+    expect(typeof routes).toBe('object');
+  });
+});
+```
+
+### Hono RPC互換性維持の利点（大きなアプリケーション対応）
+
+#### 開発効率の維持
+1. **型安全性の継続**: フロントエンドでの型推論が継続
+2. **開発体験の維持**: 既存のAPI呼び出しパターンが継続
+3. **リファクタリングの安全性**: 型チェックによる安全性確保
+4. **IDEパフォーマンスの最適化**: サブルーター分離による型推論の最適化
+
+#### 移行リスクの最小化
+1. **段階的移行**: Hono RPCを維持しながら内部構造を変更
+2. **既存コードの保護**: フロントエンドコードの変更不要
+3. **動作保証**: 既存のAPI契約を維持
+4. **パフォーマンス維持**: 大きなアプリケーションでのIDEパフォーマンス維持
+
+#### 将来の拡張性
+1. **Hono RPCの進化**: 新しいHono RPC機能の活用
+2. **アーキテクチャの柔軟性**: 内部構造の改善とAPI互換性の両立
+3. **段階的改善**: 継続的なアーキテクチャ改善が可能
+4. **スケーラビリティ**: 大きなアプリケーションでの効率的な型推論
+
+### 大きなアプリケーションでのHono RPC最適化戦略
+
+#### 1. サブルーターの分離
+```typescript
+// 各ドメインごとにサブルーターを作成
+// apps/api/src/interfaces/http/routes/cattle.ts
+const cattleApp = new Hono()
+  .get('/', ...)
+  .post('/', ...);
+
+// apps/api/src/interfaces/http/routes/events.ts
+const eventsApp = new Hono()
+  .get('/', ...)
+  .post('/', ...);
+
+// メインアプリケーションでチェーン
+const routes = app
+  .route('/cattle', cattleApp)
+  .route('/events', eventsApp);
+```
+
+#### 2. 型推論の最適化
+```typescript
+// チェーンされたルーターの型をエクスポート
+export type AppType = typeof routes;
+
+// コンパイル時の型計算によるIDEパフォーマンス向上
+export type Client = ReturnType<typeof hc<AppType>>;
+export const hcWithType = (...args: Parameters<typeof hc>): Client =>
+  hc<AppType>(...args);
+```
+
+#### 3. パフォーマンスの最適化
+```typescript
+// コンパイル済みのクライアントを使用
+const optimizedClient = hcWithType('http://localhost:8787/');
+
+// サブルーターごとの個別クライアントも可能
+const cattleClient = hc<typeof cattleApp>('/cattle');
+const eventsClient = hc<typeof eventsApp>('/events');
+```
+
+この戦略により、Hono RPCの利点を維持しながら、大きなアプリケーションでのパフォーマンス最適化とヘキサゴナルアーキテクチャへの移行を実現できます。
+---
