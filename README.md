@@ -30,20 +30,24 @@
 - フロント（Next.js）→ API（Hono/Workers）→ DB（D1/Drizzle）
 - 通知（将来拡張）: Email/LINE/PWA を予定
 - モノレポ構成: 型/スキーマ共有・再利用性向上・一貫したCI
-- API: 関数型ドメインモデリング+ヘキサゴナルアーキテクチャ
+- API: 関数型ドメインモデリング+レイヤードアーキテクチャ（Application/Domain/Infrastructure/Interfaces）
 - Web: Container/Presentational パターン
 
 *アーキテクチャ図*
-![アーキテクチャ図](./docs/architecture.svg)
+![アーキテクチャ図](./docs/architecture/architecture.svg)
 
 *シーケンス図*
-![シーケンス図](./docs/sequenceDiagram.svg)
+![シーケンス図](./docs/architecture/sequenceDiagram.svg)
 
 ## 📁 ディレクトリ構成
 ```
 apps/
   web/   # Next.js (App Router)
   api/   # Hono + Cloudflare Workers, D1/Drizzle
+    ├── application/    # アプリケーション層（ユースケース、DTO、スキーマ）
+    ├── domain/         # ドメイン層（ビジネスロジック、型定義、ポート）
+    ├── infrastructure/ # インフラ層（DB、外部サービス、設定）
+    └── interfaces/     # インターフェース層（HTTP、バッチ）
 docs/
   api-spec/  # 内部処理要件中心のAPI仕様
   ...        # アーキテクチャ/実装/DB ガイド

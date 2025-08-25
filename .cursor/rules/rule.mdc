@@ -1,7 +1,6 @@
 ---
-alwaysApply: true
+alwaysApply: false
 ---
-
 # Gyulist - 牛群管理システム Cursorルール
 
 ## プロジェクト概要

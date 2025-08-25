@@ -46,10 +46,10 @@ importers:
         version: 3.0.2
       drizzle-orm:
         specifier: ^0.43.1
-        version: 0.43.1
+        version: 0.43.1(@cloudflare/workers-types@4.20250429.0)
       drizzle-zod:
         specifier: ^0.8.2
-        version: 0.8.2(drizzle-orm@0.43.1)(zod@3.25.28)
+        version: 0.8.2(drizzle-orm@0.43.1(@cloudflare/workers-types@4.20250429.0))(zod@3.25.28)
       hono:
         specifier: ^4.7.7
         version: 4.7.8
@@ -57,6 +57,9 @@ importers:
         specifier: ^3.25.28
         version: 3.25.28
     devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^4.20250429.0
+        version: 4.20250429.0
       '@types/node':
         specifier: ^20
         version: 20.17.32
@@ -92,7 +95,7 @@ importers:
         version: 3.2.4(@edge-runtime/vm@3.2.0)(@types/node@20.17.32)(@vitest/ui@3.2.4)(jiti@2.4.2)(jsdom@26.1.0)(lightningcss@1.29.2)(tsx@4.20.4)(yaml@2.8.1)
       wrangler:
         specifier: ^4.16.1
-        version: 4.16.1
+        version: 4.16.1(@cloudflare/workers-types@4.20250429.0)
 
   apps/web:
     dependencies:
@@ -357,6 +360,10 @@ packages:
 
   '@babel/runtime@7.28.2':
     resolution: {integrity: sha512-KHp2IflsnGywDjBWDkR9iEqiWSpc8GIi0lgTT3mOElT0PP1tG26P4tmFI2YvAdzgq9RGyoHZQEIEdZy6Ec5xCA==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/runtime@7.28.3':
+    resolution: {integrity: sha512-9uIQ10o0WGdpP6GDhXcdOJPJuDgFtIDtN/9+ArJQ2NAfAmiuhTQdzkaTGR33v43GYS2UrSA0eX2pPPHoFVvpxA==}
     engines: {node: '>=6.9.0'}
 
   '@babel/template@7.27.2':
@@ -5458,6 +5465,8 @@ snapshots:
 
   '@babel/runtime@7.28.2': {}
 
+  '@babel/runtime@7.28.3': {}
+
   '@babel/template@7.27.2':
     dependencies:
       '@babel/code-frame': 7.27.1
@@ -7132,7 +7141,7 @@ snapshots:
   '@testing-library/dom@10.4.1':
     dependencies:
       '@babel/code-frame': 7.27.1
-      '@babel/runtime': 7.28.2
+      '@babel/runtime': 7.28.3
       '@types/aria-query': 5.0.4
       aria-query: 5.3.0
       dom-accessibility-api: 0.5.16
@@ -7864,11 +7873,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.43.1: {}
+  drizzle-orm@0.43.1(@cloudflare/workers-types@4.20250429.0):
+    optionalDependencies:
+      '@cloudflare/workers-types': 4.20250429.0
 
-  drizzle-zod@0.8.2(drizzle-orm@0.43.1)(zod@3.25.28):
+  drizzle-zod@0.8.2(drizzle-orm@0.43.1(@cloudflare/workers-types@4.20250429.0))(zod@3.25.28):
     dependencies:
-      drizzle-orm: 0.43.1
+      drizzle-orm: 0.43.1(@cloudflare/workers-types@4.20250429.0)
       zod: 3.25.28
 
   dunder-proto@1.0.1:
@@ -9852,7 +9863,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  wrangler@4.16.1:
+  wrangler@4.16.1(@cloudflare/workers-types@4.20250429.0):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.4.0
       '@cloudflare/unenv-preset': 2.3.2(unenv@2.0.0-rc.17)(workerd@1.20250508.0)
@@ -9863,6 +9874,7 @@ snapshots:
       unenv: 2.0.0-rc.17
       workerd: 1.20250508.0
     optionalDependencies:
+      '@cloudflare/workers-types': 4.20250429.0
       fsevents: 2.3.3
       sharp: 0.33.5
     transitivePeerDependencies:

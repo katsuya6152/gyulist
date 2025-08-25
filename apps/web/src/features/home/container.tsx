@@ -1,58 +1,71 @@
 import { GetAlerts } from "@/services/alertsService";
-import { GetBreedingKpiDelta } from "@/services/breedingKpiDeltaService";
 import { GetBreedingKpi } from "@/services/breedingKpiService";
 import { GetStatusCounts } from "@/services/cattleService";
 import { SearchEvents } from "@/services/eventService";
-import {
-	endOfDay,
-	endOfMonth,
-	format,
-	startOfDay,
-	startOfMonth
-} from "date-fns";
+import { endOfDay, startOfDay } from "date-fns";
 import { HomePresentation } from "./presentational";
 
 export default async function HomeContainer() {
 	const today = new Date();
 	const start = startOfDay(today).toISOString();
 	const end = endOfDay(today).toISOString();
-	// KPIは当月で集計
-	const monthStart = startOfMonth(today).toISOString();
-	const monthEnd = endOfMonth(today).toISOString();
+	// KPIは全期間で集計（過去1年間）
+	const oneYearAgo = new Date(
+		today.getFullYear() - 1,
+		today.getMonth(),
+		today.getDate()
+	).toISOString();
 
 	// ダミートレンド生成は廃止（APIのデルタのみ使用）
 
 	try {
-		const [eventsData, statusCounts, alerts, kpi, kpiDelta] = await Promise.all(
-			[
-				SearchEvents({ startDate: start, endDate: end, limit: 100 }),
-				GetStatusCounts(),
-				GetAlerts(),
-				GetBreedingKpi({ from: monthStart, to: monthEnd }),
-				// 前月比のみ必要なので delta API を利用
-				GetBreedingKpiDelta({ month: format(today, "yyyy-MM") })
-			]
-		);
+		const [eventsData, statusCounts, alerts, kpi] = await Promise.allSettled([
+			SearchEvents({ startDate: start, endDate: end, limit: 100 }),
+			GetStatusCounts(),
+			GetAlerts(),
+			GetBreedingKpi({ from: oneYearAgo, to: today.toISOString() })
+		]);
+
 		return (
 			<HomePresentation
-				todayEvents={eventsData.results || []}
-				statusCounts={statusCounts.counts}
-				alerts={alerts.results.map((alert) => ({
-					alertId: alert.id,
-					type: alert.type,
-					severity: alert.severity,
-					cattleId: alert.cattleId,
-					cattleName: alert.cattleName,
-					cattleEarTagNumber: alert.cattleEarTagNumber,
-					dueAt: alert.dueAt,
-					message: alert.message
-				}))}
-				breedingKpi={kpi.metrics}
-				// KPIトレンドは前月比のみ使用
-				kpiTrendDeltas={
-					kpiDelta.month
-						? [{ month: kpiDelta.month, metrics: kpiDelta.delta }]
+				todayEvents={
+					eventsData.status === "fulfilled" ? eventsData.value.results : []
+				}
+				statusCounts={
+					statusCounts.status === "fulfilled"
+						? statusCounts.value
+						: {
+								HEALTHY: 0,
+								PREGNANT: 0,
+								RESTING: 0,
+								TREATING: 0,
+								SHIPPED: 0,
+								DEAD: 0
+							}
+				}
+				alerts={
+					alerts.status === "fulfilled"
+						? alerts.value.results.map((alert) => ({
+								alertId: alert.id,
+								type: alert.type,
+								severity: alert.severity as "high" | "medium" | "low",
+								cattleId: alert.cattleId,
+								cattleName: alert.cattleName,
+								cattleEarTagNumber: String(alert.cattleEarTagNumber),
+								dueAt: alert.dueAt,
+								message: alert.message
+							}))
 						: []
+				}
+				breedingKpi={
+					kpi.status === "fulfilled"
+						? kpi.value.metrics
+						: {
+								conceptionRate: null,
+								avgDaysOpen: null,
+								avgCalvingInterval: null,
+								aiPerConception: null
+							}
 				}
 				error={undefined}
 			/>
@@ -77,7 +90,6 @@ export default async function HomeContainer() {
 					avgCalvingInterval: null,
 					aiPerConception: null
 				}}
-				kpiTrendDeltas={[]}
 				error="データ取得に失敗しました"
 			/>
 		);

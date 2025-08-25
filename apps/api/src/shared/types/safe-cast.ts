@@ -3,7 +3,7 @@
  * Brand型の一貫した活用と型安全性の向上を目的とする
  */
 
-import type { UserId } from "../../contexts/auth/ports";
+import type { UserId } from "../brand";
 // CattleId は Brand型として定義
 type CattleId = number & { readonly __brand: "CattleId" };
 

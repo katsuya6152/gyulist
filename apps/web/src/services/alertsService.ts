@@ -1,10 +1,38 @@
 import { fetchWithAuth } from "@/lib/api-client";
 import { client } from "@/lib/rpc";
-import type { AlertsResponse } from "@repo/api";
 import type { InferResponseType } from "hono";
 
 // 🎯 Hono RPCからの型推論
-export type GetAlertsRes = AlertsResponse;
+export type GetAlertsRes = {
+	results: Array<{
+		id: string;
+		type: string;
+		severity: string;
+		status: string;
+		cattleId: number;
+		cattleName: string;
+		cattleEarTagNumber: number;
+		dueAt: string;
+		message: string;
+		memo: string | null;
+		ownerUserId: number;
+		createdAt: string;
+		updatedAt: string;
+		acknowledgedAt: string | null;
+		resolvedAt: string | null;
+	}>;
+	total: number;
+	summary: {
+		high: number;
+		medium: number;
+		low: number;
+		urgent: number;
+		active: number;
+		resolved: number;
+		overdue: number;
+		dueSoon: number;
+	};
+};
 
 export type Alert = GetAlertsRes;
 
@@ -28,9 +56,9 @@ export async function UpdateAlertMemo(
 	memo: string
 ): Promise<{ message: string }> {
 	return fetchWithAuth<{ message: string }>((token) =>
-		client.api.v1.alerts[":id"].memo.$put(
+		client.api.v1.alerts[":alertId"].memo.$put(
 			{
-				param: { id: alertId },
+				param: { alertId: alertId },
 				json: { memo }
 			},
 			{
@@ -46,9 +74,9 @@ export async function UpdateAlertStatus(
 	status: "acknowledged" | "resolved" | "dismissed"
 ): Promise<{ message: string }> {
 	return fetchWithAuth<{ message: string }>((token) =>
-		client.api.v1.alerts[":id"].status.$put(
+		client.api.v1.alerts[":alertId"].status.$put(
 			{
-				param: { id: alertId },
+				param: { alertId: alertId },
 				json: { status }
 			},
 			{

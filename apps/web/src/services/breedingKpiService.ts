@@ -1,6 +1,5 @@
 import { fetchWithAuth } from "@/lib/api-client";
 import { client } from "@/lib/rpc";
-import type { BreedingKpiResponse } from "@repo/api";
 
 export type BreedingKpiMetrics = {
 	conceptionRate: number | null;
@@ -9,7 +8,24 @@ export type BreedingKpiMetrics = {
 	aiPerConception: number | null;
 };
 
-export type GetBreedingKpiRes = BreedingKpiResponse;
+export type GetBreedingKpiRes = {
+	metrics: BreedingKpiMetrics;
+	counts: {
+		inseminations: number;
+		conceptions: number;
+		calvings: number;
+		totalEvents: number;
+	};
+	period: {
+		from: string;
+		to: string;
+	};
+	summary: {
+		totalEvents: number;
+		dataQuality: string;
+		calculatedAt: string;
+	};
+};
 
 export async function GetBreedingKpi(params?: {
 	from?: string;
