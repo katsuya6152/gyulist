@@ -17,7 +17,10 @@ import type { CattleId, UserId } from "../../../shared/brand";
 /**
  * データベース行の型定義（JOIN結果）
  */
-export type AlertDbRow = InferSelectModel<typeof AlertsTable> & {
+export type AlertDbRow = Omit<
+	InferSelectModel<typeof AlertsTable>,
+	"cattleEarTagNumber"
+> & {
 	cattleName?: string | null;
 	cattleEarTagNumber?: number | null;
 };

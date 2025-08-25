@@ -850,6 +850,169 @@
 				}
 			}
 		},
+		"/api/v1/alerts/{alertId}": {
+			"patch": {
+				"tags": ["アラート"],
+				"summary": "アラート更新",
+				"description": "アラートのステータスとメモを更新します。",
+				"security": [{ "bearerAuth": [] }],
+				"parameters": [
+					{
+						"schema": { "type": "string", "example": "123" },
+						"required": true,
+						"name": "alertId",
+						"in": "path"
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"status": {
+										"type": "string",
+										"enum": ["active", "acknowledged", "resolved", "dismissed"]
+									},
+									"memo": { "type": "string" }
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Alert updated",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "object",
+											"properties": {
+												"id": { "type": "string" },
+												"status": { "type": "string" },
+												"memo": { "type": "string", "nullable": true }
+											},
+											"required": ["id", "status"]
+										}
+									},
+									"required": ["data"]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/alerts/{alertId}/memo": {
+			"put": {
+				"tags": ["アラート"],
+				"summary": "アラートメモ更新",
+				"description": "アラートのメモを更新します。",
+				"security": [{ "bearerAuth": [] }],
+				"parameters": [
+					{
+						"schema": { "type": "string", "example": "123" },
+						"required": true,
+						"name": "alertId",
+						"in": "path"
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"memo": { "type": "string" }
+								},
+								"required": ["memo"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Alert memo updated",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "object",
+											"properties": {
+												"id": { "type": "string" },
+												"memo": { "type": "string" }
+											},
+											"required": ["id", "memo"]
+										}
+									},
+									"required": ["data"]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/alerts/{alertId}/status": {
+			"put": {
+				"tags": ["アラート"],
+				"summary": "アラートステータス更新",
+				"description": "アラートのステータスを更新します。",
+				"security": [{ "bearerAuth": [] }],
+				"parameters": [
+					{
+						"schema": { "type": "string", "example": "123" },
+						"required": true,
+						"name": "alertId",
+						"in": "path"
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"status": {
+										"type": "string",
+										"enum": ["acknowledged", "resolved", "dismissed"]
+									}
+								},
+								"required": ["status"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Alert status updated",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "object",
+											"properties": {
+												"id": { "type": "string" },
+												"status": { "type": "string" }
+											},
+											"required": ["id", "status"]
+										}
+									},
+									"required": ["data"]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
 		"/api/v1/cattle": {
 			"get": {
 				"tags": ["牛（Cattle）"],
@@ -2382,6 +2545,36 @@
 												}
 											},
 											"required": ["series", "deltas"]
+										}
+									},
+									"required": ["data"]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/kpi/breeding/calculate": {
+			"post": {
+				"tags": ["KPI"],
+				"summary": "繁殖指標の計算",
+				"description": "繁殖指標を再計算します。",
+				"security": [{ "bearerAuth": [] }],
+				"responses": {
+					"200": {
+						"description": "Breeding metrics calculated",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "object",
+											"properties": {
+												"message": { "type": "string" }
+											},
+											"required": ["message"]
 										}
 									},
 									"required": ["data"]

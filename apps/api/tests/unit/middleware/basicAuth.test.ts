@@ -1,7 +1,7 @@
 import type { AnyD1Database } from "drizzle-orm/d1";
 import { Hono } from "hono";
 import { beforeEach, describe, expect, it } from "vitest";
-import { basicAuthMiddleware } from "../../../src/middleware/basicAuth";
+import { basicAuthMiddleware } from "../../../src/interfaces/http/middleware/basicAuth";
 import type { Bindings } from "../../../src/types";
 
 const buildApp = (env: Bindings) => {

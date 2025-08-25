@@ -6,6 +6,14 @@
 
 import type { AnyD1Database } from "drizzle-orm/d1";
 import type {
+	ExportRegistrationsCsvUseCase,
+	ListRegistrationsUseCase
+} from "../../application/use-cases/admin";
+import {
+	exportRegistrationsCsvUseCase,
+	listRegistrationsUseCase
+} from "../../application/use-cases/admin";
+import type {
 	CreateAlertUseCase,
 	GetAlertsUseCase,
 	SearchAlertsUseCase,
@@ -72,11 +80,14 @@ import {
 	getBreedingKpiUseCase,
 	getBreedingTrendsUseCase
 } from "../../application/use-cases/kpi";
+import type { PreRegisterUserUseCase } from "../../application/use-cases/registration/preRegisterUser";
+import { preRegisterUserUseCase } from "../../application/use-cases/registration/preRegisterUser";
 import type { AlertRepository } from "../../domain/ports/alerts";
 import type { AuthRepository } from "../../domain/ports/auth";
 import type { CattleRepository } from "../../domain/ports/cattle";
 import type { EventRepository } from "../../domain/ports/events";
 import type { KpiRepository } from "../../domain/ports/kpi";
+import type { RegistrationRepository } from "../../domain/ports/registration";
 import type { ClockPort } from "../../shared/ports/clock";
 import type { TokenPort } from "../../shared/ports/token";
 import { D1DatabaseFactory } from "../database/D1DatabaseFactory";
@@ -85,6 +96,7 @@ import { AuthRepositoryImpl } from "../database/repositories/AuthRepositoryImpl"
 import { CattleRepositoryImpl } from "../database/repositories/CattleRepositoryImpl";
 import { EventRepositoryImpl } from "../database/repositories/EventRepositoryImpl";
 import { KpiRepositoryImpl } from "../database/repositories/KpiRepositoryImpl";
+import { RegistrationRepositoryImpl } from "../database/repositories/RegistrationRepositoryImpl";
 
 /**
  * 環境設定の型定義
@@ -105,6 +117,7 @@ export type Dependencies = {
 		alertRepo: AlertRepository;
 		kpiRepo: KpiRepository;
 		authRepo: AuthRepository;
+		registrationRepo: RegistrationRepository;
 	};
 
 	// ユースケース（依存関係が注入された状態）
@@ -181,6 +194,19 @@ export type Dependencies = {
 		getUserUseCase: (
 			input: Parameters<ReturnType<GetUserUseCase>>[0]
 		) => ReturnType<ReturnType<GetUserUseCase>>;
+		preRegisterUserUseCase: (
+			input: Parameters<ReturnType<PreRegisterUserUseCase>>[0]
+		) => ReturnType<ReturnType<PreRegisterUserUseCase>>;
+	};
+
+	// 管理APIユースケース
+	adminUseCases: {
+		listRegistrationsUseCase: (
+			input: Parameters<ReturnType<ListRegistrationsUseCase>>[0]
+		) => ReturnType<ReturnType<ListRegistrationsUseCase>>;
+		exportRegistrationsCsvUseCase: (
+			input: Parameters<ReturnType<ExportRegistrationsCsvUseCase>>[0]
+		) => ReturnType<ReturnType<ExportRegistrationsCsvUseCase>>;
 	};
 
 	// サービス
@@ -209,6 +235,7 @@ export function makeDependencies(
 	const alertRepo = new AlertRepositoryImpl(d1DatabasePort);
 	const kpiRepo = new KpiRepositoryImpl(d1DatabasePort);
 	const authRepo = new AuthRepositoryImpl(d1DatabasePort);
+	const registrationRepo = new RegistrationRepositoryImpl(d1DatabasePort);
 
 	// ユースケースの作成（依存関係を注入）
 	const createCattle = createCattleUseCase({
@@ -290,6 +317,33 @@ export function makeDependencies(
 
 	const getUser = getUserUseCase({
 		authRepo
+	});
+
+	// 事前登録ユースケースの作成
+	const preRegisterUser = preRegisterUserUseCase({
+		registrationRepo,
+		turnstileService: {
+			verify: async () => ({ ok: true, value: true })
+		},
+		emailService: {
+			sendVerificationEmail: async () => ({ ok: true, value: "sent" }),
+			sendCompletionEmail: async () => ({ ok: true, value: "sent" }),
+			sendReminderEmail: async () => ({ ok: true, value: "sent" })
+		},
+		idGenerator: {
+			uuid: () => `uuid-${Math.random().toString(36).substring(2)}`,
+			next: () => 1
+		},
+		clock
+	});
+
+	// 管理APIユースケースの作成
+	const listRegistrations = listRegistrationsUseCase({
+		registrationRepo
+	});
+
+	const exportRegistrationsCsv = exportRegistrationsCsvUseCase({
+		registrationRepo
 	});
 
 	// パスワードハッシュ化・検証サービス
@@ -374,7 +428,8 @@ export function makeDependencies(
 			eventRepo,
 			alertRepo,
 			kpiRepo,
-			authRepo
+			authRepo,
+			registrationRepo
 		},
 		useCases: {
 			createCattleUseCase: createCattle,
@@ -400,7 +455,12 @@ export function makeDependencies(
 			verifyTokenUseCase: verifyToken,
 			completeRegistrationUseCase: completeRegistration,
 			updateUserThemeUseCase: updateUserTheme,
-			getUserUseCase: getUser
+			getUserUseCase: getUser,
+			preRegisterUserUseCase: preRegisterUser
+		},
+		adminUseCases: {
+			listRegistrationsUseCase: listRegistrations,
+			exportRegistrationsCsvUseCase: exportRegistrationsCsv
 		},
 		services: {
 			clock

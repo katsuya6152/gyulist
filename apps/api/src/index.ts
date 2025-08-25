@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { hc } from "hono/client";
-import { createRoutes } from "./routes";
+import { createRoutes } from "./interfaces/http/routes";
 import { getLogger } from "./shared/logging/logger";
 import type { Env } from "./shared/ports/d1Database";
 

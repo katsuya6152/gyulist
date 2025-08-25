@@ -6,9 +6,9 @@
 
 import { Hono } from "hono";
 import { makeDependencies } from "../../../infrastructure/config/dependencies";
-import { jwtMiddleware } from "../../../middleware/jwt";
 import type { Bindings } from "../../../types";
 import { makeKpiController } from "../controllers/KpiController";
+import { jwtMiddleware } from "../middleware/jwt";
 
 /**
  * KPIルートを作成

@@ -10,9 +10,9 @@ import { Hono } from "hono";
 import { z } from "zod";
 
 import { makeDependencies } from "../../../infrastructure/config/dependencies";
-import { jwtMiddleware } from "../../../middleware/jwt";
 import type { Bindings } from "../../../types";
 import { AuthController } from "../controllers/AuthController";
+import { jwtMiddleware } from "../middleware/jwt";
 
 // ============================================================================
 // Validation Schemas

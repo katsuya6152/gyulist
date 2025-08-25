@@ -3,15 +3,15 @@ import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { Hono } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
-import { users } from "../db/schema";
-import { generateOAuthDummyPasswordHash } from "../lib/auth";
-import { type GoogleUser, createGoogleOAuth } from "../lib/oauth";
-import { createSession, generateSessionToken } from "../lib/session";
-import { executeUseCase } from "../shared/http/route-helpers";
-import { getLogger } from "../shared/logging/logger";
-import type { Bindings } from "../types";
+import { users } from "../../../db/schema";
+import { generateOAuthDummyPasswordHash } from "../../../lib/auth";
+import { type GoogleUser, createGoogleOAuth } from "../../../lib/oauth";
+import { createSession, generateSessionToken } from "../../../lib/session";
+import { executeUseCase } from "../../../shared/http/route-helpers";
+import { getLogger } from "../../../shared/logging/logger";
+import type { Env } from "../../../shared/ports/d1Database";
 
-const app = new Hono<{ Bindings: Bindings }>()
+const app = new Hono<{ Bindings: Env }>()
 	// Google OAuth 開始
 	.get("/google", async (c) => {
 		try {
@@ -103,16 +103,17 @@ const app = new Hono<{ Bindings: Bindings }>()
 				hasStoredCodeVerifier: !!storedCodeVerifier,
 				endpoint: "/oauth/google/callback"
 			});
-			return c.json({ error: "Invalid request parameters" }, 400);
+			return c.json({ error: "Missing required OAuth parameters" }, 400);
 		}
 
+		// CSRF攻撃防止のためのstate検証
 		if (state !== storedState) {
 			logger.error("OAuth state mismatch", {
 				receivedState: state,
 				storedState: storedState,
 				endpoint: "/oauth/google/callback"
 			});
-			return c.json({ error: "Invalid state parameter" }, 400);
+			return c.json({ error: "Invalid OAuth state" }, 400);
 		}
 
 		try {
@@ -122,47 +123,21 @@ const app = new Hono<{ Bindings: Bindings }>()
 				storedCodeVerifier
 			);
 
-			// アクセストークンを安全に取得
-			let accessToken: string;
-			try {
-				if (typeof tokens.accessToken === "function") {
-					accessToken = (tokens.accessToken as unknown as () => string)();
-				} else {
-					accessToken = tokens.accessToken as unknown as string;
-				}
-			} catch (tokenError) {
-				console.error("Error getting access token:", tokenError);
-				return c.json({ error: "Failed to obtain access token" }, 500);
-			}
-
 			// Googleユーザー情報を取得
-			if (!accessToken) {
-				console.error("No access token available");
-				return c.json({ error: "No access token received" }, 500);
-			}
-
 			let googleUser: GoogleUser;
 			try {
 				const googleUserResponse = await fetch(
-					"https://www.googleapis.com/oauth2/v2/userinfo",
-					{
-						headers: {
-							Authorization: `Bearer ${accessToken}`,
-							"User-Agent": "Gyulist/1.0"
-						}
-					}
+					`https://www.googleapis.com/oauth2/v2/userinfo?access_token=${tokens.accessToken}`
 				);
 
 				if (!googleUserResponse.ok) {
-					const errorText = await googleUserResponse.text();
-					console.error(
-						"Failed to fetch user info:",
-						googleUserResponse.status,
-						googleUserResponse.statusText
-					);
-					console.error("Google API error response:", errorText);
+					logger.error("Failed to fetch Google user info", {
+						status: googleUserResponse.status,
+						statusText: googleUserResponse.statusText,
+						endpoint: "/oauth/google/callback"
+					});
 					return c.json(
-						{ error: "Failed to fetch user info from Google" },
+						{ error: "Failed to fetch user information from Google" },
 						500
 					);
 				}

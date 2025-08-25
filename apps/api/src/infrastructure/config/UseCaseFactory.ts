@@ -32,13 +32,11 @@ import {
 	getBreedingKpiUseCase,
 	getBreedingTrendsUseCase
 } from "../../application/use-cases/kpi";
-import type {
-	AlertRepository,
-	AuthRepository,
-	CattleRepository,
-	EventRepository,
-	KpiRepository
-} from "../../domain/ports";
+import type { AlertRepository } from "../../domain/ports/alerts";
+import type { AuthRepository } from "../../domain/ports/auth";
+import type { CattleRepository } from "../../domain/ports/cattle";
+import type { EventRepository } from "../../domain/ports/events";
+import type { KpiRepository } from "../../domain/ports/kpi";
 import type { ClockPort } from "../../shared/ports/clock";
 import type { TokenPort } from "../../shared/ports/token";
 

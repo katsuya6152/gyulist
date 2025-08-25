@@ -6,15 +6,29 @@
 
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
+import { z } from "zod";
 import {
 	createCattleSchema,
 	searchCattleSchema,
 	updateCattleSchema
 } from "../../../domain/types/cattle";
 import { makeDependencies } from "../../../infrastructure/config/dependencies";
-import { jwtMiddleware } from "../../../middleware/jwt";
 import type { Bindings } from "../../../types";
 import { makeCattleController } from "../controllers/CattleController";
+import { jwtMiddleware } from "../middleware/jwt";
+
+// ステータス更新用のスキーマ
+const updateCattleStatusSchema = z.object({
+	status: z.enum([
+		"HEALTHY",
+		"PREGNANT",
+		"RESTING",
+		"TREATING",
+		"SHIPPED",
+		"DEAD"
+	]),
+	reason: z.string().optional()
+});
 
 /**
  * 牛管理のHTTPルートを作成
@@ -71,7 +85,19 @@ export function createCattleRoutes() {
 			const deps = makeDependencies(db, { now: () => new Date() });
 			const controller = makeCattleController(deps);
 			return controller.delete(c);
-		});
+		})
+
+		// 牛のステータス更新
+		.patch(
+			"/:id/status",
+			zValidator("json", updateCattleStatusSchema),
+			async (c) => {
+				const db = c.env.DB;
+				const deps = makeDependencies(db, { now: () => new Date() });
+				const controller = makeCattleController(deps);
+				return controller.updateStatus(c);
+			}
+		);
 
 	return app;
 }

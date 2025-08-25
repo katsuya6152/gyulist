@@ -23,10 +23,12 @@ import type { Result } from "../../../shared/result";
 import { err, ok } from "../../../shared/result";
 import { alertDbMapper } from "../mappers/alertDbMapper";
 
+import type { InferInsertModel } from "drizzle-orm";
 /**
  * アラートリポジトリの実装クラス
  */
 import type { drizzle } from "drizzle-orm/d1";
+import type { AlertDbRow } from "../mappers/alertDbMapper";
 
 export class AlertRepositoryImpl implements AlertRepository {
 	private readonly db: ReturnType<typeof drizzle>;
@@ -57,14 +59,14 @@ export class AlertRepositoryImpl implements AlertRepository {
 				})
 				.from(alerts)
 				.innerJoin(cattle, eq(alerts.cattleId, cattle.cattleId))
-				.where(eq(alerts.id, alertId as number))
+				.where(eq(alerts.id, alertId as string))
 				.limit(1);
 
 			if (result.length === 0) {
 				return ok(null);
 			}
 
-			const alert = alertDbMapper.toDomain(result[0]);
+			const alert = alertDbMapper.toDomain(result[0] as unknown as AlertDbRow);
 			return ok(alert);
 		} catch (cause) {
 			return err({
@@ -102,7 +104,7 @@ export class AlertRepositoryImpl implements AlertRepository {
 				.innerJoin(cattle, eq(alerts.cattleId, cattle.cattleId))
 				.where(
 					and(
-						eq(alerts.id, alertId as number),
+						eq(alerts.id, alertId as string),
 						eq(alerts.ownerUserId, ownerUserId as number)
 					)
 				)
@@ -112,7 +114,7 @@ export class AlertRepositoryImpl implements AlertRepository {
 				return ok(null);
 			}
 
-			const alert = alertDbMapper.toDomain(result[0]);
+			const alert = alertDbMapper.toDomain(result[0] as unknown as AlertDbRow);
 			return ok(alert);
 		} catch (cause) {
 			return err({
@@ -147,7 +149,7 @@ export class AlertRepositoryImpl implements AlertRepository {
 					cattleEarTagNumber: cattle.earTagNumber
 				})
 				.from(alerts)
-				.innerJoin(cattle, eq(alerts.cattleId, cattle.cattleId))
+				.innerJoin(cattle, eq(alerts.cattleId, cattleId as number))
 				.where(
 					and(
 						eq(alerts.cattleId, cattleId as number),
@@ -156,7 +158,9 @@ export class AlertRepositoryImpl implements AlertRepository {
 				)
 				.orderBy(desc(alerts.createdAt));
 
-			const alertList = alertDbMapper.toDomainList(result);
+			const alertList = alertDbMapper.toDomainList(
+				result as unknown as AlertDbRow[]
+			);
 			return ok(alertList);
 		} catch (cause) {
 			return err({
@@ -197,12 +201,10 @@ export class AlertRepositoryImpl implements AlertRepository {
 
 			// 日付範囲フィルタ
 			if (criteria.startDate) {
-				conditions.push(
-					gte(alerts.createdAt, criteria.startDate.toISOString())
-				);
+				conditions.push(gte(alerts.createdAt, criteria.startDate.getTime()));
 			}
 			if (criteria.endDate) {
-				conditions.push(lte(alerts.createdAt, criteria.endDate.toISOString()));
+				conditions.push(lte(alerts.createdAt, criteria.endDate.getTime()));
 			}
 
 			// カーソルベースページング
@@ -239,11 +241,13 @@ export class AlertRepositoryImpl implements AlertRepository {
 			const nextCursor =
 				hasNext && results.length > 0 ? results[results.length - 1].id : null;
 
-			const alertList = alertDbMapper.toDomainList(results);
+			const alertList = alertDbMapper.toDomainList(
+				results as unknown as AlertDbRow[]
+			);
 
 			return ok({
 				results: alertList,
-				nextCursor,
+				nextCursor: nextCursor as number | null,
 				hasNext
 			});
 		} catch (cause) {
@@ -263,7 +267,7 @@ export class AlertRepositoryImpl implements AlertRepository {
 
 			const result = await this.db
 				.insert(alerts)
-				.values(insertRecord)
+				.values(insertRecord as unknown as InferInsertModel<typeof alerts>)
 				.returning();
 
 			if (result.length === 0) {
@@ -310,17 +314,17 @@ export class AlertRepositoryImpl implements AlertRepository {
 				return err({
 					type: "AlertNotFoundError",
 					message: "Alert not found",
-					alertId: alertId as number
+					alertId: alertId as unknown as number
 				});
 			}
 
 			const updateRecord = alertDbMapper.toUpdateRecord(updates);
-			updateRecord.updatedAt = new Date().toISOString();
+			updateRecord.updatedAt = Date.now();
 
 			await this.db
 				.update(alerts)
 				.set(updateRecord)
-				.where(eq(alerts.id, alertId as number));
+				.where(eq(alerts.id, alertId as string));
 
 			// 更新されたアラートを再取得
 			const updatedAlert = await this.findById(alertId, ownerUserId);
@@ -354,11 +358,11 @@ export class AlertRepositoryImpl implements AlertRepository {
 				return err({
 					type: "AlertNotFoundError",
 					message: "Alert not found",
-					alertId: alertId as number
+					alertId: alertId as unknown as number
 				});
 			}
 
-			await this.db.delete(alerts).where(eq(alerts.id, alertId as number));
+			await this.db.delete(alerts).where(eq(alerts.id, alertId as string));
 
 			return ok(undefined);
 		} catch (cause) {
@@ -404,7 +408,9 @@ export class AlertRepositoryImpl implements AlertRepository {
 				.orderBy(desc(alerts.createdAt))
 				.limit(limit);
 
-			const alertList = alertDbMapper.toDomainList(result);
+			const alertList = alertDbMapper.toDomainList(
+				result as unknown as AlertDbRow[]
+			);
 			return ok(alertList);
 		} catch (cause) {
 			return err({
@@ -450,7 +456,9 @@ export class AlertRepositoryImpl implements AlertRepository {
 				.orderBy(desc(alerts.createdAt))
 				.limit(limit);
 
-			const alertList = alertDbMapper.toDomainList(result);
+			const alertList = alertDbMapper.toDomainList(
+				result as unknown as AlertDbRow[]
+			);
 			return ok(alertList);
 		} catch (cause) {
 			return err({
@@ -496,7 +504,9 @@ export class AlertRepositoryImpl implements AlertRepository {
 				.orderBy(desc(alerts.createdAt))
 				.limit(limit);
 
-			const alertList = alertDbMapper.toDomainList(result);
+			const alertList = alertDbMapper.toDomainList(
+				result as unknown as AlertDbRow[]
+			);
 			return ok(alertList);
 		} catch (cause) {
 			return err({
@@ -574,7 +584,7 @@ export class AlertRepositoryImpl implements AlertRepository {
 					memo,
 					updatedAt: Date.now()
 				})
-				.where(eq(alerts.id, alertId as unknown as string));
+				.where(eq(alerts.id, alertId as string));
 
 			return ok(undefined);
 		} catch (cause) {

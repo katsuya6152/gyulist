@@ -8,9 +8,9 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { z } from "zod";
 import { makeDependencies } from "../../../infrastructure/config/dependencies";
-import { jwtMiddleware } from "../../../middleware/jwt";
 import type { Bindings } from "../../../types";
 import { makeAlertController } from "../controllers/AlertController";
+import { jwtMiddleware } from "../middleware/jwt";
 
 // Validation schemas
 const updateAlertSchema = z.object({
@@ -48,7 +48,23 @@ export function createAlertRoutes() {
 			const db = c.env.DB;
 			const deps = makeDependencies(db, { now: () => new Date() });
 			const controller = makeAlertController(deps);
-			return controller.updateAlertStatus(c);
+
+			// リクエストボディを取得して、statusとmemoの両方を更新
+			const body = await c.req.json();
+			if (body.status && body.memo) {
+				// 両方更新の場合は、updateAlertStatusを呼び出し
+				return controller.updateAlertStatus(c);
+			}
+			if (body.status) {
+				// statusのみ更新の場合は、updateAlertStatusを呼び出し
+				return controller.updateAlertStatus(c);
+			}
+			if (body.memo) {
+				// memoのみ更新の場合は、updateAlertMemoを呼び出し
+				return controller.updateAlertMemo(c);
+			}
+
+			return c.json({ error: "Either status or memo must be provided" }, 400);
 		})
 
 		// Update alert memo

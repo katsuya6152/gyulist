@@ -196,5 +196,58 @@ export const makeCattleController = (deps: CattleControllerDeps) => ({
 
 			return result;
 		});
+	},
+
+	/**
+	 * 牛のステータス更新
+	 */
+	async updateStatus(c: Context): Promise<Response> {
+		try {
+			const cattleId = Number.parseInt(c.req.param("id"), 10) as CattleId;
+			const jwtPayload = c.get("jwtPayload");
+			const userId = toUserId(jwtPayload.userId);
+			const input = (await c.req.json()) as Record<string, unknown>;
+
+			const updateCattleUseCase = deps.useCases.updateCattleUseCase;
+			const result = await updateCattleUseCase({
+				cattleId,
+				ownerUserId: userId,
+				updates: {
+					status: input.status as Status,
+					notes: (input.reason as string) || undefined
+				}
+			});
+
+			if (!result.ok) {
+				return c.json({ error: result.error.message }, 500);
+			}
+
+			// OpenAPI仕様に合わせたレスポンス形式
+			return c.json({
+				data: {
+					cattleId: result.value.cattleId,
+					ownerUserId: result.value.ownerUserId,
+					identificationNumber: result.value.identificationNumber,
+					earTagNumber: result.value.earTagNumber,
+					name: result.value.name,
+					gender: result.value.gender,
+					birthday: result.value.birthday,
+					growthStage: result.value.growthStage,
+					breed: result.value.breed,
+					status: result.value.status,
+					producerName: result.value.producerName,
+					barn: result.value.barn,
+					breedingValue: result.value.breedingValue,
+					notes: result.value.notes,
+					weight: result.value.weight,
+					score: result.value.score,
+					createdAt: result.value.createdAt,
+					updatedAt: result.value.updatedAt
+				}
+			});
+		} catch (error) {
+			console.error("Update cattle status error:", error);
+			return c.json({ error: "Internal server error" }, 500);
+		}
 	}
 });
