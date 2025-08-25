@@ -35,7 +35,7 @@ export default async function CattleListContainer({ searchParams }: Props) {
 			GetAlerts()
 		]);
 
-		const cattleList = cattleData?.data?.results || [];
+		const cattleList = cattleData?.results || [];
 		const alerts = alertsData?.results || [];
 
 		return (

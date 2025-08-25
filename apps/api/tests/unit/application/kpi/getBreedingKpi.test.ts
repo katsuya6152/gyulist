@@ -115,17 +115,17 @@ describe("getBreedingKpiUseCase", () => {
 
 		const mockMetrics: BreedingMetrics = {
 			conceptionRate: 0.75,
-			averageOpenDays: 45,
-			averageCalvingInterval: 380,
-			inseminationsPerConception: 1.2
+			avgDaysOpen: 45,
+			avgCalvingInterval: 380,
+			aiPerConception: 1.2
 		};
 
 		const mockCounts: BreedingEventCounts = {
-			totalEvents: 100,
 			inseminations: 50,
+			conceptions: 30,
 			calvings: 30,
-			pregnancyChecks: 40,
-			estrusEvents: 60
+			pairsForDaysOpen: 25,
+			totalEvents: 100
 		};
 
 		mockKpiRepo.calculateBreedingMetrics.mockResolvedValue(ok(mockMetrics));
@@ -158,17 +158,17 @@ describe("getBreedingKpiUseCase", () => {
 
 		const mockMetrics: BreedingMetrics = {
 			conceptionRate: 0.75,
-			averageOpenDays: 45,
-			averageCalvingInterval: 380,
-			inseminationsPerConception: 1.2
+			avgDaysOpen: 45,
+			avgCalvingInterval: 380,
+			aiPerConception: 1.2
 		};
 
 		const mockCounts: BreedingEventCounts = {
-			totalEvents: 100,
 			inseminations: 50,
+			conceptions: 30,
 			calvings: 30,
-			pregnancyChecks: 40,
-			estrusEvents: 60
+			pairsForDaysOpen: 25,
+			totalEvents: 100
 		};
 
 		mockKpiRepo.calculateBreedingMetrics.mockResolvedValue(ok(mockMetrics));
@@ -216,9 +216,9 @@ describe("getBreedingKpiUseCase", () => {
 
 		const mockMetrics: BreedingMetrics = {
 			conceptionRate: 0.75,
-			averageOpenDays: 45,
-			averageCalvingInterval: 380,
-			inseminationsPerConception: 1.2
+			avgDaysOpen: 45,
+			avgCalvingInterval: 380,
+			aiPerConception: 1.2
 		};
 
 		mockKpiRepo.calculateBreedingMetrics.mockResolvedValue(ok(mockMetrics));

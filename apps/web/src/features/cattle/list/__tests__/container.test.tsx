@@ -25,12 +25,21 @@ vi.mock("next/headers", () => ({
 // Mock @repo/api for alert constants
 vi.mock("@repo/api", () => ({
 	// Cattle related constants
-	STATUSES: ["HEALTHY", "PREGNANT", "RESTING", "TREATING", "SHIPPED", "DEAD"],
+	STATUSES: [
+		"HEALTHY",
+		"PREGNANT",
+		"RESTING",
+		"TREATING",
+		"SCHEDULED_FOR_SHIPMENT",
+		"SHIPPED",
+		"DEAD"
+	],
 	STATUS_LABELS: {
 		HEALTHY: "健康",
 		PREGNANT: "妊娠中",
 		RESTING: "休養中",
 		TREATING: "治療中",
+		SCHEDULED_FOR_SHIPMENT: "出荷予定",
 		SHIPPED: "出荷済み",
 		DEAD: "死亡"
 	},

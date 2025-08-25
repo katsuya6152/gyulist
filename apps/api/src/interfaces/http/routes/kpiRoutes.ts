@@ -26,18 +26,7 @@ export function createKpiRoutes() {
 			const controller = makeKpiController(deps);
 			return controller.getBreedingKpi(c);
 		})
-		.get("/breeding/delta", async (c) => {
-			const db = c.env.DB;
-			const deps = makeDependencies(db, { now: () => new Date() });
-			const controller = makeKpiController(deps);
-			return controller.getBreedingKpiDelta(c);
-		})
-		.get("/breeding/trends", async (c) => {
-			const db = c.env.DB;
-			const deps = makeDependencies(db, { now: () => new Date() });
-			const controller = makeKpiController(deps);
-			return controller.getBreedingTrends(c);
-		})
+
 		.post("/breeding/calculate", async (c) => {
 			const db = c.env.DB;
 			const deps = makeDependencies(db, { now: () => new Date() });

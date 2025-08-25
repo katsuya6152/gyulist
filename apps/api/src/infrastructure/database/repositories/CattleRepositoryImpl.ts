@@ -276,15 +276,27 @@ export class CattleRepositoryImpl implements CattleRepository {
 			];
 
 			if (criteria.gender) {
-				conditions.push(eq(cattle.gender, criteria.gender));
+				if (Array.isArray(criteria.gender)) {
+					conditions.push(inArray(cattle.gender, criteria.gender));
+				} else {
+					conditions.push(eq(cattle.gender, criteria.gender));
+				}
 			}
 
 			if (criteria.growthStage) {
-				conditions.push(eq(cattle.growthStage, criteria.growthStage));
+				if (Array.isArray(criteria.growthStage)) {
+					conditions.push(inArray(cattle.growthStage, criteria.growthStage));
+				} else {
+					conditions.push(eq(cattle.growthStage, criteria.growthStage));
+				}
 			}
 
 			if (criteria.status) {
-				conditions.push(eq(cattle.status, criteria.status));
+				if (Array.isArray(criteria.status)) {
+					conditions.push(inArray(cattle.status, criteria.status));
+				} else {
+					conditions.push(eq(cattle.status, criteria.status));
+				}
 			}
 
 			if (criteria.barn) {
@@ -294,6 +306,8 @@ export class CattleRepositoryImpl implements CattleRepository {
 			if (criteria.breed) {
 				conditions.push(eq(cattle.breed, criteria.breed));
 			}
+
+			// アラートの絞り込み（アプリケーションレベルで実装）
 
 			// テキスト検索（名前、識別番号、耳標番号）
 			if (criteria.search) {
@@ -402,6 +416,17 @@ export class CattleRepositoryImpl implements CattleRepository {
 
 				// ドメインオブジェクトに変換
 				const cattleEntity = cattleDbMapper.toDomain(row, alertInfo);
+
+				// アラートの絞り込み条件をチェック
+				if (criteria.hasAlert !== undefined) {
+					if (criteria.hasAlert && !hasActiveAlerts) {
+						continue; // アラートありを要求しているが、アラートがない場合はスキップ
+					}
+					if (!criteria.hasAlert && hasActiveAlerts) {
+						continue; // アラートなしを要求しているが、アラートがある場合はスキップ
+					}
+				}
+
 				cattleEntities.push(cattleEntity);
 			}
 
@@ -482,21 +507,38 @@ export class CattleRepositoryImpl implements CattleRepository {
 			let filteredCattle = dummyCattle;
 
 			if (criteria.gender) {
-				filteredCattle = filteredCattle.filter(
-					(c) => c.gender === criteria.gender
-				);
+				const gender = criteria.gender;
+				if (Array.isArray(gender)) {
+					filteredCattle = filteredCattle.filter(
+						(c) => c.gender && gender.includes(c.gender)
+					);
+				} else {
+					filteredCattle = filteredCattle.filter((c) => c.gender === gender);
+				}
 			}
 
 			if (criteria.growthStage) {
-				filteredCattle = filteredCattle.filter(
-					(c) => c.growthStage === criteria.growthStage
-				);
+				const growthStage = criteria.growthStage;
+				if (Array.isArray(growthStage)) {
+					filteredCattle = filteredCattle.filter(
+						(c) => c.growthStage && growthStage.includes(c.growthStage)
+					);
+				} else {
+					filteredCattle = filteredCattle.filter(
+						(c) => c.growthStage === growthStage
+					);
+				}
 			}
 
 			if (criteria.status) {
-				filteredCattle = filteredCattle.filter(
-					(c) => c.status === criteria.status
-				);
+				const status = criteria.status;
+				if (Array.isArray(status)) {
+					filteredCattle = filteredCattle.filter(
+						(c) => c.status && status.includes(c.status)
+					);
+				} else {
+					filteredCattle = filteredCattle.filter((c) => c.status === status);
+				}
 			}
 
 			if (criteria.hasAlert !== undefined) {

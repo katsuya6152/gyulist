@@ -97,14 +97,43 @@ export const makeCattleController = (deps: CattleControllerDeps) => ({
 				const query = c.req.query() as Record<string, unknown>;
 
 				const searchCattleUseCase = deps.useCases.searchCattleUseCase;
+				// 配列パラメータを処理
+				const genderParam = Array.isArray(query.gender)
+					? query.gender
+					: query.gender
+						? typeof query.gender === "string" && query.gender.includes(",")
+							? query.gender.split(",")
+							: [query.gender]
+						: undefined;
+				const growthStageParam = Array.isArray(query.growth_stage)
+					? query.growth_stage
+					: query.growth_stage
+						? typeof query.growth_stage === "string" &&
+							query.growth_stage.includes(",")
+							? query.growth_stage.split(",")
+							: [query.growth_stage]
+						: undefined;
+				const statusParam = Array.isArray(query.status)
+					? query.status
+					: query.status
+						? typeof query.status === "string" && query.status.includes(",")
+							? query.status.split(",")
+							: [query.status]
+						: undefined;
+				const hasAlertParam = Array.isArray(query.has_alert)
+					? query.has_alert[0]
+					: query.has_alert;
+
 				const result = await searchCattleUseCase({
 					ownerUserId: userId,
 					criteria: {
 						ownerUserId: userId,
-						gender: query.gender as Gender | undefined,
-						growthStage: query.growthStage as GrowthStage | undefined,
-						status: query.status as Status | undefined,
-						hasAlert: query.hasAlert ? query.hasAlert === "true" : undefined,
+						gender: genderParam as Gender | Gender[] | undefined,
+						growthStage: growthStageParam as
+							| GrowthStage
+							| GrowthStage[]
+							| undefined,
+						status: statusParam as Status | Status[] | undefined,
 						search: query.search as string | undefined
 					},
 					cursor: query.cursor ? JSON.parse(query.cursor as string) : undefined,
@@ -117,7 +146,7 @@ export const makeCattleController = (deps: CattleControllerDeps) => ({
 					sortBy:
 						(query.sortBy as "id" | "name" | "days_old" | "days_open") || "id",
 					sortOrder: (query.sortOrder as "asc" | "desc") || "desc",
-					hasAlert: query.hasAlert ? query.hasAlert === "true" : undefined,
+					hasAlert: hasAlertParam ? hasAlertParam === "true" : undefined,
 					minAge: query.minAge
 						? Number.parseInt(query.minAge as string, 10)
 						: undefined,

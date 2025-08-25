@@ -113,26 +113,141 @@ export class KpiRepositoryImpl implements KpiRepository {
 				});
 			}
 
-			// 簡易的な計算（実際の実装ではより複雑な計算が必要）
+			// 牛ごとにイベントをグループ化
+			const cattleGroups = new Map<
+				number,
+				Array<{ type: string; datetime: Date }>
+			>();
+
+			for (const event of events) {
+				if (!cattleGroups.has(event.cattleId)) {
+					cattleGroups.set(event.cattleId, []);
+				}
+				const group = cattleGroups.get(event.cattleId);
+				if (group) {
+					group.push({
+						type: event.eventType,
+						datetime: new Date(event.eventDatetime)
+					});
+				}
+			}
+
+			// 基本統計
 			const inseminations = events.filter(
 				(e) => e.eventType === "INSEMINATION"
 			).length;
 			const calvings = events.filter((e) => e.eventType === "CALVING").length;
 
-			// 受胎率（分娩数 / 授精数）- 100%を超えないように制限
+			// 受胎率の計算
 			let conceptionRate = null;
 			if (inseminations > 0) {
 				const rawRate = (calvings / inseminations) * 100;
-				// 100%を超える場合は100%に制限
 				conceptionRate = Math.min(rawRate, 100);
 			}
 
-			// OpenAPI準拠の形式で返す
+			// 平均空胎日数の計算
+			let avgDaysOpen = null;
+			const daysOpenValues: number[] = [];
+
+			for (const [, cattleEvents] of cattleGroups) {
+				// 時系列順にソート
+				cattleEvents.sort(
+					(a, b) => a.datetime.getTime() - b.datetime.getTime()
+				);
+
+				for (let i = 0; i < cattleEvents.length - 1; i++) {
+					const current = cattleEvents[i];
+					const next = cattleEvents[i + 1];
+
+					if (current.type === "CALVING" && next.type === "INSEMINATION") {
+						const daysDiff = Math.floor(
+							(next.datetime.getTime() - current.datetime.getTime()) /
+								(1000 * 60 * 60 * 24)
+						);
+						if (daysDiff > 0 && daysDiff < 365) {
+							// 妥当な範囲内
+							daysOpenValues.push(daysDiff);
+						}
+					}
+				}
+			}
+
+			if (daysOpenValues.length > 0) {
+				avgDaysOpen = Math.round(
+					daysOpenValues.reduce((sum, days) => sum + days, 0) /
+						daysOpenValues.length
+				);
+			}
+
+			// 平均分娩間隔の計算
+			let avgCalvingInterval = null;
+			const calvingIntervals: number[] = [];
+
+			for (const [, cattleEvents] of cattleGroups) {
+				const calvingEvents = cattleEvents.filter((e) => e.type === "CALVING");
+				calvingEvents.sort(
+					(a, b) => a.datetime.getTime() - b.datetime.getTime()
+				);
+
+				for (let i = 0; i < calvingEvents.length - 1; i++) {
+					const current = calvingEvents[i];
+					const next = calvingEvents[i + 1];
+					const daysDiff = Math.floor(
+						(next.datetime.getTime() - current.datetime.getTime()) /
+							(1000 * 60 * 60 * 24)
+					);
+					if (daysDiff > 200 && daysDiff < 500) {
+						// 妥当な分娩間隔
+						calvingIntervals.push(daysDiff);
+					}
+				}
+			}
+
+			if (calvingIntervals.length > 0) {
+				avgCalvingInterval = Math.round(
+					calvingIntervals.reduce((sum, days) => sum + days, 0) /
+						calvingIntervals.length
+				);
+			}
+
+			// 受胎あたりのAI回数の計算
+			let aiPerConception = null;
+			const aiPerConceptionValues: number[] = [];
+
+			for (const [, cattleEvents] of cattleGroups) {
+				cattleEvents.sort(
+					(a, b) => a.datetime.getTime() - b.datetime.getTime()
+				);
+
+				let aiCount = 0;
+				for (let i = 0; i < cattleEvents.length; i++) {
+					const event = cattleEvents[i];
+
+					if (event.type === "INSEMINATION") {
+						aiCount++;
+					} else if (event.type === "CALVING") {
+						if (aiCount > 0) {
+							aiPerConceptionValues.push(aiCount);
+							aiCount = 0; // リセット
+						}
+					}
+				}
+			}
+
+			if (aiPerConceptionValues.length > 0) {
+				aiPerConception =
+					Math.round(
+						(aiPerConceptionValues.reduce((sum, count) => sum + count, 0) /
+							aiPerConceptionValues.length) *
+							10
+					) / 10;
+			}
+
 			return ok({
 				conceptionRate,
-				avgDaysOpen: null,
-				avgCalvingInterval: null,
-				aiPerConception: null
+				avgDaysOpen,
+				avgCalvingInterval,
+				aiPerConception
 			});
 		} catch (error) {
 			return err({
@@ -160,14 +275,57 @@ export class KpiRepositoryImpl implements KpiRepository {
 
 			const events = eventsResult.value;
 
-			// 既存のファクトリー関数を使用して正しい型を作成
-			const { calculateBreedingEventCounts } = await import(
-				"../../../domain/functions/kpi/breedingMetricsCalculator"
-			);
-			const result = calculateBreedingEventCounts(
-				events as unknown as import("../../../domain/types/kpi").KpiEvent[]
-			);
-			return ok(result);
+			// 簡易的な計算を直接実装
+			const inseminations = events.filter(
+				(e) => e.eventType === "INSEMINATION"
+			).length;
+			const calvings = events.filter((e) => e.eventType === "CALVING").length;
+			const conceptions = calvings; // 簡略化：分娩数を受胎数とする
+
+			// 空胎日数計算対象ペア数（分娩-次回授精のペア）
+			const cattleGroups = new Map<
+				number,
+				Array<{ type: string; datetime: Date }>
+			>();
+
+			for (const event of events) {
+				if (!cattleGroups.has(event.cattleId)) {
+					cattleGroups.set(event.cattleId, []);
+				}
+				const group = cattleGroups.get(event.cattleId);
+				if (group) {
+					group.push({
+						type: event.eventType,
+						datetime: new Date(event.eventDatetime)
+					});
+				}
+			}
+
+			let pairsForDaysOpen = 0;
+			for (const [, cattleEvents] of cattleGroups) {
+				const calvingEvents = cattleEvents.filter((e) => e.type === "CALVING");
+				const inseminationEvents = cattleEvents.filter(
+					(e) => e.type === "INSEMINATION"
+				);
+
+				// 各分娩に対して、その後の最初の授精までのペアをカウント
+				for (const calving of calvingEvents) {
+					const nextInsemination = inseminationEvents.find(
+						(ins) => ins.datetime > calving.datetime
+					);
+					if (nextInsemination) {
+						pairsForDaysOpen++;
+					}
+				}
+			}
+
+			return ok({
+				inseminations,
+				conceptions,
+				calvings,
+				pairsForDaysOpen,
+				totalEvents: events.length
+			});
 		} catch (error) {
 			return err({
 				type: "InfraError" as const,
@@ -175,56 +333,6 @@ export class KpiRepositoryImpl implements KpiRepository {
 				cause: error
 			});
 		}
-	}
-
-	async getBreedingKpiTrends(
-		ownerUserId: UserId,
-		params: {
-			toMonth?: string;
-			months?: number;
-			fromMonth?: string;
-		}
-	): Promise<
-		Result<
-			{
-				series: Array<{
-					month: string;
-					metrics: {
-						conceptionRate: number | null;
-						avgDaysOpen: number | null;
-						avgCalvingInterval: number | null;
-						aiPerConception: number | null;
-					};
-					counts: Record<string, number>;
-				}>;
-				deltas: Array<{
-					month: string;
-					metrics: {
-						conceptionRate: number | null;
-						avgDaysOpen: number | null;
-						avgCalvingInterval: number | null;
-						aiPerConception: number | null;
-					};
-				}>;
-			},
-			KpiError
-		>
-	> {
-		// 簡易実装 - 実際の実装は複雑なトレンド計算が必要
-		return ok({
-			series: [],
-			deltas: []
-		});
-	}
-
-	async analyzeBreedingTrends(
-		criteria: TrendAnalysisSearchCriteria
-	): Promise<Result<TrendAnalysisResult, KpiError>> {
-		// 簡易実装
-		return err({
-			type: "InfraError" as const,
-			message: "analyzeBreedingTrends not implemented yet"
-		});
 	}
 
 	async calculateMonthlyBreedingPerformance(

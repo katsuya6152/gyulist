@@ -70,15 +70,11 @@ import {
 } from "../../application/use-cases/events";
 import type {
 	CalculateBreedingMetricsUseCase,
-	GetBreedingKpiDeltaUseCase,
-	GetBreedingKpiUseCase,
-	GetBreedingTrendsUseCase
+	GetBreedingKpiUseCase
 } from "../../application/use-cases/kpi";
 import {
 	calculateBreedingMetricsUseCase,
-	getBreedingKpiDeltaUseCase,
-	getBreedingKpiUseCase,
-	getBreedingTrendsUseCase
+	getBreedingKpiUseCase
 } from "../../application/use-cases/kpi";
 import type { PreRegisterUserUseCase } from "../../application/use-cases/registration/preRegisterUser";
 import { preRegisterUserUseCase } from "../../application/use-cases/registration/preRegisterUser";
@@ -167,12 +163,7 @@ export type Dependencies = {
 		getBreedingKpiUseCase: (
 			input: Parameters<ReturnType<GetBreedingKpiUseCase>>[0]
 		) => ReturnType<ReturnType<GetBreedingKpiUseCase>>;
-		getBreedingKpiDeltaUseCase: (
-			input: Parameters<ReturnType<GetBreedingKpiDeltaUseCase>>[0]
-		) => ReturnType<ReturnType<GetBreedingKpiDeltaUseCase>>;
-		getBreedingTrendsUseCase: (
-			input: Parameters<ReturnType<GetBreedingTrendsUseCase>>[0]
-		) => ReturnType<ReturnType<GetBreedingTrendsUseCase>>;
+
 		calculateBreedingMetricsUseCase: (
 			input: Parameters<ReturnType<CalculateBreedingMetricsUseCase>>[0]
 		) => ReturnType<ReturnType<CalculateBreedingMetricsUseCase>>;
@@ -299,14 +290,6 @@ export function makeDependencies(
 	});
 
 	const getBreedingKpi = getBreedingKpiUseCase({
-		kpiRepo
-	});
-
-	const getBreedingKpiDelta = getBreedingKpiDeltaUseCase({
-		kpiRepo
-	});
-
-	const getBreedingTrends = getBreedingTrendsUseCase({
 		kpiRepo
 	});
 
@@ -447,8 +430,7 @@ export function makeDependencies(
 			updateAlertMemoUseCase: updateAlertMemo,
 			searchAlertsUseCase: searchAlerts,
 			getBreedingKpiUseCase: getBreedingKpi,
-			getBreedingKpiDeltaUseCase: getBreedingKpiDelta,
-			getBreedingTrendsUseCase: getBreedingTrends,
+
 			calculateBreedingMetricsUseCase: calculateBreedingMetrics,
 			loginUserUseCase: loginUser,
 			registerUserUseCase: registerUser,

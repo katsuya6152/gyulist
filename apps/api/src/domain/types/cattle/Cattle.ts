@@ -122,9 +122,9 @@ export type UpdateCattleProps = Partial<
  */
 export type CattleSearchCriteria = {
 	ownerUserId: UserId; // 所有者ID（必須）
-	gender?: Gender; // 性別でフィルタ
-	growthStage?: GrowthStage; // 成長段階でフィルタ
-	status?: Status; // 状態でフィルタ
+	gender?: Gender | Gender[]; // 性別でフィルタ（単一または複数）
+	growthStage?: GrowthStage | GrowthStage[]; // 成長段階でフィルタ（単一または複数）
+	status?: Status | Status[]; // 状態でフィルタ（単一または複数）
 	hasAlert?: boolean; // アラートの有無でフィルタ
 	search?: string; // 名前や識別番号での検索
 	minWeight?: number; // 最小体重

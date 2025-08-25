@@ -28,9 +28,7 @@ import {
 } from "../../application/use-cases/events";
 import {
 	calculateBreedingMetricsUseCase,
-	getBreedingKpiDeltaUseCase,
-	getBreedingKpiUseCase,
-	getBreedingTrendsUseCase
+	getBreedingKpiUseCase
 } from "../../application/use-cases/kpi";
 import type { AlertRepository } from "../../domain/ports/alerts";
 import type { AuthRepository } from "../../domain/ports/auth";
@@ -146,17 +144,9 @@ export function createUseCases(
 		kpiRepo: repositories.kpiRepo
 	});
 
-	const getBreedingTrends = getBreedingTrendsUseCase({
-		kpiRepo: repositories.kpiRepo
-	});
-
 	const calculateBreedingMetrics = calculateBreedingMetricsUseCase({
 		kpiRepo: repositories.kpiRepo,
 		clock: services.clock
-	});
-
-	const getBreedingKpiDelta = getBreedingKpiDeltaUseCase({
-		kpiRepo: repositories.kpiRepo
 	});
 
 	// Auth ユースケース
@@ -208,8 +198,6 @@ export function createUseCases(
 		updateAlertMemoUseCase: updateAlertMemo,
 		searchAlertsUseCase: searchAlerts,
 		getBreedingKpiUseCase: getBreedingKpi,
-		getBreedingKpiDeltaUseCase: getBreedingKpiDelta,
-		getBreedingTrendsUseCase: getBreedingTrends,
 		calculateBreedingMetricsUseCase: calculateBreedingMetrics,
 		loginUserUseCase: loginUser,
 		registerUserUseCase: registerUser,

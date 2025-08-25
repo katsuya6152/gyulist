@@ -51,50 +51,6 @@ export const makeKpiController = (deps: KpiControllerDeps) => ({
 	},
 
 	/**
-	 * 繁殖KPIトレンドを取得
-	 */
-	async getBreedingTrends(c: Context): Promise<Response> {
-		return executeUseCase(c, async () => {
-			const jwtPayload = c.get("jwtPayload");
-			const userId = toUserId(jwtPayload.userId);
-
-			const getBreedingTrendsUseCase = deps.useCases.getBreedingTrendsUseCase;
-			const result = await getBreedingTrendsUseCase({
-				ownerUserId: userId,
-				fromMonth: "2024-01",
-				toMonth: "2024-12",
-				months: 12
-			});
-
-			return result;
-		});
-	},
-
-	/**
-	 * 繁殖KPIデルタを取得
-	 */
-	async getBreedingKpiDelta(c: Context): Promise<Response> {
-		return executeUseCase(
-			c,
-			async () => {
-				const jwtPayload = c.get("jwtPayload");
-				const userId = toUserId(jwtPayload.userId);
-
-				const getBreedingKpiDeltaUseCase =
-					deps.useCases.getBreedingKpiDeltaUseCase;
-				const result = await getBreedingKpiDeltaUseCase({
-					ownerUserId: userId,
-					fromDate: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000),
-					toDate: new Date()
-				});
-
-				return result;
-			},
-			{ envelope: "data" }
-		);
-	},
-
-	/**
 	 * 繁殖メトリクスを計算
 	 */
 	async calculateBreedingMetrics(c: Context): Promise<Response> {

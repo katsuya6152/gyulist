@@ -82,56 +82,6 @@ export interface KpiRepository {
 		period: DateRange
 	): Promise<Result<BreedingEventCounts, KpiError>>;
 
-	// Trend Analysis operations
-	/**
-	 * 繁殖KPIトレンドを取得します。
-	 * @param ownerUserId - 所有者ユーザーID
-	 * @param params - トレンド分析パラメータ
-	 * @returns トレンド系列と差分データ
-	 */
-	getBreedingKpiTrends(
-		ownerUserId: UserId,
-		params: {
-			toMonth?: string; // YYYY-MM形式
-			months?: number;
-			fromMonth?: string; // YYYY-MM形式
-		}
-	): Promise<
-		Result<
-			{
-				series: Array<{
-					month: string;
-					metrics: {
-						conceptionRate: number | null;
-						avgDaysOpen: number | null;
-						avgCalvingInterval: number | null;
-						aiPerConception: number | null;
-					};
-					counts: Record<string, number>;
-				}>;
-				deltas: Array<{
-					month: string;
-					metrics: {
-						conceptionRate: number | null;
-						avgDaysOpen: number | null;
-						avgCalvingInterval: number | null;
-						aiPerConception: number | null;
-					};
-				}>;
-			},
-			KpiError
-		>
-	>;
-
-	/**
-	 * 詳細なトレンド分析を実行します。
-	 * @param criteria - 分析条件
-	 * @returns トレンド分析結果
-	 */
-	analyzeBreedingTrends(
-		criteria: TrendAnalysisSearchCriteria
-	): Promise<Result<TrendAnalysisResult, KpiError>>;
-
 	// Performance and Comparison operations
 	/**
 	 * 月次繁殖パフォーマンスを計算します。

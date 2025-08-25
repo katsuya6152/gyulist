@@ -31,26 +31,38 @@ export const createCattleSchema = z.object({
 export const searchCattleSchema = z.object({
 	name: z.string().optional(),
 	status: z
-		.array(
-			z.enum([
-				"HEALTHY",
-				"PREGNANT",
-				"RESTING",
-				"TREATING",
-				"SCHEDULED_FOR_SHIPMENT",
-				"SHIPPED",
-				"DEAD"
-			])
-		)
+		.union([
+			z.string(),
+			z.array(
+				z.enum([
+					"HEALTHY",
+					"PREGNANT",
+					"RESTING",
+					"TREATING",
+					"SCHEDULED_FOR_SHIPMENT",
+					"SHIPPED",
+					"DEAD"
+				])
+			)
+		])
 		.optional(),
 	growthStage: z
-		.array(
-			z.enum(["CALF", "GROWING", "FATTENING", "FIRST_CALVED", "MULTI_PAROUS"])
-		)
+		.union([
+			z.string(),
+			z.array(
+				z.enum(["CALF", "GROWING", "FATTENING", "FIRST_CALVED", "MULTI_PAROUS"])
+			)
+		])
 		.optional(),
-	hasAlert: z.boolean().optional(),
+	gender: z
+		.union([z.string(), z.array(z.enum(["雄", "去勢", "雌"]))])
+		.optional(),
+	hasAlert: z.union([z.string(), z.boolean()]).optional(),
+	search: z.string().optional(),
 	limit: z.number().min(1).max(100).optional(),
-	cursor: z.string().optional()
+	cursor: z.string().optional(),
+	sortBy: z.string().optional(),
+	sortOrder: z.string().optional()
 });
 
 // Cattle update schema

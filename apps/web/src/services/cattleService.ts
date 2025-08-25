@@ -9,7 +9,7 @@ import type {
 	updateCattleSchema
 } from "@repo/api";
 
-export type GetCattleListResType = typeof cattleListResponseSchema._type;
+export type GetCattleListResType = typeof cattleListResponseSchema._type.data;
 export type GetCattleDetailResType = typeof cattleResponseSchema._type & {
 	breedingSummary?: {
 		breedingSummaryId: number;
