@@ -97,17 +97,28 @@ export async function createCattle(req, res) {
 
 #### ディレクトリ構造
 ```
-contexts/[domain]/
-├── domain/              # ドメインロジック（純粋関数）
-│   ├── services/        # ユースケース
-│   ├── model/          # ドメインモデル
-│   └── codecs/         # 入出力変換
-├── infra/              # インフラ実装
-│   ├── drizzle/        # DB実装
-│   └── mappers/        # データ変換
-├── presentation/       # HTTP層
-├── ports.ts           # インターフェース定義
-└── tests/             # ドメイン固有テスト
+apps/api/src/
+├── application/               # アプリケーション層
+│   ├── commands/             # コマンド（書き込み操作）
+│   ├── queries/              # クエリ（読み取り操作）
+│   ├── use-cases/            # ユースケース
+│   ├── dto/                  # データ転送オブジェクト
+│   ├── mappers/              # ドメイン↔DTO変換
+│   ├── schemas/              # Zodバリデーションスキーマ
+│   └── types/                # アプリケーション型定義
+├── domain/                    # ドメイン層
+│   ├── functions/            # ドメイン関数
+│   ├── types/                # ドメイン型定義
+│   ├── errors/               # ドメインエラー
+│   └── ports/                # ポートインターフェース
+├── infrastructure/            # インフラストラクチャ層
+│   ├── database/             # データベース関連
+│   ├── services/             # 外部サービス
+│   └── config/               # 設定・依存注入
+├── interfaces/                # インターフェース層
+│   ├── http/                 # HTTP関連
+│   └── batch/                # バッチ処理
+└── shared/                    # 共通基盤
 ```
 
 #### 実装パターン

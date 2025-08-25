@@ -136,15 +136,15 @@ apps/api/src/
 ### 1. ユースケース実装パターン
 
 ```typescript
-// contexts/cattle/domain/services/create.ts
-import type { Result } from "../../../../shared/result";
-import { err, ok } from "../../../../shared/result";
-import type { ClockPort } from "../../../../shared/ports/clock";
-import type { DomainError } from "../errors";
-import type { Cattle } from "../model/cattle";
-import { createCattle } from "../model/cattle";
-import type { CattleRepoPort } from "../../../cattle/ports";
-import type { NewCattleInput } from "../codecs/input";
+// application/use-cases/cattle/create.ts
+import type { Result } from "../../../shared/result";
+import { err, ok } from "../../../shared/result";
+import type { ClockPort } from "../../../shared/ports/clock";
+import type { DomainError } from "../../domain/errors/cattle";
+import type { Cattle } from "../../domain/types/cattle";
+import { createCattle } from "../../domain/functions/cattle";
+import type { CattleRepoPort } from "../../domain/ports/cattle";
+import type { NewCattleInput } from "../schemas/cattle";
 
 type Deps = { 
   repo: CattleRepoPort; 
@@ -184,9 +184,9 @@ export const create = (deps: Deps) => async (
 ### 2. ポートインターフェース定義
 
 ```typescript
-// contexts/cattle/ports.ts
+// domain/ports/cattle.ts
 import type { Brand } from "../../shared/brand";
-import type { Cattle } from "./domain/model/cattle";
+import type { Cattle } from "../types/cattle";
 
 export type CattleId = Brand<number, "CattleId">;
 export type UserId = Brand<number, "UserId">;
@@ -203,15 +203,15 @@ export interface CattleRepoPort {
 ### 3. インフラストラクチャアダプタ
 
 ```typescript
-// contexts/cattle/infra/drizzle/repo.ts
+// infrastructure/database/repositories/cattle.ts
 import type { AnyD1Database } from "drizzle-orm/d1";
 import { drizzle } from "drizzle-orm/d1";
 import { eq } from "drizzle-orm";
-import type { CattleRepoPort, CattleId } from "../../ports";
-import type { Cattle } from "../../domain/model/cattle";
-import { toDomain } from "../mappers/dbToDomain";
-import { toDbInsert, toDbUpdate } from "../mappers/domainToDb";
-import { cattle } from "../../../../db/schema";
+import type { CattleRepoPort, CattleId } from "../../domain/ports/cattle";
+import type { Cattle } from "../../domain/types/cattle";
+import { toDomain } from "../mappers/cattle";
+import { toDbInsert, toDbUpdate } from "../mappers/cattle";
+import { cattle } from "../../db/schema";
 
 export function makeCattleRepo(db: AnyD1Database): CattleRepoPort {
   const dbInstance = drizzle(db);
