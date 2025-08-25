@@ -22,19 +22,32 @@ export const makeKpiController = (deps: KpiControllerDeps) => ({
 	 * 繁殖KPIを取得
 	 */
 	async getBreedingKpi(c: Context): Promise<Response> {
-		return executeUseCase(c, async () => {
-			const jwtPayload = c.get("jwtPayload");
-			const userId = toUserId(jwtPayload.userId);
+		return executeUseCase(
+			c,
+			async () => {
+				const jwtPayload = c.get("jwtPayload");
+				const userId = toUserId(jwtPayload.userId);
 
-			const getBreedingKpiUseCase = deps.useCases.getBreedingKpiUseCase;
-			const result = await getBreedingKpiUseCase({
-				ownerUserId: userId,
-				fromDate: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000),
-				toDate: new Date()
-			});
+				// クエリパラメータから日付を取得
+				const fromQuery = c.req.query("from");
+				const toQuery = c.req.query("to");
 
-			return result;
-		});
+				const fromDate = fromQuery
+					? new Date(fromQuery)
+					: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
+				const toDate = toQuery ? new Date(toQuery) : new Date();
+
+				const getBreedingKpiUseCase = deps.useCases.getBreedingKpiUseCase;
+				const result = await getBreedingKpiUseCase({
+					ownerUserId: userId,
+					fromDate,
+					toDate
+				});
+
+				return result;
+			},
+			{ envelope: "data" }
+		);
 	},
 
 	/**
@@ -61,20 +74,24 @@ export const makeKpiController = (deps: KpiControllerDeps) => ({
 	 * 繁殖KPIデルタを取得
 	 */
 	async getBreedingKpiDelta(c: Context): Promise<Response> {
-		return executeUseCase(c, async () => {
-			const jwtPayload = c.get("jwtPayload");
-			const userId = toUserId(jwtPayload.userId);
+		return executeUseCase(
+			c,
+			async () => {
+				const jwtPayload = c.get("jwtPayload");
+				const userId = toUserId(jwtPayload.userId);
 
-			const getBreedingKpiDeltaUseCase =
-				deps.useCases.getBreedingKpiDeltaUseCase;
-			const result = await getBreedingKpiDeltaUseCase({
-				ownerUserId: userId,
-				fromDate: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000),
-				toDate: new Date()
-			});
+				const getBreedingKpiDeltaUseCase =
+					deps.useCases.getBreedingKpiDeltaUseCase;
+				const result = await getBreedingKpiDeltaUseCase({
+					ownerUserId: userId,
+					fromDate: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000),
+					toDate: new Date()
+				});
 
-			return result;
-		});
+				return result;
+			},
+			{ envelope: "data" }
+		);
 	},
 
 	/**

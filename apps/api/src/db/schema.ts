@@ -6,3 +6,4 @@ export * from "./tables/registrations";
 export * from "./tables/emailLogs";
 export * from "./tables/alerts";
 export * from "./tables/alertHistory";
+export * from "./relations";

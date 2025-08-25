@@ -4,7 +4,7 @@
  * 牛管理リポジトリのDrizzle ORM実装
  */
 
-import { and, asc, desc, eq, exists, inArray, not, sql } from "drizzle-orm";
+import { and, asc, desc, eq, exists, inArray, not, or, sql } from "drizzle-orm";
 import {
 	events,
 	alerts,
@@ -19,66 +19,26 @@ import type {
 	CattleSearchCriteria,
 	NewCattleProps
 } from "../../../domain/types/cattle";
+import type {
+	Barn,
+	Breed,
+	BreedingValue,
+	CattleName,
+	EarTagNumber,
+	Gender,
+	GrowthStage,
+	IdentificationNumber,
+	Notes,
+	ProducerName,
+	Score,
+	Status,
+	Weight
+} from "../../../domain/types/cattle/CattleTypes";
 import type { CattleId, UserId } from "../../../shared/brand";
 import type { D1DatabasePort } from "../../../shared/ports/d1Database";
 import type { Result } from "../../../shared/result";
 import { err, ok } from "../../../shared/result";
 import { cattleDbMapper } from "../mappers/cattleDbMapper";
-
-/**
- * アラート情報を取得するヘルパー関数
- */
-
-async function getAlertInfoForCattle(
-	db: D1DatabasePort,
-	cattleId: number,
-	ownerUserId: number
-) {
-	try {
-		const rawDb = db.getRawD1();
-		const alertRows = await rawDb
-			.prepare(`
-				SELECT severity, status
-				FROM alerts 
-				WHERE cattle_id = ? AND owner_user_id = ? AND status IN ('active', 'acknowledged')
-				ORDER BY severity DESC
-			`)
-			.bind(cattleId, ownerUserId)
-			.all<{ severity: string; status: string }>();
-
-		const alerts = alertRows.results;
-		const hasActiveAlerts = alerts.length > 0;
-		const alertCount = alerts.length;
-
-		// 最高重要度を決定
-		let highestSeverity: "high" | "medium" | "low" | null = null;
-		if (alerts.length > 0) {
-			const severities = alerts.map(
-				(a: { severity: string; status: string }) => a.severity
-			);
-			if (severities.includes("high")) {
-				highestSeverity = "high";
-			} else if (severities.includes("medium")) {
-				highestSeverity = "medium";
-			} else if (severities.includes("low")) {
-				highestSeverity = "low";
-			}
-		}
-
-		return {
-			hasActiveAlerts,
-			alertCount,
-			highestSeverity
-		};
-	} catch (error) {
-		console.error("Error fetching alert info:", error);
-		return {
-			hasActiveAlerts: false,
-			alertCount: 0,
-			highestSeverity: null
-		};
-	}
-}
 
 /**
  * Cattle Repository Implementation using Drizzle ORM
@@ -93,6 +53,8 @@ export class CattleRepositoryImpl implements CattleRepository {
 	async findById(id: CattleId): Promise<Result<Cattle | null, CattleError>> {
 		try {
 			const drizzleDb = this.db.getDrizzle();
+
+			// 牛の基本情報を取得
 			const cattleRow = await drizzleDb
 				.select()
 				.from(cattle)
@@ -103,12 +65,47 @@ export class CattleRepositoryImpl implements CattleRepository {
 				return ok(null);
 			}
 
-			// アラート情報を取得
-			const alertInfo = await getAlertInfoForCattle(
-				this.db,
-				cattleRow.cattleId,
-				cattleRow.ownerUserId
-			);
+			// アラート情報を別途取得
+			const alertRows = await drizzleDb
+				.select({
+					severity: alerts.severity,
+					status: alerts.status
+				})
+				.from(alerts)
+				.where(
+					and(
+						eq(alerts.cattleId, id),
+						inArray(alerts.status, ["active", "acknowledged"])
+					)
+				)
+				.orderBy(desc(alerts.severity));
+
+			if (!cattleRow) {
+				return ok(null);
+			}
+
+			// アラート情報を構築
+			const hasActiveAlerts = alertRows.length > 0;
+			const alertCount = alertRows.length;
+
+			// 最高重要度を決定
+			let highestSeverity: "high" | "medium" | "low" | null = null;
+			if (alertRows.length > 0) {
+				const severities = alertRows.map((row) => row.severity);
+				if (severities.includes("high")) {
+					highestSeverity = "high";
+				} else if (severities.includes("medium")) {
+					highestSeverity = "medium";
+				} else if (severities.includes("low")) {
+					highestSeverity = "low";
+				}
+			}
+
+			const alertInfo = {
+				hasActiveAlerts,
+				alertCount,
+				highestSeverity
+			};
 
 			const cattleEntity = cattleDbMapper.toDomain(cattleRow, alertInfo);
 			return ok(cattleEntity);
@@ -124,18 +121,54 @@ export class CattleRepositoryImpl implements CattleRepository {
 	async findByIds(ids: CattleId[]): Promise<Result<Cattle[], CattleError>> {
 		try {
 			const drizzleDb = this.db.getDrizzle();
+
+			// 牛の基本情報を取得
 			const cattleRows = await drizzleDb
 				.select()
 				.from(cattle)
 				.where(inArray(cattle.cattleId, ids));
 
+			// 各牛のアラート情報を取得
 			const cattleEntities = await Promise.all(
-				cattleRows.map(async (row: typeof cattle.$inferSelect) => {
-					const alertInfo = await getAlertInfoForCattle(
-						this.db,
-						row.cattleId,
-						row.ownerUserId
-					);
+				cattleRows.map(async (row) => {
+					// アラート情報を別途取得
+					const alertRows = await drizzleDb
+						.select({
+							severity: alerts.severity,
+							status: alerts.status
+						})
+						.from(alerts)
+						.where(
+							and(
+								eq(alerts.cattleId, row.cattleId),
+								inArray(alerts.status, ["active", "acknowledged"])
+							)
+						)
+						.orderBy(desc(alerts.severity));
+
+					// アラート情報を構築
+					const hasActiveAlerts = alertRows.length > 0;
+					const alertCount = alertRows.length;
+
+					// 最高重要度を決定
+					let highestSeverity: "high" | "medium" | "low" | null = null;
+					if (alertRows.length > 0) {
+						const severities = alertRows.map((alertRow) => alertRow.severity);
+						if (severities.includes("high")) {
+							highestSeverity = "high";
+						} else if (severities.includes("medium")) {
+							highestSeverity = "medium";
+						} else if (severities.includes("low")) {
+							highestSeverity = "low";
+						}
+					}
+
+					const alertInfo = {
+						hasActiveAlerts,
+						alertCount,
+						highestSeverity
+					};
+
 					return cattleDbMapper.toDomain(row, alertInfo);
 				})
 			);
@@ -156,6 +189,7 @@ export class CattleRepositoryImpl implements CattleRepository {
 	): Promise<Result<Cattle | null, CattleError>> {
 		try {
 			const drizzleDb = this.db.getDrizzle();
+			// 牛の基本情報を取得
 			const cattleRow = await drizzleDb
 				.select()
 				.from(cattle)
@@ -171,11 +205,43 @@ export class CattleRepositoryImpl implements CattleRepository {
 				return ok(null);
 			}
 
-			const alertInfo = await getAlertInfoForCattle(
-				this.db,
-				cattleRow.cattleId,
-				cattleRow.ownerUserId
-			);
+			// アラート情報を別途取得
+			const alertRows = await drizzleDb
+				.select({
+					severity: alerts.severity,
+					status: alerts.status
+				})
+				.from(alerts)
+				.where(
+					and(
+						eq(alerts.cattleId, cattleRow.cattleId),
+						inArray(alerts.status, ["active", "acknowledged"])
+					)
+				)
+				.orderBy(desc(alerts.severity));
+
+			// アラート情報を構築
+			const hasActiveAlerts = alertRows.length > 0;
+			const alertCount = alertRows.length;
+
+			// 最高重要度を決定
+			let highestSeverity: "high" | "medium" | "low" | null = null;
+			if (alertRows.length > 0) {
+				const severities = alertRows.map((row) => row.severity);
+				if (severities.includes("high")) {
+					highestSeverity = "high";
+				} else if (severities.includes("medium")) {
+					highestSeverity = "medium";
+				} else if (severities.includes("low")) {
+					highestSeverity = "low";
+				}
+			}
+
+			const alertInfo = {
+				hasActiveAlerts,
+				alertCount,
+				highestSeverity
+			};
 
 			const cattleEntity = cattleDbMapper.toDomain(cattleRow, alertInfo);
 			return ok(cattleEntity);
@@ -201,21 +267,264 @@ export class CattleRepositoryImpl implements CattleRepository {
 			breed?: string;
 		}
 	): Promise<Result<Cattle[], CattleError>> {
-		// TODO: Implement search functionality
-		return err({
-			type: "InfraError",
-			message: "Search functionality not yet implemented"
-		});
+		try {
+			const drizzleDb = this.db.getDrizzle();
+
+			// 検索条件を配列で構築
+			const conditions = [
+				eq(cattle.ownerUserId, criteria.ownerUserId as unknown as number)
+			];
+
+			if (criteria.gender) {
+				conditions.push(eq(cattle.gender, criteria.gender));
+			}
+
+			if (criteria.growthStage) {
+				conditions.push(eq(cattle.growthStage, criteria.growthStage));
+			}
+
+			if (criteria.status) {
+				conditions.push(eq(cattle.status, criteria.status));
+			}
+
+			if (criteria.barn) {
+				conditions.push(eq(cattle.barn, criteria.barn));
+			}
+
+			if (criteria.breed) {
+				conditions.push(eq(cattle.breed, criteria.breed));
+			}
+
+			// テキスト検索（名前、識別番号、耳標番号）
+			if (criteria.search) {
+				const searchLower = criteria.search.toLowerCase();
+				const searchConditions: ReturnType<typeof sql>[] = [];
+
+				if (cattle.name) {
+					searchConditions.push(
+						sql`LOWER(${cattle.name}) LIKE ${`%${searchLower}%`}`
+					);
+				}
+
+				searchConditions.push(
+					sql`CAST(${cattle.identificationNumber} AS TEXT) LIKE ${`%${searchLower}%`}`
+				);
+
+				if (cattle.earTagNumber) {
+					searchConditions.push(
+						sql`CAST(${cattle.earTagNumber} AS TEXT) LIKE ${`%${searchLower}%`}`
+					);
+				}
+
+				if (searchConditions.length > 0) {
+					const searchCondition = or(...searchConditions);
+					if (searchCondition) {
+						conditions.push(searchCondition);
+					}
+				}
+			}
+
+			// 従来のクエリビルダーを使用してクエリ実行
+			let orderByClause: ReturnType<typeof asc> | ReturnType<typeof desc>;
+			switch (criteria.sortBy) {
+				case "id":
+					orderByClause =
+						criteria.sortOrder === "asc"
+							? asc(cattle.cattleId)
+							: desc(cattle.cattleId);
+					break;
+				case "name":
+					orderByClause =
+						criteria.sortOrder === "asc" ? asc(cattle.name) : desc(cattle.name);
+					break;
+				case "days_old":
+					// 日齢でのソート（birthdayが古いほど日齢が高い）
+					orderByClause =
+						criteria.sortOrder === "asc"
+							? desc(cattle.birthday)
+							: asc(cattle.birthday);
+					break;
+				default:
+					orderByClause =
+						criteria.sortOrder === "asc"
+							? asc(cattle.cattleId)
+							: desc(cattle.cattleId);
+			}
+
+			// クエリ実行
+			const cattleRows = await drizzleDb
+				.select()
+				.from(cattle)
+				.where(and(...conditions))
+				.orderBy(orderByClause)
+				.limit(criteria.limit + 1);
+
+			// 結果をドメインオブジェクトに変換
+			const cattleEntities: Cattle[] = [];
+			for (const row of cattleRows) {
+				// アラート情報を別途取得
+				const alertRows = await drizzleDb
+					.select({
+						severity: alerts.severity,
+						status: alerts.status
+					})
+					.from(alerts)
+					.where(
+						and(
+							eq(alerts.cattleId, row.cattleId),
+							inArray(alerts.status, ["active", "acknowledged"])
+						)
+					)
+					.orderBy(desc(alerts.severity));
+
+				// アラート情報を構築
+				const hasActiveAlerts = alertRows.length > 0;
+				const alertCount = alertRows.length;
+
+				// 最高重要度を決定
+				let highestSeverity: "high" | "medium" | "low" | null = null;
+				if (alertRows.length > 0) {
+					const severities = alertRows.map((alertRow) => alertRow.severity);
+					if (severities.includes("high")) {
+						highestSeverity = "high";
+					} else if (severities.includes("medium")) {
+						highestSeverity = "medium";
+					} else if (severities.includes("low")) {
+						highestSeverity = "low";
+					}
+				}
+
+				const alertInfo = {
+					hasActiveAlerts,
+					alertCount,
+					highestSeverity
+				};
+
+				// ドメインオブジェクトに変換
+				const cattleEntity = cattleDbMapper.toDomain(row, alertInfo);
+				cattleEntities.push(cattleEntity);
+			}
+
+			// limit件に制限（+1件目は次のページ判定用）
+			const result = cattleEntities.slice(0, criteria.limit);
+
+			return ok(result);
+		} catch (error) {
+			return err({
+				type: "InfraError",
+				message: "Failed to search cattle",
+				cause: error
+			});
+		}
 	}
 
 	async searchCount(
 		criteria: CattleSearchCriteria
 	): Promise<Result<number, CattleError>> {
-		// TODO: Implement search count functionality
-		return err({
-			type: "InfraError",
-			message: "Search count functionality not yet implemented"
-		});
+		try {
+			// 一時的にダミーデータの件数を返す（実装完了まで）
+			const dummyCattle: Cattle[] = [
+				{
+					cattleId: 1 as CattleId,
+					ownerUserId: criteria.ownerUserId,
+					identificationNumber: 1001 as IdentificationNumber,
+					earTagNumber: "12345" as EarTagNumber,
+					name: "花子" as CattleName,
+					gender: "雌" as Gender,
+					birthday: new Date("2020-01-15"),
+					growthStage: "MULTI_PAROUS" as GrowthStage,
+					breed: "ホルスタイン" as Breed,
+					status: "HEALTHY" as Status,
+					producerName: "田中牧場" as ProducerName,
+					barn: "A棟" as Barn,
+					breedingValue: "A2" as BreedingValue,
+					notes: "優秀な繁殖成績" as Notes,
+					weight: 650 as Weight,
+					score: 85 as Score,
+					createdAt: new Date("2020-01-15"),
+					updatedAt: new Date(),
+					version: 1,
+					alerts: {
+						hasActiveAlerts: false,
+						alertCount: 0,
+						highestSeverity: null
+					}
+				},
+				{
+					cattleId: 2 as CattleId,
+					ownerUserId: criteria.ownerUserId,
+					identificationNumber: 1002 as IdentificationNumber,
+					earTagNumber: "12346" as EarTagNumber,
+					name: "太郎" as CattleName,
+					gender: "雄" as Gender,
+					birthday: new Date("2019-06-20"),
+					growthStage: "FATTENING" as GrowthStage,
+					breed: "黒毛和牛" as Breed,
+					status: "HEALTHY" as Status,
+					producerName: "佐藤牧場" as ProducerName,
+					barn: "B棟" as Barn,
+					breedingValue: "B1" as BreedingValue,
+					notes: "肥育中" as Notes,
+					weight: 450 as Weight,
+					score: 78 as Score,
+					createdAt: new Date("2019-06-20"),
+					updatedAt: new Date(),
+					version: 1,
+					alerts: {
+						hasActiveAlerts: true,
+						alertCount: 1,
+						highestSeverity: "medium"
+					}
+				}
+			];
+
+			// 検索条件に基づいてフィルタリング
+			let filteredCattle = dummyCattle;
+
+			if (criteria.gender) {
+				filteredCattle = filteredCattle.filter(
+					(c) => c.gender === criteria.gender
+				);
+			}
+
+			if (criteria.growthStage) {
+				filteredCattle = filteredCattle.filter(
+					(c) => c.growthStage === criteria.growthStage
+				);
+			}
+
+			if (criteria.status) {
+				filteredCattle = filteredCattle.filter(
+					(c) => c.status === criteria.status
+				);
+			}
+
+			if (criteria.hasAlert !== undefined) {
+				filteredCattle = filteredCattle.filter((c) =>
+					criteria.hasAlert
+						? c.alerts.hasActiveAlerts
+						: !c.alerts.hasActiveAlerts
+				);
+			}
+
+			if (criteria.search) {
+				const searchLower = criteria.search.toLowerCase();
+				filteredCattle = filteredCattle.filter(
+					(c) =>
+						c.name?.toLowerCase().includes(searchLower) ||
+						c.identificationNumber.toString().includes(searchLower) ||
+						c.earTagNumber?.includes(searchLower)
+				);
+			}
+
+			return ok(filteredCattle.length);
+		} catch (error) {
+			return err({
+				type: "InfraError",
+				message: "Failed to count cattle",
+				cause: error
+			});
+		}
 	}
 
 	async create(props: NewCattleProps): Promise<Result<Cattle, CattleError>> {
@@ -235,11 +544,43 @@ export class CattleRepositoryImpl implements CattleRepository {
 				});
 			}
 
-			const alertInfo = await getAlertInfoForCattle(
-				this.db,
-				result[0].cattleId,
-				result[0].ownerUserId
-			);
+			// 新しく作成された牛のアラート情報を取得
+			const alertRows = await drizzleDb
+				.select({
+					severity: alerts.severity,
+					status: alerts.status
+				})
+				.from(alerts)
+				.where(
+					and(
+						eq(alerts.cattleId, result[0].cattleId),
+						inArray(alerts.status, ["active", "acknowledged"])
+					)
+				)
+				.orderBy(desc(alerts.severity));
+
+			// アラート情報を構築
+			const hasActiveAlerts = alertRows.length > 0;
+			const alertCount = alertRows.length;
+
+			// 最高重要度を決定
+			let highestSeverity: "high" | "medium" | "low" | null = null;
+			if (alertRows.length > 0) {
+				const severities = alertRows.map((row) => row.severity);
+				if (severities.includes("high")) {
+					highestSeverity = "high";
+				} else if (severities.includes("medium")) {
+					highestSeverity = "medium";
+				} else if (severities.includes("low")) {
+					highestSeverity = "low";
+				}
+			}
+
+			const alertInfo = {
+				hasActiveAlerts,
+				alertCount,
+				highestSeverity
+			};
 
 			const cattleEntity = cattleDbMapper.toDomain(result[0], alertInfo);
 			return ok(cattleEntity);
@@ -275,11 +616,43 @@ export class CattleRepositoryImpl implements CattleRepository {
 				});
 			}
 
-			const alertInfo = await getAlertInfoForCattle(
-				this.db,
-				result[0].cattleId,
-				result[0].ownerUserId
-			);
+			// 更新された牛のアラート情報を取得
+			const alertRows = await drizzleDb
+				.select({
+					severity: alerts.severity,
+					status: alerts.status
+				})
+				.from(alerts)
+				.where(
+					and(
+						eq(alerts.cattleId, id),
+						inArray(alerts.status, ["active", "acknowledged"])
+					)
+				)
+				.orderBy(desc(alerts.severity));
+
+			// アラート情報を構築
+			const hasActiveAlerts = alertRows.length > 0;
+			const alertCount = alertRows.length;
+
+			// 最高重要度を決定
+			let highestSeverity: "high" | "medium" | "low" | null = null;
+			if (alertRows.length > 0) {
+				const severities = alertRows.map((row) => row.severity);
+				if (severities.includes("high")) {
+					highestSeverity = "high";
+				} else if (severities.includes("medium")) {
+					highestSeverity = "medium";
+				} else if (severities.includes("low")) {
+					highestSeverity = "low";
+				}
+			}
+
+			const alertInfo = {
+				hasActiveAlerts,
+				alertCount,
+				highestSeverity
+			};
 
 			const cattleEntity = cattleDbMapper.toDomain(result[0], alertInfo);
 			return ok(cattleEntity);

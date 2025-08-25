@@ -183,9 +183,19 @@ export type AIPerConception = {
 };
 
 /**
- * 繁殖指標の集約
+ * 繁殖指標の集約（OpenAPI準拠）
  */
 export type BreedingMetrics = {
+	readonly conceptionRate: number | null;
+	readonly avgDaysOpen: number | null;
+	readonly avgCalvingInterval: number | null;
+	readonly aiPerConception: number | null;
+};
+
+/**
+ * 繁殖指標の集約（内部用）
+ */
+export type BreedingMetricsInternal = {
 	readonly conceptionRate: ConceptionRate | null;
 	readonly averageDaysOpen: AverageDaysOpen | null;
 	readonly averageCalvingInterval: AverageCalvingInterval | null;

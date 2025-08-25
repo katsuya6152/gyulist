@@ -46,15 +46,19 @@ export const makeCattleController = (deps: CattleControllerDeps) => ({
 	 * ステータス別頭数取得
 	 */
 	async getStatusCounts(c: Context): Promise<Response> {
-		return executeUseCase(c, async () => {
-			const jwtPayload = c.get("jwtPayload");
-			const userId = toUserId(jwtPayload.userId);
+		return executeUseCase(
+			c,
+			async () => {
+				const jwtPayload = c.get("jwtPayload");
+				const userId = toUserId(jwtPayload.userId);
 
-			const getStatusCountsUseCase = deps.useCases.getStatusCountsUseCase;
-			const result = await getStatusCountsUseCase({ ownerUserId: userId });
+				const getStatusCountsUseCase = deps.useCases.getStatusCountsUseCase;
+				const result = await getStatusCountsUseCase({ ownerUserId: userId });
 
-			return result;
-		});
+				return result;
+			},
+			{ envelope: "data" }
+		);
 	},
 
 	/**
@@ -85,45 +89,49 @@ export const makeCattleController = (deps: CattleControllerDeps) => ({
 	 * 牛の検索・一覧取得
 	 */
 	async search(c: Context): Promise<Response> {
-		return executeUseCase(c, async () => {
-			const jwtPayload = c.get("jwtPayload");
-			const userId = toUserId(jwtPayload.userId);
-			const query = c.req.query() as Record<string, unknown>;
+		return executeUseCase(
+			c,
+			async () => {
+				const jwtPayload = c.get("jwtPayload");
+				const userId = toUserId(jwtPayload.userId);
+				const query = c.req.query() as Record<string, unknown>;
 
-			const searchCattleUseCase = deps.useCases.searchCattleUseCase;
-			const result = await searchCattleUseCase({
-				ownerUserId: userId,
-				criteria: {
+				const searchCattleUseCase = deps.useCases.searchCattleUseCase;
+				const result = await searchCattleUseCase({
 					ownerUserId: userId,
-					gender: query.gender as Gender | undefined,
-					growthStage: query.growthStage as GrowthStage | undefined,
-					status: query.status as Status | undefined,
+					criteria: {
+						ownerUserId: userId,
+						gender: query.gender as Gender | undefined,
+						growthStage: query.growthStage as GrowthStage | undefined,
+						status: query.status as Status | undefined,
+						hasAlert: query.hasAlert ? query.hasAlert === "true" : undefined,
+						search: query.search as string | undefined
+					},
+					cursor: query.cursor ? JSON.parse(query.cursor as string) : undefined,
+					limit: query.limit
+						? Math.min(
+								100,
+								Math.max(1, Number.parseInt(query.limit as string, 10))
+							)
+						: 20,
+					sortBy:
+						(query.sortBy as "id" | "name" | "days_old" | "days_open") || "id",
+					sortOrder: (query.sortOrder as "asc" | "desc") || "desc",
 					hasAlert: query.hasAlert ? query.hasAlert === "true" : undefined,
-					search: query.search as string | undefined
-				},
-				cursor: query.cursor ? JSON.parse(query.cursor as string) : undefined,
-				limit: query.limit
-					? Math.min(
-							100,
-							Math.max(1, Number.parseInt(query.limit as string, 10))
-						)
-					: 20,
-				sortBy:
-					(query.sortBy as "id" | "name" | "days_old" | "days_open") || "id",
-				sortOrder: (query.sortOrder as "asc" | "desc") || "desc",
-				hasAlert: query.hasAlert ? query.hasAlert === "true" : undefined,
-				minAge: query.minAge
-					? Number.parseInt(query.minAge as string, 10)
-					: undefined,
-				maxAge: query.maxAge
-					? Number.parseInt(query.maxAge as string, 10)
-					: undefined,
-				barn: query.barn as string | undefined,
-				breed: query.breed as string | undefined
-			});
+					minAge: query.minAge
+						? Number.parseInt(query.minAge as string, 10)
+						: undefined,
+					maxAge: query.maxAge
+						? Number.parseInt(query.maxAge as string, 10)
+						: undefined,
+					barn: query.barn as string | undefined,
+					breed: query.breed as string | undefined
+				});
 
-			return result;
-		});
+				return result;
+			},
+			{ envelope: "data" }
+		);
 	},
 
 	/**

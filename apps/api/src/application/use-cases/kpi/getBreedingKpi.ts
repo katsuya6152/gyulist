@@ -33,16 +33,19 @@ export type GetBreedingKpiInput = {
 };
 
 /**
- * 繁殖KPI取得結果の型
+ * 繁殖KPI取得結果の型（OpenAPI準拠）
  */
 export type GetBreedingKpiResult = {
 	metrics: BreedingMetrics;
-	counts: BreedingEventCounts;
-	period: DateRange;
+	counts: Record<string, number>;
+	period: {
+		from: string;
+		to: string;
+	};
 	summary: {
 		totalEvents: number;
 		dataQuality: "high" | "medium" | "low";
-		calculatedAt: Date;
+		calculatedAt: string;
 	};
 };
 
@@ -104,12 +107,20 @@ export const getBreedingKpiUseCase: GetBreedingKpiUseCase =
 
 			return ok({
 				metrics,
-				counts,
-				period,
+				counts: {
+					inseminations: counts.inseminations,
+					conceptions: counts.conceptions,
+					calvings: counts.calvings,
+					totalEvents: counts.totalEvents
+				},
+				period: {
+					from: period.from.toISOString(),
+					to: period.to.toISOString()
+				},
 				summary: {
 					totalEvents: counts.totalEvents,
 					dataQuality,
-					calculatedAt: new Date()
+					calculatedAt: new Date().toISOString()
 				}
 			});
 		} catch (cause) {

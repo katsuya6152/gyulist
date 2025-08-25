@@ -30,6 +30,13 @@ export {
 	STATUSES
 } from "./domain/types/cattle/CattleTypes";
 
+// 性別のラベル（Webアプリ用）
+export const GENDER_LABELS: Record<string, string> = {
+	雄: "雄",
+	去勢: "去勢",
+	雌: "雌"
+};
+
 export {
 	EVENT_TYPES,
 	EVENT_TYPE_LABELS,
@@ -38,6 +45,14 @@ export {
 	EVENT_PRIORITIES,
 	EVENT_GROUP_ORDER
 } from "./domain/types/events/EventTypes";
+
+// アラート関連の定数（Webアプリ用）
+export {
+	ALERT_SEVERITY_LABELS,
+	ALERT_STATUS_LABELS,
+	ALERT_TYPE_LABELS,
+	STATUS_UPDATE_MESSAGES
+} from "./domain/types/alerts/AlertTypes";
 
 // 成長段階のラベル（Webアプリ用）
 export const GROWTH_STAGE_LABELS: Record<string, string> = {

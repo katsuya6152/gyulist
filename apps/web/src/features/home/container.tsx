@@ -23,47 +23,61 @@ export default async function HomeContainer() {
 	// ダミートレンド生成は廃止（APIのデルタのみ使用）
 
 	try {
-		const [eventsData, statusCounts, alerts, kpi, kpiDelta] = await Promise.all(
-			[
+		const [eventsData, statusCounts, alerts, kpi, kpiDelta] =
+			await Promise.allSettled([
 				SearchEvents({ startDate: start, endDate: end, limit: 100 }),
 				GetStatusCounts(),
 				GetAlerts(),
 				GetBreedingKpi({ from: monthStart, to: monthEnd }),
 				// 前月比のみ必要なので delta API を利用
 				GetBreedingKpiDelta({ month: format(today, "yyyy-MM") })
-			]
-		);
-		console.log(alerts);
+			]);
+
 		return (
 			<HomePresentation
-				todayEvents={eventsData.results || []}
-				statusCounts={statusCounts}
-				alerts={alerts.results.map(
-					(alert: {
-						id: number;
-						type: string;
-						severity: string;
-						cattleId: number;
-						cattleName: string;
-						cattleEarTagNumber: number;
-						dueAt: string;
-						message: string;
-					}) => ({
-						alertId: alert.id,
-						type: alert.type,
-						severity: alert.severity,
-						cattleId: alert.cattleId,
-						cattleName: alert.cattleName,
-						cattleEarTagNumber: alert.cattleEarTagNumber,
-						dueAt: alert.dueAt,
-						message: alert.message
-					})
-				)}
-				breedingKpi={kpi.metrics}
+				todayEvents={
+					eventsData.status === "fulfilled" ? eventsData.value.results : []
+				}
+				statusCounts={
+					statusCounts.status === "fulfilled"
+						? statusCounts.value
+						: {
+								HEALTHY: 0,
+								PREGNANT: 0,
+								RESTING: 0,
+								TREATING: 0,
+								SHIPPED: 0,
+								DEAD: 0
+							}
+				}
+				alerts={
+					alerts.status === "fulfilled"
+						? alerts.value.results.map((alert) => ({
+								alertId: alert.id,
+								type: alert.type,
+								severity: alert.severity as "high" | "medium" | "low",
+								cattleId: alert.cattleId,
+								cattleName: alert.cattleName,
+								cattleEarTagNumber: String(alert.cattleEarTagNumber),
+								dueAt: alert.dueAt,
+								message: alert.message
+							}))
+						: []
+				}
+				breedingKpi={
+					kpi.status === "fulfilled"
+						? kpi.value.metrics
+						: {
+								conceptionRate: null,
+								avgDaysOpen: null,
+								avgCalvingInterval: null,
+								aiPerConception: null
+							}
+				}
 				// KPIトレンドは前月比のみ使用
 				kpiTrendDeltas={
-					kpiDelta.month
-						? [{ month: kpiDelta.month, metrics: kpiDelta.delta }]
+					kpiDelta.status === "fulfilled" && kpiDelta.value.month
+						? [{ month: kpiDelta.value.month, metrics: kpiDelta.value.delta }]
 						: []
 				}
 				error={undefined}
