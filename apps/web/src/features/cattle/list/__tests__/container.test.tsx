@@ -150,8 +150,9 @@ describe("CattleListContainer", () => {
 				}
 			}
 		],
-		next_cursor: null,
-		has_next: false
+		total: 2,
+		hasMore: false,
+		nextCursor: null
 	};
 
 	it("should render cattle list correctly", async () => {
@@ -163,7 +164,11 @@ describe("CattleListContainer", () => {
 				high: 0,
 				medium: 0,
 				low: 0,
-				urgent: 0
+				urgent: 0,
+				active: 0,
+				resolved: 0,
+				overdue: 0,
+				dueSoon: 0
 			}
 		});
 
