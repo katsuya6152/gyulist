@@ -35,8 +35,8 @@ export default defineConfig({
 	},
 	resolve: {
 		alias: {
-			// APIパッケージのビルドされたファイルを参照
-			"@repo/api": path.resolve(__dirname, "../api/dist/index.js"),
+			// APIパッケージのTypeScriptソースファイルを直接参照（テスト環境用）
+			"@repo/api": path.resolve(__dirname, "../api/src/index.ts"),
 			// 最後にweb側の"@"を解決
 			"@": path.resolve(__dirname, "./src")
 		}
