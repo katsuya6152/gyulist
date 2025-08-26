@@ -22,7 +22,7 @@ import {
 	ArrowUpDown
 } from "lucide-react";
 import { memo } from "react";
-import { sortOptions } from "../constants";
+import { sortOptions } from "../../constants";
 
 interface SortSheetProps {
 	currentSortBy: string;

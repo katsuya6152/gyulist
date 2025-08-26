@@ -38,7 +38,7 @@ import {
 	FormSchema,
 	filterOptions,
 	statusOptions
-} from "../constants";
+} from "../../constants";
 
 interface FilterSheetProps {
 	initialGrowthStage: string[];

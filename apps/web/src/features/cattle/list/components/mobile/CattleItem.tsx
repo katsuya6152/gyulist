@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getGrowthStage } from "@/lib/utils";
-import type { AlertItem } from "@repo/api";
+import type { GetAlertsRes } from "@/services/alertsService";
 import { ALERT_TYPE_LABELS } from "@repo/api";
 import classNames from "classnames";
 import { clsx } from "clsx";
@@ -16,14 +16,14 @@ import {
 	Info
 } from "lucide-react";
 import { memo, useState } from "react";
-import { type Status, statusLabelMap } from "../../constants";
-import type { CattleListItem } from "../constants";
-import { AlertDetailModal } from "./AlertDetailModal";
+import { type Status, statusLabelMap } from "../../../constants";
+import type { CattleListItem } from "../../constants";
+import { AlertDetailModal } from "../AlertDetailModal";
 
 interface CattleItemProps {
 	cattle: CattleListItem;
 	index: number;
-	alerts: AlertItem[];
+	alerts: GetAlertsRes["results"];
 	onItemClick: (cattleId: number) => void;
 	onAddEvent: (cattleId: number) => void;
 	sortBy?: string;

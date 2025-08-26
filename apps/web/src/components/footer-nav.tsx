@@ -1,6 +1,18 @@
 "use client";
 
-import { Calendar, Home, List, Plus, Settings } from "lucide-react";
+import { useSidebar } from "@/components/sidebar-provider";
+import { Button } from "@/components/ui/button";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import {
+	Calendar,
+	ChevronLeft,
+	ChevronRight,
+	Home,
+	List,
+	Plus,
+	Settings
+} from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -9,9 +21,13 @@ export function FooterNav() {
 	const pathname = usePathname();
 	const [isVisible, setIsVisible] = useState(true);
 	const [lastScrollY, setLastScrollY] = useState(0);
+	const { isExpanded: isSidebarExpanded, setIsExpanded } = useSidebar();
+	const isDesktop = useMediaQuery("(min-width: 1024px)");
 
-	// スクロール検知とフッターの表示/非表示制御
+	// スクロール検知とフッターの表示/非表示制御（モバイルのみ）
 	useEffect(() => {
+		if (isDesktop) return; // PC版ではスクロール制御を無効化
+
 		const handleScroll = () => {
 			const currentScrollY = window.scrollY;
 			const isScrollingDown = currentScrollY > lastScrollY;
@@ -45,8 +61,109 @@ export function FooterNav() {
 		return () => {
 			window.removeEventListener("scroll", throttledHandleScroll);
 		};
-	}, [lastScrollY]);
+	}, [lastScrollY, isDesktop]);
 
+	// PC版のサイドバー
+	if (isDesktop) {
+		return (
+			<div
+				className={`hidden lg:block fixed left-0 top-0 h-full bg-background/95 backdrop-blur-sm border-r border-border/50 z-40 transition-all duration-300 ease-in-out ${
+					isSidebarExpanded ? "w-64" : "w-16"
+				}`}
+			>
+				<div className="flex flex-col h-full">
+					{/* ヘッダー部分 */}
+					<div className="flex items-center justify-between p-4 border-b border-border/50">
+						{isSidebarExpanded ? (
+							<div className="flex items-center gap-3">
+								<div className="relative w-48 h-12">
+									<Image
+										src="/icon-horizontal.svg"
+										alt="Gyulist"
+										fill
+										className="object-contain"
+									/>
+								</div>
+							</div>
+						) : null}
+						<Button
+							variant="ghost"
+							size="sm"
+							onClick={() => setIsExpanded(!isSidebarExpanded)}
+							className="ml-auto h-8 w-8 p-0 hover:bg-muted"
+						>
+							{isSidebarExpanded ? (
+								<ChevronLeft className="h-4 w-4" />
+							) : (
+								<ChevronRight className="h-4 w-4" />
+							)}
+						</Button>
+					</div>
+
+					{/* ナビゲーション部分 */}
+					<nav className="flex-1 p-2">
+						<div className="space-y-2">
+							{/* ホーム */}
+							<SidebarItem
+								icon={<Home className="h-5 w-5" />}
+								label="ホーム"
+								href="/home"
+								isActive={pathname === "/home"}
+								isExpanded={isSidebarExpanded}
+							/>
+
+							{/* 予定 */}
+							<SidebarItem
+								icon={<Calendar className="h-5 w-5" />}
+								label="予定"
+								href="/schedule?filter=today"
+								isActive={pathname.startsWith("/schedule")}
+								isExpanded={isSidebarExpanded}
+							/>
+
+							{/* 一覧 */}
+							<SidebarItem
+								icon={<List className="h-5 w-5" />}
+								label="一覧"
+								href="/cattle"
+								isActive={pathname === "/cattle"}
+								isExpanded={isSidebarExpanded}
+							/>
+
+							{/* 個体登録 */}
+							<SidebarItem
+								icon={<Plus className="h-5 w-5" />}
+								label="個体登録"
+								href="/cattle/new"
+								isActive={pathname === "/cattle/new"}
+								isExpanded={isSidebarExpanded}
+							/>
+
+							{/* 設定 */}
+							<SidebarItem
+								icon={<Settings className="h-5 w-5" />}
+								label="設定"
+								href="/settings"
+								isActive={pathname === "/settings"}
+								isExpanded={isSidebarExpanded}
+							/>
+						</div>
+					</nav>
+
+					{/* フッター部分 */}
+					<div className="p-4 border-t border-border/50">
+						{isSidebarExpanded && (
+							<div className="text-xs text-muted-foreground text-center">
+								Gyulist v1.0
+							</div>
+						)}
+					</div>
+				</div>
+			</div>
+		);
+	}
+
+	// モバイル版のフッター
 	return (
 		<div
 			className={`fixed bottom-0 left-0 right-0 z-50 px-2 py-3 transition-all duration-300 ease-out glass-effect-strong ${
@@ -150,6 +267,40 @@ function FooterItem({ icon, label, href, isActive }: FooterItemProps) {
 			>
 				{label}
 			</span>
+		</Link>
+	);
+}
+
+interface SidebarItemProps {
+	icon: React.ReactNode;
+	label: string;
+	href: string;
+	isActive: boolean;
+	isExpanded: boolean;
+}
+
+function SidebarItem({
+	icon,
+	label,
+	href,
+	isActive,
+	isExpanded
+}: SidebarItemProps) {
+	return (
+		<Link
+			href={href}
+			className={`flex items-center w-full px-3 py-2 rounded-lg transition-all duration-200 group ${
+				isActive
+					? "bg-primary text-primary-foreground shadow-sm"
+					: "text-foreground/70 hover:bg-muted hover:text-foreground"
+			}`}
+		>
+			<div className="flex items-center justify-center w-6 h-6">{icon}</div>
+			{isExpanded && (
+				<span className="ml-3 text-sm font-medium whitespace-nowrap">
+					{label}
+				</span>
+			)}
 		</Link>
 	);
 }
