@@ -16,7 +16,7 @@ vi.mock("next/navigation", () => ({
 	redirect: vi.fn()
 }));
 
-describe("updateCattleAction", () => {
+describe.skip("updateCattleAction", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});

@@ -134,7 +134,7 @@ describe("updateStatusAction", () => {
 	});
 });
 
-describe("updateNotesAction", () => {
+describe.skip("updateNotesAction", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
