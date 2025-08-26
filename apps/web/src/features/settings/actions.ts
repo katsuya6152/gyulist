@@ -22,8 +22,9 @@ export async function updateThemeAction(theme: "light" | "dark" | "system") {
 			return createDemoResponse(true);
 		}
 
-		// テーマを更新
-		await updateTheme(userId, theme);
+		// テーマを更新（systemをautoに変換）
+		const apiTheme = theme === "system" ? "auto" : theme;
+		await updateTheme(userId, apiTheme);
 
 		return { success: true };
 	} catch (error) {

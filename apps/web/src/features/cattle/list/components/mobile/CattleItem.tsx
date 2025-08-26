@@ -251,7 +251,10 @@ export const CattleItem = memo(
 						{sortBy === "days_open" && (
 							<div className="flex items-center gap-2 text-xs text-muted-foreground">
 								<div className="font-medium text-blue-600">
-									空胎日数：{cattle.daysOpen ? `${cattle.daysOpen}日` : "-"}
+									空胎日数：
+									{cattle.breedingStatus?.daysOpen
+										? `${cattle.breedingStatus.daysOpen}日`
+										: "-"}
 								</div>
 							</div>
 						)}

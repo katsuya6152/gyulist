@@ -12,13 +12,8 @@ const routes = createRoutes(app);
 // Hono RPC型定義
 export type AppType = typeof routes;
 
-// 🔒 新アーキテクチャの型エクスポート
-export * from "./domain/types/cattle";
-export * from "./domain/types/events";
-export * from "./domain/types/alerts";
-export * from "./domain/types/kpi";
-export * from "./domain/types/auth";
-export * from "./domain/types/registration";
+// 🔒 型エクスポート（専用ファイルから）
+export * from "./types";
 
 // 🛠️ 必要に応じて個別の型をエクスポート
 export type { Env } from "./shared/ports/d1Database";

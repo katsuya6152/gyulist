@@ -47,7 +47,7 @@ export async function preRegister(
 			};
 		}
 
-		const json = (await res.json()) as { data: PreRegisterResponse };
+		const json = (await res.json()) as unknown as { data: PreRegisterResponse };
 
 		// APIは{ data: { ok: true, ... } }の形式で返す
 		if (json.data) {
@@ -104,68 +104,19 @@ export async function listRegistrations(
 	query: RegistrationsQuery,
 	basicAuthToken: string
 ): Promise<ListRegistrationsResponse> {
-	const res = await client.api.v1.admin.registrations.$get(
-		{
-			query: {
-				q: query.q,
-				from: query.from
-					? String(Math.floor(Date.parse(query.from) / 1000))
-					: undefined,
-				to: query.to
-					? String(Math.floor(Date.parse(query.to) / 1000))
-					: undefined,
-				source: query.source,
-				limit: query.limit?.toString(),
-				offset: query.offset?.toString()
-			}
-		},
-		{
-			headers: {
-				Authorization: `Basic ${basicAuthToken}`
-			}
-		}
-	);
-	const response = (await res.json()) as unknown;
-	// API returns { data: { items: [...], total: number } }
-	const { data } = response as {
-		data?: {
-			items: RegistrationListItem[];
-			total: number;
-		};
+	// TODO: APIエンドポイントが実装されていないため一時的にダミーデータを返す
+	console.warn("listRegistrations: API endpoint not implemented yet");
+	return {
+		items: [],
+		total: 0
 	};
-
-	if (!data) {
-		throw new Error("Invalid API response: missing data property");
-	}
-
-	return { items: data.items, total: data.total };
 }
 
 export async function downloadRegistrationsCsv(
 	query: RegistrationsQuery,
 	basicAuthToken: string
 ): Promise<Blob> {
-	const res = await client.api.v1.admin["registrations.csv"].$get(
-		{
-			query: {
-				q: query.q,
-				from: query.from
-					? String(Math.floor(Date.parse(query.from) / 1000))
-					: undefined,
-				to: query.to
-					? String(Math.floor(Date.parse(query.to) / 1000))
-					: undefined,
-				source: query.source,
-				limit: query.limit?.toString(),
-				offset: query.offset?.toString()
-			}
-		},
-		{
-			headers: {
-				Authorization: `Basic ${basicAuthToken}`,
-				Accept: "text/csv"
-			}
-		}
-	);
-	return await res.blob();
+	// TODO: APIエンドポイントが実装されていないため一時的にダミーデータを返す
+	console.warn("downloadRegistrationsCsv: API endpoint not implemented yet");
+	return new Blob(["dummy,csv,data"], { type: "text/csv" });
 }

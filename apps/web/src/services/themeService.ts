@@ -3,7 +3,7 @@ import { client } from "@/lib/rpc";
 import type { UpdateThemeResponse } from "@repo/api";
 import type { InferResponseType } from "hono";
 
-export type Theme = "light" | "dark" | "system";
+export type Theme = "light" | "dark" | "auto";
 
 export type UpdateThemeInput = {
 	theme: Theme;

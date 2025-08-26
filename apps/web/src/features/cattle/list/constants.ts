@@ -1,4 +1,4 @@
-import type { CattleResponse } from "@repo/api";
+import type { cattleResponseSchema } from "@repo/api";
 import {
 	GENDERS,
 	GENDER_LABELS,
@@ -8,7 +8,7 @@ import {
 import { z } from "zod";
 import { statusOptions } from "../constants";
 
-export type CattleListItem = CattleResponse;
+export type CattleListItem = typeof cattleResponseSchema._type;
 
 export const filterOptions = [
 	...GROWTH_STAGES.map((id) => ({
