@@ -24,10 +24,12 @@ import {
  * 新規アラートプロパティのバリデーション
  *
  * @param props - 新規アラートのプロパティ
+ * @param currentTime - 現在時刻（オプション）
  * @returns バリデーション結果
  */
 export function validateNewAlertProps(
-	props: NewAlertProps
+	props: NewAlertProps,
+	currentTime?: Date
 ): Result<true, AlertError> {
 	// 必須項目チェック
 	if (!props.type) {
@@ -108,7 +110,7 @@ export function validateNewAlertProps(
 
 	// 期限日時のチェック
 	if (props.dueAt) {
-		const dueAtValidation = validateDueAt(props.dueAt);
+		const dueAtValidation = validateDueAt(props.dueAt, currentTime);
 		if (!dueAtValidation.ok) return dueAtValidation;
 	}
 
@@ -176,10 +178,14 @@ export function validateUpdateAlertProps(
  * 期限日時のバリデーション
  *
  * @param dueAt - 期限日時
+ * @param currentTime - 現在時刻（オプション）
  * @returns バリデーション結果
  */
-export function validateDueAt(dueAt: Date): Result<true, AlertError> {
-	const now = new Date();
+export function validateDueAt(
+	dueAt: Date,
+	currentTime?: Date
+): Result<true, AlertError> {
+	const now = currentTime || new Date();
 
 	// 過去すぎる日時のチェック（1年以内）
 	const oneYearAgo = new Date();
@@ -220,7 +226,7 @@ export function validateStatusTransition(
 	newStatus: AlertStatus
 ): Result<true, AlertError> {
 	const statusTransitions: Record<AlertStatus, AlertStatus[]> = {
-		active: ["acknowledged", "resolved", "dismissed"],
+		active: ["acknowledged", "dismissed"],
 		acknowledged: ["resolved", "dismissed"],
 		resolved: [], // 解決後は変更不可
 		dismissed: [] // 却下後は変更不可
@@ -230,10 +236,9 @@ export function validateStatusTransition(
 
 	if (!allowedTransitions.includes(newStatus)) {
 		return err({
-			type: "StatusTransitionError",
+			type: "ValidationError",
 			message: `Cannot transition from ${currentStatus} to ${newStatus}`,
-			currentStatus,
-			targetStatus: newStatus
+			field: "status"
 		});
 	}
 

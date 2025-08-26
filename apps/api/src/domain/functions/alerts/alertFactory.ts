@@ -48,7 +48,7 @@ export function createAlert(
 	currentTime: Date
 ): Result<Alert, AlertError> {
 	// バリデーション
-	const validation = validateNewAlertProps(props);
+	const validation = validateNewAlertProps(props, currentTime);
 	if (!validation.ok) return validation;
 
 	// アラート作成
@@ -366,7 +366,7 @@ export const AlertRules = {
 	 */
 	canChangeStatus(currentStatus: AlertStatus, newStatus: AlertStatus): boolean {
 		const statusTransitions: Record<AlertStatus, AlertStatus[]> = {
-			active: ["acknowledged", "resolved", "dismissed"],
+			active: ["acknowledged", "dismissed"],
 			acknowledged: ["resolved", "dismissed"],
 			resolved: [], // 解決後は変更不可
 			dismissed: [] // 却下後は変更不可

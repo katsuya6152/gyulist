@@ -39,7 +39,7 @@ export function createEvent(
 	currentTime: Date
 ): Result<Event, EventError> {
 	// バリデーション
-	const validation = validateNewEventProps(props);
+	const validation = validateNewEventProps(props, currentTime);
 	if (!validation.ok) return validation;
 
 	// イベント作成
@@ -72,7 +72,7 @@ export function updateEvent(
 	currentTime: Date
 ): Result<Event, EventError> {
 	// バリデーション
-	const validation = validateUpdateEventProps(updates);
+	const validation = validateUpdateEventProps(updates, currentTime);
 	if (!validation.ok) return validation;
 
 	// イベント更新

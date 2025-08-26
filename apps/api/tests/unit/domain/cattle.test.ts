@@ -5,6 +5,7 @@
  */
 
 import { describe, expect, it } from "vitest";
+import { calculateAgeFromBirthday } from "../../../src/domain/functions/cattle/calculateAge";
 import { createCattle } from "../../../src/domain/functions/cattle/cattleFactory";
 import { validateNewCattleProps } from "../../../src/domain/functions/cattle/cattleValidation";
 import type { NewCattleProps } from "../../../src/domain/types/cattle/Cattle";
@@ -121,5 +122,59 @@ describe("Cattle Domain Functions - New Architecture", () => {
 				expect(true).toBe(true); // Placeholder
 			});
 		}
+	});
+
+	describe("calculateAgeFromBirthday", () => {
+		it("should calculate age from valid birthday", () => {
+			const birthday = "2023-01-01";
+			const result = calculateAgeFromBirthday(birthday);
+
+			expect(result.daysOld).toBeGreaterThan(0);
+			expect(result.monthsOld).toBeGreaterThan(0);
+			expect(result.age).toBeGreaterThan(0);
+		});
+
+		it("should return null for null birthday", () => {
+			const result = calculateAgeFromBirthday(null);
+
+			expect(result.daysOld).toBe(null);
+			expect(result.monthsOld).toBe(null);
+			expect(result.age).toBe(null);
+		});
+
+		it("should return null for invalid birthday format", () => {
+			const result = calculateAgeFromBirthday("invalid-date");
+
+			expect(result.daysOld).toBe(null);
+			expect(result.monthsOld).toBe(null);
+			expect(result.age).toBe(null);
+		});
+
+		it("should calculate correct age for recent birthday", () => {
+			const today = new Date();
+			const yesterday = new Date(today);
+			yesterday.setDate(today.getDate() - 1);
+			const birthday = yesterday.toISOString().split("T")[0];
+
+			const result = calculateAgeFromBirthday(birthday);
+
+			expect(result.daysOld).toBe(1);
+			expect(result.monthsOld).toBe(0);
+			expect(result.age).toBe(0);
+		});
+
+		it("should calculate correct age for one year old", () => {
+			const today = new Date();
+			const oneYearAgo = new Date(today);
+			oneYearAgo.setFullYear(today.getFullYear() - 1);
+			oneYearAgo.setDate(today.getDate() - 1); // 確実に365日以上前にする
+			const birthday = oneYearAgo.toISOString().split("T")[0];
+
+			const result = calculateAgeFromBirthday(birthday);
+
+			expect(result.daysOld).toBeGreaterThanOrEqual(365);
+			expect(result.monthsOld).toBeGreaterThanOrEqual(11); // 11ヶ月以上
+			expect(result.age).toBeGreaterThanOrEqual(1);
+		});
 	});
 });

@@ -9,15 +9,18 @@ import type { Result } from "../../../shared/result";
 import { err, ok } from "../../../shared/result";
 import type { EventError } from "../../errors/events/EventErrors";
 import type { NewEventProps, UpdateEventProps } from "../../types/events";
+import { EVENT_TYPES } from "../../types/events/EventTypes";
 
 /**
  * 新規イベントプロパティのバリデーション
  *
  * @param props - 新規イベントのプロパティ
+ * @param currentTime - 現在時刻（オプション）
  * @returns バリデーション結果
  */
 export function validateNewEventProps(
-	props: NewEventProps
+	props: NewEventProps,
+	currentTime?: Date
 ): Result<true, EventError> {
 	// 必須項目チェック
 	if (!props.cattleId) {
@@ -36,6 +39,15 @@ export function validateNewEventProps(
 		});
 	}
 
+	// イベントタイプの妥当性チェック
+	if (!EVENT_TYPES.includes(props.eventType)) {
+		return err({
+			type: "ValidationError",
+			message: "Invalid event type",
+			field: "eventType"
+		});
+	}
+
 	if (!props.eventDatetime) {
 		return err({
 			type: "ValidationError",
@@ -45,7 +57,10 @@ export function validateNewEventProps(
 	}
 
 	// 日時の妥当性チェック
-	const datetimeValidation = validateEventDatetime(props.eventDatetime);
+	const datetimeValidation = validateEventDatetime(
+		props.eventDatetime,
+		currentTime
+	);
 	if (!datetimeValidation.ok) return datetimeValidation;
 
 	// メモの長さチェック
@@ -64,14 +79,28 @@ export function validateNewEventProps(
  * イベント更新プロパティのバリデーション
  *
  * @param updates - 更新プロパティ
+ * @param currentTime - 現在時刻（オプション）
  * @returns バリデーション結果
  */
 export function validateUpdateEventProps(
-	updates: UpdateEventProps
+	updates: UpdateEventProps,
+	currentTime?: Date
 ): Result<true, EventError> {
+	// イベントタイプの妥当性チェック（指定されている場合）
+	if (updates.eventType && !EVENT_TYPES.includes(updates.eventType)) {
+		return err({
+			type: "ValidationError",
+			message: "Invalid event type",
+			field: "eventType"
+		});
+	}
+
 	// 日時の妥当性チェック（指定されている場合）
 	if (updates.eventDatetime) {
-		const datetimeValidation = validateEventDatetime(updates.eventDatetime);
+		const datetimeValidation = validateEventDatetime(
+			updates.eventDatetime,
+			currentTime
+		);
 		if (!datetimeValidation.ok) return datetimeValidation;
 	}
 
@@ -91,21 +120,23 @@ export function validateUpdateEventProps(
  * イベント日時のバリデーション
  *
  * @param eventDatetime - イベント日時
+ * @param currentTime - 現在時刻（オプション）
  * @returns バリデーション結果
  */
 export function validateEventDatetime(
-	eventDatetime: Date
+	eventDatetime: Date,
+	currentTime?: Date
 ): Result<true, EventError> {
-	const now = new Date();
+	const now = currentTime || new Date();
 
-	// 未来すぎる日時のチェック（1年以内）
-	const oneYearFromNow = new Date();
-	oneYearFromNow.setFullYear(now.getFullYear() + 1);
+	// 未来すぎる日時のチェック（2年以内）
+	const twoYearsFromNow = new Date(now);
+	twoYearsFromNow.setFullYear(now.getFullYear() + 2);
 
-	if (eventDatetime > oneYearFromNow) {
+	if (eventDatetime > twoYearsFromNow) {
 		return err({
 			type: "ValidationError",
-			message: "Event datetime cannot be more than 1 year in the future",
+			message: "Event datetime cannot be more than 2 years in the future",
 			field: "eventDatetime"
 		});
 	}
