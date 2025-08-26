@@ -153,6 +153,91 @@ export interface CattleRepository {
 		updates: Partial<NewCattleProps>,
 		expectedVersion: number
 	): Promise<Result<Cattle, CattleError>>;
+
+	// Breeding-related methods
+	getBreedingStatus(cattleId: CattleId): Promise<
+		Result<
+			{
+				breedingStatusId: number;
+				cattleId: number;
+				parity: number | null;
+				expectedCalvingDate: string | null;
+				scheduledPregnancyCheckDate: string | null;
+				daysAfterCalving: number | null;
+				daysOpen: number | null;
+				pregnancyDays: number | null;
+				daysAfterInsemination: number | null;
+				inseminationCount: number | null;
+				breedingMemo: string | null;
+				isDifficultBirth: boolean | null;
+				createdAt: string;
+				updatedAt: string;
+			} | null,
+			CattleError
+		>
+	>;
+
+	getBloodline(cattleId: CattleId): Promise<
+		Result<
+			{
+				bloodlineId: number;
+				cattleId: number;
+				fatherCattleName: string | null;
+				motherFatherCattleName: string | null;
+				motherGrandFatherCattleName: string | null;
+				motherGreatGrandFatherCattleName: string | null;
+			} | null,
+			CattleError
+		>
+	>;
+
+	getMotherInfo(cattleId: CattleId): Promise<
+		Result<
+			{
+				motherInfoId: number;
+				cattleId: number;
+				motherCattleId: number;
+				motherName: string | null;
+				motherIdentificationNumber: string | null;
+				motherScore: number | null;
+			} | null,
+			CattleError
+		>
+	>;
+
+	getBreedingSummary(cattleId: CattleId): Promise<
+		Result<
+			{
+				breedingSummaryId: number;
+				cattleId: number;
+				totalInseminationCount: number | null;
+				averageDaysOpen: number | null;
+				averagePregnancyPeriod: number | null;
+				averageCalvingInterval: number | null;
+				difficultBirthCount: number | null;
+				pregnancyHeadCount: number | null;
+				pregnancySuccessRate: number | null;
+				createdAt: string;
+				updatedAt: string;
+			} | null,
+			CattleError
+		>
+	>;
+
+	getEvents(cattleId: CattleId): Promise<
+		Result<
+			Array<{
+				eventId: number;
+				cattleId: number;
+				eventType: string;
+				eventDatetime: string;
+				notes: string | null;
+				createdAt: string;
+				updatedAt: string;
+			}>,
+			CattleError
+		>
+	>;
 }
 
 /**

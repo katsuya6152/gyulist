@@ -19,10 +19,13 @@ import {
 	Activity,
 	AlertTriangle,
 	Calendar,
+	Clock,
 	Eye,
 	Hash,
 	Shield,
-	User
+	Tag,
+	User,
+	Weight
 } from "lucide-react";
 import type { CattleListItem } from "../../constants";
 
@@ -68,6 +71,24 @@ export function CattleTable({
 							</TableHead>
 							<TableHead className="w-[100px] font-semibold text-foreground">
 								成長段階
+							</TableHead>
+							<TableHead className="w-[80px] font-semibold text-foreground">
+								<div className="flex items-center gap-2">
+									<Tag className="h-4 w-4 text-muted-foreground" />
+									耳標番号
+								</div>
+							</TableHead>
+							<TableHead className="w-[80px] font-semibold text-foreground">
+								<div className="flex items-center gap-2">
+									<Clock className="h-4 w-4 text-muted-foreground" />
+									日齢
+								</div>
+							</TableHead>
+							<TableHead className="w-[80px] font-semibold text-foreground">
+								<div className="flex items-center gap-2">
+									<Weight className="h-4 w-4 text-muted-foreground" />
+									体重
+								</div>
 							</TableHead>
 							<TableHead className="w-[80px] font-semibold text-foreground">
 								<div className="flex items-center gap-2">
@@ -125,6 +146,33 @@ export function CattleTable({
 										>
 											{getGrowthStage(cattle.growthStage)}
 										</Badge>
+									</TableCell>
+									<TableCell>
+										{cattle.earTagNumber ? (
+											<span className="font-mono text-sm text-muted-foreground">
+												#{cattle.earTagNumber}
+											</span>
+										) : (
+											<span className="text-muted-foreground text-sm">-</span>
+										)}
+									</TableCell>
+									<TableCell>
+										{cattle.daysOld ? (
+											<span className="text-sm font-medium text-muted-foreground">
+												{cattle.daysOld}日
+											</span>
+										) : (
+											<span className="text-muted-foreground text-sm">-</span>
+										)}
+									</TableCell>
+									<TableCell>
+										{cattle.weight ? (
+											<span className="text-sm font-medium text-muted-foreground">
+												{cattle.weight}kg
+											</span>
+										) : (
+											<span className="text-muted-foreground text-sm">-</span>
+										)}
 									</TableCell>
 									<TableCell>
 										<Badge

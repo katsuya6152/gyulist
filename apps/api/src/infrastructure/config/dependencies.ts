@@ -58,6 +58,7 @@ import {
 	searchCattleUseCase,
 	updateCattleUseCase
 } from "../../application/use-cases/cattle";
+import { getCattleWithDetailsUseCase } from "../../application/use-cases/cattle";
 import type {
 	CreateEventUseCase,
 	GetEventUseCase,
@@ -124,6 +125,9 @@ export type Dependencies = {
 		getCattleUseCase: (
 			input: Parameters<ReturnType<GetCattleUseCase>>[0]
 		) => ReturnType<ReturnType<GetCattleUseCase>>;
+		getCattleWithDetailsUseCase: (
+			input: Parameters<ReturnType<typeof getCattleWithDetailsUseCase>>[0]
+		) => ReturnType<ReturnType<typeof getCattleWithDetailsUseCase>>;
 		getStatusCountsUseCase: (
 			input: Parameters<ReturnType<GetStatusCountsUseCase>>[0]
 		) => ReturnType<ReturnType<GetStatusCountsUseCase>>;
@@ -235,6 +239,10 @@ export function makeDependencies(
 	});
 
 	const getCattle = getCattleUseCase({
+		cattleRepo
+	});
+
+	const getCattleWithDetails = getCattleWithDetailsUseCase({
 		cattleRepo
 	});
 
@@ -417,6 +425,7 @@ export function makeDependencies(
 		useCases: {
 			createCattleUseCase: createCattle,
 			getCattleUseCase: getCattle,
+			getCattleWithDetailsUseCase: getCattleWithDetails,
 			getStatusCountsUseCase: getStatusCounts,
 			searchCattleUseCase: searchCattle,
 			updateCattleUseCase: updateCattle,

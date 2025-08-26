@@ -17,6 +17,7 @@ import {
 	createCattleUseCase,
 	deleteCattleUseCase,
 	getCattleUseCase,
+	getCattleWithDetailsUseCase,
 	getStatusCountsUseCase,
 	searchCattleUseCase,
 	updateCattleUseCase
@@ -83,6 +84,10 @@ export function createUseCases(
 	});
 
 	const getCattle = getCattleUseCase({
+		cattleRepo: repositories.cattleRepo
+	});
+
+	const getCattleWithDetails = getCattleWithDetailsUseCase({
 		cattleRepo: repositories.cattleRepo
 	});
 
@@ -183,27 +188,38 @@ export function createUseCases(
 	});
 
 	return {
-		createCattleUseCase: createCattle,
-		getCattleUseCase: getCattle,
-		getStatusCountsUseCase: getStatusCounts,
-		searchCattleUseCase: searchCattle,
-		updateCattleUseCase: updateCattle,
-		deleteCattleUseCase: deleteCattle,
-		createEventUseCase: createEvent,
-		getEventUseCase: getEvent,
-		searchEventsUseCase: searchEvents,
-		getAlertsUseCase: getAlerts,
-		createAlertUseCase: createAlert,
-		updateAlertStatusUseCase: updateAlertStatus,
-		updateAlertMemoUseCase: updateAlertMemo,
-		searchAlertsUseCase: searchAlerts,
-		getBreedingKpiUseCase: getBreedingKpi,
-		calculateBreedingMetricsUseCase: calculateBreedingMetrics,
-		loginUserUseCase: loginUser,
-		registerUserUseCase: registerUser,
-		verifyTokenUseCase: verifyToken,
-		completeRegistrationUseCase: completeRegistration,
-		updateUserThemeUseCase: updateUserTheme,
-		getUserUseCase: getUser
+		repositories: {
+			cattleRepo: repositories.cattleRepo,
+			eventRepo: repositories.eventRepo,
+			alertRepo: repositories.alertRepo,
+			kpiRepo: repositories.kpiRepo,
+			authRepo: repositories.authRepo,
+			registrationRepo: repositories.authRepo // Assuming registrationRepo is authRepo for now
+		},
+		useCases: {
+			createCattleUseCase: createCattle,
+			getCattleUseCase: getCattle,
+			getCattleWithDetailsUseCase: getCattleWithDetails,
+			getStatusCountsUseCase: getStatusCounts,
+			searchCattleUseCase: searchCattle,
+			updateCattleUseCase: updateCattle,
+			deleteCattleUseCase: deleteCattle,
+			createEventUseCase: createEvent,
+			getEventUseCase: getEvent,
+			searchEventsUseCase: searchEvents,
+			getAlertsUseCase: getAlerts,
+			createAlertUseCase: createAlert,
+			updateAlertStatusUseCase: updateAlertStatus,
+			updateAlertMemoUseCase: updateAlertMemo,
+			searchAlertsUseCase: searchAlerts,
+			getBreedingKpiUseCase: getBreedingKpi,
+			calculateBreedingMetricsUseCase: calculateBreedingMetrics,
+			loginUserUseCase: loginUser,
+			registerUserUseCase: registerUser,
+			verifyTokenUseCase: verifyToken,
+			completeRegistrationUseCase: completeRegistration,
+			updateUserThemeUseCase: updateUserTheme,
+			getUserUseCase: getUser
+		}
 	};
 }

@@ -1,7 +1,5 @@
 /**
- * Cattle Domain Functions
- *
- * 牛管理ドメインの関数群を集約するインデックスファイル
+ * 牛管理ドメイン関数のエクスポート
  */
 
 // Factory functions
@@ -16,3 +14,6 @@ export {
 	validateScore,
 	validateNewCattleProps
 } from "./cattleValidation";
+
+// Utility functions
+export { calculateAgeFromBirthday } from "./calculateAge";

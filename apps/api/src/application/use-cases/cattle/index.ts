@@ -1,13 +1,13 @@
 /**
  * Cattle Use Cases
  *
- * 牛管理ドメインのユースケース群を集約
+ * 牛管理ユースケースのエクスポート
  */
 
-// Cattle use cases
 export { createCattleUseCase } from "./createCattle";
 export { deleteCattleUseCase } from "./deleteCattle";
 export { getCattleUseCase } from "./getCattle";
+export { getCattleWithDetailsUseCase } from "./getCattleWithDetails";
 export { getStatusCountsUseCase } from "./getStatusCounts";
 export { searchCattleUseCase } from "./searchCattle";
 export { updateCattleUseCase } from "./updateCattle";

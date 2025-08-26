@@ -8,9 +8,12 @@ import { and, asc, desc, eq, exists, inArray, not, or, sql } from "drizzle-orm";
 import {
 	events,
 	alerts,
+	bloodline,
 	breedingStatus,
+	breedingSummary,
 	cattle,
-	cattleStatusHistory
+	cattleStatusHistory,
+	motherInfo
 } from "../../../db/schema";
 import type { CattleError } from "../../../domain/errors/cattle/CattleErrors";
 import type { CattleRepository } from "../../../domain/ports/cattle";
@@ -748,6 +751,246 @@ export class CattleRepositoryImpl implements CattleRepository {
 		>
 	> {
 		return err({ type: "InfraError", message: "Not implemented" });
+	}
+
+	// 繁殖関連情報の取得メソッド
+	async getBreedingStatus(cattleId: CattleId): Promise<
+		Result<
+			{
+				breedingStatusId: number;
+				cattleId: number;
+				parity: number | null;
+				expectedCalvingDate: string | null;
+				scheduledPregnancyCheckDate: string | null;
+				daysAfterCalving: number | null;
+				daysOpen: number | null;
+				pregnancyDays: number | null;
+				daysAfterInsemination: number | null;
+				inseminationCount: number | null;
+				breedingMemo: string | null;
+				isDifficultBirth: boolean | null;
+				createdAt: string;
+				updatedAt: string;
+			} | null,
+			CattleError
+		>
+	> {
+		try {
+			const drizzleDb = this.db.getDrizzle();
+			const breedingStatusRow = await drizzleDb
+				.select()
+				.from(breedingStatus)
+				.where(eq(breedingStatus.cattleId, cattleId))
+				.get();
+
+			if (!breedingStatusRow) {
+				return ok(null);
+			}
+
+			return ok({
+				breedingStatusId: breedingStatusRow.breedingStatusId,
+				cattleId: breedingStatusRow.cattleId,
+				parity: breedingStatusRow.parity,
+				expectedCalvingDate: breedingStatusRow.expectedCalvingDate,
+				scheduledPregnancyCheckDate:
+					breedingStatusRow.scheduledPregnancyCheckDate,
+				daysAfterCalving: breedingStatusRow.daysAfterCalving,
+				daysOpen: breedingStatusRow.daysOpen,
+				pregnancyDays: breedingStatusRow.pregnancyDays,
+				daysAfterInsemination: breedingStatusRow.daysAfterInsemination,
+				inseminationCount: breedingStatusRow.inseminationCount,
+				breedingMemo: breedingStatusRow.breedingMemo,
+				isDifficultBirth: breedingStatusRow.isDifficultBirth,
+				createdAt: breedingStatusRow.createdAt || new Date().toISOString(),
+				updatedAt: breedingStatusRow.updatedAt || new Date().toISOString()
+			});
+		} catch (error) {
+			return err({
+				type: "InfraError",
+				message: "Failed to get breeding status",
+				cause: error
+			});
+		}
+	}
+
+	async getBloodline(cattleId: CattleId): Promise<
+		Result<
+			{
+				bloodlineId: number;
+				cattleId: number;
+				fatherCattleName: string | null;
+				motherFatherCattleName: string | null;
+				motherGrandFatherCattleName: string | null;
+				motherGreatGrandFatherCattleName: string | null;
+			} | null,
+			CattleError
+		>
+	> {
+		try {
+			const drizzleDb = this.db.getDrizzle();
+			const bloodlineRow = await drizzleDb
+				.select()
+				.from(bloodline)
+				.where(eq(bloodline.cattleId, cattleId))
+				.get();
+
+			if (!bloodlineRow) {
+				return ok(null);
+			}
+
+			return ok({
+				bloodlineId: bloodlineRow.bloodlineId,
+				cattleId: bloodlineRow.cattleId,
+				fatherCattleName: bloodlineRow.fatherCattleName,
+				motherFatherCattleName: bloodlineRow.motherFatherCattleName,
+				motherGrandFatherCattleName: bloodlineRow.motherGrandFatherCattleName,
+				motherGreatGrandFatherCattleName:
+					bloodlineRow.motherGreatGrandFatherCattleName
+			});
+		} catch (error) {
+			return err({
+				type: "InfraError",
+				message: "Failed to get bloodline",
+				cause: error
+			});
+		}
+	}
+
+	async getMotherInfo(cattleId: CattleId): Promise<
+		Result<
+			{
+				motherInfoId: number;
+				cattleId: number;
+				motherCattleId: number;
+				motherName: string | null;
+				motherIdentificationNumber: string | null;
+				motherScore: number | null;
+			} | null,
+			CattleError
+		>
+	> {
+		try {
+			const drizzleDb = this.db.getDrizzle();
+			const motherInfoRow = await drizzleDb
+				.select()
+				.from(motherInfo)
+				.where(eq(motherInfo.cattleId, cattleId))
+				.get();
+
+			if (!motherInfoRow) {
+				return ok(null);
+			}
+
+			return ok({
+				motherInfoId: motherInfoRow.motherInfoId,
+				cattleId: motherInfoRow.cattleId,
+				motherCattleId: motherInfoRow.motherCattleId,
+				motherName: motherInfoRow.motherName,
+				motherIdentificationNumber: motherInfoRow.motherIdentificationNumber,
+				motherScore: motherInfoRow.motherScore
+			});
+		} catch (error) {
+			return err({
+				type: "InfraError",
+				message: "Failed to get mother info",
+				cause: error
+			});
+		}
+	}
+
+	async getBreedingSummary(cattleId: CattleId): Promise<
+		Result<
+			{
+				breedingSummaryId: number;
+				cattleId: number;
+				totalInseminationCount: number | null;
+				averageDaysOpen: number | null;
+				averagePregnancyPeriod: number | null;
+				averageCalvingInterval: number | null;
+				difficultBirthCount: number | null;
+				pregnancyHeadCount: number | null;
+				pregnancySuccessRate: number | null;
+				createdAt: string;
+				updatedAt: string;
+			} | null,
+			CattleError
+		>
+	> {
+		try {
+			const drizzleDb = this.db.getDrizzle();
+			const breedingSummaryRow = await drizzleDb
+				.select()
+				.from(breedingSummary)
+				.where(eq(breedingSummary.cattleId, cattleId))
+				.get();
+
+			if (!breedingSummaryRow) {
+				return ok(null);
+			}
+
+			return ok({
+				breedingSummaryId: breedingSummaryRow.breedingSummaryId,
+				cattleId: breedingSummaryRow.cattleId,
+				totalInseminationCount: breedingSummaryRow.totalInseminationCount,
+				averageDaysOpen: breedingSummaryRow.averageDaysOpen,
+				averagePregnancyPeriod: breedingSummaryRow.averagePregnancyPeriod,
+				averageCalvingInterval: breedingSummaryRow.averageCalvingInterval,
+				difficultBirthCount: breedingSummaryRow.difficultBirthCount,
+				pregnancyHeadCount: breedingSummaryRow.pregnancyHeadCount,
+				pregnancySuccessRate: breedingSummaryRow.pregnancySuccessRate,
+				createdAt: breedingSummaryRow.createdAt || new Date().toISOString(),
+				updatedAt: breedingSummaryRow.updatedAt || new Date().toISOString()
+			});
+		} catch (error) {
+			return err({
+				type: "InfraError",
+				message: "Failed to get breeding summary",
+				cause: error
+			});
+		}
+	}
+
+	async getEvents(cattleId: CattleId): Promise<
+		Result<
+			Array<{
+				eventId: number;
+				cattleId: number;
+				eventType: string;
+				eventDatetime: string;
+				notes: string | null;
+				createdAt: string;
+				updatedAt: string;
+			}>,
+			CattleError
+		>
+	> {
+		try {
+			const drizzleDb = this.db.getDrizzle();
+			const eventRows = await drizzleDb
+				.select()
+				.from(events)
+				.where(eq(events.cattleId, cattleId))
+				.orderBy(desc(events.eventDatetime))
+				.all();
+
+			return ok(
+				eventRows.map((event) => ({
+					eventId: event.eventId,
+					cattleId: event.cattleId,
+					eventType: event.eventType,
+					eventDatetime: event.eventDatetime,
+					notes: event.notes,
+					createdAt: event.createdAt || new Date().toISOString(),
+					updatedAt: event.updatedAt || new Date().toISOString()
+				}))
+			);
+		} catch (error) {
+			return err({
+				type: "InfraError",
+				message: "Failed to get events",
+				cause: error
+			});
+		}
 	}
 
 	async countByStatus(

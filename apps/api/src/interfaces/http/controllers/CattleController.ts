@@ -5,6 +5,7 @@
  */
 
 import type { Context } from "hono";
+import { calculateAgeFromBirthday } from "../../../domain/functions/cattle/calculateAge";
 import type { NewCattleProps } from "../../../domain/types/cattle/Cattle";
 import type {
 	CattleName,
@@ -17,6 +18,7 @@ import type {
 import type { Dependencies } from "../../../infrastructure/config/dependencies";
 import type { CattleId } from "../../../shared/brand";
 import { executeUseCase } from "../../../shared/http/route-helpers";
+import { ok } from "../../../shared/result";
 import { toUserId } from "../../../shared/types/safe-cast";
 
 /**
@@ -35,10 +37,55 @@ export const makeCattleController = (deps: CattleControllerDeps) => ({
 		return executeUseCase(c, async () => {
 			const cattleId = Number.parseInt(c.req.param("id"), 10) as CattleId;
 
-			const getCattleUseCase = deps.useCases.getCattleUseCase;
-			const result = await getCattleUseCase({ cattleId });
+			const getCattleWithDetailsUseCase =
+				deps.useCases.getCattleWithDetailsUseCase;
+			const result = await getCattleWithDetailsUseCase({ cattleId });
 
-			return result;
+			if (!result.ok) {
+				return result;
+			}
+
+			const cattle = result.value;
+
+			// 日齢計算を適用
+			const birthdayString = cattle.birthday
+				? cattle.birthday.toISOString()
+				: null;
+			const ageInfo = calculateAgeFromBirthday(birthdayString);
+
+			// cattleResponseSchemaの形式に変換
+			const responseData = {
+				cattleId: cattle.cattleId,
+				name: cattle.name,
+				identificationNumber: cattle.identificationNumber,
+				earTagNumber: cattle.earTagNumber,
+				gender: cattle.gender,
+				growthStage: cattle.growthStage,
+				status: cattle.status,
+				birthday: birthdayString,
+				breed: cattle.breed,
+				producerName: cattle.producerName,
+				barn: cattle.barn,
+				breedingValue: cattle.breedingValue,
+				notes: cattle.notes,
+				weight: cattle.weight,
+				score: cattle.score,
+				createdAt: cattle.createdAt.toISOString(),
+				updatedAt: cattle.updatedAt.toISOString(),
+				// 計算フィールド
+				daysOld: ageInfo.daysOld,
+				monthsOld: ageInfo.monthsOld,
+				age: ageInfo.age,
+				// 繁殖関連情報
+				breedingStatus: cattle.breedingStatus,
+				bloodline: cattle.bloodline,
+				motherInfo: cattle.motherInfo,
+				breedingSummary: cattle.breedingSummary,
+				// イベント情報
+				events: cattle.events
+			};
+
+			return ok(responseData);
 		});
 	},
 
@@ -156,6 +203,22 @@ export const makeCattleController = (deps: CattleControllerDeps) => ({
 					barn: query.barn as string | undefined,
 					breed: query.breed as string | undefined
 				});
+
+				// 日齢計算を適用
+				if (result.ok && result.value) {
+					result.value.results = result.value.results.map((cattle) => {
+						const birthdayString = cattle.birthday
+							? cattle.birthday.toISOString()
+							: null;
+						const ageInfo = calculateAgeFromBirthday(birthdayString);
+						return {
+							...cattle,
+							daysOld: ageInfo.daysOld,
+							monthsOld: ageInfo.monthsOld,
+							age: ageInfo.age
+						};
+					});
+				}
 
 				return result;
 			},

@@ -10,63 +10,7 @@ import type {
 } from "@repo/api";
 
 export type GetCattleListResType = typeof cattleListResponseSchema._type.data;
-export type GetCattleDetailResType = typeof cattleResponseSchema._type & {
-	breedingSummary?: {
-		breedingSummaryId: number;
-		cattleId: number;
-		totalInseminationCount: number | null;
-		averageDaysOpen: number | null;
-		averagePregnancyPeriod: number | null;
-		averageCalvingInterval: number | null;
-		difficultBirthCount: number | null;
-		pregnancyHeadCount: number | null;
-		pregnancySuccessRate: number | null;
-		createdAt: string;
-		updatedAt: string;
-	} | null;
-	bloodline?: {
-		bloodlineId: number;
-		cattleId: number;
-		fatherCattleName: string | null;
-		motherFatherCattleName: string | null;
-		motherGrandFatherCattleName: string | null;
-		motherGreatGrandFatherCattleName: string | null;
-	} | null;
-	motherInfo?: {
-		motherInfoId: number;
-		cattleId: number;
-		motherCattleId: number;
-		motherName: string | null;
-		motherIdentificationNumber: string | null;
-		motherScore: number | null;
-	} | null;
-	breedingStatus?: {
-		breedingStatusId: number;
-		cattleId: number;
-		parity: number | null;
-		expectedCalvingDate: string | null;
-		scheduledPregnancyCheckDate: string | null;
-		daysAfterCalving: number | null;
-		daysOpen: number | null;
-		pregnancyDays: number | null;
-		daysAfterInsemination: number | null;
-		inseminationCount: number | null;
-		breedingMemo: string | null;
-		isDifficultBirth: boolean | null;
-		createdAt: string;
-		updatedAt: string;
-	} | null;
-	events?: Array<{
-		eventId: number;
-		cattleId: number;
-		eventType: string;
-		eventDatetime: string;
-		notes: string | null;
-		createdAt: string;
-		updatedAt: string;
-	}>;
-	daysOpen?: number | null;
-};
+export type GetCattleDetailResType = typeof cattleResponseSchema._type;
 
 export type CattleListQueryParams = {
 	cursor?: string;
@@ -110,7 +54,7 @@ export async function GetCattleList(
 export async function GetCattleDetail(
 	id: number | string
 ): Promise<GetCattleDetailResType> {
-	return fetchWithAuth<{ data: GetCattleDetailResType }>((token) =>
+	return fetchWithAuth<GetCattleDetailResType>((token) =>
 		client.api.v1.cattle[":id"].$get(
 			{
 				param: { id: id.toString() }
@@ -121,7 +65,7 @@ export async function GetCattleDetail(
 				}
 			}
 		)
-	).then((r) => r.data);
+	);
 }
 
 export async function DeleteCattle(id: number | string): Promise<void> {
