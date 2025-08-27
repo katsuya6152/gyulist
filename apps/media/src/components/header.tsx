@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Menu, X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 const navigation = [
 	{ name: "ホーム", href: "/" },
@@ -24,14 +25,12 @@ export function Header() {
 					{/* ロゴ */}
 					<Link href="/" className="flex items-center space-x-2">
 						<div className="flex items-center space-x-2">
-							<div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-								<span className="text-primary-foreground font-bold text-sm">
-									G
-								</span>
-							</div>
-							<span className="font-bold text-xl text-foreground">
-								ギュウリスト <span className="text-primary">Media</span>
-							</span>
+							<Image
+								src="/icons/icon-horizontal.svg"
+								alt="ギュウリスト Media"
+								width={100}
+								height={100}
+							/>
 						</div>
 					</Link>
 
@@ -59,46 +58,70 @@ export function Header() {
 						<Button
 							variant="ghost"
 							size="icon"
-							className="md:hidden"
+							className="md:hidden relative"
 							onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
 						>
-							{mobileMenuOpen ? (
-								<X className="h-4 w-4" />
-							) : (
-								<Menu className="h-4 w-4" />
-							)}
+							<div className="relative w-4 h-4">
+								<Menu
+									className={cn(
+										"h-4 w-4 absolute inset-0 transition-all duration-300 ease-in-out",
+										mobileMenuOpen ? "rotate-90 opacity-0" : "rotate-0 opacity-100"
+									)}
+								/>
+								<X
+									className={cn(
+										"h-4 w-4 absolute inset-0 transition-all duration-300 ease-in-out",
+										mobileMenuOpen ? "rotate-0 opacity-100" : "-rotate-90 opacity-0"
+									)}
+								/>
+							</div>
 							<span className="sr-only">メニュー</span>
 						</Button>
 					</div>
 				</div>
 
 				{/* モバイルメニュー */}
-				{mobileMenuOpen && (
-					<div className="md:hidden border-t py-4">
-						<nav className="flex flex-col space-y-4">
-							{navigation.map((item) => (
-								<Link
-									key={item.name}
-									href={item.href}
-									className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1"
-									onClick={() => setMobileMenuOpen(false)}
-								>
-									{item.name}
-								</Link>
-							))}
-							<div className="border-t pt-4">
-								<Button
-									variant="ghost"
-									size="sm"
-									className="w-full justify-start"
-								>
-									<Search className="mr-2 h-4 w-4" />
-									検索
-								</Button>
-							</div>
-						</nav>
-					</div>
-				)}
+				<div
+					className={cn(
+						"md:hidden border-t overflow-hidden transition-all duration-300 ease-in-out",
+						mobileMenuOpen ? "max-h-96 opacity-100 py-4" : "max-h-0 opacity-0 py-0"
+					)}
+				>
+					<nav className="flex flex-col space-y-4">
+						{navigation.map((item, index) => (
+							<Link
+								key={item.name}
+								href={item.href}
+								className={cn(
+									"text-sm font-medium text-muted-foreground hover:text-foreground transition-all duration-200 px-2 py-1 transform",
+									mobileMenuOpen
+										? "translate-x-0 opacity-100"
+										: "translate-x-4 opacity-0",
+									`delay-${index * 50}`
+								)}
+								onClick={() => setMobileMenuOpen(false)}
+							>
+								{item.name}
+							</Link>
+						))}
+						<div className="border-t pt-4">
+							<Button
+								variant="ghost"
+								size="sm"
+								className={cn(
+									"w-full justify-start transition-all duration-200 transform",
+									mobileMenuOpen
+										? "translate-x-0 opacity-100"
+										: "translate-x-4 opacity-0",
+									"delay-200"
+								)}
+							>
+								<Search className="mr-2 h-4 w-4" />
+								検索
+							</Button>
+						</div>
+					</nav>
+				</div>
 			</div>
 		</header>
 	);
