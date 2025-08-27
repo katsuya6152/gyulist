@@ -30,6 +30,21 @@ const nextConfig: NextConfig = {
 			"embla-carousel-react"
 		]
 	},
+	// Webpack設定
+	webpack: (config, { isServer }) => {
+		// Node.jsモジュールをクライアントサイドでは外部化
+		if (!isServer) {
+			config.externals = config.externals || [];
+			config.externals.push({
+				"node:crypto": "crypto",
+				"node:fs": "fs",
+				"node:path": "path",
+				"node:url": "url",
+				"node:buffer": "buffer"
+			});
+		}
+		return config;
+	},
 	// 圧縮の有効化
 	compress: true,
 	// パフォーマンス最適化

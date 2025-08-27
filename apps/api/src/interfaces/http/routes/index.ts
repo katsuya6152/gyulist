@@ -10,6 +10,7 @@ import healthRoutes from "./healthRoutes";
 import { createKpiRoutes } from "./kpiRoutes";
 import oauthRoutes from "./oauthRoutes";
 import { createPreRegisterRoutes } from "./preRegisterRoutes";
+import { createShipmentRoutes } from "./shipmentRoutes";
 
 // biome-ignore format:
 export const createRoutes = (app: Hono<{ Bindings: Env }>) => {
@@ -25,6 +26,7 @@ export const createRoutes = (app: Hono<{ Bindings: Env }>) => {
 		.route("/events", createEventRoutes())
 		.route("/kpi", createKpiRoutes())
 		.route("/cattle", createCattleRoutes())
+		.route("/shipments", createShipmentRoutes())
 		.route("/admin", createAdminRoutes())
 		.route("/pre-register", createPreRegisterRoutes());
 };

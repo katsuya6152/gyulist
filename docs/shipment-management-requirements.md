@@ -25,20 +25,23 @@
   - 出荷日（必須）
   - 出荷価格（必須）
   - 出荷重量（任意）
+  - 出荷時日齢（任意、自動計算も可能）
+  - 購買者（任意）
   - 備考（任意）
 - **制約**:
   - 出荷日は過去の日付のみ
   - 出荷価格は正の整数
   - 出荷重量は正の数
+  - 出荷時日齢は正の整数（生年月日から自動計算可能）
 
 #### 2.1.2 出荷実績表示
-- **機能**: 母牛別の出荷実績一覧表示
+- **機能**: 母牛別の出荷実績詳細テーブル表示
 - **表示項目**:
-  - 母牛名
-  - 子牛の出荷実績一覧
-  - 総収益
-  - 平均価格
-  - 出荷頭数
+  - 母牛情報（名前、耳標番号）
+  - 血統情報（父、母の父、母の祖父、母の母の祖父）
+  - 繁殖情報（種付け年月日、分娩予定日、分娩日）
+  - 出荷情報（体重、日齢、性別、価格、購買者、備考）
+  - 集計情報（総収益、平均価格、出荷頭数、平均体重、平均日齢）
 
 #### 2.1.3 収益分析
 - **機能**: 母牛別の出荷収益の集計
@@ -135,10 +138,52 @@ CREATE TABLE shipments (
     shipment_date TEXT NOT NULL,
     price INTEGER NOT NULL,
     weight REAL,
+    age_at_shipment INTEGER, -- 出荷時日齢
+    buyer TEXT, -- 購買者
     notes TEXT,
     created_at INTEGER NOT NULL,
     FOREIGN KEY (cattle_id) REFERENCES cattle(cattle_id)
 );
+```
+
+#### 4.2.2 血統情報の管理
+**既存 cattle テーブルの血統関連カラム活用**
+- `father_id`: 父牛のID
+- `mother_id`: 母牛のID
+
+**血統情報取得のためのビュー（推奨）**
+```sql
+-- 母牛別出荷実績ビュー
+CREATE VIEW mother_shipment_summary AS
+SELECT 
+    m.cattle_id as mother_id,
+    m.name as mother_name,
+    m.ear_tag as mother_ear_tag,
+    c.cattle_id as calf_id,
+    c.name as calf_name,
+    c.sex as calf_sex,
+    c.birth_date as birth_date,
+    c.breeding_date as breeding_date,
+    c.expected_birth_date as expected_birth_date,
+    s.shipment_date,
+    s.price,
+    s.weight as shipment_weight,
+    s.age_at_shipment,
+    s.buyer,
+    s.notes,
+    -- 血統情報
+    f.name as father_name,
+    mf.name as mother_father_name,
+    mgf.name as mother_grandfather_name,
+    mmgf.name as mother_mother_grandfather_name
+FROM cattle m
+LEFT JOIN cattle c ON c.mother_id = m.cattle_id
+LEFT JOIN shipments s ON s.cattle_id = c.cattle_id
+LEFT JOIN cattle f ON f.cattle_id = c.father_id
+LEFT JOIN cattle mf ON mf.cattle_id = m.father_id
+LEFT JOIN cattle mgf ON mgf.cattle_id = (SELECT father_id FROM cattle WHERE cattle_id = m.mother_id)
+LEFT JOIN cattle mmgf ON mmgf.cattle_id = (SELECT father_id FROM cattle WHERE cattle_id = (SELECT mother_id FROM cattle WHERE cattle_id = m.mother_id))
+WHERE m.sex = 'female' AND m.is_mother = 1;
 ```
 
 ## 5. API設計
@@ -156,6 +201,8 @@ Authorization: Bearer {token}
   "shipmentDate": "2024-12-15",
   "price": 150000,
   "weight": 450.5,
+  "ageAtShipment": 300,
+  "buyer": "JA○○",
   "notes": "市場Aで販売"
 }
 ```
@@ -166,16 +213,88 @@ GET /api/v1/shipments?from=2024-01-01&to=2024-12-31
 Authorization: Bearer {token}
 ```
 
-#### 5.1.3 母牛別出荷実績の取得
+#### 5.1.3 母牛別出荷実績の詳細取得
 ```
-GET /api/v1/shipments/mothers/{motherId}
+GET /api/v1/shipments/mothers/{motherId}/details
 Authorization: Bearer {token}
+
+Response:
+{
+  "motherId": 123,
+  "motherName": "さくら",
+  "motherEarTag": "001",
+  "calves": [
+    {
+      "calfId": 456,
+      "calfName": "太郎",
+      "sex": "male",
+      "pedigree": {
+        "father": "種雄A",
+        "motherFather": "種雄B",
+        "motherGrandfather": "種雄C",
+        "motherMotherGrandfather": "種雄D"
+      },
+      "breedingDate": "2023-03-15",
+      "expectedBirthDate": "2023-12-20",
+      "birthDate": "2023-12-18",
+      "shipment": {
+        "shipmentDate": "2024-10-15",
+        "weight": 450.5,
+        "ageAtShipment": 301,
+        "price": 150000,
+        "buyer": "JA○○",
+        "notes": "市場Aで販売"
+      }
+    }
+  ]
+}
 ```
 
-#### 5.1.4 全母牛の出荷実績サマリー
+#### 5.1.4 全母牛の出荷実績一覧取得（テーブル表示用）
 ```
-GET /api/v1/shipments/mothers/summary
+GET /api/v1/shipments/mothers/list?page=1&limit=50&sortBy=motherName&sortOrder=asc&filterBy=year&filterValue=2024
 Authorization: Bearer {token}
+
+Response:
+{
+  "data": [
+    {
+      "motherId": 123,
+      "motherName": "さくら",
+      "motherEarTag": "001",
+      "calfName": "太郎",
+      "sex": "male",
+      "pedigree": {
+        "father": "種雄A",
+        "motherFather": "種雄B", 
+        "motherGrandfather": "種雄C",
+        "motherMotherGrandfather": "種雄D"
+      },
+      "breedingDate": "2023-03-15",
+      "expectedBirthDate": "2023-12-20",
+      "birthDate": "2023-12-18",
+      "shipmentDate": "2024-10-15",
+      "shipmentWeight": 450.5,
+      "ageAtShipment": 301,
+      "price": 150000,
+      "buyer": "JA○○",
+      "notes": "市場Aで販売"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 50,
+    "total": 150,
+    "totalPages": 3
+  },
+  "summary": {
+    "totalShipments": 150,
+    "totalRevenue": 22500000,
+    "averagePrice": 150000,
+    "averageWeight": 445.2,
+    "averageAge": 295
+  }
+}
 ```
 
 ### 5.2 出荷予定API
@@ -245,21 +364,57 @@ Authorization: Bearer {token}
 - 価格統計サマリー
 - 月別価格推移グラフ
 
-### 6.2 母牛別出荷実績画面
+### 6.2 母牛別出荷実績一覧画面
 
 #### 6.2.1 画面構成
-- **機能**: 母牛ごとの出荷実績を表示
-- **レイアウト**: 2カラムレイアウト
+- **機能**: 母牛ごとの出荷実績を詳細テーブル形式で表示
+- **レイアウト**: シングルページレイアウト（PC版）、アコーディオン形式（モバイル版）
 
-#### 6.2.2 表示項目
-**左カラム（母牛一覧）**
-- 母牛リスト（名前、耳標番号）
-- 母牛別収益サマリー
+#### 6.2.2 PC版テーブル表示項目
+**母牛別出荷実績一覧テーブル**
+- **母牛情報**:
+  - 母牛名
+  - 母牛耳標番号
+- **血統情報**:
+  - 父
+  - 母の父
+  - 母の祖父
+  - 母の母の祖父
+- **繁殖情報**:
+  - 種付け年月日
+  - 分娩予定日
+  - 分娩日
+- **出荷情報**:
+  - 出荷時体重（kg）
+  - 出荷時日齢（日）
+  - 性別（雄/雌）
+  - 価格（円）
+  - 購買者
+  - 備考
 
-**右カラム（詳細）**
-- 選択された母牛の出荷実績詳細
-- 子牛別出荷履歴
-- 収益集計
+#### 6.2.3 テーブル機能
+- **ソート機能**: 各カラムでのソート（昇順/降順）
+- **フィルター機能**:
+  - 母牛名での絞り込み
+  - 出荷年での絞り込み
+  - 価格範囲での絞り込み
+  - 性別での絞り込み
+- **エクスポート機能**: CSV形式でのデータエクスポート
+- **ページネーション**: 50件/100件/200件表示切り替え
+
+#### 6.2.4 サマリー情報
+**画面上部に表示**
+- 総出荷頭数
+- 総収益
+- 平均価格
+- 平均出荷時体重
+- 平均出荷時日齢
+
+#### 6.2.5 モバイル版表示
+**アコーディオン形式**
+- 母牛名をヘッダーとしたカード表示
+- 展開時に子牛の出荷実績詳細を表示
+- 重要項目（価格、出荷日、性別）を優先表示
 
 ## 7. 実装計画
 

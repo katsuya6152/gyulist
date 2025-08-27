@@ -113,7 +113,9 @@ export function CattleListPresentation({
 	].reduce((sum, count) => sum + count, 0);
 
 	return (
-		<div className={`flex flex-col w-full ${isDesktop ? "px-6 py-8" : ""}`}>
+		<div
+			className={`flex flex-col w-full ${isDesktop ? "px-6 py-8" : ""} relative`}
+		>
 			{/* メインコンテンツ */}
 			<div className="w-full">
 				<div className="w-full pt-6">

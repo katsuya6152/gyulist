@@ -79,12 +79,34 @@ import {
 } from "../../application/use-cases/kpi";
 import type { PreRegisterUserUseCase } from "../../application/use-cases/registration/preRegisterUser";
 import { preRegisterUserUseCase } from "../../application/use-cases/registration/preRegisterUser";
+import type {
+	CreateShipmentPlanUseCase,
+	CreateShipmentUseCase,
+	DeleteShipmentUseCase,
+	GetMotherShipmentsListUseCase,
+	GetShipmentPlansUseCase,
+	GetShipmentsUseCase,
+	UpdateShipmentUseCase
+} from "../../application/use-cases/shipments";
+import {
+	createShipmentPlanUseCase,
+	createShipmentUseCase,
+	deleteShipmentUseCase,
+	getMotherShipmentsListUseCase,
+	getShipmentPlansUseCase,
+	getShipmentsUseCase,
+	updateShipmentUseCase
+} from "../../application/use-cases/shipments";
 import type { AlertRepository } from "../../domain/ports/alerts";
 import type { AuthRepository } from "../../domain/ports/auth";
 import type { CattleRepository } from "../../domain/ports/cattle";
 import type { EventRepository } from "../../domain/ports/events";
 import type { KpiRepository } from "../../domain/ports/kpi";
 import type { RegistrationRepository } from "../../domain/ports/registration";
+import type {
+	ShipmentPlanRepository,
+	ShipmentRepository
+} from "../../domain/ports/shipments";
 import type { ClockPort } from "../../shared/ports/clock";
 import type { TokenPort } from "../../shared/ports/token";
 import { D1DatabaseFactory } from "../database/D1DatabaseFactory";
@@ -94,6 +116,10 @@ import { CattleRepositoryImpl } from "../database/repositories/CattleRepositoryI
 import { EventRepositoryImpl } from "../database/repositories/EventRepositoryImpl";
 import { KpiRepositoryImpl } from "../database/repositories/KpiRepositoryImpl";
 import { RegistrationRepositoryImpl } from "../database/repositories/RegistrationRepositoryImpl";
+import {
+	ShipmentPlanRepositoryImpl,
+	ShipmentRepositoryImpl
+} from "../database/repositories/ShipmentRepositoryImpl";
 
 /**
  * 環境設定の型定義
@@ -115,6 +141,8 @@ export type Dependencies = {
 		kpiRepo: KpiRepository;
 		authRepo: AuthRepository;
 		registrationRepo: RegistrationRepository;
+		shipmentRepo: ShipmentRepository;
+		shipmentPlanRepo: ShipmentPlanRepository;
 	};
 
 	// ユースケース（依存関係が注入された状態）
@@ -192,6 +220,28 @@ export type Dependencies = {
 		preRegisterUserUseCase: (
 			input: Parameters<ReturnType<PreRegisterUserUseCase>>[0]
 		) => ReturnType<ReturnType<PreRegisterUserUseCase>>;
+		// Shipment use cases
+		createShipmentUseCase: (
+			input: Parameters<ReturnType<CreateShipmentUseCase>>[0]
+		) => ReturnType<ReturnType<CreateShipmentUseCase>>;
+		updateShipmentUseCase: (
+			input: Parameters<ReturnType<UpdateShipmentUseCase>>[0]
+		) => ReturnType<ReturnType<UpdateShipmentUseCase>>;
+		deleteShipmentUseCase: (
+			input: Parameters<ReturnType<DeleteShipmentUseCase>>[0]
+		) => ReturnType<ReturnType<DeleteShipmentUseCase>>;
+		getShipmentsUseCase: (
+			input: Parameters<ReturnType<GetShipmentsUseCase>>[0]
+		) => ReturnType<ReturnType<GetShipmentsUseCase>>;
+		createShipmentPlanUseCase: (
+			input: Parameters<ReturnType<CreateShipmentPlanUseCase>>[0]
+		) => ReturnType<ReturnType<CreateShipmentPlanUseCase>>;
+		getMotherShipmentsListUseCase: (
+			input: Parameters<ReturnType<GetMotherShipmentsListUseCase>>[0]
+		) => ReturnType<ReturnType<GetMotherShipmentsListUseCase>>;
+		getShipmentPlansUseCase: (
+			input: Parameters<ReturnType<GetShipmentPlansUseCase>>[0]
+		) => ReturnType<ReturnType<GetShipmentPlansUseCase>>;
 	};
 
 	// 管理APIユースケース
@@ -231,6 +281,8 @@ export function makeDependencies(
 	const kpiRepo = new KpiRepositoryImpl(d1DatabasePort);
 	const authRepo = new AuthRepositoryImpl(d1DatabasePort);
 	const registrationRepo = new RegistrationRepositoryImpl(d1DatabasePort);
+	const shipmentRepo = new ShipmentRepositoryImpl(d1DatabasePort);
+	const shipmentPlanRepo = new ShipmentPlanRepositoryImpl(d1DatabasePort);
 
 	// ユースケースの作成（依存関係を注入）
 	const createCattle = createCattleUseCase({
@@ -413,6 +465,39 @@ export function makeDependencies(
 		clock
 	});
 
+	// Shipment use cases
+	const createShipment = createShipmentUseCase({
+		shipmentRepo,
+		clock
+	});
+
+	const updateShipment = updateShipmentUseCase({
+		shipmentRepo,
+		cattleRepo
+	});
+
+	const deleteShipment = deleteShipmentUseCase({
+		shipmentRepo,
+		cattleRepo
+	});
+
+	const getShipments = getShipmentsUseCase({
+		shipmentRepo
+	});
+
+	const createShipmentPlan = createShipmentPlanUseCase({
+		shipmentPlanRepo,
+		clock
+	});
+
+	const getMotherShipmentsList = getMotherShipmentsListUseCase({
+		shipmentRepo
+	});
+
+	const getShipmentPlans = getShipmentPlansUseCase({
+		shipmentPlanRepo
+	});
+
 	return {
 		repositories: {
 			cattleRepo,
@@ -420,7 +505,9 @@ export function makeDependencies(
 			alertRepo,
 			kpiRepo,
 			authRepo,
-			registrationRepo
+			registrationRepo,
+			shipmentRepo,
+			shipmentPlanRepo
 		},
 		useCases: {
 			createCattleUseCase: createCattle,
@@ -447,7 +534,15 @@ export function makeDependencies(
 			completeRegistrationUseCase: completeRegistration,
 			updateUserThemeUseCase: updateUserTheme,
 			getUserUseCase: getUser,
-			preRegisterUserUseCase: preRegisterUser
+			preRegisterUserUseCase: preRegisterUser,
+			// Shipment use cases
+			createShipmentUseCase: createShipment,
+			updateShipmentUseCase: updateShipment,
+			deleteShipmentUseCase: deleteShipment,
+			getShipmentsUseCase: getShipments,
+			createShipmentPlanUseCase: createShipmentPlan,
+			getMotherShipmentsListUseCase: getMotherShipmentsList,
+			getShipmentPlansUseCase: getShipmentPlans
 		},
 		adminUseCases: {
 			listRegistrationsUseCase: listRegistrations,
@@ -465,5 +560,16 @@ export function makeDependencies(
  * @deprecated 新しいアーキテクチャでは makeDependencies を使用してください
  */
 export function makeDeps(db: AnyD1Database, clock: ClockPort) {
+	return makeDependencies(db, clock);
+}
+
+/**
+ * 簡易的な依存関係作成関数（コントローラー用）
+ */
+export function createDependencies(db: AnyD1Database): Dependencies {
+	const clock: ClockPort = {
+		now: () => new Date()
+	};
+
 	return makeDependencies(db, clock);
 }

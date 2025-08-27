@@ -1,6 +1,8 @@
 -- =============================
 -- 0) テーブルデータのリセット（依存順に削除し、自動採番をリセット）
 -- =============================
+DELETE FROM shipment_plans;
+DELETE FROM shipments;
 DELETE FROM events;
 DELETE FROM cattle_status_history;
 DELETE FROM breeding_summary;
@@ -261,6 +263,26 @@ INSERT INTO events (cattleId, eventType, eventDatetime, notes) VALUES
   -- 受胎率の分母が0にならないよう、7月のAIをもう1本（cattleId=7）
   (7, 'INSEMINATION', '2025-07-02T00:00:00Z', 'KPI: 7月のAI（分母用）');
 
+-- 出荷済み子牛の種付年月日データ
+INSERT INTO events (cattleId, eventType, eventDatetime, notes) VALUES
+  -- cattleId=9 (ひかり) の種付年月日
+  (9, 'INSEMINATION', '2024-09-01T00:00:00Z', '出荷子牛の種付年月日'),
+  -- cattleId=11 (しょうた) の種付年月日
+  (11, 'INSEMINATION', '2023-12-10T00:00:00Z', '出荷子牛の種付年月日'),
+  -- cattleId=12 (もも) の種付年月日
+  (12, 'INSEMINATION', '2024-05-25T00:00:00Z', '出荷子牛の種付年月日'),
+  -- cattleId=14 (あおい) の種付年月日
+  (14, 'INSEMINATION', '2023-11-22T00:00:00Z', '出荷子牛の種付年月日'),
+  -- cattleId=15 (そら) の種付年月日
+  (15, 'INSEMINATION', '2024-01-10T00:00:00Z', '出荷子牛の種付年月日');
+
+-- 出荷済み子牛の分娩予定日データ（breeding_statusテーブルの更新）
+UPDATE breeding_status SET expectedCalvingDate = '2024-06-20' WHERE cattleId = 9; -- ひかり
+UPDATE breeding_status SET expectedCalvingDate = '2024-09-10' WHERE cattleId = 11; -- しょうた  
+UPDATE breeding_status SET expectedCalvingDate = '2025-05-30' WHERE cattleId = 12; -- もも
+UPDATE breeding_status SET expectedCalvingDate = '2024-08-22' WHERE cattleId = 14; -- あおい
+UPDATE breeding_status SET expectedCalvingDate = '2024-12-01' WHERE cattleId = 15; -- そら
+
 -- =============================
 -- 8) alerts テーブル（アラート用ダミーデータ）
 -- =============================
@@ -306,7 +328,76 @@ INSERT INTO alerts (
   ('alert_dummy_007', 'CALVING_WITHIN_60', 'medium', 'acknowledged', 14, 'あおい', '21014', '2025-12-01', '60日以内分娩予定', '分娩準備を開始済み、順調に推移', 1, strftime('%s', 'now', '-12 days'), strftime('%s', 'now', '-12 days'), strftime('%s', 'now', '-10 days'), NULL);
 
 -- =============================
--- 9) alert_history テーブル（アラート履歴用ダミーデータ）
+-- 9) shipments テーブル（出荷実績用ダミーデータ）
+-- =============================
+INSERT INTO shipments (
+  shipmentId,
+  cattleId,
+  shipmentDate,
+  price,
+  weight,
+  ageAtShipment,
+  buyer,
+  notes,
+  createdAt,
+  updatedAt
+) VALUES
+  -- ハナコ（cattleId=2）の子牛たちの出荷実績
+  ('shipment_001', 3, '2024-11-15', 850000, 620, 480, '食肉市場A', '優秀な肉質評価', datetime('now', '-30 days', 'utc'), datetime('now', '-30 days', 'utc')),
+  ('shipment_002', 8, '2024-10-20', 720000, 580, 450, '食肉市場B', '標準的な評価', datetime('now', '-45 days', 'utc'), datetime('now', '-45 days', 'utc')),
+  ('shipment_003', 11, '2024-09-10', 780000, 595, 465, '食肉市場A', '良好な肉質', datetime('now', '-60 days', 'utc'), datetime('now', '-60 days', 'utc')),
+  
+  -- さくら（cattleId=5）の子牛たちの出荷実績
+  ('shipment_004', 9, '2024-12-01', 680000, 550, 420, '食肉市場C', '初産子牛、標準評価', datetime('now', '-15 days', 'utc'), datetime('now', '-15 days', 'utc')),
+  ('shipment_005', 12, '2024-08-25', 750000, 570, 435, '食肉市場A', '良好な発育', datetime('now', '-75 days', 'utc'), datetime('now', '-75 days', 'utc')),
+  
+  -- ゆき（cattleId=7）の子牛の出荷実績
+  ('shipment_006', 10, '2024-07-30', 920000, 650, 500, '食肉市場A', '優秀な血統、高評価', datetime('now', '-90 days', 'utc'), datetime('now', '-90 days', 'utc')),
+  
+  -- マルコ（cattleId=4）の子牛の出荷実績
+  ('shipment_007', 13, '2024-06-15', 690000, 560, 440, '食肉市場B', '標準的な評価', datetime('now', '-105 days', 'utc'), datetime('now', '-105 days', 'utc')),
+  
+  -- 追加の出荷実績（統計データ充実のため）
+  ('shipment_008', 14, '2024-05-20', 810000, 610, 475, '食肉市場A', '初産牛の子牛、良好', datetime('now', '-120 days', 'utc'), datetime('now', '-120 days', 'utc')),
+  ('shipment_009', 15, '2024-04-10', 760000, 585, 455, '食肉市場C', '順調な発育', datetime('now', '-135 days', 'utc'), datetime('now', '-135 days', 'utc'));
+
+-- =============================
+-- 10) shipment_plans テーブル（出荷予定用ダミーデータ）
+-- =============================
+INSERT INTO shipment_plans (
+  planId,
+  cattleId,
+  plannedShipmentMonth,
+  createdAt,
+  updatedAt
+) VALUES
+  -- 現在育成中の牛の出荷予定（肥育・育成牛）
+  ('plan_001', 3, '2025-03', datetime('now', '-10 days', 'utc'), datetime('now', '-10 days', 'utc')),  -- じろう（肥育）
+  ('plan_002', 8, '2025-04', datetime('now', '-8 days', 'utc'), datetime('now', '-8 days', 'utc')),   -- こたろう（育成）
+  ('plan_003', 11, '2025-05', datetime('now', '-7 days', 'utc'), datetime('now', '-7 days', 'utc')),  -- しょうた（肥育）
+  ('plan_004', 13, '2025-06', datetime('now', '-6 days', 'utc'), datetime('now', '-6 days', 'utc')),  -- けんた（育成）
+  ('plan_005', 15, '2025-07', datetime('now', '-5 days', 'utc'), datetime('now', '-5 days', 'utc')),  -- そら（育成）
+  
+  -- 子牛の出荷予定（生後6ヶ月〜1年での出荷想定）
+  ('plan_006', 9, '2025-12', datetime('now', '-4 days', 'utc'), datetime('now', '-4 days', 'utc')),   -- ひかり（子牛）
+  ('plan_007', 12, '2025-11', datetime('now', '-3 days', 'utc'), datetime('now', '-3 days', 'utc')),  -- もも（子牛）
+  
+  -- 繁殖牛の出荷予定（繁殖終了後の肥育出荷）
+  ('plan_008', 4, '2026-03', datetime('now', '-2 days', 'utc'), datetime('now', '-2 days', 'utc')),   -- マルコ（休息中→肥育）
+  ('plan_009', 14, '2026-08', datetime('now', '-1 days', 'utc'), datetime('now', '-1 days', 'utc')),  -- あおい（初産後→肥育）
+  
+  -- 将来の出荷予定（長期計画）
+  ('plan_010', 1, '2026-09', datetime('now', 'utc'), datetime('now', 'utc')),                          -- あやめ（繁殖終了後）
+  ('plan_011', 2, '2027-01', datetime('now', '+1 days', 'utc'), datetime('now', '+1 days', 'utc')),   -- ハナコ（繁殖終了後）
+  ('plan_012', 5, '2026-12', datetime('now', '+2 days', 'utc'), datetime('now', '+2 days', 'utc')),   -- さくら（繁殖終了後）
+  
+  -- 季節性を考慮した出荷予定（春・秋の出荷ピーク）
+  ('plan_013', 6, '2025-10', datetime('now', '+3 days', 'utc'), datetime('now', '+3 days', 'utc')),   -- みずき（秋出荷）
+  ('plan_014', 7, '2025-09', datetime('now', '+4 days', 'utc'), datetime('now', '+4 days', 'utc')),   -- ゆき（秋出荷）
+  ('plan_015', 10, '2026-04', datetime('now', '+5 days', 'utc'), datetime('now', '+5 days', 'utc'));  -- りん（春出荷）
+
+-- =============================
+-- 11) alert_history テーブル（アラート履歴用ダミーデータ）
 -- =============================
 INSERT INTO alert_history (
   id,

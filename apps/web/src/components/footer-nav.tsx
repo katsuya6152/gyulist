@@ -10,7 +10,8 @@ import {
 	Home,
 	List,
 	Plus,
-	Settings
+	Settings,
+	Truck
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -139,6 +140,15 @@ export function FooterNav() {
 								isExpanded={isSidebarExpanded}
 							/>
 
+							{/* 出荷管理 */}
+							<SidebarItem
+								icon={<Truck className="h-5 w-5" />}
+								label="出荷管理"
+								href="/shipments"
+								isActive={pathname.startsWith("/shipments")}
+								isExpanded={isSidebarExpanded}
+							/>
+
 							{/* 設定 */}
 							<SidebarItem
 								icon={<Settings className="h-5 w-5" />}
@@ -166,64 +176,82 @@ export function FooterNav() {
 	// モバイル版のフッター
 	return (
 		<div
-			className={`fixed bottom-0 left-0 right-0 z-50 px-2 py-3 transition-all duration-300 ease-out glass-effect-strong ${
+			className={`fixed bottom-0 left-0 right-0 z-50 transition-all duration-300 ease-out ${
 				isVisible
 					? "footer-visible opacity-100"
 					: "footer-hidden opacity-0 pointer-events-none"
 			}`}
 		>
-			{/* ガラス風エフェクトのための追加のオーバーレイ */}
-			<div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent pointer-events-none" />
-
-			<div className="relative z-10 grid items-center grid-cols-5">
-				{/* 0. ホーム */}
-				<div className="flex justify-center">
-					<FooterItem
-						icon={<Home className="h-5 w-5" />}
-						label="ホーム"
-						href="/home"
-						isActive={pathname === "/home"}
-					/>
+			{/* 牛一覧画面での+ボタン（フッターの上） */}
+			{pathname === "/cattle" && (
+				<div className="absolute right-4 -top-16 z-10">
+					<Button
+						asChild
+						size="icon"
+						className="h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+					>
+						<Link href="/cattle/new">
+							<Plus className="h-6 w-6" />
+						</Link>
+					</Button>
 				</div>
+			)}
 
-				{/* 1. 予定 */}
-				<div className="flex justify-center">
-					<FooterItem
-						icon={<Calendar className="h-5 w-5" />}
-						label="予定"
-						href="/schedule?filter=today"
-						isActive={pathname.startsWith("/schedule")}
-					/>
-				</div>
+			{/* フッター本体 */}
+			<div className="px-2 py-3 glass-effect-strong">
+				{/* ガラス風エフェクトのための追加のオーバーレイ */}
+				<div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent pointer-events-none" />
 
-				{/* 2. 一覧 */}
-				<div className="flex justify-center">
-					<FooterItem
-						icon={<List className="h-5 w-5" />}
-						label="一覧"
-						href="/cattle"
-						isActive={pathname === "/cattle"}
-					/>
-				</div>
+				<div className="relative z-10 grid items-center grid-cols-5">
+					{/* 0. ホーム */}
+					<div className="flex justify-center">
+						<FooterItem
+							icon={<Home className="h-5 w-5" />}
+							label="ホーム"
+							href="/home"
+							isActive={pathname === "/home"}
+						/>
+					</div>
 
-				{/* 3. 個体登録 */}
-				<div className="flex justify-center">
-					<FooterItem
-						icon={<Plus className="h-5 w-5" />}
-						label="個体登録"
-						href="/cattle/new"
-						isActive={pathname === "/cattle/new"}
-					/>
-				</div>
+					{/* 1. 予定 */}
+					<div className="flex justify-center">
+						<FooterItem
+							icon={<Calendar className="h-5 w-5" />}
+							label="予定"
+							href="/schedule?filter=today"
+							isActive={pathname.startsWith("/schedule")}
+						/>
+					</div>
 
-				{/* 4. 設定 */}
-				<div className="flex justify-center">
-					<FooterItem
-						icon={<Settings className="h-5 w-5" />}
-						label="設定"
-						href="/settings"
-						isActive={pathname === "/settings"}
-					/>
+					{/* 2. 一覧 */}
+					<div className="flex justify-center">
+						<FooterItem
+							icon={<List className="h-5 w-5" />}
+							label="一覧"
+							href="/cattle"
+							isActive={pathname === "/cattle"}
+						/>
+					</div>
+
+					{/* 3. 出荷管理 */}
+					<div className="flex justify-center">
+						<FooterItem
+							icon={<Truck className="h-5 w-5" />}
+							label="出荷管理"
+							href="/shipments"
+							isActive={pathname.startsWith("/shipments")}
+						/>
+					</div>
+
+					{/* 4. 設定 */}
+					<div className="flex justify-center">
+						<FooterItem
+							icon={<Settings className="h-5 w-5" />}
+							label="設定"
+							href="/settings"
+							isActive={pathname === "/settings"}
+						/>
+					</div>
 				</div>
 			</div>
 		</div>
