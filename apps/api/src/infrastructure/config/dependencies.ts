@@ -280,7 +280,7 @@ export function makeDependencies(
 	const alertRepo = new AlertRepositoryImpl(d1DatabasePort);
 	const kpiRepo = new KpiRepositoryImpl(d1DatabasePort);
 	const authRepo = new AuthRepositoryImpl(d1DatabasePort);
-	const registrationRepo = new RegistrationRepositoryImpl(d1DatabasePort);
+	const registrationRepo = new RegistrationRepositoryImpl(db); // 直接AnyD1Databaseを渡す
 	const shipmentRepo = new ShipmentRepositoryImpl(d1DatabasePort);
 	const shipmentPlanRepo = new ShipmentPlanRepositoryImpl(d1DatabasePort);
 

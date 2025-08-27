@@ -104,19 +104,103 @@ export async function listRegistrations(
 	query: RegistrationsQuery,
 	basicAuthToken: string
 ): Promise<ListRegistrationsResponse> {
-	// TODO: APIエンドポイントが実装されていないため一時的にダミーデータを返す
-	console.warn("listRegistrations: API endpoint not implemented yet");
-	return {
-		items: [],
-		total: 0
-	};
+	try {
+		const searchParams = new URLSearchParams();
+
+		if (query.q) searchParams.set("q", query.q);
+		if (query.from) searchParams.set("from", query.from);
+		if (query.to) searchParams.set("to", query.to);
+		if (query.source) searchParams.set("source", query.source);
+		if (query.limit) searchParams.set("limit", query.limit.toString());
+		if (query.offset) searchParams.set("offset", query.offset.toString());
+
+		const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
+		const url = `${apiUrl}/api/v1/admin/registrations?${searchParams}`;
+
+		const response = await fetch(url, {
+			method: "GET",
+			headers: {
+				Authorization: `Basic ${basicAuthToken}`,
+				"Content-Type": "application/json"
+			}
+		});
+
+		if (!response.ok) {
+			// エラーの詳細を取得
+			let errorMessage = `API request failed: ${response.status} ${response.statusText}`;
+			try {
+				const errorData = (await response.json()) as { error?: string };
+				console.error("Admin API Error details:", errorData);
+				if (errorData.error) {
+					errorMessage = errorData.error;
+				}
+			} catch {
+				// JSON解析に失敗した場合はデフォルトメッセージを使用
+			}
+			throw new Error(errorMessage);
+		}
+
+		const data = (await response.json()) as {
+			data: { items: RegistrationListItem[]; total: number };
+		};
+
+		return {
+			items: data.data.items || [],
+			total: data.data.total || 0
+		};
+	} catch (error) {
+		console.error("Error fetching registrations:", error);
+		// エラー時は空の結果を返す（他のサービスと同様）
+		return {
+			items: [],
+			total: 0
+		};
+	}
 }
 
 export async function downloadRegistrationsCsv(
 	query: RegistrationsQuery,
 	basicAuthToken: string
 ): Promise<Blob> {
-	// TODO: APIエンドポイントが実装されていないため一時的にダミーデータを返す
-	console.warn("downloadRegistrationsCsv: API endpoint not implemented yet");
-	return new Blob(["dummy,csv,data"], { type: "text/csv" });
+	try {
+		const searchParams = new URLSearchParams();
+
+		if (query.q) searchParams.set("q", query.q);
+		if (query.from) searchParams.set("from", query.from);
+		if (query.to) searchParams.set("to", query.to);
+		if (query.source) searchParams.set("source", query.source);
+		if (query.limit) searchParams.set("limit", query.limit.toString());
+		if (query.offset) searchParams.set("offset", query.offset.toString());
+
+		const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
+		const url = `${apiUrl}/api/v1/admin/registrations.csv?${searchParams}`;
+
+		const response = await fetch(url, {
+			method: "GET",
+			headers: {
+				Authorization: `Basic ${basicAuthToken}`
+			}
+		});
+
+		if (!response.ok) {
+			// エラーの詳細を取得
+			let errorMessage = `CSV download failed: ${response.status} ${response.statusText}`;
+			try {
+				const errorData = (await response.json()) as { error?: string };
+				console.error("CSV download error details:", errorData);
+				if (errorData.error) {
+					errorMessage = errorData.error;
+				}
+			} catch {
+				// JSON解析に失敗した場合はデフォルトメッセージを使用
+			}
+			throw new Error(errorMessage);
+		}
+
+		return await response.blob();
+	} catch (error) {
+		console.error("Error downloading CSV:", error);
+		// エラー時は空のCSVを返す
+		return new Blob([""], { type: "text/csv" });
+	}
 }
