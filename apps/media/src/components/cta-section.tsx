@@ -19,7 +19,7 @@ export function CTASection({
 }: CTASectionProps) {
 	return (
 		<Card
-			className={`bg-gradient-primary text-primary-foreground ${className}`}
+			className={`bg-gradient-primary text-primary-foreground mb-16 ${className}`}
 		>
 			<CardContent className="p-8 text-center">
 				<h3 className="text-2xl font-bold mb-4">{title}</h3>

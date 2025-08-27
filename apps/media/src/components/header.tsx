@@ -28,8 +28,8 @@ export function Header() {
 							<Image
 								src="/icons/icon-horizontal.svg"
 								alt="ギュウリスト Media"
-								width={100}
-								height={100}
+								width={160}
+								height={50}
 							/>
 						</div>
 					</Link>
