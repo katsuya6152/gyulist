@@ -8,6 +8,7 @@ import {
 	CardHeader,
 	CardTitle
 } from "@/components/ui/card";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 import type {
 	MotherShipmentDetail,
@@ -20,6 +21,7 @@ import { SearchAndFilters } from "./SearchAndFilters";
 import { ShipmentManagementTable } from "./ShipmentManagementTable";
 import { ShipmentsPagination } from "./ShipmentsPagination";
 import { SummaryCards } from "./SummaryCards";
+import { ShipmentItem } from "./mobile/ShipmentItem";
 
 type Props = {
 	initialData?: MotherShipmentListResponse;
@@ -39,6 +41,7 @@ export function ShipmentsList({
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
+	const isDesktop = useMediaQuery("(min-width: 1024px)");
 
 	const [data, setData] = useState<MotherShipmentListResponse | null>(
 		initialData || null
@@ -239,12 +242,24 @@ export function ShipmentsList({
 
 					{/* テーブル */}
 					<div className="mb-6">
-						<ShipmentManagementTable
-							data={data.data}
-							onEdit={onEdit}
-							onDelete={onDelete}
-							showActions={true}
-						/>
+						{isDesktop ? (
+							<ShipmentManagementTable
+								data={data.data}
+								onEdit={onEdit}
+								onDelete={onDelete}
+								showActions={true}
+							/>
+						) : (
+							<div className="grid gap-0 w-full">
+								{(data.data || []).map((shipment, index) => (
+									<ShipmentItem
+										key={`${shipment.motherId}-${shipment.calfId}-${index}`}
+										shipment={shipment}
+										index={index}
+									/>
+								))}
+							</div>
+						)}
 					</div>
 
 					{/* ページネーション */}
