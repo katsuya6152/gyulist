@@ -6,7 +6,9 @@
 	"scripts": {
 		"web": "pnpm -F web",
 		"api": "pnpm -F api",
+		"media": "pnpm -F media",
 		"dev": "pnpm -F api build:watch & pnpm -F web dev",
+		"dev:media": "pnpm -F media dev",
 		"format": "biome format .",
 		"format:fix": "pnpm format --write .",
 		"lint": "biome check .",

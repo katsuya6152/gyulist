@@ -1,0 +1,282 @@
+@import "tailwindcss";
+
+@theme {
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--font-sans: var(--font-geist-sans);
+	--font-mono: var(--font-geist-mono);
+	--color-ring: var(--ring);
+	--color-input: var(--input);
+	--color-border: var(--border);
+	--color-destructive: var(--destructive);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-accent: var(--accent);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-muted: var(--muted);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-secondary: var(--secondary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-primary: var(--primary);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-popover: var(--popover);
+	--color-card-foreground: var(--card-foreground);
+	--color-card: var(--card);
+	--color-success: var(--success);
+	--color-warning: var(--warning);
+	--color-info: var(--info);
+	--color-brand: var(--brand);
+	--color-brand-foreground: var(--brand-foreground);
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+	--radius: 0.625rem;
+
+	/* ウォームトーンの背景色 */
+	--background: oklch(0.97 0.008 45); /* 温かみのあるクリーム */
+	--foreground: oklch(0.12 0.015 25); /* 深いウォームブラウン */
+	--card: oklch(0.99 0.005 50); /* カードはより明るいクリーム */
+	--card-foreground: oklch(0.12 0.015 25);
+	--popover: oklch(0.98 0.006 48);
+	--popover-foreground: oklch(0.15 0.012 30);
+
+	/* アクセントカラー */
+	--primary: oklch(0.55 0.14 35.0); /* #BA5B34 */
+	--primary-foreground: oklch(0.99 0.005 50);
+	--secondary: oklch(0.92 0.012 55); /* ウォームなセカンダリ */
+	--secondary-foreground: oklch(0.12 0.015 25);
+	--muted: oklch(0.89 0.01 50); /* 温かみのあるミュート */
+	--muted-foreground: oklch(0.42 0.018 30);
+	--accent: oklch(0.7 0.12 95); /* #A8B57A */
+	--accent-foreground: oklch(0.15 0.012 30);
+
+	/* システムカラー */
+	--destructive: oklch(0.58 0.22 25);
+	--success: oklch(0.65 0.21 145);
+	--warning: oklch(0.55 0.18 15.294);
+	--info: oklch(0.63 0.15 210);
+	--brand: oklch(0.55 0.14 35.0);
+	--brand-foreground: oklch(0.99 0.005 50);
+
+	/* ボーダーとインプット */
+	--border: oklch(0.85 0.012 45); /* ウォームなボーダー */
+	--input: oklch(0.85 0.012 45);
+	--ring: oklch(0.55 0.14 35.0);
+
+	/* ウォームトーン用グラデーション */
+	--gradient-primary-start: oklch(0.58 0.16 35.0);
+	--gradient-primary-end: oklch(0.52 0.12 35.0);
+	--gradient-accent-start: oklch(0.72 0.14 95);
+	--gradient-accent-end: oklch(0.68 0.1 95);
+	--gradient-card-start: oklch(0.99 0.005 50);
+	--gradient-card-end: oklch(0.95 0.01 45);
+	--gradient-success-start: oklch(0.68 0.23 145);
+	--gradient-success-end: oklch(0.62 0.19 145);
+
+	/* ウォームトーン用ガラス風エフェクト */
+	--glass-bg: rgba(255, 248, 240, 0.85); /* 温かみのあるガラス */
+	--glass-border: rgba(186, 91, 52, 0.15); /* プライマリカラーベース */
+	--glass-shadow: 0 8px 32px rgba(139, 69, 19, 0.12); /* ウォームなシャドウ */
+}
+
+.dark {
+	--radius: 0.625rem;
+
+	/* ウォームダークテーマ背景色 */
+	--background: oklch(0.15 0.025 35); /* 深いウォームブラウン */
+	--foreground: oklch(0.92 0.008 55); /* 温かみのあるクリーム色テキスト */
+	--card: oklch(0.18 0.028 38); /* カードは少し明るいブラウン */
+	--card-foreground: oklch(0.92 0.008 55);
+	--popover: oklch(0.17 0.026 36);
+	--popover-foreground: oklch(0.92 0.008 55);
+
+	/* アクセントカラー */
+	--primary: oklch(0.55 0.14 35.0); /* #BA5B34 */
+	--primary-foreground: oklch(0.15 0.025 35);
+	--secondary: oklch(0.22 0.02 40); /* ウォームなダークセカンダリ */
+	--secondary-foreground: oklch(0.92 0.008 55);
+	--muted: oklch(0.2 0.018 38); /* 温かみのあるダークミュート */
+	--muted-foreground: oklch(0.68 0.012 50);
+	--accent: oklch(0.7 0.12 95); /* #A8B57A */
+	--accent-foreground: oklch(0.15 0.025 35);
+
+	/* システムカラー */
+	--destructive: oklch(0.704 0.191 22.216);
+	--success: oklch(0.5 0.23 145);
+	--warning: oklch(0.55 0.18 15.294);
+	--info: oklch(0.67 0.17 200);
+	--brand: oklch(0.55 0.14 35.0);
+	--brand-foreground: oklch(0.15 0.025 35);
+
+	/* ボーダーとインプット */
+	--border: oklch(0.28 0.022 42); /* ウォームなダークボーダー */
+	--input: oklch(0.28 0.022 42);
+	--ring: oklch(0.55 0.14 35.0);
+
+	/* ダークウォームトーン用グラデーション */
+	--gradient-primary-start: oklch(0.58 0.16 35.0);
+	--gradient-primary-end: oklch(0.52 0.12 35.0);
+	--gradient-accent-start: oklch(0.72 0.14 95);
+	--gradient-accent-end: oklch(0.68 0.1 95);
+	--gradient-card-start: oklch(0.19 0.03 38);
+	--gradient-card-end: oklch(0.16 0.024 36);
+	--gradient-success-start: oklch(0.52 0.25 145);
+	--gradient-success-end: oklch(0.48 0.21 145);
+
+	/* ダークウォームトーン用ガラス風エフェクト */
+	--glass-bg: rgba(45, 30, 20, 0.85); /* 深いウォームブラウンガラス */
+	--glass-border: rgba(186, 91, 52, 0.2); /* プライマリカラーベース */
+	--glass-shadow: 0 8px 32px rgba(20, 10, 5, 0.4); /* 深いウォームシャドウ */
+}
+
+@layer base {
+	* {
+		@apply border-border outline-ring/50;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
+	
+	/* メディア記事用のタイポグラフィ */
+	.prose {
+		@apply max-w-none text-foreground;
+	}
+	
+	.prose h1 {
+		@apply text-4xl font-bold tracking-tight text-foreground mb-6;
+	}
+	
+	.prose h2 {
+		@apply text-3xl font-semibold tracking-tight text-foreground mb-4 mt-8;
+	}
+	
+	.prose h3 {
+		@apply text-2xl font-semibold tracking-tight text-foreground mb-3 mt-6;
+	}
+	
+	.prose h4 {
+		@apply text-xl font-semibold text-foreground mb-2 mt-4;
+	}
+	
+	.prose p {
+		@apply text-base leading-7 text-foreground mb-4;
+	}
+	
+	.prose a {
+		@apply text-primary hover:text-primary/80 font-medium underline underline-offset-4;
+	}
+	
+	.prose blockquote {
+		@apply border-l-4 border-primary/20 pl-4 italic text-muted-foreground bg-muted/30 py-2 my-6;
+	}
+	
+	.prose code {
+		@apply bg-muted px-1.5 py-0.5 rounded-md text-sm font-mono;
+	}
+	
+	.prose pre {
+		@apply bg-muted p-4 rounded-lg overflow-x-auto text-sm;
+	}
+	
+	.prose ul, .prose ol {
+		@apply mb-4 pl-6;
+	}
+	
+	.prose li {
+		@apply mb-1;
+	}
+}
+
+/* カスタムアニメーション */
+@layer utilities {
+	/* フェードイン */
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+
+	.animate-fade-in {
+		animation: fade-in 1s ease-out;
+	}
+
+	/* スライドアップ（遅延付き） */
+	@keyframes slide-up {
+		from {
+			opacity: 0;
+			transform: translateY(30px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	.animate-slide-up-delayed {
+		animation: slide-up 0.8s ease-out 0.2s both;
+	}
+
+	.animate-slide-up-delayed-2 {
+		animation: slide-up 0.8s ease-out 0.4s both;
+	}
+
+	.animate-slide-up-delayed-3 {
+		animation: slide-up 0.8s ease-out 0.6s both;
+	}
+
+	/* ホバー効果 */
+	.hover-lift {
+		transition: transform 0.2s ease, box-shadow 0.2s ease;
+	}
+
+	.hover-lift:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+	}
+
+	.dark .hover-lift:hover {
+		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+	}
+
+	/* グラデーション背景 */
+	.bg-gradient-primary {
+		background: linear-gradient(
+			135deg,
+			var(--gradient-primary-start) 0%,
+			var(--gradient-primary-end) 100%
+		);
+	}
+
+	.bg-gradient-accent {
+		background: linear-gradient(
+			135deg,
+			var(--gradient-accent-start) 0%,
+			var(--gradient-accent-end) 100%
+		);
+	}
+
+	.bg-gradient-card {
+		background: linear-gradient(
+			135deg,
+			var(--gradient-card-start) 0%,
+			var(--gradient-card-end) 100%
+		);
+	}
+
+	/* ガラス風エフェクト */
+	.glass-effect {
+		background: var(--glass-bg);
+		backdrop-filter: blur(20px);
+		-webkit-backdrop-filter: blur(20px);
+		border: 1px solid var(--glass-border);
+		box-shadow: var(--glass-shadow);
+	}
+}
+
+
