@@ -4,7 +4,7 @@ import { createDemoResponse, isDemo } from "@/lib/api-client";
 import { verifyAndGetUserId } from "@/lib/jwt";
 import { CreateCattle } from "@/services/cattleService";
 import { parseWithZod } from "@conform-to/zod";
-import type { CreateCattleInput } from "@repo/api";
+import type { createCattleSchema as ApiCreateCattleSchema } from "@repo/api";
 import { redirect } from "next/navigation";
 import { createCattleSchema } from "./schema";
 
@@ -28,51 +28,7 @@ export async function createCattleAction(
 
 		const data = submission.value;
 
-		// APIに送信するデータを準備
-		const apiData: CreateCattleInput = {
-			identificationNumber: data.identificationNumber,
-			earTagNumber: data.earTagNumber,
-			name: data.name,
-			gender: data.gender as CreateCattleInput["gender"],
-			birthday: data.birthday,
-			growthStage: data.growthStage as CreateCattleInput["growthStage"],
-			score: data.score ?? null,
-			breed: data.breed || null,
-			producerName: data.producerName ?? null,
-			barn: data.barn ?? null,
-			breedingValue: data.breedingValue ?? null,
-			notes: data.notes || null,
-			...(data.weight != null ? { weight: data.weight } : {})
-		};
-
-		// 血統情報/繁殖状態のキーは、テスト互換のため常に存在させる
-		(apiData as CreateCattleInput).bloodline = data.bloodline
-			? {
-					fatherCattleName: data.bloodline.fatherCattleName || null,
-					motherFatherCattleName: data.bloodline.motherFatherCattleName || null,
-					motherGrandFatherCattleName:
-						data.bloodline.motherGrandFatherCattleName || null,
-					motherGreatGrandFatherCattleName:
-						data.bloodline.motherGreatGrandFatherCattleName || null
-				}
-			: undefined;
-		(apiData as CreateCattleInput).breedingStatus = data.breedingStatus
-			? {
-					parity: null,
-					expectedCalvingDate: data.breedingStatus.expectedCalvingDate || null,
-					scheduledPregnancyCheckDate:
-						data.breedingStatus.scheduledPregnancyCheckDate || null,
-					daysAfterCalving: null,
-					daysOpen: null,
-					pregnancyDays: null,
-					daysAfterInsemination: null,
-					inseminationCount: null,
-					breedingMemo: data.breedingStatus.breedingMemo || null,
-					isDifficultBirth: data.breedingStatus.isDifficultBirth ?? null
-				}
-			: undefined;
-
-		await CreateCattle(apiData);
+		await CreateCattle(data as typeof ApiCreateCattleSchema._type);
 
 		// 成功時のレスポンス
 		return submission.reply();

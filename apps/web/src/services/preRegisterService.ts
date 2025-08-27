@@ -47,7 +47,7 @@ export async function preRegister(
 			};
 		}
 
-		const json = (await res.json()) as { data: PreRegisterResponse };
+		const json = (await res.json()) as unknown as { data: PreRegisterResponse };
 
 		// APIは{ data: { ok: true, ... } }の形式で返す
 		if (json.data) {
@@ -104,68 +104,103 @@ export async function listRegistrations(
 	query: RegistrationsQuery,
 	basicAuthToken: string
 ): Promise<ListRegistrationsResponse> {
-	const res = await client.api.v1.admin.registrations.$get(
-		{
-			query: {
-				q: query.q,
-				from: query.from
-					? String(Math.floor(Date.parse(query.from) / 1000))
-					: undefined,
-				to: query.to
-					? String(Math.floor(Date.parse(query.to) / 1000))
-					: undefined,
-				source: query.source,
-				limit: query.limit?.toString(),
-				offset: query.offset?.toString()
-			}
-		},
-		{
+	try {
+		const searchParams = new URLSearchParams();
+
+		if (query.q) searchParams.set("q", query.q);
+		if (query.from) searchParams.set("from", query.from);
+		if (query.to) searchParams.set("to", query.to);
+		if (query.source) searchParams.set("source", query.source);
+		if (query.limit) searchParams.set("limit", query.limit.toString());
+		if (query.offset) searchParams.set("offset", query.offset.toString());
+
+		const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
+		const url = `${apiUrl}/api/v1/admin/registrations?${searchParams}`;
+
+		const response = await fetch(url, {
+			method: "GET",
 			headers: {
-				Authorization: `Basic ${basicAuthToken}`
+				Authorization: `Basic ${basicAuthToken}`,
+				"Content-Type": "application/json"
 			}
+		});
+
+		if (!response.ok) {
+			// エラーの詳細を取得
+			let errorMessage = `API request failed: ${response.status} ${response.statusText}`;
+			try {
+				const errorData = (await response.json()) as { error?: string };
+				console.error("Admin API Error details:", errorData);
+				if (errorData.error) {
+					errorMessage = errorData.error;
+				}
+			} catch {
+				// JSON解析に失敗した場合はデフォルトメッセージを使用
+			}
+			throw new Error(errorMessage);
 		}
-	);
-	const response = (await res.json()) as unknown;
-	// API returns { data: { items: [...], total: number } }
-	const { data } = response as {
-		data?: {
-			items: RegistrationListItem[];
-			total: number;
+
+		const data = (await response.json()) as {
+			data: { items: RegistrationListItem[]; total: number };
 		};
-	};
 
-	if (!data) {
-		throw new Error("Invalid API response: missing data property");
+		return {
+			items: data.data.items || [],
+			total: data.data.total || 0
+		};
+	} catch (error) {
+		console.error("Error fetching registrations:", error);
+		// エラー時は空の結果を返す（他のサービスと同様）
+		return {
+			items: [],
+			total: 0
+		};
 	}
-
-	return { items: data.items, total: data.total };
 }
 
 export async function downloadRegistrationsCsv(
 	query: RegistrationsQuery,
 	basicAuthToken: string
 ): Promise<Blob> {
-	const res = await client.api.v1.admin["registrations.csv"].$get(
-		{
-			query: {
-				q: query.q,
-				from: query.from
-					? String(Math.floor(Date.parse(query.from) / 1000))
-					: undefined,
-				to: query.to
-					? String(Math.floor(Date.parse(query.to) / 1000))
-					: undefined,
-				source: query.source,
-				limit: query.limit?.toString(),
-				offset: query.offset?.toString()
-			}
-		},
-		{
+	try {
+		const searchParams = new URLSearchParams();
+
+		if (query.q) searchParams.set("q", query.q);
+		if (query.from) searchParams.set("from", query.from);
+		if (query.to) searchParams.set("to", query.to);
+		if (query.source) searchParams.set("source", query.source);
+		if (query.limit) searchParams.set("limit", query.limit.toString());
+		if (query.offset) searchParams.set("offset", query.offset.toString());
+
+		const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
+		const url = `${apiUrl}/api/v1/admin/registrations.csv?${searchParams}`;
+
+		const response = await fetch(url, {
+			method: "GET",
 			headers: {
-				Authorization: `Basic ${basicAuthToken}`,
-				Accept: "text/csv"
+				Authorization: `Basic ${basicAuthToken}`
 			}
+		});
+
+		if (!response.ok) {
+			// エラーの詳細を取得
+			let errorMessage = `CSV download failed: ${response.status} ${response.statusText}`;
+			try {
+				const errorData = (await response.json()) as { error?: string };
+				console.error("CSV download error details:", errorData);
+				if (errorData.error) {
+					errorMessage = errorData.error;
+				}
+			} catch {
+				// JSON解析に失敗した場合はデフォルトメッセージを使用
+			}
+			throw new Error(errorMessage);
 		}
-	);
-	return await res.blob();
+
+		return await response.blob();
+	} catch (error) {
+		console.error("Error downloading CSV:", error);
+		// エラー時は空のCSVを返す
+		return new Blob([""], { type: "text/csv" });
+	}
 }

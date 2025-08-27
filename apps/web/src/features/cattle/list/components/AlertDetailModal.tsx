@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import type { AlertItem } from "@repo/api";
+import type { GetAlertsRes } from "@/services/alertsService";
 import {
 	ALERT_SEVERITY_LABELS,
 	ALERT_STATUS_LABELS,
@@ -37,7 +37,7 @@ import { updateAlertMemoAction, updateAlertStatusAction } from "../actions";
 interface AlertDetailModalProps {
 	isOpen: boolean;
 	onClose: () => void;
-	alerts: AlertItem[];
+	alerts: GetAlertsRes["results"];
 	cattleName: string;
 }
 
@@ -127,7 +127,10 @@ export function AlertDetailModal({
 
 	const sortedAlerts = [...alerts].sort((a, b) => {
 		const severityOrder = { high: 3, medium: 2, low: 1 };
-		return severityOrder[b.severity] - severityOrder[a.severity];
+		return (
+			severityOrder[b.severity as keyof typeof severityOrder] -
+			severityOrder[a.severity as keyof typeof severityOrder]
+		);
 	});
 
 	return (
@@ -146,8 +149,10 @@ export function AlertDetailModal({
 				<div className="flex-1 overflow-y-auto px-2 sm:px-6 pb-2 sm:pb-6">
 					<div className="space-y-3 sm:space-y-4">
 						{sortedAlerts.map((alert, index) => {
-							const severity = SEVERITY_CONFIG[alert.severity];
-							const status = STATUS_CONFIG[alert.status];
+							const severity =
+								SEVERITY_CONFIG[alert.severity as keyof typeof SEVERITY_CONFIG];
+							const status =
+								STATUS_CONFIG[alert.status as keyof typeof STATUS_CONFIG];
 							const SeverityIcon = severity.icon;
 
 							return (

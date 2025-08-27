@@ -1,6 +1,8 @@
 import { FooterNav } from "@/components/footer-nav";
+import { MainContentWrapper } from "@/components/main-content-wrapper";
 import { PCNotification } from "@/components/pc-notification";
 import { ScrollToTop } from "@/components/scroll-to-top";
+import { SidebarProvider } from "@/components/sidebar-provider";
 import { verifyAndGetUserId } from "@/lib/jwt";
 import { ThemeProvider } from "@/lib/theme-provider";
 import { getUserById } from "@/services/userService";
@@ -45,17 +47,28 @@ export default async function AuthenticatedLayout({
 
 	return (
 		<ThemeProvider defaultTheme={userTheme as "light" | "dark" | "system"}>
-			<div className="min-h-screen pb-20 scroll-smooth">
-				{/* PC通知コンポーネント */}
-				<PCNotification />
+			<SidebarProvider>
+				<div className="min-h-screen scroll-smooth">
+					{/* PC通知コンポーネント */}
+					<PCNotification />
 
-				<main className="relative z-0 page-wrapper animate-fade-in bg-background">
-					{children}
-				</main>
-				<FooterNav />
-				<ScrollToTop threshold={200} duration={500} />
-				<Toaster position="top-center" richColors closeButton duration={5000} />
-			</div>
+					{/* メインコンテンツ */}
+					<MainContentWrapper>
+						<main className="relative z-0 page-wrapper animate-fade-in bg-background pb-20 lg:pb-0">
+							{children}
+						</main>
+					</MainContentWrapper>
+
+					<FooterNav />
+					<ScrollToTop threshold={200} duration={500} />
+					<Toaster
+						position="top-center"
+						richColors
+						closeButton
+						duration={5000}
+					/>
+				</div>
+			</SidebarProvider>
 		</ThemeProvider>
 	);
 }

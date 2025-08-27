@@ -75,13 +75,8 @@ export async function updateNotesAction(cattleId: number, notes: string) {
 
 		// 既存の情報を保持しつつ、notesのみを更新
 		await UpdateCattle(cattleId, {
-			identificationNumber: existingCattle.identificationNumber ?? 0,
-			earTagNumber: existingCattle.earTagNumber ?? 0,
 			name: existingCattle.name ?? "",
-			gender: existingCattle.gender ?? "雌",
-			birthday: existingCattle.birthday ?? "",
-			growthStage: existingCattle.growthStage ?? "CALF",
-			breed: existingCattle.breed,
+			breed: existingCattle.breed ?? undefined,
 			notes: notes
 		});
 

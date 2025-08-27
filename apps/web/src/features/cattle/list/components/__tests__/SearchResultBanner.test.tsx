@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { SearchResultBanner } from "../SearchResultBanner";
+import { SearchResultBanner } from "../shared/SearchResultBanner";
 
 describe("SearchResultBanner", () => {
 	const user = userEvent.setup();

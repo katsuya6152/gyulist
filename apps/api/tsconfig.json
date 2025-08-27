@@ -15,7 +15,7 @@
 			"@/contexts/*": ["src/contexts/*"],
 			"@/db/*": ["src/db/*"],
 			"@/lib/*": ["src/lib/*"],
-			"@/middleware/*": ["src/middleware/*"],
+			"@/middleware/*": ["src/interfaces/http/middleware/*"],
 			"@/routes/*": ["src/routes/*"]
 		}
 	},

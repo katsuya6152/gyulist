@@ -1,6 +1,6 @@
 import type { Context, Next } from "hono";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { jwtMiddleware } from "../../../src/middleware/jwt";
+import { jwtMiddleware } from "../../../src/interfaces/http/middleware/jwt";
 
 // atobをモック
 global.atob = vi.fn();
@@ -223,7 +223,7 @@ describe("JWT Middleware", () => {
 				{ error: "Invalid token" },
 				401
 			);
-			expect(consoleSpy).toHaveBeenCalledTimes(2); // Both JWT and OAuth errors logged
+			expect(consoleSpy).toHaveBeenCalledTimes(1); // Simplified JWT error logging
 		});
 
 		it("should return 401 when atob throws error", async () => {
@@ -241,7 +241,7 @@ describe("JWT Middleware", () => {
 				{ error: "Invalid token" },
 				401
 			);
-			expect(consoleSpy).toHaveBeenCalledTimes(2);
+			expect(consoleSpy).toHaveBeenCalledTimes(1); // Simplified JWT error logging
 		});
 
 		it("should handle OAuth token with userId as 0", async () => {

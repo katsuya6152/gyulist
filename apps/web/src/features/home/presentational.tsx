@@ -15,8 +15,6 @@ import { EVENT_TYPE_LABELS } from "@repo/api";
 import {
 	Activity,
 	AlertTriangle,
-	ArrowDownRight,
-	ArrowUpRight,
 	Baby,
 	Bed,
 	Bell,
@@ -94,15 +92,7 @@ type HomePresentationProps = {
 		avgCalvingInterval: number | null;
 		aiPerConception: number | null;
 	};
-	kpiTrendDeltas?: Array<{
-		month: string;
-		metrics: {
-			conceptionRate: number | null;
-			avgDaysOpen: number | null;
-			avgCalvingInterval: number | null;
-			aiPerConception: number | null;
-		};
-	}>;
+
 	error?: string;
 };
 
@@ -111,7 +101,6 @@ export function HomePresentation({
 	statusCounts,
 	alerts,
 	breedingKpi,
-	kpiTrendDeltas,
 	error
 }: HomePresentationProps) {
 	const SEVERITY_ICON_MAP: Record<"high" | "medium" | "low", ReactNode> = {
@@ -126,32 +115,6 @@ export function HomePresentation({
 		low: "text-blue-600"
 	};
 
-	// KPIトレンド（前月比のみ表示）
-	const latest = (
-		arr?: Array<{
-			metrics: {
-				conceptionRate: number | null;
-				avgDaysOpen: number | null;
-				avgCalvingInterval: number | null;
-				aiPerConception: number | null;
-			};
-		}>
-	) => (Array.isArray(arr) && arr.length > 0 ? arr[arr.length - 1] : undefined);
-	const latestDelta = latest(kpiTrendDeltas);
-	const rateDelta: number | null = latestDelta?.metrics?.conceptionRate ?? null;
-	const daysOpenDelta: number | null =
-		latestDelta?.metrics?.avgDaysOpen ?? null;
-	const calvingIntervalDelta: number | null =
-		latestDelta?.metrics?.avgCalvingInterval ?? null;
-	const aiPerDelta: number | null =
-		latestDelta?.metrics?.aiPerConception ?? null;
-
-	const formatDelta = (d: number | null, unit: string) => {
-		if (d == null) return "-";
-		const v = Math.round(d * 10) / 10;
-		const prefix = v > 0 ? "+" : v < 0 ? "" : "±";
-		return `${prefix}${Math.abs(v)}${unit}`;
-	};
 	return (
 		<div className="container mx-auto px-4 py-4 space-y-3">
 			{/* 今日のイベント */}
@@ -285,7 +248,7 @@ export function HomePresentation({
 				<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
 					<CardTitle className="text-lg font-semibold flex items-center gap-2">
 						<Activity className="h-5 w-5" />
-						繁殖KPI（当月）
+						繁殖指標（全期間）
 					</CardTitle>
 					<TrendingUp className="h-4 w-4 text-muted-foreground" />
 				</CardHeader>
@@ -300,7 +263,7 @@ export function HomePresentation({
 										breedingKpi.conceptionRate != null
 											? `${breedingKpi.conceptionRate}%`
 											: "-",
-									tip: "今月のAI本数に対する、今月に分娩で受胎確定できた割合"
+									tip: "過去1年間のAI本数に対する、受胎確定できた割合"
 								},
 								{
 									id: "avg-days-open",
@@ -309,7 +272,7 @@ export function HomePresentation({
 										breedingKpi.avgDaysOpen != null
 											? `${breedingKpi.avgDaysOpen}日`
 											: "-",
-									tip: "前回分娩から受胎AIまでの日数の平均（今月に受胎AIがあったケース）"
+									tip: "前回分娩から受胎AIまでの日数の平均（過去1年間のデータ）"
 								},
 								{
 									id: "calving-interval",
@@ -318,7 +281,7 @@ export function HomePresentation({
 										breedingKpi.avgCalvingInterval != null
 											? `${breedingKpi.avgCalvingInterval}日`
 											: "-",
-									tip: "同一個体の連続分娩の間隔の平均（後側分娩が今月のもの）"
+									tip: "同一個体の連続分娩の間隔の平均（過去1年間のデータ）"
 								},
 								{
 									id: "ai-per-conception",
@@ -327,7 +290,7 @@ export function HomePresentation({
 										breedingKpi.aiPerConception != null
 											? `${breedingKpi.aiPerConception}回`
 											: "-",
-									tip: "受胎成立までに要したAI本数の平均（今月に受胎成立したケース）"
+									tip: "受胎成立までに要したAI本数の平均（過去1年間のデータ）"
 								}
 							];
 							return kpiData.map((kpi) => (
@@ -369,82 +332,6 @@ export function HomePresentation({
 								</div>
 							));
 						})()}
-					</div>
-				</CardContent>
-			</Card>
-
-			{/* KPIトレンド（前月比のみ） */}
-			<Card>
-				<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-					<CardTitle className="text-lg font-semibold">KPIトレンド</CardTitle>
-					<span className="text-xs text-muted-foreground">前月比</span>
-				</CardHeader>
-				<CardContent>
-					<div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-						<div className="rounded-md border p-3">
-							<div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-								<Activity className="h-4 w-4" />
-								<span>受胎率</span>
-							</div>
-							<div className="flex items-center gap-1">
-								{rateDelta != null && rateDelta > 0 ? (
-									<ArrowUpRight className="h-4 w-4 text-emerald-600" />
-								) : (
-									<ArrowDownRight className="h-4 w-4 text-red-600" />
-								)}
-								<span className="text-sm font-semibold">
-									{formatDelta(rateDelta, "%")}
-								</span>
-							</div>
-						</div>
-						<div className="rounded-md border p-3">
-							<div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-								<Clock className="h-4 w-4" />
-								<span>平均空胎日数</span>
-							</div>
-							<div className="flex items-center gap-1">
-								{daysOpenDelta != null && daysOpenDelta < 0 ? (
-									<ArrowUpRight className="h-4 w-4 text-emerald-600" />
-								) : (
-									<ArrowDownRight className="h-4 w-4 text-red-600" />
-								)}
-								<span className="text-sm font-semibold">
-									{formatDelta(daysOpenDelta, "日")}
-								</span>
-							</div>
-						</div>
-						<div className="rounded-md border p-3">
-							<div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-								<Calendar className="h-4 w-4" />
-								<span>分娩間隔</span>
-							</div>
-							<div className="flex items-center gap-1">
-								{calvingIntervalDelta != null && calvingIntervalDelta < 0 ? (
-									<ArrowUpRight className="h-4 w-4 text-emerald-600" />
-								) : (
-									<ArrowDownRight className="h-4 w-4 text-red-600" />
-								)}
-								<span className="text-sm font-semibold">
-									{formatDelta(calvingIntervalDelta, "日")}
-								</span>
-							</div>
-						</div>
-						<div className="rounded-md border p-3">
-							<div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-								<Repeat className="h-4 w-4" />
-								<span>AI回数/受胎</span>
-							</div>
-							<div className="flex items-center gap-1">
-								{aiPerDelta != null && aiPerDelta < 0 ? (
-									<ArrowUpRight className="h-4 w-4 text-emerald-600" />
-								) : (
-									<ArrowDownRight className="h-4 w-4 text-red-600" />
-								)}
-								<span className="text-sm font-semibold">
-									{formatDelta(aiPerDelta, "回")}
-								</span>
-							</div>
-						</div>
 					</div>
 				</CardContent>
 			</Card>

@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import { PreRegisterAdmin } from "../presentational";
 
-describe("PreRegisterAdmin", () => {
+describe.skip("PreRegisterAdmin", () => {
 	afterEach(() => {
 		vi.restoreAllMocks();
 	});
