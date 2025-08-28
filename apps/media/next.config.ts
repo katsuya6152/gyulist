@@ -10,7 +10,7 @@ if (!process.env.VELITE_STARTED && (isDev || isBuild)) {
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ["images.unsplash.com", "gyulist.jp"],
+    domains: ["images.unsplash.com", "gyulist.com"],
     unoptimized: true,
   },
   // Cloudflare Pages対応
