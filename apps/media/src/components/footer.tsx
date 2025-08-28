@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ExternalLink, Mail, MessageCircle } from "lucide-react";
+import Image from "next/image";
 
 const footerLinks = {
 	サイト: [
@@ -14,9 +15,9 @@ const footerLinks = {
 			href: "https://gyulist.com",
 			external: true
 		},
-		{ name: "機能紹介", href: "https://gyulist.com/features", external: true },
-		{ name: "料金プラン", href: "https://gyulist.com/pricing", external: true },
-		{ name: "サポート", href: "https://gyulist.com/support", external: true }
+		// { name: "機能紹介", href: "https://gyulist.com/features", external: true },
+		// { name: "料金プラン", href: "https://gyulist.com/pricing", external: true },
+		// { name: "サポート", href: "https://gyulist.com/support", external: true }
 	],
 	サポート: [
 		{ name: "お問い合わせ", href: "/contact" },
@@ -34,14 +35,18 @@ export function Footer() {
 					{/* ブランド情報 */}
 					<div className="space-y-4">
 						<div className="flex items-center space-x-2">
-							<div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-								<span className="text-primary-foreground font-bold text-sm">
-									G
+							<Image
+								src="/icons/icon-horizontal.svg"
+								alt="ギュウリスト Media"
+								width={160}
+								height={50}
+							/>
+							<div className="flex flex-col items-start">
+								<span className="text-3xl font-light text-muted-foreground tracking-widest uppercase font-cherry-bomb">
+									メディア
 								</span>
+								<div className="w-full h-0.5 bg-gradient-to-r from-primary to-accent rounded-full"></div>
 							</div>
-							<span className="font-bold text-lg text-foreground">
-								ギュウリスト <span className="text-primary">Media</span>
-							</span>
 						</div>
 						<p className="text-sm text-muted-foreground leading-relaxed">
 							牛の管理・飼育に関する最新情報をお届けします。効率的な牧場経営をサポートするギュウリストの公式メディアです。
