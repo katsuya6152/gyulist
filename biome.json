@@ -14,7 +14,8 @@
 			".vercel",
 			"coverage",
 			"playwright-report",
-			"docs"
+			"docs",
+			"apps/media"
 		]
 	},
 	"formatter": {

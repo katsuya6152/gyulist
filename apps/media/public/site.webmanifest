@@ -1,0 +1,23 @@
+{
+  "name": "Gyulist Media",
+  "short_name": "Gyulist Media",
+  "description": "牛の管理・飼育に関する情報メディア",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#BA5B34",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+
+
