@@ -1,0 +1,24 @@
+{
+  "build": {
+    "command": "pnpm run cf-pages:build",
+    "output": "out",
+    "environment": {
+      "NODE_VERSION": "18",
+      "PNPM_VERSION": "8"
+    }
+  },
+  "routes": [
+    {
+      "pattern": "/posts/*",
+      "serve": "/posts/[slug].html"
+    },
+    {
+      "pattern": "/tags/*",
+      "serve": "/tags/[tag].html"
+    },
+    {
+      "pattern": "/categories/*",
+      "serve": "/categories/[category].html"
+    }
+  ]
+}
