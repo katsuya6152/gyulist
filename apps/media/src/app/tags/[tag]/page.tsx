@@ -9,6 +9,24 @@ interface TagPageProps {
 	params: Promise<{ tag: string }>;
 }
 
+export async function generateStaticParams() {
+	// 公開済み記事をフィルタリング
+	const publishedPosts = posts.filter((post) => !post.draft);
+
+	// すべてのタグを収集
+	const allTags = publishedPosts
+		.flatMap((post) => post.tags || [])
+		.filter((tag) => tag && tag.trim() !== "");
+
+	// 重複を除去
+	const uniqueTags = [...new Set(allTags)];
+
+	// 各タグのパラメータを生成
+	return uniqueTags.map((tag) => ({
+		tag: encodeURIComponent(tag)
+	}));
+}
+
 export async function generateMetadata({
 	params
 }: TagPageProps): Promise<Metadata> {
@@ -16,7 +34,7 @@ export async function generateMetadata({
 	const decodedTag = decodeURIComponent(tag);
 
 	return {
-		title: `タグ: ${decodedTag} | Gyulist Media`,
+		title: `タグ: ${decodedTag} | ギュウリスト Media`,
 		description: `${decodedTag}に関する記事一覧です。牛の管理・飼育に関する情報をお届けします。`
 	};
 }

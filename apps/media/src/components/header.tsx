@@ -23,7 +23,7 @@ export function Header() {
 			<div className="container mx-auto px-4">
 				<div className="flex h-16 items-center justify-between">
 					{/* ロゴ */}
-					<Link href="/" className="flex items-center space-x-2">
+					<Link href="/" className="flex items-center space-x-4">
 						<div className="flex items-center space-x-2">
 							<Image
 								src="/icons/icon-horizontal.svg"
@@ -31,6 +31,12 @@ export function Header() {
 								width={160}
 								height={50}
 							/>
+						</div>
+						<div className="flex flex-col items-start">
+							<span className="text-3xl font-light text-muted-foreground tracking-widest uppercase font-cherry-bomb">
+								メディア
+							</span>
+							<div className="w-full h-0.5 bg-gradient-to-r from-primary to-accent rounded-full"></div>
 						</div>
 					</Link>
 

@@ -5,6 +5,7 @@ import { ja } from "date-fns/locale";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ShareButtons } from "@/components/share-buttons";
 import { CTASection } from "@/components/cta-section";
+import { TableOfContents } from "@/components/table-of-contents";
 import { ArticleJsonLd, BreadcrumbJsonLd } from "@/components/json-ld";
 import { Calendar, Clock, Tag, User } from "lucide-react";
 import type { Metadata } from "next";
@@ -198,8 +199,14 @@ export default async function PostPage({ params }: PostPageProps) {
 
 				{/* 記事コンテンツ */}
 				<div className="max-w-4xl mx-auto">
+					{/* 目次 */}
+					<div className="mb-8">
+						<TableOfContents className="bg-muted/30 rounded-lg p-4" />
+					</div>
+					
+					{/* メインコンテンツ */}
 					<div
-						className="prose prose-lg max-w-none"
+						className="article-content max-w-none"
 						dangerouslySetInnerHTML={{ __html: post.content }}
 					/>
 				</div>

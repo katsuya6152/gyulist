@@ -1,12 +1,14 @@
 import { defineConfig, defineCollection, s } from 'velite'
 import readingTime from 'reading-time'
+import rehypeSlug from 'rehype-slug'
+import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 
 const computedFields = <T extends Record<string, unknown>>(data: T) => {
   const title = (data.title as string) || '';
-  const generatedSlug = title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  const customSlug = (data.slug as string) || '';
   
-  // スラッグを常に生成されたスラッグで上書き（確実性を重視）
-  const validSlug = generatedSlug;
+  // カスタムslugが指定されている場合はそれを使用、なければタイトルから生成
+  const validSlug = customSlug || title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
   
   return {
     ...data,
@@ -24,6 +26,7 @@ const posts = defineCollection({
     .object({
       title: s.string().max(99),
       description: s.string().max(999),
+      slug: s.string().optional(),
       publishedAt: s.isodate(),
       updatedAt: s.isodate().optional(),
       category: s.string(),
@@ -67,6 +70,9 @@ export default defineConfig({
   collections: { posts, pages },
   mdx: {
     remarkPlugins: [],
-    rehypePlugins: [],
+    rehypePlugins: [
+      rehypeSlug,
+      [rehypeAutolinkHeadings, { behavior: 'wrap' }]
+    ],
   },
 })

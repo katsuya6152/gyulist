@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Cherry_Bomb_One } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
@@ -10,6 +10,12 @@ import "@/styles/globals.css";
 const inter = Inter({
 	subsets: ["latin"],
 	variable: "--font-geist-sans"
+});
+
+const cherryBombOne = Cherry_Bomb_One({
+	subsets: ["latin"],
+	weight: "400",
+	variable: "--font-cherry-bomb"
 });
 
 export const metadata: Metadata = {
@@ -84,7 +90,7 @@ export default function RootLayout({
 					description="牛の管理・飼育に関する最新情報をお届けします。効率的な牧場経営をサポートするギュウリストの公式メディアです。"
 				/>
 			</head>
-			<body className={`${inter.variable} font-sans antialiased`}>
+			<body className={`${inter.variable} ${cherryBombOne.variable} font-sans antialiased`}>
 				<ThemeProvider
 					attribute="class"
 					defaultTheme="light"
