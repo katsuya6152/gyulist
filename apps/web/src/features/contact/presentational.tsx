@@ -196,20 +196,6 @@ export function ContactPresentation() {
 							</form>
 						</CardContent>
 					</Card>
-
-					{/* <div className="mt-6 text-center">
-					<p className="text-sm text-muted-foreground">
-						お急ぎの場合は、直接メールでご連絡ください
-					</p>
-					<p className="text-sm text-muted-foreground mt-1">
-						<a
-							href="mailto:support@gyulist.com"
-							className="text-primary hover:underline"
-						>
-							support@gyulist.com
-						</a>
-					</p>
-				</div> */}
 				</div>
 			</div>
 		</div>
