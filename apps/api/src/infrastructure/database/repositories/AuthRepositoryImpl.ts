@@ -259,6 +259,40 @@ export class AuthRepositoryImpl implements AuthRepository {
 		}
 	}
 
+	async updateVerificationToken(
+		userId: UserId,
+		verificationToken: string
+	): Promise<Result<User, AuthError>> {
+		try {
+			const result = await this.db
+				.update(users)
+				.set({
+					verificationToken,
+					updatedAt: new Date().toISOString()
+				})
+				.where(eq(users.id, userId as unknown as number))
+				.returning();
+
+			const row = result[0];
+			if (!row) {
+				return err({
+					type: "NotFound",
+					entity: "User",
+					id: userId,
+					message: "User not found"
+				});
+			}
+
+			return ok(mapRawUserToUser(row));
+		} catch (cause) {
+			return err({
+				type: "InfraError",
+				message: "Failed to update verification token",
+				cause
+			});
+		}
+	}
+
 	async createOrUpdateOAuthUser(input: {
 		readonly email: string;
 		readonly userName: string;

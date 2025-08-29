@@ -78,6 +78,17 @@ export interface AuthRepository {
 	}): Promise<Result<User, AuthError>>;
 
 	/**
+	 * 検証トークンを更新します
+	 * @param userId - ユーザーID
+	 * @param verificationToken - 新しい検証トークン
+	 * @returns 成功時は更新されたユーザー、失敗時はAuthError
+	 */
+	updateVerificationToken(
+		userId: UserId,
+		verificationToken: string
+	): Promise<Result<User, AuthError>>;
+
+	/**
 	 * 最終ログイン日時を更新します
 	 * @param userId - ユーザーID
 	 * @param loginTime - ログイン日時

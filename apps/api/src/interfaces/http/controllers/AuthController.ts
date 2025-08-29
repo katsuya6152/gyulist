@@ -156,10 +156,17 @@ export class AuthController {
 			return c.json({ error: "Internal server error" }, 500);
 		}
 
-		return c.json({
-			success: result.value.success,
-			message: result.value.message
-		});
+		// 既存ユーザーの場合は409 Conflict、新規ユーザーの場合は200 OK
+		const statusCode = result.value.isExistingUser ? 409 : 200;
+
+		return c.json(
+			{
+				success: result.value.success,
+				message: result.value.message,
+				isExistingUser: result.value.isExistingUser
+			},
+			statusCode
+		);
 	}
 
 	/**
