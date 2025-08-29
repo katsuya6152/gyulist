@@ -56,44 +56,12 @@ jobs:
         if: steps.filter.outputs.api == 'true'
         working-directory: apps/api
         run: pnpm test:coverage
-        continue-on-error: true
 
       # --- Webのテスト ---
       - name: Run Web Tests
         if: steps.filter.outputs.web == 'true'
         working-directory: apps/web
         run: pnpm test:coverage
-        continue-on-error: true
-
-      # --- テスト結果の確認 ---
-      - name: Check test results
-        if: always()
-        run: |
-          if [ "${{ steps.filter.outputs.api }}" == "true" ] && [ "${{ steps.filter.outputs.web }}" == "true" ]; then
-            # 両方のテストが実行された場合、両方の結果を確認
-            if [ -f "apps/api/coverage/lcov.info" ] && [ -f "apps/web/coverage/lcov.info" ]; then
-              echo "All tests passed"
-            else
-              echo "Some tests failed"
-              exit 1
-            fi
-          elif [ "${{ steps.filter.outputs.api }}" == "true" ]; then
-            # APIテストのみ実行された場合
-            if [ -f "apps/api/coverage/lcov.info" ]; then
-              echo "API tests passed"
-            else
-              echo "API tests failed"
-              exit 1
-            fi
-          elif [ "${{ steps.filter.outputs.web }}" == "true" ]; then
-            # Webテストのみ実行された場合
-            if [ -f "apps/web/coverage/lcov.info" ]; then
-              echo "Web tests passed"
-            else
-              echo "Web tests failed"
-              exit 1
-            fi
-          fi
 
       # --- Codecov へのアップロード（API）---
       - name: Upload API coverage to Codecov
