@@ -1,7 +1,7 @@
 import { Google } from "arctic";
-import type { Bindings } from "../types";
+import type { Env } from "../types";
 
-export function createGoogleOAuth(env: Bindings): Google {
+export function createGoogleOAuth(env: Env): Google {
 	return new Google(
 		env.GOOGLE_CLIENT_ID,
 		env.GOOGLE_CLIENT_SECRET,

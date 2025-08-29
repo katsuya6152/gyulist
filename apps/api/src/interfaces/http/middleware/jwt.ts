@@ -1,7 +1,7 @@
 import type { MiddlewareHandler } from "hono";
-import type { Bindings } from "../../../types";
+import type { Env } from "../../../types";
 
-export const jwtMiddleware: MiddlewareHandler<{ Bindings: Bindings }> = async (
+export const jwtMiddleware: MiddlewareHandler<{ Bindings: Env }> = async (
 	c,
 	next
 ) => {

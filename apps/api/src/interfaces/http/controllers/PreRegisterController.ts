@@ -6,7 +6,7 @@
 
 import type { Context } from "hono";
 import type { PreRegisterUserUseCase } from "../../../application/use-cases/registration/preRegisterUser";
-import type { Bindings } from "../../../types";
+import type { Env } from "../../../types";
 
 export type PreRegisterControllerDeps = {
 	useCases: {
@@ -39,7 +39,7 @@ export class PreRegisterController {
 	 * 事前登録処理
 	 * POST /pre-register
 	 */
-	async preRegister(c: Context<{ Bindings: Bindings }>) {
+	async preRegister(c: Context<{ Bindings: Env }>) {
 		try {
 			const body = await c.req.json();
 

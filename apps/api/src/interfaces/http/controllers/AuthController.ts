@@ -20,7 +20,7 @@ import type {
 	VerifyTokenUseCase
 } from "../../../application/use-cases/auth";
 import type { UserId } from "../../../domain/types/auth";
-import type { Bindings } from "../../../types";
+import type { Env } from "../../../types";
 
 // ============================================================================
 // Controller Dependencies
@@ -93,7 +93,7 @@ export class AuthController {
 	 * ユーザーログイン
 	 * POST /auth/login
 	 */
-	async login(c: Context<{ Bindings: Bindings }>) {
+	async login(c: Context<{ Bindings: Env }>) {
 		try {
 			console.log("Login method called");
 			const body = await c.req.json();
@@ -140,7 +140,7 @@ export class AuthController {
 	 * ユーザー仮登録
 	 * POST /auth/register
 	 */
-	async register(c: Context<{ Bindings: Bindings }>) {
+	async register(c: Context<{ Bindings: Env }>) {
 		const body = await c.req.json();
 
 		const input: RegisterUserInput = {
@@ -166,7 +166,7 @@ export class AuthController {
 	 * トークン検証
 	 * POST /auth/verify
 	 */
-	async verify(c: Context<{ Bindings: Bindings }>) {
+	async verify(c: Context<{ Bindings: Env }>) {
 		const body = await c.req.json();
 
 		const input: VerifyTokenInput = {
@@ -189,7 +189,7 @@ export class AuthController {
 	 * 本登録完了
 	 * POST /auth/complete
 	 */
-	async complete(c: Context<{ Bindings: Bindings }>) {
+	async complete(c: Context<{ Bindings: Env }>) {
 		const body = await c.req.json();
 
 		const input: CompleteRegistrationInput = {
@@ -217,7 +217,7 @@ export class AuthController {
 	 * ユーザーテーマ更新
 	 * PATCH /users/:id/theme
 	 */
-	async updateTheme(c: Context<{ Bindings: Bindings }>) {
+	async updateTheme(c: Context<{ Bindings: Env }>) {
 		try {
 			const body = await c.req.json();
 			const userId = Number.parseInt(c.req.param("id")) as UserId;
@@ -246,7 +246,7 @@ export class AuthController {
 	 * ユーザー情報取得
 	 * GET /users/:id
 	 */
-	async getUser(c: Context<{ Bindings: Bindings }>) {
+	async getUser(c: Context<{ Bindings: Env }>) {
 		try {
 			const jwtPayload = c.get("jwtPayload");
 			const requestingUserId = jwtPayload.userId as UserId;

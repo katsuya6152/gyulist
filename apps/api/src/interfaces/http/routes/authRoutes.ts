@@ -10,7 +10,7 @@ import { Hono } from "hono";
 import { z } from "zod";
 
 import { makeDependencies } from "../../../infrastructure/config/dependencies";
-import type { Bindings } from "../../../types";
+import type { Env } from "../../../types";
 import { AuthController } from "../controllers/AuthController";
 import { jwtMiddleware } from "../middleware/jwt";
 
@@ -62,7 +62,7 @@ const updateThemeSchema = z.object({
  */
 export function createAuthRoutes() {
 	return (
-		new Hono<{ Bindings: Bindings }>()
+		new Hono<{ Bindings: Env }>()
 			// ログイン
 			.post("/login", zValidator("json", loginSchema), async (c) => {
 				const db = c.env.DB;
@@ -73,7 +73,8 @@ export function createAuthRoutes() {
 					verifyTokenUseCase: deps.useCases.verifyTokenUseCase,
 					completeRegistrationUseCase:
 						deps.useCases.completeRegistrationUseCase,
-					updateUserThemeUseCase: deps.useCases.updateUserThemeUseCase
+					updateUserThemeUseCase: deps.useCases.updateUserThemeUseCase,
+					getUserUseCase: deps.useCases.getUserUseCase
 				});
 				return authController.login(c);
 			})
@@ -88,7 +89,8 @@ export function createAuthRoutes() {
 					verifyTokenUseCase: deps.useCases.verifyTokenUseCase,
 					completeRegistrationUseCase:
 						deps.useCases.completeRegistrationUseCase,
-					updateUserThemeUseCase: deps.useCases.updateUserThemeUseCase
+					updateUserThemeUseCase: deps.useCases.updateUserThemeUseCase,
+					getUserUseCase: deps.useCases.getUserUseCase
 				});
 				return authController.register(c);
 			})
@@ -103,7 +105,8 @@ export function createAuthRoutes() {
 					verifyTokenUseCase: deps.useCases.verifyTokenUseCase,
 					completeRegistrationUseCase:
 						deps.useCases.completeRegistrationUseCase,
-					updateUserThemeUseCase: deps.useCases.updateUserThemeUseCase
+					updateUserThemeUseCase: deps.useCases.updateUserThemeUseCase,
+					getUserUseCase: deps.useCases.getUserUseCase
 				});
 				return authController.verify(c);
 			})
@@ -118,7 +121,8 @@ export function createAuthRoutes() {
 					verifyTokenUseCase: deps.useCases.verifyTokenUseCase,
 					completeRegistrationUseCase:
 						deps.useCases.completeRegistrationUseCase,
-					updateUserThemeUseCase: deps.useCases.updateUserThemeUseCase
+					updateUserThemeUseCase: deps.useCases.updateUserThemeUseCase,
+					getUserUseCase: deps.useCases.getUserUseCase
 				});
 				return authController.complete(c);
 			})
@@ -132,7 +136,7 @@ export function createAuthRoutes() {
  */
 export function createUserRoutes() {
 	return (
-		new Hono<{ Bindings: Bindings }>()
+		new Hono<{ Bindings: Env }>()
 			.use("*", jwtMiddleware)
 
 			// ユーザー情報取得
