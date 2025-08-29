@@ -22,7 +22,7 @@ function AuthCallbackContent() {
 			const cookieString = `token=${token}; path=/; max-age=${30 * 24 * 60 * 60}; samesite=lax${isProduction ? "; secure" : ""}`;
 			document.cookie = cookieString;
 
-			// 成功後にスケジュールページにリダイレクト
+			// 成功後にホームページにリダイレクト
 			router.push("/home");
 		} catch (error) {
 			console.error("Failed to set token cookie:", error);

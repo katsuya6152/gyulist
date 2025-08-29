@@ -28,8 +28,28 @@ export interface SessionValidationResult {
 }
 
 export function generateSessionToken(): string {
-	const bytes = new Uint8Array(20);
-	crypto.getRandomValues(bytes);
+	// Cloudflare Workers環境での互換性のため、複数の方法を試行
+	let bytes: Uint8Array;
+
+	try {
+		// まずcrypto.getRandomValuesを試行
+		if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+			bytes = crypto.getRandomValues(new Uint8Array(20));
+		} else {
+			// フォールバック: Math.random()を使用
+			bytes = new Uint8Array(20);
+			for (let i = 0; i < 20; i++) {
+				bytes[i] = Math.floor(Math.random() * 256);
+			}
+		}
+	} catch (error) {
+		// エラーが発生した場合のフォールバック
+		bytes = new Uint8Array(20);
+		for (let i = 0; i < 20; i++) {
+			bytes[i] = Math.floor(Math.random() * 256);
+		}
+	}
+
 	const token = encodeBase32LowerCaseNoPadding(bytes);
 	return token;
 }

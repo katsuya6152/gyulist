@@ -118,22 +118,47 @@ const app = new Hono<{ Bindings: Env }>()
 
 		try {
 			const google = createGoogleOAuth(c.env);
+
 			const tokens = await google.validateAuthorizationCode(
 				code,
 				storedCodeVerifier
 			);
 
+			// アクセストークンを取得（Arcticライブラリの戻り値の構造に応じて調整）
+			const accessToken =
+				typeof tokens.accessToken === "function"
+					? tokens.accessToken()
+					: tokens.accessToken;
+
+			if (!accessToken || typeof accessToken !== "string") {
+				logger.error("No valid access token received from Google OAuth", {
+					tokens: tokens,
+					accessToken: accessToken,
+					accessTokenType: typeof accessToken,
+					endpoint: "/oauth/google/callback"
+				});
+				return c.json({ error: "No valid access token received" }, 500);
+			}
+
 			// Googleユーザー情報を取得
 			let googleUser: GoogleUser;
 			try {
+				// Authorizationヘッダーを使用してアクセストークンを送信
 				const googleUserResponse = await fetch(
-					`https://www.googleapis.com/oauth2/v2/userinfo?access_token=${tokens.accessToken}`
+					"https://www.googleapis.com/oauth2/v3/userinfo",
+					{
+						headers: {
+							Authorization: `Bearer ${accessToken}`,
+							Accept: "application/json"
+						}
+					}
 				);
 
 				if (!googleUserResponse.ok) {
 					logger.error("Failed to fetch Google user info", {
 						status: googleUserResponse.status,
 						statusText: googleUserResponse.statusText,
+						responseText: await googleUserResponse.text(),
 						endpoint: "/oauth/google/callback"
 					});
 					return c.json(
@@ -142,14 +167,35 @@ const app = new Hono<{ Bindings: Env }>()
 					);
 				}
 
-				googleUser = await googleUserResponse.json();
+				const userInfoResponse = await googleUserResponse.json();
+
+				// Google API v3のレスポンス形式に合わせてマッピング
+				googleUser = {
+					id: userInfoResponse.sub || userInfoResponse.id,
+					email: userInfoResponse.email,
+					verified_email: userInfoResponse.email_verified || false,
+					name: userInfoResponse.name,
+					given_name: userInfoResponse.given_name,
+					family_name: userInfoResponse.family_name,
+					picture: userInfoResponse.picture,
+					locale: userInfoResponse.locale
+				};
 
 				if (!googleUser.verified_email) {
-					console.error("Google email not verified");
+					logger.error("Google email not verified", {
+						email: googleUser.email,
+						endpoint: "/oauth/google/callback"
+					});
 					return c.json({ error: "Google email not verified" }, 400);
 				}
 			} catch (fetchError) {
-				console.error("Fetch error:", fetchError);
+				logger.error("Fetch error while getting Google user info", {
+					error:
+						fetchError instanceof Error
+							? fetchError.message
+							: String(fetchError),
+					endpoint: "/oauth/google/callback"
+				});
 				return c.json({ error: "Network error while fetching user info" }, 500);
 			}
 
@@ -167,6 +213,7 @@ const app = new Hono<{ Bindings: Env }>()
 			if (existingUser) {
 				// 既存ユーザーの場合、情報を更新
 				userId = existingUser.id;
+
 				await db
 					.update(users)
 					.set({
@@ -226,14 +273,31 @@ const app = new Hono<{ Bindings: Env }>()
 
 			return c.redirect(redirectUrl);
 		} catch (error) {
-			console.error("Google OAuth error:", error);
-			return c.json(
-				{
-					error: "Authentication failed",
-					details: error instanceof Error ? error.message : "Unknown error"
-				},
-				500
-			);
+			logger.error("Google OAuth error", {
+				error: error instanceof Error ? error.message : String(error),
+				stack: error instanceof Error ? error.stack : undefined,
+				endpoint: "/oauth/google/callback"
+			});
+
+			// OAuth用クッキーをクリア
+			deleteCookie(c, "google_oauth_state", { path: "/" });
+			deleteCookie(c, "google_oauth_code_verifier", { path: "/" });
+
+			// 開発環境かどうかを判定
+			const isProduction = c.env.ENVIRONMENT === "production";
+
+			// フロントエンドのエラーページにリダイレクト
+			const frontendUrl = isProduction
+				? "https://gyulist.com"
+				: "http://localhost:3000";
+			const errorRedirectUrl = `${frontendUrl}/login?error=oauth_failed&details=${encodeURIComponent(error instanceof Error ? error.message : "Unknown error")}`;
+
+			logger.debug("Redirecting to error page", {
+				errorRedirectUrl: errorRedirectUrl,
+				endpoint: "/oauth/google/callback"
+			});
+
+			return c.redirect(errorRedirectUrl);
 		}
 	});
 
