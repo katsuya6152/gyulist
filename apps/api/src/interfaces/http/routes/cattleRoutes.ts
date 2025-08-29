@@ -13,7 +13,7 @@ import {
 	updateCattleSchema
 } from "../../../domain/types/cattle";
 import { makeDependencies } from "../../../infrastructure/config/dependencies";
-import type { Bindings } from "../../../types";
+import type { Env } from "../../../types";
 import { makeCattleController } from "../controllers/CattleController";
 import { jwtMiddleware } from "../middleware/jwt";
 
@@ -36,7 +36,7 @@ const updateCattleStatusSchema = z.object({
  * @returns Honoアプリケーション
  */
 export function createCattleRoutes() {
-	const app = new Hono<{ Bindings: Bindings }>()
+	const app = new Hono<{ Bindings: Env }>()
 		.use("*", jwtMiddleware)
 
 		// 牛の一覧・検索

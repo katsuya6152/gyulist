@@ -8,7 +8,7 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { z } from "zod";
 import { makeDependencies } from "../../../infrastructure/config/dependencies";
-import type { Bindings } from "../../../types";
+import type { Env } from "../../../types";
 import { makeAlertController } from "../controllers/AlertController";
 import { jwtMiddleware } from "../middleware/jwt";
 
@@ -32,7 +32,7 @@ const updateStatusSchema = z.object({
  * Create Alert Routes
  */
 export function createAlertRoutes() {
-	const app = new Hono<{ Bindings: Bindings }>()
+	const app = new Hono<{ Bindings: Env }>()
 		.use("*", jwtMiddleware)
 
 		// Get alerts for user

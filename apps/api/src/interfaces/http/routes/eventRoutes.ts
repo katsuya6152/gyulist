@@ -9,7 +9,7 @@ import type { AnyD1Database } from "drizzle-orm/d1";
 import { Hono } from "hono";
 import { z } from "zod";
 import { makeDependencies } from "../../../infrastructure/config/dependencies";
-import type { Bindings } from "../../../types";
+import type { Env } from "../../../types";
 import { makeEventController } from "../controllers/EventController";
 import { jwtMiddleware } from "../middleware/jwt";
 
@@ -40,7 +40,7 @@ const searchEventsQuerySchema = z.object({
  * Create Event Routes
  */
 export function createEventRoutes() {
-	const app = new Hono<{ Bindings: Bindings }>()
+	const app = new Hono<{ Bindings: Env }>()
 		.use("*", jwtMiddleware)
 
 		// イベント一覧・検索

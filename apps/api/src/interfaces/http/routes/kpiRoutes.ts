@@ -6,7 +6,7 @@
 
 import { Hono } from "hono";
 import { makeDependencies } from "../../../infrastructure/config/dependencies";
-import type { Bindings } from "../../../types";
+import type { Env } from "../../../types";
 import { makeKpiController } from "../controllers/KpiController";
 import { jwtMiddleware } from "../middleware/jwt";
 
@@ -16,7 +16,7 @@ import { jwtMiddleware } from "../middleware/jwt";
  * @returns KPI Honoアプリ
  */
 export function createKpiRoutes() {
-	const app = new Hono<{ Bindings: Bindings }>()
+	const app = new Hono<{ Bindings: Env }>()
 		.use("*", jwtMiddleware)
 
 		// ルート定義

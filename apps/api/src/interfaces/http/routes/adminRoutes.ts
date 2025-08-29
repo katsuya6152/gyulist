@@ -8,7 +8,7 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { z } from "zod";
 import { makeDependencies } from "../../../infrastructure/config/dependencies";
-import type { Bindings } from "../../../types";
+import type { Env } from "../../../types";
 import { makeAdminController } from "../controllers/AdminController";
 import { basicAuthMiddleware } from "../middleware/basicAuth";
 
@@ -28,7 +28,7 @@ const adminRegistrationsQuerySchema = z.object({
  * @returns Honoアプリケーション
  */
 export function createAdminRoutes() {
-	const app = new Hono<{ Bindings: Bindings }>()
+	const app = new Hono<{ Bindings: Env }>()
 		.use("*", basicAuthMiddleware)
 
 		// 事前登録一覧取得

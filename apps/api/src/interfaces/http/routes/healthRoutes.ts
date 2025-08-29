@@ -1,7 +1,7 @@
 import { Hono } from "hono";
-import type { Bindings } from "../../../types";
+import type { Env } from "../../../types";
 
-const app = new Hono<{ Bindings: Bindings }>().get("/", (c) => {
+const app = new Hono<{ Bindings: Env }>().get("/", (c) => {
 	return c.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 

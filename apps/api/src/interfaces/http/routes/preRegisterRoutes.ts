@@ -8,7 +8,7 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { z } from "zod";
 import { makeDependencies } from "../../../infrastructure/config/dependencies";
-import type { Bindings } from "../../../types";
+import type { Env } from "../../../types";
 import { makePreRegisterController } from "../controllers/PreRegisterController";
 
 // Validation schemas
@@ -24,7 +24,7 @@ const preRegisterSchema = z.object({
  * @returns Honoアプリケーション
  */
 export function createPreRegisterRoutes() {
-	const app = new Hono<{ Bindings: Bindings }>()
+	const app = new Hono<{ Bindings: Env }>()
 
 		// 事前登録処理
 		.post("/", zValidator("json", preRegisterSchema), async (c) => {

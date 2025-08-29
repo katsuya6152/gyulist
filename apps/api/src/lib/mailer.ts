@@ -1,9 +1,9 @@
-import type { Bindings } from "../types";
+import type { Env } from "../types";
 
-const isDev = (env: Bindings) => env.ENVIRONMENT !== "production";
+const isDev = (env: Env) => env.ENVIRONMENT !== "production";
 
 export async function sendVerificationEmail(
-	env: Bindings,
+	env: Env,
 	email: string,
 	token: string
 ) {

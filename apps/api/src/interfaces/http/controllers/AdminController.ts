@@ -6,7 +6,7 @@
 
 import type { Context } from "hono";
 import type { Dependencies } from "../../../infrastructure/config/dependencies";
-import type { Bindings } from "../../../types";
+import type { Env } from "../../../types";
 
 export type AdminControllerDeps = {
 	adminUseCases: Dependencies["adminUseCases"];
@@ -29,7 +29,7 @@ export class AdminController {
 	 * 事前登録一覧取得
 	 * GET /admin/registrations
 	 */
-	async getRegistrations(c: Context<{ Bindings: Bindings }>) {
+	async getRegistrations(c: Context<{ Bindings: Env }>) {
 		try {
 			const query = c.req.query();
 
@@ -62,7 +62,7 @@ export class AdminController {
 	 * 事前登録CSVエクスポート
 	 * GET /admin/registrations.csv
 	 */
-	async exportRegistrationsCsv(c: Context<{ Bindings: Bindings }>) {
+	async exportRegistrationsCsv(c: Context<{ Bindings: Env }>) {
 		try {
 			const query = c.req.query();
 
