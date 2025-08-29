@@ -108,6 +108,7 @@ import type {
 	ShipmentRepository
 } from "../../domain/ports/shipments";
 import type { ClockPort } from "../../shared/ports/clock";
+import type { Env } from "../../shared/ports/d1Database";
 import type { TokenPort } from "../../shared/ports/token";
 import { D1DatabaseFactory } from "../database/D1DatabaseFactory";
 import { AlertRepositoryImpl } from "../database/repositories/AlertRepositoryImpl";
@@ -269,7 +270,8 @@ export type Dependencies = {
  */
 export function makeDependencies(
 	db: AnyD1Database,
-	clock: ClockPort
+	clock: ClockPort,
+	env?: Partial<Env>
 ): Dependencies {
 	// D1DatabasePortの作成
 	const d1DatabasePort = D1DatabaseFactory.create(db);
@@ -447,7 +449,49 @@ export function makeDependencies(
 	const registerUser = registerUserUseCase({
 		authRepo,
 		tokenGenerator,
-		clock
+		clock,
+		mailService: {
+			async sendVerificationEmail(email: string, token: string) {
+				try {
+					// 渡された環境変数またはデフォルト値を使用
+					const envConfig = {
+						DB: db,
+						ENVIRONMENT: env?.ENVIRONMENT || "development",
+						APP_URL: env?.APP_URL || "http://localhost:3000",
+						JWT_SECRET: env?.JWT_SECRET || "dummy-secret",
+						GOOGLE_CLIENT_ID: env?.GOOGLE_CLIENT_ID || "dummy-id",
+						GOOGLE_CLIENT_SECRET: env?.GOOGLE_CLIENT_SECRET || "dummy-secret",
+						RESEND_API_KEY: env?.RESEND_API_KEY || "",
+						MAIL_FROM: env?.MAIL_FROM || "noreply@gyulist.com",
+						TURNSTILE_SECRET_KEY: env?.TURNSTILE_SECRET_KEY || "dummy-key",
+						ADMIN_USER: env?.ADMIN_USER || "admin",
+						ADMIN_PASS: env?.ADMIN_PASS || "admin",
+						WEB_ORIGIN: env?.WEB_ORIGIN || "http://localhost:3000"
+					};
+
+					// 実際のメール送信を実行
+					const { sendVerificationEmail } = await import("../../lib/mailer");
+					const result = await sendVerificationEmail(envConfig, email, token);
+
+					return { ok: true, value: result };
+				} catch (error) {
+					return {
+						ok: false,
+						error: {
+							type: "InfraError",
+							message: "メール送信に失敗しました",
+							cause: error
+						}
+					};
+				}
+			}
+		},
+		env: {
+			ENVIRONMENT: env?.ENVIRONMENT || "development",
+			APP_URL: env?.APP_URL || "http://localhost:3000",
+			RESEND_API_KEY: env?.RESEND_API_KEY || "",
+			MAIL_FROM: env?.MAIL_FROM || "noreply@gyulist.com"
+		}
 	});
 
 	const verifyToken = verifyTokenUseCase({

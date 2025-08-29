@@ -1,3 +1,4 @@
+import type { AnyD1Database } from "drizzle-orm/d1";
 import {
 	createAlertUseCase,
 	getAlertsUseCase,
@@ -36,7 +37,13 @@ import type { AuthRepository } from "../../domain/ports/auth";
 import type { CattleRepository } from "../../domain/ports/cattle";
 import type { EventRepository } from "../../domain/ports/events";
 import type { KpiRepository } from "../../domain/ports/kpi";
+import type { RegistrationRepository } from "../../domain/ports/registration";
+import type {
+	ShipmentPlanRepository,
+	ShipmentRepository
+} from "../../domain/ports/shipments";
 import type { ClockPort } from "../../shared/ports/clock";
+import type { Env } from "../../shared/ports/d1Database";
 import type { TokenPort } from "../../shared/ports/token";
 
 interface RepositoryDependencies {
@@ -45,6 +52,9 @@ interface RepositoryDependencies {
 	alertRepo: AlertRepository;
 	kpiRepo: KpiRepository;
 	authRepo: AuthRepository;
+	registrationRepo: RegistrationRepository;
+	shipmentRepo: ShipmentRepository;
+	shipmentPlanRepo: ShipmentPlanRepository;
 }
 
 interface ServiceDependencies {
@@ -52,10 +62,44 @@ interface ServiceDependencies {
 	token: TokenPort;
 }
 
-export function createUseCases(
+interface UseCaseDependencies {
+	createCattleUseCase: ReturnType<typeof createCattleUseCase>;
+	getCattleUseCase: ReturnType<typeof getCattleUseCase>;
+	getCattleWithDetailsUseCase: ReturnType<typeof getCattleWithDetailsUseCase>;
+	getStatusCountsUseCase: ReturnType<typeof getStatusCountsUseCase>;
+	searchCattleUseCase: ReturnType<typeof searchCattleUseCase>;
+	updateCattleUseCase: ReturnType<typeof updateCattleUseCase>;
+	deleteCattleUseCase: ReturnType<typeof deleteCattleUseCase>;
+	createEventUseCase: ReturnType<typeof createEventUseCase>;
+	getEventUseCase: ReturnType<typeof getEventUseCase>;
+	searchEventsUseCase: ReturnType<typeof searchEventsUseCase>;
+	getAlertsUseCase: ReturnType<typeof getAlertsUseCase>;
+	createAlertUseCase: ReturnType<typeof createAlertUseCase>;
+	updateAlertStatusUseCase: ReturnType<typeof updateAlertStatusUseCase>;
+	updateAlertMemoUseCase: ReturnType<typeof updateAlertMemoUseCase>;
+	searchAlertsUseCase: ReturnType<typeof searchAlertsUseCase>;
+	getBreedingKpiUseCase: ReturnType<typeof getBreedingKpiUseCase>;
+	calculateBreedingMetricsUseCase: ReturnType<
+		typeof calculateBreedingMetricsUseCase
+	>;
+	loginUserUseCase: ReturnType<typeof loginUserUseCase>;
+	registerUserUseCase: ReturnType<typeof registerUserUseCase>;
+	verifyTokenUseCase: ReturnType<typeof verifyTokenUseCase>;
+	completeRegistrationUseCase: ReturnType<typeof completeRegistrationUseCase>;
+	updateUserThemeUseCase: ReturnType<typeof updateUserThemeUseCase>;
+	getUserUseCase: ReturnType<typeof getUserUseCase>;
+}
+
+interface UseCaseFactoryResult {
+	repositories: RepositoryDependencies;
+	useCases: UseCaseDependencies;
+}
+
+export function makeUseCases(
 	repositories: RepositoryDependencies,
-	services: ServiceDependencies
-) {
+	services: ServiceDependencies,
+	env?: Partial<Env>
+): UseCaseFactoryResult {
 	// パスワードハッシュ化・検証サービス
 	const passwordHasher = {
 		async hash(password: string): Promise<string> {
@@ -165,7 +209,56 @@ export function createUseCases(
 	const registerUser = registerUserUseCase({
 		authRepo: repositories.authRepo,
 		tokenGenerator,
-		clock: services.clock
+		clock: services.clock,
+		mailService: {
+			async sendVerificationEmail(email: string, token: string) {
+				try {
+					// 渡された環境変数またはデフォルト値を使用
+					const envConfig = {
+						DB: repositories.authRepo as unknown as AnyD1Database,
+						ENVIRONMENT: env?.ENVIRONMENT || "development",
+						APP_URL: env?.APP_URL || "http://localhost:3000",
+						JWT_SECRET: env?.JWT_SECRET || "dummy-secret",
+						GOOGLE_CLIENT_ID: env?.GOOGLE_CLIENT_ID || "dummy-id",
+						GOOGLE_CLIENT_SECRET: env?.GOOGLE_CLIENT_SECRET || "dummy-secret",
+						RESEND_API_KEY: env?.RESEND_API_KEY || "dummy-key",
+						MAIL_FROM: env?.MAIL_FROM || "noreply@gyulist.com",
+						TURNSTILE_SECRET_KEY: env?.TURNSTILE_SECRET_KEY || "dummy-key",
+						ADMIN_USER: env?.ADMIN_USER || "admin",
+						ADMIN_PASS: env?.ADMIN_PASS || "admin",
+						WEB_ORIGIN: env?.WEB_ORIGIN || "http://localhost:3000"
+					};
+
+					// 開発環境ではコンソールログのみ
+					if (envConfig.ENVIRONMENT !== "production") {
+						console.log(
+							`【開発モード】メール送信: ${email} - トークン: ${token}`
+						);
+						return { ok: true, value: "sent" };
+					}
+
+					// 本番環境では実際のメール送信
+					const { sendVerificationEmail } = await import("../../lib/mailer");
+					await sendVerificationEmail(envConfig, email, token);
+					return { ok: true, value: "sent" };
+				} catch (error) {
+					return {
+						ok: false,
+						error: {
+							type: "InfraError",
+							message: "メール送信に失敗しました",
+							cause: error
+						}
+					};
+				}
+			}
+		},
+		env: {
+			ENVIRONMENT: env?.ENVIRONMENT || "development",
+			APP_URL: env?.APP_URL || "http://localhost:3000",
+			RESEND_API_KEY: env?.RESEND_API_KEY || "dummy-key",
+			MAIL_FROM: env?.MAIL_FROM || "noreply@gyulist.com"
+		}
 	});
 
 	const verifyToken = verifyTokenUseCase({
@@ -194,7 +287,9 @@ export function createUseCases(
 			alertRepo: repositories.alertRepo,
 			kpiRepo: repositories.kpiRepo,
 			authRepo: repositories.authRepo,
-			registrationRepo: repositories.authRepo // Assuming registrationRepo is authRepo for now
+			registrationRepo: repositories.registrationRepo,
+			shipmentRepo: repositories.shipmentRepo,
+			shipmentPlanRepo: repositories.shipmentPlanRepo
 		},
 		useCases: {
 			createCattleUseCase: createCattle,

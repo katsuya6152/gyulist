@@ -31,6 +31,9 @@ export function LandingHeader() {
 					<Link href="#faq" className="hover:opacity-80">
 						FAQ
 					</Link>
+					<Link href="/contact" className="hover:opacity-80">
+						お問い合わせ
+					</Link>
 					<Link
 						href="/login"
 						className="inline-flex items-center gap-2 border border-primary text-primary px-4 py-2 rounded-full font-semibold hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400"

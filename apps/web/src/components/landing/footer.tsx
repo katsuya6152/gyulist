@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export function LandingFooter() {
 	return (
@@ -18,6 +19,24 @@ export function LandingFooter() {
 					<p className="mt-3 text-gray-400">
 						畜産管理をもっとスマートに。現場と経営をつなぐクラウド。
 					</p>
+				</div>
+				<div>
+					<h3 className="font-semibold text-white mb-4">サポート</h3>
+					<ul className="space-y-2">
+						<li>
+							<Link
+								href="/contact"
+								className="hover:text-white transition-colors"
+							>
+								お問い合わせ
+							</Link>
+						</li>
+						<li>
+							<Link href="#faq" className="hover:text-white transition-colors">
+								よくある質問
+							</Link>
+						</li>
+					</ul>
 				</div>
 			</div>
 			<div className="border-t border-white/10">

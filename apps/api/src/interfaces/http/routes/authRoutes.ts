@@ -82,7 +82,7 @@ export function createAuthRoutes() {
 			// 仮登録
 			.post("/register", zValidator("json", registerSchema), async (c) => {
 				const db = c.env.DB;
-				const deps = makeDependencies(db, { now: () => new Date() });
+				const deps = makeDependencies(db, { now: () => new Date() }, c.env);
 				const authController = new AuthController({
 					loginUserUseCase: deps.useCases.loginUserUseCase,
 					registerUserUseCase: deps.useCases.registerUserUseCase,

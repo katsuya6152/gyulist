@@ -6,11 +6,22 @@ import type { ReactNode } from "react";
 
 interface MainContentWrapperProps {
 	children: ReactNode;
+	useSidebarLayout?: boolean;
 }
 
-export function MainContentWrapper({ children }: MainContentWrapperProps) {
-	const { isExpanded } = useSidebar();
+export function MainContentWrapper({
+	children,
+	useSidebarLayout = true
+}: MainContentWrapperProps) {
 	const isDesktop = useMediaQuery("(min-width: 1024px)");
+
+	// サイドバーレイアウトを使用しない場合
+	if (!useSidebarLayout) {
+		return <div className="w-full">{children}</div>;
+	}
+
+	// サイドバーレイアウトを使用する場合
+	const { isExpanded } = useSidebar();
 
 	if (!isDesktop) {
 		return <div className="w-full">{children}</div>;
