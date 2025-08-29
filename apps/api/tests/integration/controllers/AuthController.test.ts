@@ -22,7 +22,7 @@ import { AuthController } from "../../../src/interfaces/http/controllers/AuthCon
 import type { AuthControllerDeps } from "../../../src/interfaces/http/controllers/AuthController";
 import { err, ok } from "../../../src/shared/result";
 import type { Result } from "../../../src/shared/result";
-import type { Bindings } from "../../../src/types";
+import type { Env } from "../../../src/types";
 
 // Mock Hono Context
 const createMockContext = (
@@ -112,7 +112,7 @@ describe("Auth Controller - New Architecture", () => {
 
 			// Act
 			await authController.login(
-				mockContext as unknown as Context<{ Bindings: Bindings }>
+				mockContext as unknown as Context<{ Bindings: Env }>
 			);
 
 			// Assert
@@ -154,7 +154,7 @@ describe("Auth Controller - New Architecture", () => {
 
 			// Act
 			await authController.login(
-				mockContext as unknown as Context<{ Bindings: Bindings }>
+				mockContext as unknown as Context<{ Bindings: Env }>
 			);
 
 			// Assert
@@ -187,7 +187,7 @@ describe("Auth Controller - New Architecture", () => {
 
 			// Act
 			await authController.login(
-				mockContext as unknown as Context<{ Bindings: Bindings }>
+				mockContext as unknown as Context<{ Bindings: Env }>
 			);
 
 			// Assert
@@ -217,7 +217,7 @@ describe("Auth Controller - New Architecture", () => {
 
 			// Act
 			await authController.login(
-				mockContext as unknown as Context<{ Bindings: Bindings }>
+				mockContext as unknown as Context<{ Bindings: Env }>
 			);
 
 			// Assert
@@ -240,7 +240,7 @@ describe("Auth Controller - New Architecture", () => {
 
 			// Act
 			await authController.login(
-				mockContext as unknown as Context<{ Bindings: Bindings }>
+				mockContext as unknown as Context<{ Bindings: Env }>
 			);
 
 			// Assert
@@ -273,7 +273,7 @@ describe("Auth Controller - New Architecture", () => {
 
 			// Act
 			await authController.register(
-				mockContext as unknown as Context<{ Bindings: Bindings }>
+				mockContext as unknown as Context<{ Bindings: Env }>
 			);
 
 			// Assert
@@ -281,10 +281,14 @@ describe("Auth Controller - New Architecture", () => {
 				email: "newuser@example.com"
 			});
 
-			expect(mockJsonResponse).toHaveBeenCalledWith({
-				success: true,
-				message: "Registration email sent"
-			});
+			expect(mockJsonResponse).toHaveBeenCalledWith(
+				{
+					success: true,
+					message: "Registration email sent",
+					isExistingUser: undefined
+				},
+				200
+			);
 		});
 
 		it("should return 400 for validation error during registration", async () => {
@@ -309,7 +313,7 @@ describe("Auth Controller - New Architecture", () => {
 
 			// Act
 			await authController.register(
-				mockContext as unknown as Context<{ Bindings: Bindings }>
+				mockContext as unknown as Context<{ Bindings: Env }>
 			);
 
 			// Assert
@@ -340,7 +344,7 @@ describe("Auth Controller - New Architecture", () => {
 
 			// Act
 			await authController.register(
-				mockContext as unknown as Context<{ Bindings: Bindings }>
+				mockContext as unknown as Context<{ Bindings: Env }>
 			);
 
 			// Assert
@@ -373,7 +377,7 @@ describe("Auth Controller - New Architecture", () => {
 
 			// Act
 			await authController.verify(
-				mockContext as unknown as Context<{ Bindings: Bindings }>
+				mockContext as unknown as Context<{ Bindings: Env }>
 			);
 
 			// Assert
@@ -408,7 +412,7 @@ describe("Auth Controller - New Architecture", () => {
 
 			// Act
 			await authController.verify(
-				mockContext as unknown as Context<{ Bindings: Bindings }>
+				mockContext as unknown as Context<{ Bindings: Env }>
 			);
 
 			// Assert
@@ -443,7 +447,7 @@ describe("Auth Controller - New Architecture", () => {
 
 			// Act
 			await authController.complete(
-				mockContext as unknown as Context<{ Bindings: Bindings }>
+				mockContext as unknown as Context<{ Bindings: Env }>
 			);
 
 			// Assert
@@ -483,7 +487,7 @@ describe("Auth Controller - New Architecture", () => {
 
 			// Act
 			await authController.complete(
-				mockContext as unknown as Context<{ Bindings: Bindings }>
+				mockContext as unknown as Context<{ Bindings: Env }>
 			);
 
 			// Assert
@@ -517,7 +521,7 @@ describe("Auth Controller - New Architecture", () => {
 
 			// Act
 			await authController.complete(
-				mockContext as unknown as Context<{ Bindings: Bindings }>
+				mockContext as unknown as Context<{ Bindings: Env }>
 			);
 
 			// Assert
@@ -542,7 +546,7 @@ describe("Auth Controller - New Architecture", () => {
 
 			// Act
 			await authController.getUser(
-				mockContext as unknown as Context<{ Bindings: Bindings }>
+				mockContext as unknown as Context<{ Bindings: Env }>
 			);
 
 			// Assert
@@ -575,7 +579,7 @@ describe("Auth Controller - New Architecture", () => {
 
 			// Act
 			await authController.getUser(
-				mockContext as unknown as Context<{ Bindings: Bindings }>
+				mockContext as unknown as Context<{ Bindings: Env }>
 			);
 
 			// Assert
@@ -608,7 +612,7 @@ describe("Auth Controller - New Architecture", () => {
 
 			// Act
 			await authController.updateTheme(
-				mockContext as unknown as Context<{ Bindings: Bindings }>
+				mockContext as unknown as Context<{ Bindings: Env }>
 			);
 
 			// Assert
@@ -651,7 +655,7 @@ describe("Auth Controller - New Architecture", () => {
 
 			// Act
 			await authController.updateTheme(
-				mockContext as unknown as Context<{ Bindings: Bindings }>
+				mockContext as unknown as Context<{ Bindings: Env }>
 			);
 
 			// Assert
