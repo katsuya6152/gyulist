@@ -8,7 +8,7 @@ export async function sendVerificationEmail(
 	email: string,
 	token: string
 ) {
-	const verificationLink = `${env.APP_URL}/verify?token=${token}`;
+	const verificationLink = `${env.WEB_ORIGIN}/verify?token=${token}`;
 
 	// 開発環境でもRESEND_API_KEYが設定されている場合はメール送信を試行
 	if (isDev(env) && !env.RESEND_API_KEY) {
