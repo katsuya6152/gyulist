@@ -15,13 +15,20 @@ export async function verifyAndGetUserId(): Promise<number> {
 		redirect("/login");
 	}
 
-	// トークンを手動でデコード（署名検証なし）
-	// 本来は署名検証を行うべきだが、APIサーバーで検証されるため簡略化
+	// 簡易JWT形式のトークンをデコード（署名検証なし）
+	// APIサーバーで生成される簡易JWT形式: header.payload.signature
 	try {
-		const payload = JSON.parse(atob(token.split(".")[1])) as JWTPayload;
+		const parts = token.split(".");
+		if (parts.length !== 3) {
+			console.error("Invalid JWT format: expected 3 parts, got", parts.length);
+			redirect("/login");
+		}
+
+		const payload = JSON.parse(atob(parts[1])) as JWTPayload;
 
 		// 有効期限をチェック
 		if (payload.exp && payload.exp < Date.now() / 1000) {
+			console.error("JWT expired:", new Date(payload.exp * 1000));
 			redirect("/login");
 		}
 

@@ -37,8 +37,16 @@ export default function LoginPage() {
 	useEffect(() => {
 		const urlParams = new URLSearchParams(window.location.search);
 		const error = urlParams.get("error");
+		const details = urlParams.get("details");
+
 		if (error) {
-			console.error("OAuth error:", error);
+			console.error("OAuth error:", error, details);
+
+			// エラーメッセージを表示
+			if (error === "oauth_failed") {
+				alert(`Googleログインに失敗しました: ${details || "不明なエラー"}`);
+			}
+
 			// URLからエラーパラメータを削除
 			window.history.replaceState({}, document.title, window.location.pathname);
 		}
