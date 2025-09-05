@@ -6,12 +6,8 @@ get:
     - System
   responses:
     '200':
-      $ref: ../components/responses/HealthResponse.yaml
+      $ref: ../components/responses/system/HealthResponse.yaml
     '400':
-      $ref: ../components/responses/BadRequest.yaml
-    '503':
-      description: サービス利用不可
-      content:
-        application/json:
-          schema:
-            $ref: ../components/schemas/ErrorResponse.yaml
+      $ref: ../components/responses/common/BadRequest.yaml
+    '500':
+      $ref: ../components/responses/common/ErrorResponse.yaml

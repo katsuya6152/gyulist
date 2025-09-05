@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"gyulist-api-go/configs"
-	"gyulist-api-go/internal/application/services"
+	infra "gyulist-api-go/internal/infrastructure/services"
 	"gyulist-api-go/internal/interfaces/http/handlers/generated"
 
 	"github.com/gin-gonic/gin"
@@ -15,11 +15,11 @@ import (
 // SystemHandler システム関連のハンドラーを実装
 type SystemHandler struct {
 	config        *configs.Config
-	healthService *services.HealthService
+	healthService *infra.HealthInfrastructureService
 }
 
 // NewSystemHandler SystemHandlerのコンストラクタ
-func NewSystemHandler(config *configs.Config, healthService *services.HealthService) *SystemHandler {
+func NewSystemHandler(config *configs.Config, healthService *infra.HealthInfrastructureService) *SystemHandler {
 	return &SystemHandler{
 		config:        config,
 		healthService: healthService,

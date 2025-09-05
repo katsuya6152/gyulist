@@ -13,32 +13,48 @@ info:
     url: https://opensource.org/licenses/MIT
 
 servers:
-  - url: http://localhost:8080
-    description: 開発環境
   - url: https://api.gyulist.com
     description: 本番環境
+
+security:
+  - JWT: []
 
 paths:
   /:
     $ref: ./paths/root.yaml
   /health:
     $ref: ./paths/health.yaml
+  /auth/login:
+    $ref: ./paths/auth.yaml
 
 components:
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     HealthResponse:
-      $ref: ./components/schemas/HealthResponse.yaml
+      $ref: ./components/schemas/system/HealthResponse.yaml
     ApiInfoResponse:
-      $ref: ./components/schemas/ApiInfoResponse.yaml
+      $ref: ./components/schemas/system/ApiInfoResponse.yaml
     ErrorResponse:
-      $ref: ./components/schemas/ErrorResponse.yaml
+      $ref: ./components/schemas/common/ErrorResponse.yaml
+    UserSummary:
+      $ref: ./components/schemas/auth/UserSummary.yaml
+    LoginResponse:
+      $ref: ./components/schemas/auth/LoginResponse.yaml
 
   responses:
     HealthResponse:
-      $ref: ./components/responses/HealthResponse.yaml
+      $ref: ./components/responses/system/HealthResponse.yaml
     ApiInfoResponse:
-      $ref: ./components/responses/ApiInfoResponse.yaml
+      $ref: ./components/responses/system/ApiInfoResponse.yaml
     BadRequest:
-      $ref: ./components/responses/BadRequest.yaml
+      $ref: ./components/responses/common/BadRequest.yaml
     InternalServerError:
-      $ref: ./components/responses/InternalServerError.yaml
+      $ref: ./components/responses/common/InternalServerError.yaml
+    LoginSuccess:
+      $ref: ./components/responses/auth/LoginSuccess.yaml
+    ErrorResponse:
+      $ref: ./components/responses/common/ErrorResponse.yaml

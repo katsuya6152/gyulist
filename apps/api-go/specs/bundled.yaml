@@ -12,10 +12,10 @@ info:
     name: MIT
     url: https://opensource.org/licenses/MIT
 servers:
-  - url: http://localhost:8080
-    description: 開発環境
   - url: https://api.gyulist.com
     description: 本番環境
+security:
+  - JWT: []
 paths:
   /:
     get:
@@ -43,13 +43,32 @@ paths:
           $ref: '#/components/responses/HealthResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
-        '503':
-          description: サービス利用不可
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+  /auth/login:
+    post:
+      summary: ユーザーログイン
+      description: メールアドレスとパスワードでユーザーを認証し、JWTトークンを返却します
+      operationId: loginUser
+      tags:
+        - Auth
+      requestBody:
+        $ref: '#/components/requestBodies/LoginRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/LoginSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/UnauthorizedResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 components:
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     HealthResponse:
       type: object
@@ -200,6 +219,53 @@ components:
             - timestamp
       required:
         - error
+    UserSummary:
+      type: object
+      description: ログイン時のユーザー情報
+      properties:
+        id:
+          type: integer
+          description: ユーザーID
+          example: 1
+        userName:
+          type: string
+          description: ユーザー名
+          example: 田中太郎
+        email:
+          type: string
+          format: email
+          description: メールアドレス
+          example: user@example.com
+        theme:
+          type: string
+          enum:
+            - light
+            - dark
+            - auto
+          description: UIテーマ設定
+          example: light
+      required:
+        - id
+        - userName
+        - email
+    LoginResponse:
+      type: object
+      description: ログイン成功時のレスポンス
+      properties:
+        token:
+          type: string
+          description: JWT認証トークン
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        user:
+          $ref: '#/components/schemas/UserSummary'
+        expires_at:
+          type: integer
+          format: int64
+          description: トークン有効期限（Unixタイムスタンプ）
+          example: 1640995200
+      required:
+        - token
+        - user
   responses:
     HealthResponse:
       description: 正常応答 - サービスは正常に動作しています
@@ -283,3 +349,50 @@ components:
                   details: maintenance in progress
                   timestamp: '2024-12-19T00:00:00Z'
                   requestId: req-12345-abcde
+    LoginSuccess:
+      description: ログイン成功
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LoginResponse'
+    ErrorResponse:
+      description: サーバーエラー
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    UnauthorizedResponse:
+      description: 認証失敗
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                description: エラーメッセージ
+                example: メールアドレスまたはパスワードが正しくありません
+            required:
+              - error
+  requestBodies:
+    LoginRequest:
+      description: ユーザーログインリクエスト
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                format: email
+                description: ユーザーのメールアドレス
+                example: user@example.com
+              password:
+                type: string
+                minLength: 8
+                description: パスワード（8文字以上）
+                example: password123
+            required:
+              - email
+              - password

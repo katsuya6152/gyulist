@@ -22,6 +22,10 @@ func main() {
 		log.Printf("Warning: Failed to initialize database: %v", dbErr)
 		log.Println("Application will continue without database connection")
 	} else {
+		// マイグレーション実行
+		if migrateErr := database.InitAndMigrate(); migrateErr != nil {
+			log.Printf("Warning: Failed to run migrations: %v", migrateErr)
+		}
 		defer database.Close()
 	}
 

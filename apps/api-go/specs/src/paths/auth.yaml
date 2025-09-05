@@ -1,0 +1,17 @@
+post:
+  summary: ユーザーログイン
+  description: メールアドレスとパスワードでユーザーを認証し、JWTトークンを返却します
+  operationId: loginUser
+  tags:
+    - Auth
+  requestBody:
+    $ref: ../components/requestBodies/auth/LoginRequest.yaml
+  responses:
+    '200':
+      $ref: ../components/responses/auth/LoginSuccess.yaml
+    '400':
+      $ref: ../components/responses/common/BadRequest.yaml
+    '401':
+      $ref: ../components/responses/auth/UnauthorizedResponse.yaml
+    '500':
+      $ref: ../components/responses/common/InternalServerError.yaml

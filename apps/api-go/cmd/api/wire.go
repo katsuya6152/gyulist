@@ -5,14 +5,19 @@ package main
 
 import (
 	"gyulist-api-go/configs"
-	"gyulist-api-go/internal/application/services"
+	appServices "gyulist-api-go/internal/application/services"
+	"gyulist-api-go/internal/application/usecases"
+	domainServices "gyulist-api-go/internal/domain/services"
+	"gyulist-api-go/internal/infrastructure/database"
 	"gyulist-api-go/internal/infrastructure/repositories"
+	infraServices "gyulist-api-go/internal/infrastructure/services"
 	"gyulist-api-go/internal/interfaces/http/handlers"
 	"gyulist-api-go/internal/interfaces/http/handlers/generated"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
+	"gorm.io/gorm"
 )
 
 // InitializeApp はアプリケーション全体の依存性を初期化します
@@ -21,14 +26,36 @@ func InitializeApp() (*gin.Engine, error) {
 		// 設定
 		configs.Load,
 
+		// データベース
+		provideDatabase,
+
+		// JWTシークレット
+		provideJWTSecret,
+
 		// リポジトリ
 		repositories.NewHealthRepository,
+		repositories.NewAuthRepository,
 
-		// サービス
-		services.NewHealthService,
+		// インフラサービス
+		infraServices.NewPasswordService,
+		infraServices.NewJWTService,
+		infraServices.NewHealthInfrastructureService,
+
+		// Domainインターフェースの実装
+		providePasswordVerifier,
+		provideTokenGenerator,
+
+		// ドメインサービス
+		domainServices.NewUserDomainService,
+
+		// ユースケース
+		usecases.NewLoginUseCase,
+
+		// アプリケーションサービス
+		appServices.NewAuthApplicationService,
 
 		// ハンドラー
-		handlers.NewSystemHandler,
+		handlers.NewServerHandler,
 
 		// Ginルーター
 		NewRouter,
@@ -36,10 +63,33 @@ func InitializeApp() (*gin.Engine, error) {
 	return &gin.Engine{}, nil
 }
 
+// provideDatabase はデータベース接続を提供します
+func provideDatabase(cfg *configs.Config) (*gorm.DB, error) {
+	if err := database.InitDB(cfg); err != nil {
+		return nil, err
+	}
+	return database.GetDB(), nil
+}
+
+// provideJWTSecret はJWTシークレットを提供します
+func provideJWTSecret(cfg *configs.Config) string {
+	return cfg.JWT.Secret
+}
+
+// providePasswordVerifier はPasswordVerifierを提供します
+func providePasswordVerifier(passwordSvc *infraServices.PasswordService) domainServices.PasswordVerifier {
+	return passwordSvc
+}
+
+// provideTokenGenerator はTokenGeneratorを提供します
+func provideTokenGenerator(jwtSvc *infraServices.JWTService) domainServices.TokenGenerator {
+	return jwtSvc
+}
+
 // NewRouter はGinルーターを作成します
 func NewRouter(
 	cfg *configs.Config,
-	systemHandler *handlers.SystemHandler,
+	serverHandler *handlers.ServerHandler,
 ) *gin.Engine {
 	// Ginモード設定
 	if cfg.App.Env == "production" {
@@ -62,7 +112,7 @@ func NewRouter(
 	r.Use(gin.Recovery())
 
 	// OpenAPIで定義されたルーティングを登録
-	generated.RegisterHandlersWithOptions(r, systemHandler, generated.GinServerOptions{
+	generated.RegisterHandlersWithOptions(r, serverHandler, generated.GinServerOptions{
 		BaseURL:      "/api/v1",
 		Middlewares:  nil,
 		ErrorHandler: nil,

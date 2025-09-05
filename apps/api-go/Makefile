@@ -1,6 +1,6 @@
 # Go API Makefile
 
-.PHONY: help build run test clean docker-build docker-up docker-down dev lint fmt mod-tidy wire-gen api-gen
+.PHONY: help build run test clean docker-build docker-up docker-down dev lint fmt mod-tidy wire-gen spec-build-gen api-gen
 
 # デフォルトターゲット
 help: ## 利用可能なコマンドを表示
@@ -46,8 +46,16 @@ mod-tidy: ## go.modを整理
 wire-gen: ## Google Wire依存性注入コード生成
 	~/go/bin/wire gen ./internal/...
 
+spec-build-gen: ## OpenAPI仕様をビルド（lint → bundle → codegen）
+	@echo "🔍 OpenAPI仕様のlintチェック..."
+	redocly lint specs/src/index.yaml
+	@echo "📦 OpenAPI仕様のバンドル..."
+	redocly bundle specs/src/index.yaml --output specs/bundled.yaml
+	@echo "⚙️  OpenAPIコード生成..."
+	make api-gen
+
 api-gen: ## OpenAPIコード生成
-	~/go/bin/oapi-codegen -config specs/oapi-codegen-config.yaml specs/src/index.yaml
+	~/go/bin/oapi-codegen -config specs/oapi-codegen-config.yaml specs/bundled.yaml
 
 # Docker
 docker-build: ## Dockerイメージをビルド

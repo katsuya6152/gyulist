@@ -1,0 +1,12 @@
+description: 認証失敗
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          description: エラーメッセージ
+          example: "メールアドレスまたはパスワードが正しくありません"
+      required:
+        - error

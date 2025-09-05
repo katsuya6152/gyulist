@@ -9,9 +9,14 @@ package main
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"gyulist-api-go/configs"
-	"gyulist-api-go/internal/application/services"
+	services3 "gyulist-api-go/internal/application/services"
+	"gyulist-api-go/internal/application/usecases"
+	services2 "gyulist-api-go/internal/domain/services"
+	"gyulist-api-go/internal/infrastructure/database"
 	"gyulist-api-go/internal/infrastructure/repositories"
+	"gyulist-api-go/internal/infrastructure/services"
 	"gyulist-api-go/internal/interfaces/http/handlers"
 	"gyulist-api-go/internal/interfaces/http/handlers/generated"
 )
@@ -22,18 +27,54 @@ import (
 func InitializeApp() (*gin.Engine, error) {
 	config := configs.Load()
 	healthRepository := repositories.NewHealthRepository()
-	healthService := services.NewHealthService(healthRepository)
-	systemHandler := handlers.NewSystemHandler(config, healthService)
-	engine := NewRouter(config, systemHandler)
+	healthInfrastructureService := services.NewHealthInfrastructureService(healthRepository)
+	db, err := provideDatabase(config)
+	if err != nil {
+		return nil, err
+	}
+	authRepository := repositories.NewAuthRepository(db)
+	userDomainService := services2.NewUserDomainService(authRepository)
+	passwordService := services.NewPasswordService()
+	passwordVerifier := providePasswordVerifier(passwordService)
+	string2 := provideJWTSecret(config)
+	jwtService := services.NewJWTService(string2)
+	tokenGenerator := provideTokenGenerator(jwtService)
+	loginUseCase := usecases.NewLoginUseCase(authRepository, userDomainService, passwordVerifier, tokenGenerator)
+	authApplicationService := services3.NewAuthApplicationService(loginUseCase, userDomainService)
+	serverHandler := handlers.NewServerHandler(config, healthInfrastructureService, authApplicationService)
+	engine := NewRouter(config, serverHandler)
 	return engine, nil
 }
 
 // wire.go:
 
+// provideDatabase はデータベース接続を提供します
+func provideDatabase(cfg *configs.Config) (*gorm.DB, error) {
+	if err := database.InitDB(cfg); err != nil {
+		return nil, err
+	}
+	return database.GetDB(), nil
+}
+
+// provideJWTSecret はJWTシークレットを提供します
+func provideJWTSecret(cfg *configs.Config) string {
+	return cfg.JWT.Secret
+}
+
+// providePasswordVerifier はPasswordVerifierを提供します
+func providePasswordVerifier(passwordSvc *services.PasswordService) services2.PasswordVerifier {
+	return passwordSvc
+}
+
+// provideTokenGenerator はTokenGeneratorを提供します
+func provideTokenGenerator(jwtSvc *services.JWTService) services2.TokenGenerator {
+	return jwtSvc
+}
+
 // NewRouter はGinルーターを作成します
 func NewRouter(
 	cfg *configs.Config,
-	systemHandler *handlers.SystemHandler,
+	serverHandler *handlers.ServerHandler,
 ) *gin.Engine {
 
 	if cfg.App.Env == "production" {
@@ -52,7 +93,7 @@ func NewRouter(
 	}))
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
-	generated.RegisterHandlersWithOptions(r, systemHandler, generated.GinServerOptions{
+	generated.RegisterHandlersWithOptions(r, serverHandler, generated.GinServerOptions{
 		BaseURL:      "/api/v1",
 		Middlewares:  nil,
 		ErrorHandler: nil,
