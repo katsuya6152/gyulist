@@ -26,6 +26,12 @@ paths:
     $ref: ./paths/health.yaml
   /auth/login:
     $ref: ./paths/auth.yaml
+  /auth/register:
+    $ref: ./paths/register.yaml
+  /auth/verify:
+    $ref: ./paths/verify.yaml
+  /auth/complete:
+    $ref: ./paths/complete.yaml
   /auth/pre-register:
     $ref: ./paths/pre-register.yaml
 
@@ -56,8 +62,16 @@ components:
       $ref: ./components/responses/common/BadRequest.yaml
     InternalServerError:
       $ref: ./components/responses/common/InternalServerError.yaml
+    NotFound:
+      $ref: ./components/responses/common/NotFound.yaml
     LoginSuccess:
       $ref: ./components/responses/auth/LoginSuccess.yaml
+    RegisterSuccess:
+      $ref: ./components/responses/auth/RegisterSuccess.yaml
+    VerifySuccess:
+      $ref: ./components/responses/auth/VerifySuccess.yaml
+    CompleteSuccess:
+      $ref: ./components/responses/auth/CompleteSuccess.yaml
     PreRegisterSuccess:
       $ref: ./components/responses/auth/PreRegisterSuccess.yaml
     ConflictResponse:

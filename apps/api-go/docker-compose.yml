@@ -24,6 +24,7 @@ services:
       - JWT_SECRET=development-secret-key-change-in-production
       - RESEND_API_KEY=${RESEND_API_KEY}
       - MAIL_FROM=noreply@gyulist.com
+      - WEB_URL=${WEB_URL:-http://localhost:3000}
     depends_on:
       db:
         condition: service_healthy

@@ -1,0 +1,19 @@
+post:
+  summary: ユーザー仮登録
+  description: |
+    新規ユーザーの仮登録を行います。
+    メールアドレスを入力して仮登録し、確認メールを送信します。
+  operationId: registerUser
+  tags:
+    - Auth
+  requestBody:
+    $ref: ../components/requestBodies/auth/RegisterRequest.yaml
+  responses:
+    '200':
+      $ref: ../components/responses/auth/RegisterSuccess.yaml
+    '400':
+      $ref: ../components/responses/common/BadRequest.yaml
+    '409':
+      $ref: ../components/responses/auth/ConflictResponse.yaml
+    '500':
+      $ref: ../components/responses/common/InternalServerError.yaml

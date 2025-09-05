@@ -1,0 +1,21 @@
+description: 仮登録成功
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: 処理結果
+          example: true
+        message:
+          type: string
+          description: 結果メッセージ
+          example: 確認メールを送信しました
+        isExistingUser:
+          type: boolean
+          description: 既に登録済みのユーザーかどうか
+          example: false
+      required:
+        - success
+        - message

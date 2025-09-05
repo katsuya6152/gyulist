@@ -1,0 +1,19 @@
+post:
+  summary: トークン検証
+  description: |
+    メールに送られた検証トークンの有効性を確認します。
+    トークンが有効な場合は本登録に進むことができます。
+  operationId: verifyToken
+  tags:
+    - Auth
+  requestBody:
+    $ref: ../components/requestBodies/auth/VerifyRequest.yaml
+  responses:
+    '200':
+      $ref: ../components/responses/auth/VerifySuccess.yaml
+    '400':
+      $ref: ../components/responses/common/BadRequest.yaml
+    '404':
+      $ref: ../components/responses/common/NotFound.yaml
+    '500':
+      $ref: ../components/responses/common/InternalServerError.yaml

@@ -1,0 +1,13 @@
+description: トークン検証リクエスト
+required: true
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        token:
+          type: string
+          description: メールに送られた検証トークン
+          example: abc123def456
+      required:
+        - token

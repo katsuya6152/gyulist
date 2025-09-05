@@ -1,0 +1,17 @@
+description: トークン検証成功
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: 検証結果
+          example: true
+        message:
+          type: string
+          description: 結果メッセージ
+          example: トークンは有効です。本登録に進んでください
+      required:
+        - success
+        - message

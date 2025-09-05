@@ -101,6 +101,7 @@ make help         # 利用可能なコマンド一覧表示
 | `REDIS_URL` | redis://localhost:6379 | Redis接続URL |
 | `RESEND_API_KEY` | "" | ResendメールサービスAPIキー |
 | `MAIL_FROM` | noreply@gyulist.com | メール送信元アドレス |
+| `WEB_URL` | http://localhost:3000 | WebアプリケーションURL |
 
 ### Docker Composeサービス
 

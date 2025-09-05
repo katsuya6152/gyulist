@@ -1,0 +1,27 @@
+description: 本登録完了リクエスト
+required: true
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        token:
+          type: string
+          description: 検証済みのトークン
+          example: abc123def456
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: ユーザー名
+          example: 田中太郎
+        password:
+          type: string
+          minLength: 8
+          maxLength: 128
+          description: パスワード
+          example: securepassword123
+      required:
+        - token
+        - name
+        - password

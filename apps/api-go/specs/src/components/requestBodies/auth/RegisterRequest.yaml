@@ -1,0 +1,14 @@
+description: ユーザー仮登録リクエスト
+required: true
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: ユーザーのメールアドレス
+          example: user@example.com
+      required:
+        - email

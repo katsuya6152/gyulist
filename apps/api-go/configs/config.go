@@ -58,6 +58,7 @@ type JWTConfig struct {
 type EmailConfig struct {
 	APIKey string
 	From   string
+	WebURL string
 }
 
 // LogConfig はログ設定
@@ -103,6 +104,7 @@ func Load() *Config {
 		Email: EmailConfig{
 			APIKey: getEnv("RESEND_API_KEY", ""),
 			From:   getEnv("MAIL_FROM", "noreply@gyulist.com"),
+			WebURL: getEnv("WEB_URL", "http://localhost:3000"),
 		},
 		Log: LogConfig{
 			Level:  getEnv("LOG_LEVEL", "info"),

@@ -27,7 +27,7 @@ func NewResendEmailService(config services.EmailConfig) *ResendEmailService {
 
 // SendCompletionEmail 事前登録完了メールを送信
 func (s *ResendEmailService) SendCompletionEmail(ctx context.Context, to string, userName string) (string, error) {
-	template := NewEmailTemplate()
+	template := NewEmailTemplate(s.config)
 	htmlContent := template.GenerateCompletionEmail()
 
 	requestBody := map[string]interface{}{
@@ -72,4 +72,43 @@ func (s *ResendEmailService) SendCompletionEmail(ctx context.Context, to string,
 	}
 
 	return id, nil
+}
+
+// SendVerificationEmail 検証メールを送信
+func (s *ResendEmailService) SendVerificationEmail(ctx context.Context, to string, token string) error {
+	template := NewEmailTemplate(s.config)
+	htmlContent := template.GenerateVerificationEmail(token)
+
+	requestBody := map[string]interface{}{
+		"from":    s.config.From,
+		"to":      []string{to},
+		"subject": "ギュウリスト会員登録の確認",
+		"html":    htmlContent,
+	}
+
+	jsonData, err := json.Marshal(requestBody)
+	if err != nil {
+		return fmt.Errorf("failed to marshal request: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "POST", "https://api.resend.com/emails", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return fmt.Errorf("failed to create request: %w", err)
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", s.config.APIKey))
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := s.client.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to send request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("resend API error: status %d, body: %s", resp.StatusCode, string(body))
+	}
+
+	return nil
 }

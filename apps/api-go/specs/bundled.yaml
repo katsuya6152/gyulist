@@ -63,6 +63,68 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /auth/register:
+    post:
+      summary: ユーザー仮登録
+      description: |
+        新規ユーザーの仮登録を行います。
+        メールアドレスを入力して仮登録し、確認メールを送信します。
+      operationId: registerUser
+      tags:
+        - Auth
+      requestBody:
+        $ref: '#/components/requestBodies/RegisterRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/RegisterSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/ConflictResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /auth/verify:
+    post:
+      summary: トークン検証
+      description: |
+        メールに送られた検証トークンの有効性を確認します。
+        トークンが有効な場合は本登録に進むことができます。
+      operationId: verifyToken
+      tags:
+        - Auth
+      requestBody:
+        $ref: '#/components/requestBodies/VerifyRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/VerifySuccess'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /auth/complete:
+    post:
+      summary: 本登録完了
+      description: |
+        ユーザー名とパスワードを設定して本登録を完了します。
+        検証済みのトークンが必要です。
+      operationId: completeRegistration
+      tags:
+        - Auth
+      requestBody:
+        $ref: '#/components/requestBodies/CompleteRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/CompleteSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/ConflictResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /auth/pre-register:
     post:
       summary: ユーザー仮登録
@@ -369,12 +431,79 @@ components:
                   details: maintenance in progress
                   timestamp: '2024-12-19T00:00:00Z'
                   requestId: req-12345-abcde
+    NotFound:
+      description: リソースが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
     LoginSuccess:
       description: ログイン成功
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LoginResponse'
+    RegisterSuccess:
+      description: 仮登録成功
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                description: 処理結果
+                example: true
+              message:
+                type: string
+                description: 結果メッセージ
+                example: 確認メールを送信しました
+              isExistingUser:
+                type: boolean
+                description: 既に登録済みのユーザーかどうか
+                example: false
+            required:
+              - success
+              - message
+    VerifySuccess:
+      description: トークン検証成功
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                description: 検証結果
+                example: true
+              message:
+                type: string
+                description: 結果メッセージ
+                example: トークンは有効です。本登録に進んでください
+            required:
+              - success
+              - message
+    CompleteSuccess:
+      description: 本登録完了成功
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                description: 処理結果
+                example: true
+              message:
+                type: string
+                description: 結果メッセージ
+                example: ユーザー登録が完了しました
+              user:
+                $ref: '#/components/schemas/UserSummary'
+            required:
+              - success
+              - message
+              - user
     PreRegisterSuccess:
       description: 仮登録成功
       content:
@@ -438,6 +567,63 @@ components:
                 example: password123
             required:
               - email
+              - password
+    RegisterRequest:
+      description: ユーザー仮登録リクエスト
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                format: email
+                description: ユーザーのメールアドレス
+                example: user@example.com
+            required:
+              - email
+    VerifyRequest:
+      description: トークン検証リクエスト
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+                description: メールに送られた検証トークン
+                example: abc123def456
+            required:
+              - token
+    CompleteRequest:
+      description: 本登録完了リクエスト
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+                description: 検証済みのトークン
+                example: abc123def456
+              name:
+                type: string
+                minLength: 1
+                maxLength: 100
+                description: ユーザー名
+                example: 田中太郎
+              password:
+                type: string
+                minLength: 8
+                maxLength: 128
+                description: パスワード
+                example: securepassword123
+            required:
+              - token
+              - name
               - password
     PreRegisterRequest:
       description: ユーザー仮登録リクエスト

@@ -50,6 +50,7 @@ func InitializeApp() (*gin.Engine, error) {
 		providePasswordVerifier,
 		provideTokenGenerator,
 		provideEmailService,
+		providePasswordHasher,
 
 		// ドメインサービス
 		domainServices.NewUserDomainService,
@@ -57,10 +58,16 @@ func InitializeApp() (*gin.Engine, error) {
 		// ユースケース
 		usecases.NewLoginUseCase,
 		usecases.NewPreRegisterUseCase,
+		usecases.NewRegisterUserUseCase,
+		usecases.NewVerifyTokenUseCase,
+		usecases.NewCompleteRegistrationUseCase,
 
 		// アプリケーションサービス
 		appServices.NewAuthApplicationService,
 		appServices.NewPreRegisterApplicationService,
+		appServices.NewRegisterUserApplicationService,
+		appServices.NewVerifyTokenApplicationService,
+		appServices.NewCompleteRegistrationApplicationService,
 
 		// ハンドラー
 		handlers.NewServerHandler,
@@ -89,12 +96,18 @@ func provideEmailConfig(cfg *configs.Config) domainServices.EmailConfig {
 	return domainServices.EmailConfig{
 		APIKey: cfg.Email.APIKey,
 		From:   cfg.Email.From,
+		WebURL: cfg.Email.WebURL,
 	}
 }
 
 // provideEmailService はEmailServiceを提供します
 func provideEmailService(emailSvc *infraServices.ResendEmailService) domainServices.EmailService {
 	return emailSvc
+}
+
+// providePasswordHasher はPasswordHasherを提供します
+func providePasswordHasher(passwordSvc *infraServices.PasswordService) domainServices.PasswordHasher {
+	return passwordSvc
 }
 
 // providePasswordVerifier はPasswordVerifierを提供します

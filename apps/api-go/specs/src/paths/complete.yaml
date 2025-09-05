@@ -1,0 +1,21 @@
+post:
+  summary: 本登録完了
+  description: |
+    ユーザー名とパスワードを設定して本登録を完了します。
+    検証済みのトークンが必要です。
+  operationId: completeRegistration
+  tags:
+    - Auth
+  requestBody:
+    $ref: ../components/requestBodies/auth/CompleteRequest.yaml
+  responses:
+    '200':
+      $ref: ../components/responses/auth/CompleteSuccess.yaml
+    '400':
+      $ref: ../components/responses/common/BadRequest.yaml
+    '404':
+      $ref: ../components/responses/common/NotFound.yaml
+    '409':
+      $ref: ../components/responses/auth/ConflictResponse.yaml
+    '500':
+      $ref: ../components/responses/common/InternalServerError.yaml

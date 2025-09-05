@@ -7,6 +7,9 @@
 package main
 
 import (
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"gyulist-api-go/configs"
 	services3 "gyulist-api-go/internal/application/services"
 	"gyulist-api-go/internal/application/usecases"
@@ -16,10 +19,6 @@ import (
 	"gyulist-api-go/internal/infrastructure/services"
 	"gyulist-api-go/internal/interfaces/http/handlers"
 	"gyulist-api-go/internal/interfaces/http/handlers/generated"
-
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // Injectors from wire.go:
@@ -48,7 +47,14 @@ func InitializeApp() (*gin.Engine, error) {
 	emailService := provideEmailService(resendEmailService)
 	preRegisterUseCase := usecases.NewPreRegisterUseCase(registrationRepository, emailService)
 	preRegisterApplicationService := services3.NewPreRegisterApplicationService(preRegisterUseCase)
-	serverHandler := handlers.NewServerHandler(config, healthInfrastructureService, authApplicationService, preRegisterApplicationService)
+	registerUserUseCase := usecases.NewRegisterUserUseCase(authRepository, emailService)
+	registerUserApplicationService := services3.NewRegisterUserApplicationService(registerUserUseCase)
+	verifyTokenUseCase := usecases.NewVerifyTokenUseCase(authRepository)
+	verifyTokenApplicationService := services3.NewVerifyTokenApplicationService(verifyTokenUseCase)
+	passwordHasher := providePasswordHasher(passwordService)
+	completeRegistrationUseCase := usecases.NewCompleteRegistrationUseCase(authRepository, passwordHasher)
+	completeRegistrationApplicationService := services3.NewCompleteRegistrationApplicationService(completeRegistrationUseCase)
+	serverHandler := handlers.NewServerHandler(config, healthInfrastructureService, authApplicationService, preRegisterApplicationService, registerUserApplicationService, verifyTokenApplicationService, completeRegistrationApplicationService)
 	engine := NewRouter(config, serverHandler)
 	return engine, nil
 }
@@ -73,12 +79,18 @@ func provideEmailConfig(cfg *configs.Config) services2.EmailConfig {
 	return services2.EmailConfig{
 		APIKey: cfg.Email.APIKey,
 		From:   cfg.Email.From,
+		WebURL: cfg.Email.WebURL,
 	}
 }
 
 // provideEmailService はEmailServiceを提供します
 func provideEmailService(emailSvc *services.ResendEmailService) services2.EmailService {
 	return emailSvc
+}
+
+// providePasswordHasher はPasswordHasherを提供します
+func providePasswordHasher(passwordSvc *services.PasswordService) services2.PasswordHasher {
+	return passwordSvc
 }
 
 // providePasswordVerifier はPasswordVerifierを提供します

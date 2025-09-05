@@ -1,0 +1,5 @@
+description: リソースが見つからない
+content:
+  application/json:
+    schema:
+      $ref: '../../schemas/common/ErrorResponse.yaml'

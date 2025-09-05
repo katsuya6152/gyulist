@@ -13,6 +13,9 @@ type ServerHandler struct {
 	systemHandler      *SystemHandler
 	authHandler        *AuthHandler
 	preRegisterHandler *PreRegisterHandler
+	registerHandler    *RegisterHandler
+	verifyHandler      *VerifyHandler
+	completeHandler    *CompleteHandler
 }
 
 // NewServerHandler ServerHandlerのコンストラクタ
@@ -21,11 +24,17 @@ func NewServerHandler(
 	healthService *infra.HealthInfrastructureService,
 	authAppService *appServices.AuthApplicationService,
 	preRegisterAppService *appServices.PreRegisterApplicationService,
+	registerAppService *appServices.RegisterUserApplicationService,
+	verifyAppService *appServices.VerifyTokenApplicationService,
+	completeAppService *appServices.CompleteRegistrationApplicationService,
 ) *ServerHandler {
 	return &ServerHandler{
 		systemHandler:      NewSystemHandler(config, healthService),
 		authHandler:        NewAuthHandler(authAppService),
 		preRegisterHandler: NewPreRegisterHandler(preRegisterAppService),
+		registerHandler:    NewRegisterHandler(registerAppService),
+		verifyHandler:      NewVerifyHandler(verifyAppService),
+		completeHandler:    NewCompleteHandler(completeAppService),
 	}
 }
 
@@ -47,4 +56,19 @@ func (h *ServerHandler) GetHealth(c *gin.Context) {
 // PreRegisterUser ユーザー仮登録 (POST /auth/pre-register)
 func (h *ServerHandler) PreRegisterUser(c *gin.Context) {
 	h.preRegisterHandler.PreRegisterUser(c)
+}
+
+// RegisterUser ユーザー仮登録 (POST /auth/register)
+func (h *ServerHandler) RegisterUser(c *gin.Context) {
+	h.registerHandler.RegisterUser(c)
+}
+
+// VerifyToken トークン検証 (POST /auth/verify)
+func (h *ServerHandler) VerifyToken(c *gin.Context) {
+	h.verifyHandler.VerifyToken(c)
+}
+
+// CompleteRegistration 本登録完了 (POST /auth/complete)
+func (h *ServerHandler) CompleteRegistration(c *gin.Context) {
+	h.completeHandler.CompleteRegistration(c)
 }
