@@ -1,0 +1,14 @@
+get:
+  summary: 健康チェック
+  description: APIサーバーの健康状態を確認します
+  operationId: getHealth
+  tags:
+    - System
+  security: []  # 認証なし
+  responses:
+    '200':
+      $ref: ../components/responses/system/HealthResponse.yaml
+    '400':
+      $ref: ../components/responses/common/BadRequest.yaml
+    '500':
+      $ref: ../components/responses/common/ErrorResponse.yaml

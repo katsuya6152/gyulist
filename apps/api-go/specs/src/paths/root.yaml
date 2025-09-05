@@ -1,0 +1,14 @@
+get:
+  summary: API情報取得
+  description: Gyulist API Goの基本情報を返します
+  operationId: getApiInfo
+  tags:
+    - System
+  security: []  # 認証なし
+  responses:
+    '200':
+      $ref: ../components/responses/system/ApiInfoResponse.yaml
+    '400':
+      $ref: ../components/responses/common/BadRequest.yaml
+    '500':
+      $ref: ../components/responses/common/InternalServerError.yaml

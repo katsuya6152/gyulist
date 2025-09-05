@@ -1,0 +1,40 @@
+get:
+  summary: Google OAuthコールバック
+  description: |
+    Google OAuth認証後のコールバックを処理します。
+    認証コードからアクセストークンを取得し、ユーザー情報を取得してログインまたは新規登録を行います。
+  operationId: handleGoogleOAuthCallback
+  tags:
+    - OAuth
+  security: []  # 認証なし
+  parameters:
+    - name: code
+      in: query
+      required: true
+      schema:
+        type: string
+      description: Googleから提供される認証コード
+    - name: state
+      in: query
+      required: false
+      schema:
+        type: string
+      description: CSRF対策用のstateパラメータ
+    - name: error
+      in: query
+      required: false
+      schema:
+        type: string
+      description: エラーが発生した場合のエラーコード
+  responses:
+    '302':
+      description: 成功時はWebアプリケーションのホーム画面にリダイレクト、エラー時はログインページにリダイレクト
+      headers:
+        Location:
+          schema:
+            type: string
+          description: リダイレクト先URL
+    '400':
+      $ref: ../components/responses/common/BadRequest.yaml
+    '500':
+      $ref: ../components/responses/common/InternalServerError.yaml

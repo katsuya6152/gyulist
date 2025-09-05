@@ -1,0 +1,20 @@
+description: 本登録完了成功
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: 処理結果
+          example: true
+        message:
+          type: string
+          description: 結果メッセージ
+          example: ユーザー登録が完了しました
+        user:
+          $ref: '../../schemas/auth/UserSummary.yaml'
+      required:
+        - success
+        - message
+        - user

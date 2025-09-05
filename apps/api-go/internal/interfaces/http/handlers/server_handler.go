@@ -1,0 +1,107 @@
+package handlers
+
+import (
+	"gyulist-api-go/configs"
+	appServices "gyulist-api-go/internal/application/services"
+	infra "gyulist-api-go/internal/infrastructure/services"
+	"gyulist-api-go/internal/interfaces/http/handlers/generated"
+
+	"github.com/gin-gonic/gin"
+)
+
+// ServerHandler ServerInterfaceを実装するハンドラー
+type ServerHandler struct {
+	systemHandler                    *SystemHandler
+	authHandler                      *AuthHandler
+	preRegisterHandler               *PreRegisterHandler
+	registerHandler                  *RegisterHandler
+	verifyHandler                    *VerifyHandler
+	completeHandler                  *CompleteHandler
+	initiateGoogleOAuthHandler       *InitiateGoogleOAuthHandler
+	handleGoogleOAuthCallbackHandler *HandleGoogleOAuthCallbackHandler
+	getUserHandler                   *GetUserHandler
+	updateUserThemeHandler           *UpdateUserThemeHandler
+}
+
+// NewServerHandler ServerHandlerのコンストラクタ
+func NewServerHandler(
+	config *configs.Config,
+	healthService *infra.HealthInfrastructureService,
+	authAppService *appServices.AuthApplicationService,
+	preRegisterAppService *appServices.PreRegisterApplicationService,
+	registerAppService *appServices.RegisterUserApplicationService,
+	verifyAppService *appServices.VerifyTokenApplicationService,
+	completeAppService *appServices.CompleteRegistrationApplicationService,
+	initiateGoogleOAuthAppService *appServices.InitiateGoogleOAuthApplicationService,
+	handleGoogleOAuthCallbackAppService *appServices.HandleGoogleOAuthCallbackApplicationService,
+	getUserAppService *appServices.GetUserApplicationService,
+	updateUserThemeAppService *appServices.UpdateUserThemeApplicationService,
+) *ServerHandler {
+	return &ServerHandler{
+		systemHandler:                    NewSystemHandler(config, healthService),
+		authHandler:                      NewAuthHandler(authAppService),
+		preRegisterHandler:               NewPreRegisterHandler(preRegisterAppService),
+		registerHandler:                  NewRegisterHandler(registerAppService),
+		verifyHandler:                    NewVerifyHandler(verifyAppService),
+		completeHandler:                  NewCompleteHandler(completeAppService),
+		initiateGoogleOAuthHandler:       NewInitiateGoogleOAuthHandler(initiateGoogleOAuthAppService),
+		handleGoogleOAuthCallbackHandler: NewHandleGoogleOAuthCallbackHandler(handleGoogleOAuthCallbackAppService),
+		getUserHandler:                   NewGetUserHandler(getUserAppService),
+		updateUserThemeHandler:           NewUpdateUserThemeHandler(updateUserThemeAppService),
+	}
+}
+
+// GetApiInfo API情報を返す (GET /)
+func (h *ServerHandler) GetApiInfo(c *gin.Context) {
+	h.systemHandler.GetApiInfo(c)
+}
+
+// LoginUser ユーザーログイン (POST /auth/login)
+func (h *ServerHandler) LoginUser(c *gin.Context) {
+	h.authHandler.LoginUser(c)
+}
+
+// GetHealth 健康チェック (GET /health)
+func (h *ServerHandler) GetHealth(c *gin.Context) {
+	h.systemHandler.GetHealth(c)
+}
+
+// PreRegisterUser ユーザー仮登録 (POST /auth/pre-register)
+func (h *ServerHandler) PreRegisterUser(c *gin.Context) {
+	h.preRegisterHandler.PreRegisterUser(c)
+}
+
+// RegisterUser ユーザー仮登録 (POST /auth/register)
+func (h *ServerHandler) RegisterUser(c *gin.Context) {
+	h.registerHandler.RegisterUser(c)
+}
+
+// VerifyToken トークン検証 (POST /auth/verify)
+func (h *ServerHandler) VerifyToken(c *gin.Context) {
+	h.verifyHandler.VerifyToken(c)
+}
+
+// CompleteRegistration 本登録完了 (POST /auth/complete)
+func (h *ServerHandler) CompleteRegistration(c *gin.Context) {
+	h.completeHandler.CompleteRegistration(c)
+}
+
+// InitiateGoogleOAuth Google OAuth開始 (GET /oauth/google)
+func (h *ServerHandler) InitiateGoogleOAuth(c *gin.Context) {
+	h.initiateGoogleOAuthHandler.InitiateGoogleOAuth(c)
+}
+
+// HandleGoogleOAuthCallback Google OAuthコールバック処理 (GET /oauth/google/callback)
+func (h *ServerHandler) HandleGoogleOAuthCallback(c *gin.Context, params generated.HandleGoogleOAuthCallbackParams) {
+	h.handleGoogleOAuthCallbackHandler.HandleGoogleOAuthCallback(c, params)
+}
+
+// GetUser ユーザー情報を取得 (GET /users/:id)
+func (h *ServerHandler) GetUser(c *gin.Context, id int32) {
+	h.getUserHandler.GetUser(c, id)
+}
+
+// UpdateUserTheme ユーザーテーマを更新 (PATCH /users/:id/theme)
+func (h *ServerHandler) UpdateUserTheme(c *gin.Context, id int32) {
+	h.updateUserThemeHandler.UpdateUserTheme(c, id)
+}

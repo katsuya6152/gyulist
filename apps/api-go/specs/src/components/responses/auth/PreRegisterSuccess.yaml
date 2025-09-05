@@ -1,0 +1,16 @@
+description: 仮登録成功
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          description: 処理結果
+          example: true
+        alreadyRegistered:
+          type: boolean
+          description: 既に登録済みかどうか
+          example: false
+      required:
+        - ok

@@ -1,0 +1,35 @@
+type: object
+title: ErrorResponse
+description: エラーレスポンス
+properties:
+  error:
+    type: object
+    description: エラー詳細
+    properties:
+      code:
+        type: string
+        description: エラーコード
+        example: INTERNAL_SERVER_ERROR
+      message:
+        type: string
+        description: エラーメッセージ
+        example: 内部サーバーエラーが発生しました
+      details:
+        type: string
+        description: エラーの詳細情報
+        example: データベース接続エラー
+      timestamp:
+        type: string
+        format: date-time
+        description: エラー発生時刻
+        example: "2024-12-19T00:00:00Z"
+      requestId:
+        type: string
+        description: リクエストID（トレース用）
+        example: "req-12345-abcde"
+    required:
+      - code
+      - message
+      - timestamp
+required:
+  - error

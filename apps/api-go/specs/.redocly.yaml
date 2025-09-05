@@ -1,0 +1,18 @@
+# Redocly CLI Configuration
+# https://redocly.com/docs/cli/configuration/
+
+extends:
+  - recommended
+
+rules:
+  # セキュリティ定義を必須としない（パブリックAPIの場合）
+  security-defined: off
+
+  # localhost使用の警告を無視
+  no-server-example.com: off
+
+  # 4XXレスポンスは推奨だが必須としない
+  operation-4xx-response: warn
+
+  # 未使用コンポーネントは警告のみ
+  no-unused-components: warn

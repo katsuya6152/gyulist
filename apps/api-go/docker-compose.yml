@@ -1,0 +1,113 @@
+version: '3.8'
+
+services:
+  # Go API サーバー (開発用)
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    ports:
+      - "8080:8080"
+      - "2345:2345" # Delveデバッガー用
+    volumes:
+      - .:/app
+      - go-mod-cache:/go/pkg/mod
+    environment:
+      - ENV=development
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=gyulist
+      - DB_PASSWORD=gyulist123
+      - DB_NAME=gyulist_dev
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=development-secret-key-change-in-production
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - MAIL_FROM=noreply@gyulist.com
+      - WEB_URL=${WEB_URL:-http://localhost:3000}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI:-http://localhost:8080/api/v1/oauth/google/callback}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - gyulist-network
+    restart: unless-stopped
+
+  # PostgreSQL データベース
+  db:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=gyulist
+      - POSTGRES_PASSWORD=gyulist123
+      - POSTGRES_DB=gyulist_dev
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./internal/infrastructure/database/migrations:/docker-entrypoint-initdb.d
+    networks:
+      - gyulist-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gyulist -d gyulist_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Redis (セッション/キャッシュ用)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - gyulist-network
+    restart: unless-stopped
+
+  # pgAdmin (データベース管理用 - オプション)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    ports:
+      - "5050:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@gyulist.com
+      - PGADMIN_DEFAULT_PASSWORD=admin123
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - gyulist-network
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  # TestContainers用PostgreSQL (テスト専用)
+  test-db:
+    image: postgres:15-alpine
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=gyulist_test
+      - POSTGRES_PASSWORD=test123
+      - POSTGRES_DB=gyulist_test
+    volumes:
+      - test-postgres-data:/var/lib/postgresql/data
+    networks:
+      - gyulist-network
+    profiles:
+      - test
+
+volumes:
+  postgres-data:
+  redis-data:
+  pgadmin-data:
+  test-postgres-data:
+  go-mod-cache:
+
+networks:
+  gyulist-network:
+    driver: bridge

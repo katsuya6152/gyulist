@@ -1,0 +1,18 @@
+# ログインレスポンス
+type: object
+description: ログイン成功時のレスポンス
+properties:
+  token:
+    type: string
+    description: JWT認証トークン
+    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+  user:
+    $ref: './UserSummary.yaml'
+  expires_at:
+    type: integer
+    format: int64
+    description: トークン有効期限（Unixタイムスタンプ）
+    example: 1640995200
+required:
+  - token
+  - user

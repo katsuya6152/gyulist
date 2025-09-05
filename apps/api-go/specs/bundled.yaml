@@ -1,0 +1,894 @@
+openapi: 3.0.3
+info:
+  title: Gyulist API Go
+  description: |
+    牛群管理システムのGo API
+    畜産農家の牛の個体・繁殖・イベント管理を支援するRESTful APIです。
+  version: 1.0.0
+  contact:
+    name: Gyulist Development Team
+    email: support@gyulist.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://api.gyulist.com
+    description: 本番環境
+paths:
+  /:
+    get:
+      summary: API情報取得
+      description: Gyulist API Goの基本情報を返します
+      operationId: getApiInfo
+      tags:
+        - System
+      security: []
+      responses:
+        '200':
+          $ref: '#/components/responses/ApiInfoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /health:
+    get:
+      summary: 健康チェック
+      description: APIサーバーの健康状態を確認します
+      operationId: getHealth
+      tags:
+        - System
+      security: []
+      responses:
+        '200':
+          $ref: '#/components/responses/HealthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+  /auth/login:
+    post:
+      summary: ユーザーログイン
+      description: メールアドレスとパスワードでユーザーを認証し、JWTトークンを返却します
+      operationId: loginUser
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        $ref: '#/components/requestBodies/LoginRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/LoginSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/UnauthorizedResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /auth/register:
+    post:
+      summary: ユーザー仮登録
+      description: |
+        新規ユーザーの仮登録を行います。
+        メールアドレスを入力して仮登録し、確認メールを送信します。
+      operationId: registerUser
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        $ref: '#/components/requestBodies/RegisterRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/RegisterSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/ConflictResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /auth/verify:
+    post:
+      summary: トークン検証
+      description: |
+        メールに送られた検証トークンの有効性を確認します。
+        トークンが有効な場合は本登録に進むことができます。
+      operationId: verifyToken
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        $ref: '#/components/requestBodies/VerifyRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/VerifySuccess'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /auth/complete:
+    post:
+      summary: 本登録完了
+      description: |
+        ユーザー名とパスワードを設定して本登録を完了します。
+        検証済みのトークンが必要です。
+      operationId: completeRegistration
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        $ref: '#/components/requestBodies/CompleteRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/CompleteSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/ConflictResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /auth/pre-register:
+    post:
+      summary: ユーザー仮登録
+      description: |
+        新規ユーザーの仮登録を行います。
+        メールアドレスと紹介元情報を受け取り、仮登録完了メールを送信します。
+      operationId: preRegisterUser
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        $ref: '#/components/requestBodies/PreRegisterRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/PreRegisterSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/ConflictResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /oauth/google:
+    get:
+      summary: Google OAuth開始
+      description: |
+        Google OAuth認証フローを開始します。
+        ユーザーをGoogleの認証ページにリダイレクトします。
+      operationId: initiateGoogleOAuth
+      tags:
+        - OAuth
+      security: []
+      responses:
+        '302':
+          description: Google認証ページへのリダイレクト
+          headers:
+            Location:
+              schema:
+                type: string
+              description: Google OAuth認証URL
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /oauth/google/callback:
+    get:
+      summary: Google OAuthコールバック
+      description: |
+        Google OAuth認証後のコールバックを処理します。
+        認証コードからアクセストークンを取得し、ユーザー情報を取得してログインまたは新規登録を行います。
+      operationId: handleGoogleOAuthCallback
+      tags:
+        - OAuth
+      security: []
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Googleから提供される認証コード
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+          description: CSRF対策用のstateパラメータ
+        - name: error
+          in: query
+          required: false
+          schema:
+            type: string
+          description: エラーが発生した場合のエラーコード
+      responses:
+        '302':
+          description: 成功時はWebアプリケーションのホーム画面にリダイレクト、エラー時はログインページにリダイレクト
+          headers:
+            Location:
+              schema:
+                type: string
+              description: リダイレクト先URL
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /users/{id}:
+    get:
+      summary: ユーザー情報取得
+      description: |
+        指定されたユーザーIDのユーザー情報を取得します。
+        セキュリティのため、自分自身の情報のみ取得可能です。
+      operationId: getUser
+      tags:
+        - Users
+      security:
+        - JWT: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+          description: ユーザーID
+      responses:
+        '200':
+          description: ユーザー情報取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/User'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /users/{id}/theme:
+    patch:
+      summary: ユーザーテーマ更新
+      description: |
+        ユーザーのテーマ設定を更新します。
+        本人のみが自分のテーマを更新可能です。
+      operationId: updateUserTheme
+      tags:
+        - Users
+      security:
+        - JWT: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+          description: ユーザーID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - theme
+              properties:
+                theme:
+                  type: string
+                  enum:
+                    - light
+                    - dark
+                    - auto
+                  description: テーマ設定
+                  example: dark
+      responses:
+        '200':
+          description: テーマ更新成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+components:
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    HealthResponse:
+      type: object
+      title: HealthResponse
+      description: 健康チェックのレスポンス
+      properties:
+        status:
+          type: string
+          description: サービスの状態
+          example: healthy
+          enum:
+            - healthy
+            - unhealthy
+        service:
+          type: string
+          description: サービス名
+          example: gyulist-api-go
+        version:
+          type: string
+          description: バージョン
+          example: 1.0.0
+        environment:
+          type: string
+          description: 実行環境
+          example: development
+          enum:
+            - development
+            - staging
+            - production
+        timestamp:
+          type: string
+          format: date-time
+          description: レスポンスタイムスタンプ
+          example: '2024-12-19T00:00:00Z'
+      required:
+        - status
+        - service
+        - version
+        - environment
+    ApiInfoResponse:
+      type: object
+      title: ApiInfoResponse
+      description: API情報のレスポンス
+      properties:
+        name:
+          type: string
+          description: API名
+          example: Gyulist API Go
+        description:
+          type: string
+          description: APIの説明
+          example: 牛群管理システムのGo API
+        version:
+          type: string
+          description: APIバージョン
+          example: 1.0.0
+        environment:
+          type: string
+          description: 実行環境
+          example: development
+          enum:
+            - development
+            - staging
+            - production
+        status:
+          type: object
+          description: システムステータス
+          properties:
+            database:
+              type: string
+              description: データベース接続状態
+              example: connected
+              enum:
+                - connected
+                - disconnected
+                - error
+        endpoints:
+          type: object
+          description: 利用可能なエンドポイント
+          properties:
+            health:
+              type: string
+              description: 健康チェックエンドポイント
+              example: /health
+            docs:
+              type: string
+              description: APIドキュメントエンドポイント
+              example: /docs
+        contact:
+          type: object
+          description: 連絡先情報
+          properties:
+            name:
+              type: string
+              example: Gyulist Development Team
+            email:
+              type: string
+              format: email
+              example: support@gyulist.com
+        license:
+          type: object
+          description: ライセンス情報
+          properties:
+            name:
+              type: string
+              example: MIT
+            url:
+              type: string
+              format: uri
+              example: https://opensource.org/licenses/MIT
+      required:
+        - name
+        - version
+        - environment
+    ErrorResponse:
+      type: object
+      title: ErrorResponse
+      description: エラーレスポンス
+      properties:
+        error:
+          type: object
+          description: エラー詳細
+          properties:
+            code:
+              type: string
+              description: エラーコード
+              example: INTERNAL_SERVER_ERROR
+            message:
+              type: string
+              description: エラーメッセージ
+              example: 内部サーバーエラーが発生しました
+            details:
+              type: string
+              description: エラーの詳細情報
+              example: データベース接続エラー
+            timestamp:
+              type: string
+              format: date-time
+              description: エラー発生時刻
+              example: '2024-12-19T00:00:00Z'
+            requestId:
+              type: string
+              description: リクエストID（トレース用）
+              example: req-12345-abcde
+          required:
+            - code
+            - message
+            - timestamp
+      required:
+        - error
+    UserSummary:
+      type: object
+      description: ログイン時のユーザー情報
+      properties:
+        id:
+          type: integer
+          description: ユーザーID
+          example: 1
+        userName:
+          type: string
+          description: ユーザー名
+          example: 田中太郎
+        email:
+          type: string
+          format: email
+          description: メールアドレス
+          example: user@example.com
+        theme:
+          type: string
+          enum:
+            - light
+            - dark
+            - auto
+          description: UIテーマ設定
+          example: light
+      required:
+        - id
+        - userName
+        - email
+    LoginResponse:
+      type: object
+      description: ログイン成功時のレスポンス
+      properties:
+        token:
+          type: string
+          description: JWT認証トークン
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        user:
+          $ref: '#/components/schemas/UserSummary'
+        expires_at:
+          type: integer
+          format: int64
+          description: トークン有効期限（Unixタイムスタンプ）
+          example: 1640995200
+      required:
+        - token
+        - user
+    User:
+      type: object
+      required:
+        - id
+        - userName
+        - email
+        - isVerified
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: ユーザーID
+          example: 1
+        userName:
+          type: string
+          description: ユーザー名
+          example: 山田太郎
+        email:
+          type: string
+          format: email
+          description: メールアドレス
+          example: user@example.com
+        isVerified:
+          type: boolean
+          description: メール認証済みフラグ
+          example: true
+        oauthProvider:
+          type: string
+          enum:
+            - email
+            - google
+            - line
+          nullable: true
+          description: OAuthプロバイダー
+          example: google
+        avatarUrl:
+          type: string
+          nullable: true
+          description: アバター画像URL
+          example: https://example.com/avatar.jpg
+        lastLoginAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: 最終ログイン日時
+          example: '2024-01-15T10:30:00Z'
+        theme:
+          type: string
+          enum:
+            - light
+            - dark
+            - auto
+          nullable: true
+          description: テーマ設定
+          example: dark
+        createdAt:
+          type: string
+          format: date-time
+          description: 作成日時
+          example: '2024-01-01T00:00:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          description: 更新日時
+          example: '2024-01-15T10:30:00Z'
+  responses:
+    HealthResponse:
+      description: 正常応答 - サービスは正常に動作しています
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HealthResponse'
+          example:
+            status: healthy
+            service: gyulist-api-go
+            version: 1.0.0
+            environment: development
+            timestamp: '2024-12-19T00:00:00Z'
+    ApiInfoResponse:
+      description: 正常応答 - API情報を返します
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiInfoResponse'
+          example:
+            name: Gyulist API Go
+            description: 牛群管理システムのGo API
+            version: 1.0.0
+            environment: development
+            endpoints:
+              health: /health
+              docs: /docs
+            contact:
+              name: Gyulist Development Team
+              email: support@gyulist.com
+            license:
+              name: MIT
+              url: https://opensource.org/licenses/MIT
+    BadRequest:
+      description: Bad Request - リクエストが不正です
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            validation_error:
+              summary: バリデーションエラー
+              value:
+                error:
+                  code: VALIDATION_ERROR
+                  message: リクエストパラメータが不正です
+                  details: 'email: 必須項目です'
+                  timestamp: '2024-12-19T00:00:00Z'
+                  requestId: req-12345-abcde
+            invalid_format:
+              summary: 形式エラー
+              value:
+                error:
+                  code: INVALID_FORMAT
+                  message: リクエスト形式が不正です
+                  details: Content-Type must be application/json
+                  timestamp: '2024-12-19T00:00:00Z'
+                  requestId: req-12345-abcde
+    InternalServerError:
+      description: Internal Server Error - サーバー内部エラーが発生しました
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            database_error:
+              summary: データベースエラー
+              value:
+                error:
+                  code: DATABASE_ERROR
+                  message: データベース接続エラーが発生しました
+                  details: connection timeout
+                  timestamp: '2024-12-19T00:00:00Z'
+                  requestId: req-12345-abcde
+            service_unavailable:
+              summary: サービス利用不可
+              value:
+                error:
+                  code: SERVICE_UNAVAILABLE
+                  message: サービスが一時的に利用できません
+                  details: maintenance in progress
+                  timestamp: '2024-12-19T00:00:00Z'
+                  requestId: req-12345-abcde
+    NotFound:
+      description: リソースが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    LoginSuccess:
+      description: ログイン成功
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LoginResponse'
+    RegisterSuccess:
+      description: 仮登録成功
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                description: 処理結果
+                example: true
+              message:
+                type: string
+                description: 結果メッセージ
+                example: 確認メールを送信しました
+              isExistingUser:
+                type: boolean
+                description: 既に登録済みのユーザーかどうか
+                example: false
+            required:
+              - success
+              - message
+    VerifySuccess:
+      description: トークン検証成功
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                description: 検証結果
+                example: true
+              message:
+                type: string
+                description: 結果メッセージ
+                example: トークンは有効です。本登録に進んでください
+            required:
+              - success
+              - message
+    CompleteSuccess:
+      description: 本登録完了成功
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                description: 処理結果
+                example: true
+              message:
+                type: string
+                description: 結果メッセージ
+                example: ユーザー登録が完了しました
+              user:
+                $ref: '#/components/schemas/UserSummary'
+            required:
+              - success
+              - message
+              - user
+    PreRegisterSuccess:
+      description: 仮登録成功
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              ok:
+                type: boolean
+                description: 処理結果
+                example: true
+              alreadyRegistered:
+                type: boolean
+                description: 既に登録済みかどうか
+                example: false
+            required:
+              - ok
+    ConflictResponse:
+      description: 競合エラー（既に登録済み）
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ErrorResponse:
+      description: サーバーエラー
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    UnauthorizedResponse:
+      description: 認証失敗
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                description: エラーメッセージ
+                example: メールアドレスまたはパスワードが正しくありません
+            required:
+              - error
+    Forbidden:
+      description: アクセス権限がありません
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: アクセス権限がありません
+              code:
+                type: string
+                example: FORBIDDEN
+            required:
+              - error
+              - code
+  requestBodies:
+    LoginRequest:
+      description: ユーザーログインリクエスト
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                format: email
+                description: ユーザーのメールアドレス
+                example: user@example.com
+              password:
+                type: string
+                minLength: 8
+                description: パスワード（8文字以上）
+                example: password123
+            required:
+              - email
+              - password
+    RegisterRequest:
+      description: ユーザー仮登録リクエスト
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                format: email
+                description: ユーザーのメールアドレス
+                example: user@example.com
+            required:
+              - email
+    VerifyRequest:
+      description: トークン検証リクエスト
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+                description: メールに送られた検証トークン
+                example: abc123def456
+            required:
+              - token
+    CompleteRequest:
+      description: 本登録完了リクエスト
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+                description: 検証済みのトークン
+                example: abc123def456
+              name:
+                type: string
+                minLength: 1
+                maxLength: 100
+                description: ユーザー名
+                example: 田中太郎
+              password:
+                type: string
+                minLength: 8
+                maxLength: 128
+                description: パスワード
+                example: securepassword123
+            required:
+              - token
+              - name
+              - password
+    PreRegisterRequest:
+      description: ユーザー仮登録リクエスト
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                format: email
+                description: ユーザーのメールアドレス
+                example: user@example.com
+              referralSource:
+                type: string
+                maxLength: 100
+                description: 紹介元情報（オプション）
+                example: google_search
+            required:
+              - email

@@ -7,7 +7,7 @@
 [![TypeDoc](https://img.shields.io/badge/API-TypeDoc%20Docs-3178C6?logo=typescript&logoColor=white)](https://katsuya6152.github.io/gyulist/typedoc/)
 
 ## ⚡ TL;DR（要約）
-- 技術スタック: Next.js 15 / Hono / Cloudflare Workers & Pages / D1(SQLite) / Drizzle / TypeScript / pnpm / Biome
+- 技術スタック: Next.js 15 / Hono (既存) + Go 1.23 (移行中) / Cloudflare Workers & Pages / D1(SQLite) + PostgreSQL (Go版) / Drizzle + GORM / TypeScript / pnpm / Biome
 - コア機能: 個体CRUD・検索/絞り込み・イベント登録・認証（JWT/Cookie）・KPIダッシュボード
 - ドキュメント/デモ:
   - デモ：https://gyulist.com/
@@ -42,12 +42,22 @@
 ## 📁 ディレクトリ構成
 ```
 apps/
-  web/   # Next.js (App Router)
-  api/   # Hono + Cloudflare Workers, D1/Drizzle
+  web/       # Next.js (App Router)
+  api/       # Hono + Cloudflare Workers, D1/Drizzle (既存)
     ├── application/    # アプリケーション層（ユースケース、DTO、スキーマ）
     ├── domain/         # ドメイン層（ビジネスロジック、型定義、ポート）
     ├── infrastructure/ # インフラ層（DB、外部サービス、設定）
     └── interfaces/     # インターフェース層（HTTP、バッチ）
+  api-go/    # Go 1.23 + Gin/GORM + PostgreSQL (移行中)
+    ├── cmd/            # エントリーポイント
+    ├── internal/       # プライベートアプリケーションコード
+    │   ├── application/# アプリケーション層
+    │   ├── domain/     # ドメイン層
+    │   ├── infrastructure/ # インフラ層
+    │   └── interfaces/ # インターフェース層
+    ├── configs/        # 設定ファイル
+    ├── specs/          # OpenAPI仕様
+    └── tests/          # テストコード
 docs/
   api-spec/  # 内部処理要件中心のAPI仕様
   ...        # アーキテクチャ/実装/DB ガイド
@@ -59,6 +69,8 @@ docs/
 - DB: Cloudflare D1 + Drizzle — Edge環境適合、型安全クエリ
 - インフラ: Cloudflare Pages/Workers — 簡易デプロイ、低運用コスト
 - 品質: TypeScript strict / Biome / Vitest / Playwright — 品質と開発速度両立
+  - Go版追加: Google Wire (DI), Zap (ログ), Testify (テスト), golangci-lint (品質)
+  - 移行理由: パフォーマンス向上、運用コスト最適化、技術スタック多様化
   - トレードオフ: D1機能制約, React/Nextの最新機能に伴うライブラリ互換注意
 
 ## ✅ 機能一覧

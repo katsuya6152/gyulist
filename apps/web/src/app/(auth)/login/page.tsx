@@ -68,7 +68,7 @@ export default function LoginPage() {
 		setIsGoogleLoading(true);
 		try {
 			// Google OAuth フローを開始
-			const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
+			const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 			window.location.href = `${apiUrl}/api/v1/oauth/google`;
 		} catch (error) {
 			console.error("Google login error:", error);

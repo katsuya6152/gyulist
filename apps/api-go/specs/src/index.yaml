@@ -1,0 +1,87 @@
+openapi: 3.0.3
+info:
+  title: Gyulist API Go
+  description: |
+    牛群管理システムのGo API
+    畜産農家の牛の個体・繁殖・イベント管理を支援するRESTful APIです。
+  version: 1.0.0
+  contact:
+    name: Gyulist Development Team
+    email: support@gyulist.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.gyulist.com
+    description: 本番環境
+
+# security:  # グローバルセキュリティ設定を削除
+
+paths:
+  /:
+    $ref: ./paths/root.yaml
+  /health:
+    $ref: ./paths/health.yaml
+  /auth/login:
+    $ref: ./paths/auth.yaml
+  /auth/register:
+    $ref: ./paths/register.yaml
+  /auth/verify:
+    $ref: ./paths/verify.yaml
+  /auth/complete:
+    $ref: ./paths/complete.yaml
+  /auth/pre-register:
+    $ref: ./paths/pre-register.yaml
+  /oauth/google:
+    $ref: ./paths/oauth-google.yaml
+  /oauth/google/callback:
+    $ref: ./paths/oauth-google-callback.yaml
+  /users/{id}:
+    $ref: ./paths/users.yaml
+  /users/{id}/theme:
+    $ref: ./paths/users-theme.yaml
+
+components:
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    HealthResponse:
+      $ref: ./components/schemas/system/HealthResponse.yaml
+    ApiInfoResponse:
+      $ref: ./components/schemas/system/ApiInfoResponse.yaml
+    ErrorResponse:
+      $ref: ./components/schemas/common/ErrorResponse.yaml
+    UserSummary:
+      $ref: ./components/schemas/auth/UserSummary.yaml
+    LoginResponse:
+      $ref: ./components/schemas/auth/LoginResponse.yaml
+
+  responses:
+    HealthResponse:
+      $ref: ./components/responses/system/HealthResponse.yaml
+    ApiInfoResponse:
+      $ref: ./components/responses/system/ApiInfoResponse.yaml
+    BadRequest:
+      $ref: ./components/responses/common/BadRequest.yaml
+    InternalServerError:
+      $ref: ./components/responses/common/InternalServerError.yaml
+    NotFound:
+      $ref: ./components/responses/common/NotFound.yaml
+    LoginSuccess:
+      $ref: ./components/responses/auth/LoginSuccess.yaml
+    RegisterSuccess:
+      $ref: ./components/responses/auth/RegisterSuccess.yaml
+    VerifySuccess:
+      $ref: ./components/responses/auth/VerifySuccess.yaml
+    CompleteSuccess:
+      $ref: ./components/responses/auth/CompleteSuccess.yaml
+    PreRegisterSuccess:
+      $ref: ./components/responses/auth/PreRegisterSuccess.yaml
+    ConflictResponse:
+      $ref: ./components/responses/auth/ConflictResponse.yaml
+    ErrorResponse:
+      $ref: ./components/responses/common/ErrorResponse.yaml
