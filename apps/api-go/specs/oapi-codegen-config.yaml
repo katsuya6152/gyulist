@@ -1,0 +1,21 @@
+# OpenAPI Code Generation Configuration
+# https://github.com/oapi-codegen/oapi-codegen
+
+package: generated
+generate:
+  # Ginサーバーコード生成
+  gin-server: true
+
+  # モデル（struct）生成
+  models: true
+
+output: internal/interfaces/http/handlers/generated/server.gen.go
+
+# 出力オプション
+output-options:
+  # 既存ファイルを上書き
+  skip-prune: false
+
+# インポート設定
+import-mapping:
+  # 必要に応じて追加

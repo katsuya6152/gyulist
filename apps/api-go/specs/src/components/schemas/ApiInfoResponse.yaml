@@ -1,0 +1,74 @@
+type: object
+title: ApiInfoResponse
+description: API情報のレスポンス
+properties:
+  name:
+    type: string
+    description: API名
+    example: Gyulist API Go
+  description:
+    type: string
+    description: APIの説明
+    example: 牛群管理システムのGo API
+  version:
+    type: string
+    description: APIバージョン
+    example: "1.0.0"
+  environment:
+    type: string
+    description: 実行環境
+    example: development
+    enum:
+      - development
+      - staging
+      - production
+  status:
+    type: object
+    description: システムステータス
+    properties:
+      database:
+        type: string
+        description: データベース接続状態
+        example: connected
+        enum:
+          - connected
+          - disconnected
+          - error
+  endpoints:
+    type: object
+    description: 利用可能なエンドポイント
+    properties:
+      health:
+        type: string
+        description: 健康チェックエンドポイント
+        example: "/health"
+      docs:
+        type: string
+        description: APIドキュメントエンドポイント
+        example: "/docs"
+  contact:
+    type: object
+    description: 連絡先情報
+    properties:
+      name:
+        type: string
+        example: Gyulist Development Team
+      email:
+        type: string
+        format: email
+        example: support@gyulist.com
+  license:
+    type: object
+    description: ライセンス情報
+    properties:
+      name:
+        type: string
+        example: MIT
+      url:
+        type: string
+        format: uri
+        example: https://opensource.org/licenses/MIT
+required:
+  - name
+  - version
+  - environment

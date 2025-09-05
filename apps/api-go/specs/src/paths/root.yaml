@@ -1,0 +1,13 @@
+get:
+  summary: API情報取得
+  description: Gyulist API Goの基本情報を返します
+  operationId: getApiInfo
+  tags:
+    - System
+  responses:
+    '200':
+      $ref: ../components/responses/ApiInfoResponse.yaml
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+    '500':
+      $ref: ../components/responses/InternalServerError.yaml

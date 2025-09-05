@@ -1,0 +1,37 @@
+type: object
+title: HealthResponse
+description: 健康チェックのレスポンス
+properties:
+  status:
+    type: string
+    description: サービスの状態
+    example: healthy
+    enum:
+      - healthy
+      - unhealthy
+  service:
+    type: string
+    description: サービス名
+    example: gyulist-api-go
+  version:
+    type: string
+    description: バージョン
+    example: "1.0.0"
+  environment:
+    type: string
+    description: 実行環境
+    example: development
+    enum:
+      - development
+      - staging
+      - production
+  timestamp:
+    type: string
+    format: date-time
+    description: レスポンスタイムスタンプ
+    example: "2024-12-19T00:00:00Z"
+required:
+  - status
+  - service
+  - version
+  - environment

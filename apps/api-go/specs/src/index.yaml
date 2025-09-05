@@ -1,0 +1,44 @@
+openapi: 3.0.3
+info:
+  title: Gyulist API Go
+  description: |
+    牛群管理システムのGo API
+    畜産農家の牛の個体・繁殖・イベント管理を支援するRESTful APIです。
+  version: 1.0.0
+  contact:
+    name: Gyulist Development Team
+    email: support@gyulist.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080
+    description: 開発環境
+  - url: https://api.gyulist.com
+    description: 本番環境
+
+paths:
+  /:
+    $ref: ./paths/root.yaml
+  /health:
+    $ref: ./paths/health.yaml
+
+components:
+  schemas:
+    HealthResponse:
+      $ref: ./components/schemas/HealthResponse.yaml
+    ApiInfoResponse:
+      $ref: ./components/schemas/ApiInfoResponse.yaml
+    ErrorResponse:
+      $ref: ./components/schemas/ErrorResponse.yaml
+
+  responses:
+    HealthResponse:
+      $ref: ./components/responses/HealthResponse.yaml
+    ApiInfoResponse:
+      $ref: ./components/responses/ApiInfoResponse.yaml
+    BadRequest:
+      $ref: ./components/responses/BadRequest.yaml
+    InternalServerError:
+      $ref: ./components/responses/InternalServerError.yaml

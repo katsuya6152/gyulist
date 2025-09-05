@@ -1,0 +1,19 @@
+description: 正常応答 - API情報を返します
+content:
+  application/json:
+    schema:
+      $ref: ../schemas/ApiInfoResponse.yaml
+    example:
+      name: "Gyulist API Go"
+      description: "牛群管理システムのGo API"
+      version: "1.0.0"
+      environment: "development"
+      endpoints:
+        health: "/health"
+        docs: "/docs"
+      contact:
+        name: "Gyulist Development Team"
+        email: "support@gyulist.com"
+      license:
+        name: "MIT"
+        url: "https://opensource.org/licenses/MIT"

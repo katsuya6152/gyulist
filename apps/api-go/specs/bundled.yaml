@@ -1,0 +1,285 @@
+openapi: 3.0.3
+info:
+  title: Gyulist API Go
+  description: |
+    牛群管理システムのGo API
+    畜産農家の牛の個体・繁殖・イベント管理を支援するRESTful APIです。
+  version: 1.0.0
+  contact:
+    name: Gyulist Development Team
+    email: support@gyulist.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: http://localhost:8080
+    description: 開発環境
+  - url: https://api.gyulist.com
+    description: 本番環境
+paths:
+  /:
+    get:
+      summary: API情報取得
+      description: Gyulist API Goの基本情報を返します
+      operationId: getApiInfo
+      tags:
+        - System
+      responses:
+        '200':
+          $ref: '#/components/responses/ApiInfoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /health:
+    get:
+      summary: 健康チェック
+      description: APIサーバーの健康状態を確認します
+      operationId: getHealth
+      tags:
+        - System
+      responses:
+        '200':
+          $ref: '#/components/responses/HealthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '503':
+          description: サービス利用不可
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      title: HealthResponse
+      description: 健康チェックのレスポンス
+      properties:
+        status:
+          type: string
+          description: サービスの状態
+          example: healthy
+          enum:
+            - healthy
+            - unhealthy
+        service:
+          type: string
+          description: サービス名
+          example: gyulist-api-go
+        version:
+          type: string
+          description: バージョン
+          example: 1.0.0
+        environment:
+          type: string
+          description: 実行環境
+          example: development
+          enum:
+            - development
+            - staging
+            - production
+        timestamp:
+          type: string
+          format: date-time
+          description: レスポンスタイムスタンプ
+          example: '2024-12-19T00:00:00Z'
+      required:
+        - status
+        - service
+        - version
+        - environment
+    ApiInfoResponse:
+      type: object
+      title: ApiInfoResponse
+      description: API情報のレスポンス
+      properties:
+        name:
+          type: string
+          description: API名
+          example: Gyulist API Go
+        description:
+          type: string
+          description: APIの説明
+          example: 牛群管理システムのGo API
+        version:
+          type: string
+          description: APIバージョン
+          example: 1.0.0
+        environment:
+          type: string
+          description: 実行環境
+          example: development
+          enum:
+            - development
+            - staging
+            - production
+        status:
+          type: object
+          description: システムステータス
+          properties:
+            database:
+              type: string
+              description: データベース接続状態
+              example: connected
+              enum:
+                - connected
+                - disconnected
+                - error
+        endpoints:
+          type: object
+          description: 利用可能なエンドポイント
+          properties:
+            health:
+              type: string
+              description: 健康チェックエンドポイント
+              example: /health
+            docs:
+              type: string
+              description: APIドキュメントエンドポイント
+              example: /docs
+        contact:
+          type: object
+          description: 連絡先情報
+          properties:
+            name:
+              type: string
+              example: Gyulist Development Team
+            email:
+              type: string
+              format: email
+              example: support@gyulist.com
+        license:
+          type: object
+          description: ライセンス情報
+          properties:
+            name:
+              type: string
+              example: MIT
+            url:
+              type: string
+              format: uri
+              example: https://opensource.org/licenses/MIT
+      required:
+        - name
+        - version
+        - environment
+    ErrorResponse:
+      type: object
+      title: ErrorResponse
+      description: エラーレスポンス
+      properties:
+        error:
+          type: object
+          description: エラー詳細
+          properties:
+            code:
+              type: string
+              description: エラーコード
+              example: INTERNAL_SERVER_ERROR
+            message:
+              type: string
+              description: エラーメッセージ
+              example: 内部サーバーエラーが発生しました
+            details:
+              type: string
+              description: エラーの詳細情報
+              example: データベース接続エラー
+            timestamp:
+              type: string
+              format: date-time
+              description: エラー発生時刻
+              example: '2024-12-19T00:00:00Z'
+            requestId:
+              type: string
+              description: リクエストID（トレース用）
+              example: req-12345-abcde
+          required:
+            - code
+            - message
+            - timestamp
+      required:
+        - error
+  responses:
+    HealthResponse:
+      description: 正常応答 - サービスは正常に動作しています
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HealthResponse'
+          example:
+            status: healthy
+            service: gyulist-api-go
+            version: 1.0.0
+            environment: development
+            timestamp: '2024-12-19T00:00:00Z'
+    ApiInfoResponse:
+      description: 正常応答 - API情報を返します
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiInfoResponse'
+          example:
+            name: Gyulist API Go
+            description: 牛群管理システムのGo API
+            version: 1.0.0
+            environment: development
+            endpoints:
+              health: /health
+              docs: /docs
+            contact:
+              name: Gyulist Development Team
+              email: support@gyulist.com
+            license:
+              name: MIT
+              url: https://opensource.org/licenses/MIT
+    BadRequest:
+      description: Bad Request - リクエストが不正です
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            validation_error:
+              summary: バリデーションエラー
+              value:
+                error:
+                  code: VALIDATION_ERROR
+                  message: リクエストパラメータが不正です
+                  details: 'email: 必須項目です'
+                  timestamp: '2024-12-19T00:00:00Z'
+                  requestId: req-12345-abcde
+            invalid_format:
+              summary: 形式エラー
+              value:
+                error:
+                  code: INVALID_FORMAT
+                  message: リクエスト形式が不正です
+                  details: Content-Type must be application/json
+                  timestamp: '2024-12-19T00:00:00Z'
+                  requestId: req-12345-abcde
+    InternalServerError:
+      description: Internal Server Error - サーバー内部エラーが発生しました
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            database_error:
+              summary: データベースエラー
+              value:
+                error:
+                  code: DATABASE_ERROR
+                  message: データベース接続エラーが発生しました
+                  details: connection timeout
+                  timestamp: '2024-12-19T00:00:00Z'
+                  requestId: req-12345-abcde
+            service_unavailable:
+              summary: サービス利用不可
+              value:
+                error:
+                  code: SERVICE_UNAVAILABLE
+                  message: サービスが一時的に利用できません
+                  details: maintenance in progress
+                  timestamp: '2024-12-19T00:00:00Z'
+                  requestId: req-12345-abcde

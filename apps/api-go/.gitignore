@@ -1,0 +1,70 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+dist/
+tmp/
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.html
+coverage.txt
+
+# Go workspace file
+go.work
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Docker volumes
+docker-volumes/
+
+# Air temporary files
+tmp/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# OpenAPI generated files
+internal/interfaces/http/handlers/generated/
+specs/gen/
+
+# Test coverage
+coverage/
+
+# Build artifacts
+build/
+release/
+
+# Temporary files
+*.tmp
+*.temp

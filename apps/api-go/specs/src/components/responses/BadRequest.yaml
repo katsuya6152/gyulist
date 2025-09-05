@@ -1,0 +1,24 @@
+description: Bad Request - リクエストが不正です
+content:
+  application/json:
+    schema:
+      $ref: ../schemas/ErrorResponse.yaml
+    examples:
+      validation_error:
+        summary: バリデーションエラー
+        value:
+          error:
+            code: VALIDATION_ERROR
+            message: リクエストパラメータが不正です
+            details: "email: 必須項目です"
+            timestamp: "2024-12-19T00:00:00Z"
+            requestId: "req-12345-abcde"
+      invalid_format:
+        summary: 形式エラー
+        value:
+          error:
+            code: INVALID_FORMAT
+            message: リクエスト形式が不正です
+            details: "Content-Type must be application/json"
+            timestamp: "2024-12-19T00:00:00Z"
+            requestId: "req-12345-abcde"
