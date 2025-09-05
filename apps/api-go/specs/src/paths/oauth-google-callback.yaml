@@ -6,6 +6,7 @@ get:
   operationId: handleGoogleOAuthCallback
   tags:
     - OAuth
+  security: []  # 認証なし
   parameters:
     - name: code
       in: query

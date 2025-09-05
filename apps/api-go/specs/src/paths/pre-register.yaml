@@ -6,6 +6,7 @@ post:
   operationId: preRegisterUser
   tags:
     - Auth
+  security: []  # 認証なし
   requestBody:
     $ref: ../components/requestBodies/auth/PreRegisterRequest.yaml
   responses:

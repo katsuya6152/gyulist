@@ -6,6 +6,7 @@ post:
   operationId: verifyToken
   tags:
     - Auth
+  security: []  # 認証なし
   requestBody:
     $ref: ../components/requestBodies/auth/VerifyRequest.yaml
   responses:

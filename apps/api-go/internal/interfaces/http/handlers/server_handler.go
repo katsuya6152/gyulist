@@ -19,6 +19,8 @@ type ServerHandler struct {
 	completeHandler                  *CompleteHandler
 	initiateGoogleOAuthHandler       *InitiateGoogleOAuthHandler
 	handleGoogleOAuthCallbackHandler *HandleGoogleOAuthCallbackHandler
+	getUserHandler                   *GetUserHandler
+	updateUserThemeHandler           *UpdateUserThemeHandler
 }
 
 // NewServerHandler ServerHandlerのコンストラクタ
@@ -32,6 +34,8 @@ func NewServerHandler(
 	completeAppService *appServices.CompleteRegistrationApplicationService,
 	initiateGoogleOAuthAppService *appServices.InitiateGoogleOAuthApplicationService,
 	handleGoogleOAuthCallbackAppService *appServices.HandleGoogleOAuthCallbackApplicationService,
+	getUserAppService *appServices.GetUserApplicationService,
+	updateUserThemeAppService *appServices.UpdateUserThemeApplicationService,
 ) *ServerHandler {
 	return &ServerHandler{
 		systemHandler:                    NewSystemHandler(config, healthService),
@@ -42,6 +46,8 @@ func NewServerHandler(
 		completeHandler:                  NewCompleteHandler(completeAppService),
 		initiateGoogleOAuthHandler:       NewInitiateGoogleOAuthHandler(initiateGoogleOAuthAppService),
 		handleGoogleOAuthCallbackHandler: NewHandleGoogleOAuthCallbackHandler(handleGoogleOAuthCallbackAppService),
+		getUserHandler:                   NewGetUserHandler(getUserAppService),
+		updateUserThemeHandler:           NewUpdateUserThemeHandler(updateUserThemeAppService),
 	}
 }
 
@@ -88,4 +94,14 @@ func (h *ServerHandler) InitiateGoogleOAuth(c *gin.Context) {
 // HandleGoogleOAuthCallback Google OAuthコールバック処理 (GET /oauth/google/callback)
 func (h *ServerHandler) HandleGoogleOAuthCallback(c *gin.Context, params generated.HandleGoogleOAuthCallbackParams) {
 	h.handleGoogleOAuthCallbackHandler.HandleGoogleOAuthCallback(c, params)
+}
+
+// GetUser ユーザー情報を取得 (GET /users/:id)
+func (h *ServerHandler) GetUser(c *gin.Context, id int32) {
+	h.getUserHandler.GetUser(c, id)
+}
+
+// UpdateUserTheme ユーザーテーマを更新 (PATCH /users/:id/theme)
+func (h *ServerHandler) UpdateUserTheme(c *gin.Context, id int32) {
+	h.updateUserThemeHandler.UpdateUserTheme(c, id)
 }

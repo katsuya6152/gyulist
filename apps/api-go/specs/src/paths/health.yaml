@@ -4,6 +4,7 @@ get:
   operationId: getHealth
   tags:
     - System
+  security: []  # 認証なし
   responses:
     '200':
       $ref: ../components/responses/system/HealthResponse.yaml

@@ -1,0 +1,60 @@
+type: object
+required:
+  - id
+  - userName
+  - email
+  - isVerified
+  - createdAt
+  - updatedAt
+properties:
+  id:
+    type: integer
+    format: int32
+    description: ユーザーID
+    example: 1
+  userName:
+    type: string
+    description: ユーザー名
+    example: "山田太郎"
+  email:
+    type: string
+    format: email
+    description: メールアドレス
+    example: "user@example.com"
+  isVerified:
+    type: boolean
+    description: メール認証済みフラグ
+    example: true
+  oauthProvider:
+    type: string
+    enum: [email, google, line]
+    nullable: true
+    description: OAuthプロバイダー
+    example: "google"
+  avatarUrl:
+    type: string
+    nullable: true
+    description: アバター画像URL
+    example: "https://example.com/avatar.jpg"
+  lastLoginAt:
+    type: string
+    format: date-time
+    nullable: true
+    description: 最終ログイン日時
+    example: "2024-01-15T10:30:00Z"
+  theme:
+    type: string
+    enum: [light, dark, auto]
+    nullable: true
+    description: テーマ設定
+    example: "dark"
+  createdAt:
+    type: string
+    format: date-time
+    description: 作成日時
+    example: "2024-01-01T00:00:00Z"
+  updatedAt:
+    type: string
+    format: date-time
+    description: 更新日時
+    example: "2024-01-15T10:30:00Z"

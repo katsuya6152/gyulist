@@ -6,6 +6,7 @@ get:
   operationId: initiateGoogleOAuth
   tags:
     - OAuth
+  security: []  # 認証なし
   responses:
     '302':
       description: Google認証ページへのリダイレクト

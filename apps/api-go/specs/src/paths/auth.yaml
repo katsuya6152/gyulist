@@ -4,6 +4,7 @@ post:
   operationId: loginUser
   tags:
     - Auth
+  security: []  # 認証なし
   requestBody:
     $ref: ../components/requestBodies/auth/LoginRequest.yaml
   responses:

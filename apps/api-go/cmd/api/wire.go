@@ -70,6 +70,8 @@ func InitializeApp() (*gin.Engine, error) {
 		usecases.NewCompleteRegistrationUseCase,
 		usecases.NewInitiateGoogleOAuthUseCase,
 		usecases.NewHandleGoogleOAuthCallbackUseCase,
+		usecases.NewGetUserUseCase,
+		usecases.NewUpdateUserThemeUseCase,
 
 		// アプリケーションサービス
 		appServices.NewAuthApplicationService,
@@ -79,6 +81,8 @@ func InitializeApp() (*gin.Engine, error) {
 		appServices.NewCompleteRegistrationApplicationService,
 		appServices.NewInitiateGoogleOAuthApplicationService,
 		appServices.NewHandleGoogleOAuthCallbackApplicationService,
+		appServices.NewGetUserApplicationService,
+		appServices.NewUpdateUserThemeApplicationService,
 
 		// ハンドラー
 		handlers.NewServerHandler,
@@ -181,7 +185,7 @@ func NewRouter(
 	// OpenAPIで定義されたルーティングを登録
 	generated.RegisterHandlersWithOptions(r, serverHandler, generated.GinServerOptions{
 		BaseURL:      "/api/v1",
-		Middlewares:  nil,
+		Middlewares:  nil, // 個別のハンドラーでJWTチェックを行う
 		ErrorHandler: nil,
 	})
 

@@ -1,0 +1,15 @@
+description: アクセス権限がありません
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "アクセス権限がありません"
+        code:
+          type: string
+          example: "FORBIDDEN"
+      required:
+        - error
+        - code

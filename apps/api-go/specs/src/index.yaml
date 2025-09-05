@@ -16,8 +16,7 @@ servers:
   - url: https://api.gyulist.com
     description: 本番環境
 
-security:
-  - JWT: []
+# security:  # グローバルセキュリティ設定を削除
 
 paths:
   /:
@@ -38,6 +37,10 @@ paths:
     $ref: ./paths/oauth-google.yaml
   /oauth/google/callback:
     $ref: ./paths/oauth-google-callback.yaml
+  /users/{id}:
+    $ref: ./paths/users.yaml
+  /users/{id}/theme:
+    $ref: ./paths/users-theme.yaml
 
 components:
   securitySchemes:

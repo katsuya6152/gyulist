@@ -1,0 +1,56 @@
+patch:
+  summary: ユーザーテーマ更新
+  description: |
+    ユーザーのテーマ設定を更新します。
+    本人のみが自分のテーマを更新可能です。
+  operationId: updateUserTheme
+  tags:
+    - Users
+  security:
+    - JWT: []
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+      description: ユーザーID
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - theme
+          properties:
+            theme:
+              type: string
+              enum: [light, dark, auto]
+              description: テーマ設定
+              example: dark
+  responses:
+    '200':
+      description: テーマ更新成功
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                type: object
+                properties:
+                  user:
+                    $ref: ../components/schemas/auth/User.yaml
+    '400':
+      $ref: ../components/responses/common/BadRequest.yaml
+    '403':
+      $ref: ../components/responses/common/Forbidden.yaml
+    '404':
+      $ref: ../components/responses/common/NotFound.yaml
+    '500':
+      $ref: ../components/responses/common/InternalServerError.yaml

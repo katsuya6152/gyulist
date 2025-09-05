@@ -4,6 +4,7 @@ get:
   operationId: getApiInfo
   tags:
     - System
+  security: []  # 認証なし
   responses:
     '200':
       $ref: ../components/responses/system/ApiInfoResponse.yaml

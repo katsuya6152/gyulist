@@ -62,7 +62,11 @@ func InitializeApp() (*gin.Engine, error) {
 	v := provideClock()
 	handleGoogleOAuthCallbackUseCase := usecases.NewHandleGoogleOAuthCallbackUseCase(authRepository, googleOAuthService, tokenGenerator, v)
 	handleGoogleOAuthCallbackApplicationService := services3.NewHandleGoogleOAuthCallbackApplicationService(handleGoogleOAuthCallbackUseCase)
-	serverHandler := handlers.NewServerHandler(config, healthInfrastructureService, authApplicationService, preRegisterApplicationService, registerUserApplicationService, verifyTokenApplicationService, completeRegistrationApplicationService, initiateGoogleOAuthApplicationService, handleGoogleOAuthCallbackApplicationService)
+	getUserUseCase := usecases.NewGetUserUseCase(authRepository)
+	getUserApplicationService := services3.NewGetUserApplicationService(getUserUseCase)
+	updateUserThemeUseCase := usecases.NewUpdateUserThemeUseCase(authRepository, v)
+	updateUserThemeApplicationService := services3.NewUpdateUserThemeApplicationService(updateUserThemeUseCase)
+	serverHandler := handlers.NewServerHandler(config, healthInfrastructureService, authApplicationService, preRegisterApplicationService, registerUserApplicationService, verifyTokenApplicationService, completeRegistrationApplicationService, initiateGoogleOAuthApplicationService, handleGoogleOAuthCallbackApplicationService, getUserApplicationService, updateUserThemeApplicationService)
 	engine := NewRouter(config, serverHandler)
 	return engine, nil
 }

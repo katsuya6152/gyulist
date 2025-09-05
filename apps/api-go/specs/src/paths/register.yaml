@@ -6,6 +6,7 @@ post:
   operationId: registerUser
   tags:
     - Auth
+  security: []  # 認証なし
   requestBody:
     $ref: ../components/requestBodies/auth/RegisterRequest.yaml
   responses:

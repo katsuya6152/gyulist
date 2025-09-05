@@ -6,6 +6,7 @@ post:
   operationId: completeRegistration
   tags:
     - Auth
+  security: []  # 認証なし
   requestBody:
     $ref: ../components/requestBodies/auth/CompleteRequest.yaml
   responses:
