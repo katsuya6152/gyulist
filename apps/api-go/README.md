@@ -99,6 +99,8 @@ make help         # 利用可能なコマンド一覧表示
 | `DB_NAME` | gyulist_dev | データベース名 |
 | `JWT_SECRET` | your-secret-key | JWTシークレット |
 | `REDIS_URL` | redis://localhost:6379 | Redis接続URL |
+| `RESEND_API_KEY` | "" | ResendメールサービスAPIキー |
+| `MAIL_FROM` | noreply@gyulist.com | メール送信元アドレス |
 
 ### Docker Composeサービス
 

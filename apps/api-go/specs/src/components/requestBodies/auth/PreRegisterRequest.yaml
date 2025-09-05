@@ -1,0 +1,19 @@
+description: ユーザー仮登録リクエスト
+required: true
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: ユーザーのメールアドレス
+          example: user@example.com
+        referralSource:
+          type: string
+          maxLength: 100
+          description: 紹介元情報（オプション）
+          example: "google_search"
+      required:
+        - email

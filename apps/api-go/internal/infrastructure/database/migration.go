@@ -5,6 +5,7 @@ import (
 
 	"gorm.io/gorm"
 
+	"gyulist-api-go/internal/domain/entities/registration"
 	"gyulist-api-go/internal/domain/entities/user"
 )
 
@@ -15,6 +16,12 @@ func RunMigrations(db *gorm.DB) error {
 	// ユーザーエンティティのマイグレーション
 	if err := db.AutoMigrate(&user.User{}); err != nil {
 		log.Printf("Failed to migrate User table: %v", err)
+		return err
+	}
+
+	// 仮登録エンティティのマイグレーション
+	if err := db.AutoMigrate(&registration.Registration{}); err != nil {
+		log.Printf("Failed to migrate Registration table: %v", err)
 		return err
 	}
 

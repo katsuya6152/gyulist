@@ -22,6 +22,8 @@ services:
       - DB_NAME=gyulist_dev
       - REDIS_URL=redis://redis:6379
       - JWT_SECRET=development-secret-key-change-in-production
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - MAIL_FROM=noreply@gyulist.com
     depends_on:
       db:
         condition: service_healthy

@@ -1,0 +1,5 @@
+description: 競合エラー（既に登録済み）
+content:
+  application/json:
+    schema:
+      $ref: '../../schemas/common/ErrorResponse.yaml'

@@ -7,9 +7,6 @@
 package main
 
 import (
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"gyulist-api-go/configs"
 	services3 "gyulist-api-go/internal/application/services"
 	"gyulist-api-go/internal/application/usecases"
@@ -19,6 +16,10 @@ import (
 	"gyulist-api-go/internal/infrastructure/services"
 	"gyulist-api-go/internal/interfaces/http/handlers"
 	"gyulist-api-go/internal/interfaces/http/handlers/generated"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 // Injectors from wire.go:
@@ -41,7 +42,13 @@ func InitializeApp() (*gin.Engine, error) {
 	tokenGenerator := provideTokenGenerator(jwtService)
 	loginUseCase := usecases.NewLoginUseCase(authRepository, userDomainService, passwordVerifier, tokenGenerator)
 	authApplicationService := services3.NewAuthApplicationService(loginUseCase, userDomainService)
-	serverHandler := handlers.NewServerHandler(config, healthInfrastructureService, authApplicationService)
+	registrationRepository := repositories.NewRegistrationRepository(db)
+	emailConfig := provideEmailConfig(config)
+	resendEmailService := services.NewResendEmailService(emailConfig)
+	emailService := provideEmailService(resendEmailService)
+	preRegisterUseCase := usecases.NewPreRegisterUseCase(registrationRepository, emailService)
+	preRegisterApplicationService := services3.NewPreRegisterApplicationService(preRegisterUseCase)
+	serverHandler := handlers.NewServerHandler(config, healthInfrastructureService, authApplicationService, preRegisterApplicationService)
 	engine := NewRouter(config, serverHandler)
 	return engine, nil
 }
@@ -59,6 +66,19 @@ func provideDatabase(cfg *configs.Config) (*gorm.DB, error) {
 // provideJWTSecret はJWTシークレットを提供します
 func provideJWTSecret(cfg *configs.Config) string {
 	return cfg.JWT.Secret
+}
+
+// provideEmailConfig はメール設定を提供します
+func provideEmailConfig(cfg *configs.Config) services2.EmailConfig {
+	return services2.EmailConfig{
+		APIKey: cfg.Email.APIKey,
+		From:   cfg.Email.From,
+	}
+}
+
+// provideEmailService はEmailServiceを提供します
+func provideEmailService(emailSvc *services.ResendEmailService) services2.EmailService {
+	return emailSvc
 }
 
 // providePasswordVerifier はPasswordVerifierを提供します

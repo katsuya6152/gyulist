@@ -26,6 +26,8 @@ paths:
     $ref: ./paths/health.yaml
   /auth/login:
     $ref: ./paths/auth.yaml
+  /auth/pre-register:
+    $ref: ./paths/pre-register.yaml
 
 components:
   securitySchemes:
@@ -56,5 +58,9 @@ components:
       $ref: ./components/responses/common/InternalServerError.yaml
     LoginSuccess:
       $ref: ./components/responses/auth/LoginSuccess.yaml
+    PreRegisterSuccess:
+      $ref: ./components/responses/auth/PreRegisterSuccess.yaml
+    ConflictResponse:
+      $ref: ./components/responses/auth/ConflictResponse.yaml
     ErrorResponse:
       $ref: ./components/responses/common/ErrorResponse.yaml

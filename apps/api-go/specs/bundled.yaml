@@ -63,6 +63,26 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /auth/pre-register:
+    post:
+      summary: ユーザー仮登録
+      description: |
+        新規ユーザーの仮登録を行います。
+        メールアドレスと紹介元情報を受け取り、仮登録完了メールを送信します。
+      operationId: preRegisterUser
+      tags:
+        - Auth
+      requestBody:
+        $ref: '#/components/requestBodies/PreRegisterRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/PreRegisterSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/ConflictResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 components:
   securitySchemes:
     JWT:
@@ -355,6 +375,29 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/LoginResponse'
+    PreRegisterSuccess:
+      description: 仮登録成功
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              ok:
+                type: boolean
+                description: 処理結果
+                example: true
+              alreadyRegistered:
+                type: boolean
+                description: 既に登録済みかどうか
+                example: false
+            required:
+              - ok
+    ConflictResponse:
+      description: 競合エラー（既に登録済み）
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
     ErrorResponse:
       description: サーバーエラー
       content:
@@ -396,3 +439,23 @@ components:
             required:
               - email
               - password
+    PreRegisterRequest:
+      description: ユーザー仮登録リクエスト
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                format: email
+                description: ユーザーのメールアドレス
+                example: user@example.com
+              referralSource:
+                type: string
+                maxLength: 100
+                description: 紹介元情報（オプション）
+                example: google_search
+            required:
+              - email

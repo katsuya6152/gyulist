@@ -32,27 +32,35 @@ func InitializeApp() (*gin.Engine, error) {
 		// JWTシークレット
 		provideJWTSecret,
 
+		// メール設定
+		provideEmailConfig,
+
 		// リポジトリ
 		repositories.NewHealthRepository,
 		repositories.NewAuthRepository,
+		repositories.NewRegistrationRepository,
 
 		// インフラサービス
 		infraServices.NewPasswordService,
 		infraServices.NewJWTService,
 		infraServices.NewHealthInfrastructureService,
+		infraServices.NewResendEmailService,
 
 		// Domainインターフェースの実装
 		providePasswordVerifier,
 		provideTokenGenerator,
+		provideEmailService,
 
 		// ドメインサービス
 		domainServices.NewUserDomainService,
 
 		// ユースケース
 		usecases.NewLoginUseCase,
+		usecases.NewPreRegisterUseCase,
 
 		// アプリケーションサービス
 		appServices.NewAuthApplicationService,
+		appServices.NewPreRegisterApplicationService,
 
 		// ハンドラー
 		handlers.NewServerHandler,
@@ -74,6 +82,19 @@ func provideDatabase(cfg *configs.Config) (*gorm.DB, error) {
 // provideJWTSecret はJWTシークレットを提供します
 func provideJWTSecret(cfg *configs.Config) string {
 	return cfg.JWT.Secret
+}
+
+// provideEmailConfig はメール設定を提供します
+func provideEmailConfig(cfg *configs.Config) domainServices.EmailConfig {
+	return domainServices.EmailConfig{
+		APIKey: cfg.Email.APIKey,
+		From:   cfg.Email.From,
+	}
+}
+
+// provideEmailService はEmailServiceを提供します
+func provideEmailService(emailSvc *infraServices.ResendEmailService) domainServices.EmailService {
+	return emailSvc
 }
 
 // providePasswordVerifier はPasswordVerifierを提供します

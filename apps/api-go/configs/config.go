@@ -12,6 +12,7 @@ type Config struct {
 	Database DatabaseConfig
 	Redis    RedisConfig
 	JWT      JWTConfig
+	Email    EmailConfig
 	Log      LogConfig
 }
 
@@ -53,6 +54,12 @@ type JWTConfig struct {
 	Audience        string
 }
 
+// EmailConfig はメール設定
+type EmailConfig struct {
+	APIKey string
+	From   string
+}
+
 // LogConfig はログ設定
 type LogConfig struct {
 	Level  string
@@ -92,6 +99,10 @@ func Load() *Config {
 			RefreshTokenTTL: getEnvAsDuration("JWT_REFRESH_TTL", "24h"),
 			Issuer:          getEnv("JWT_ISSUER", "gyulist-api-go"),
 			Audience:        getEnv("JWT_AUDIENCE", "gyulist-client"),
+		},
+		Email: EmailConfig{
+			APIKey: getEnv("RESEND_API_KEY", ""),
+			From:   getEnv("MAIL_FROM", "noreply@gyulist.com"),
 		},
 		Log: LogConfig{
 			Level:  getEnv("LOG_LEVEL", "info"),

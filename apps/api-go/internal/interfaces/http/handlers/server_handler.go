@@ -10,8 +10,9 @@ import (
 
 // ServerHandler ServerInterfaceを実装するハンドラー
 type ServerHandler struct {
-	systemHandler *SystemHandler
-	authHandler   *AuthHandler
+	systemHandler      *SystemHandler
+	authHandler        *AuthHandler
+	preRegisterHandler *PreRegisterHandler
 }
 
 // NewServerHandler ServerHandlerのコンストラクタ
@@ -19,10 +20,12 @@ func NewServerHandler(
 	config *configs.Config,
 	healthService *infra.HealthInfrastructureService,
 	authAppService *appServices.AuthApplicationService,
+	preRegisterAppService *appServices.PreRegisterApplicationService,
 ) *ServerHandler {
 	return &ServerHandler{
-		systemHandler: NewSystemHandler(config, healthService),
-		authHandler:   NewAuthHandler(authAppService),
+		systemHandler:      NewSystemHandler(config, healthService),
+		authHandler:        NewAuthHandler(authAppService),
+		preRegisterHandler: NewPreRegisterHandler(preRegisterAppService),
 	}
 }
 
@@ -39,4 +42,9 @@ func (h *ServerHandler) LoginUser(c *gin.Context) {
 // GetHealth 健康チェック (GET /health)
 func (h *ServerHandler) GetHealth(c *gin.Context) {
 	h.systemHandler.GetHealth(c)
+}
+
+// PreRegisterUser ユーザー仮登録 (POST /auth/pre-register)
+func (h *ServerHandler) PreRegisterUser(c *gin.Context) {
+	h.preRegisterHandler.PreRegisterUser(c)
 }

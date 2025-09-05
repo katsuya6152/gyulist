@@ -15,7 +15,7 @@ run: ## 通常のGo実行
 	go run cmd/api/main.go
 
 build: ## アプリケーションをビルド
-	go build -o bin/api cmd/api/main.go
+	go build -o bin/api ./cmd/api
 
 # テスト
 test: ## 全テストを実行
