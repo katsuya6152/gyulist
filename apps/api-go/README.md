@@ -102,6 +102,9 @@ make help         # 利用可能なコマンド一覧表示
 | `RESEND_API_KEY` | "" | ResendメールサービスAPIキー |
 | `MAIL_FROM` | noreply@gyulist.com | メール送信元アドレス |
 | `WEB_URL` | http://localhost:3000 | WebアプリケーションURL |
+| `GOOGLE_CLIENT_ID` | "" | Google OAuthクライアントID |
+| `GOOGLE_CLIENT_SECRET` | "" | Google OAuthクライアントシークレット |
+| `GOOGLE_REDIRECT_URI` | http://localhost:8080/api/v1/oauth/google/callback | Google OAuthリダイレクトURI |
 
 ### Docker Composeサービス
 

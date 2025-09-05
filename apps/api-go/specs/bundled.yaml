@@ -145,6 +145,65 @@ paths:
           $ref: '#/components/responses/ConflictResponse'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /oauth/google:
+    get:
+      summary: Google OAuth開始
+      description: |
+        Google OAuth認証フローを開始します。
+        ユーザーをGoogleの認証ページにリダイレクトします。
+      operationId: initiateGoogleOAuth
+      tags:
+        - OAuth
+      responses:
+        '302':
+          description: Google認証ページへのリダイレクト
+          headers:
+            Location:
+              schema:
+                type: string
+              description: Google OAuth認証URL
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /oauth/google/callback:
+    get:
+      summary: Google OAuthコールバック
+      description: |
+        Google OAuth認証後のコールバックを処理します。
+        認証コードからアクセストークンを取得し、ユーザー情報を取得してログインまたは新規登録を行います。
+      operationId: handleGoogleOAuthCallback
+      tags:
+        - OAuth
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Googleから提供される認証コード
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+          description: CSRF対策用のstateパラメータ
+        - name: error
+          in: query
+          required: false
+          schema:
+            type: string
+          description: エラーが発生した場合のエラーコード
+      responses:
+        '302':
+          description: 成功時はWebアプリケーションのホーム画面にリダイレクト、エラー時はログインページにリダイレクト
+          headers:
+            Location:
+              schema:
+                type: string
+              description: リダイレクト先URL
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 components:
   securitySchemes:
     JWT:

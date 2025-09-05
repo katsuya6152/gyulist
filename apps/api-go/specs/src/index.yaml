@@ -34,6 +34,10 @@ paths:
     $ref: ./paths/complete.yaml
   /auth/pre-register:
     $ref: ./paths/pre-register.yaml
+  /oauth/google:
+    $ref: ./paths/oauth-google.yaml
+  /oauth/google/callback:
+    $ref: ./paths/oauth-google-callback.yaml
 
 components:
   securitySchemes:

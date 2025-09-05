@@ -25,6 +25,9 @@ services:
       - RESEND_API_KEY=${RESEND_API_KEY}
       - MAIL_FROM=noreply@gyulist.com
       - WEB_URL=${WEB_URL:-http://localhost:3000}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI:-http://localhost:8080/api/v1/oauth/google/callback}
     depends_on:
       db:
         condition: service_healthy

@@ -8,12 +8,13 @@ import (
 
 // Config はアプリケーション全体の設定を保持します
 type Config struct {
-	App      AppConfig
-	Database DatabaseConfig
-	Redis    RedisConfig
-	JWT      JWTConfig
-	Email    EmailConfig
-	Log      LogConfig
+	App         AppConfig
+	Database    DatabaseConfig
+	Redis       RedisConfig
+	JWT         JWTConfig
+	Email       EmailConfig
+	GoogleOAuth GoogleOAuthConfig
+	Log         LogConfig
 }
 
 // AppConfig はアプリケーションの基本設定
@@ -61,6 +62,13 @@ type EmailConfig struct {
 	WebURL string
 }
 
+// GoogleOAuthConfig はGoogle OAuth設定
+type GoogleOAuthConfig struct {
+	ClientID     string
+	ClientSecret string
+	RedirectURI  string
+}
+
 // LogConfig はログ設定
 type LogConfig struct {
 	Level  string
@@ -105,6 +113,11 @@ func Load() *Config {
 			APIKey: getEnv("RESEND_API_KEY", ""),
 			From:   getEnv("MAIL_FROM", "noreply@gyulist.com"),
 			WebURL: getEnv("WEB_URL", "http://localhost:3000"),
+		},
+		GoogleOAuth: GoogleOAuthConfig{
+			ClientID:     getEnv("GOOGLE_CLIENT_ID", ""),
+			ClientSecret: getEnv("GOOGLE_CLIENT_SECRET", ""),
+			RedirectURI:  getEnv("GOOGLE_REDIRECT_URI", "http://localhost:8080/api/v1/oauth/google/callback"),
 		},
 		Log: LogConfig{
 			Level:  getEnv("LOG_LEVEL", "info"),

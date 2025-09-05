@@ -4,18 +4,21 @@ import (
 	"gyulist-api-go/configs"
 	appServices "gyulist-api-go/internal/application/services"
 	infra "gyulist-api-go/internal/infrastructure/services"
+	"gyulist-api-go/internal/interfaces/http/handlers/generated"
 
 	"github.com/gin-gonic/gin"
 )
 
 // ServerHandler ServerInterfaceを実装するハンドラー
 type ServerHandler struct {
-	systemHandler      *SystemHandler
-	authHandler        *AuthHandler
-	preRegisterHandler *PreRegisterHandler
-	registerHandler    *RegisterHandler
-	verifyHandler      *VerifyHandler
-	completeHandler    *CompleteHandler
+	systemHandler                    *SystemHandler
+	authHandler                      *AuthHandler
+	preRegisterHandler               *PreRegisterHandler
+	registerHandler                  *RegisterHandler
+	verifyHandler                    *VerifyHandler
+	completeHandler                  *CompleteHandler
+	initiateGoogleOAuthHandler       *InitiateGoogleOAuthHandler
+	handleGoogleOAuthCallbackHandler *HandleGoogleOAuthCallbackHandler
 }
 
 // NewServerHandler ServerHandlerのコンストラクタ
@@ -27,14 +30,18 @@ func NewServerHandler(
 	registerAppService *appServices.RegisterUserApplicationService,
 	verifyAppService *appServices.VerifyTokenApplicationService,
 	completeAppService *appServices.CompleteRegistrationApplicationService,
+	initiateGoogleOAuthAppService *appServices.InitiateGoogleOAuthApplicationService,
+	handleGoogleOAuthCallbackAppService *appServices.HandleGoogleOAuthCallbackApplicationService,
 ) *ServerHandler {
 	return &ServerHandler{
-		systemHandler:      NewSystemHandler(config, healthService),
-		authHandler:        NewAuthHandler(authAppService),
-		preRegisterHandler: NewPreRegisterHandler(preRegisterAppService),
-		registerHandler:    NewRegisterHandler(registerAppService),
-		verifyHandler:      NewVerifyHandler(verifyAppService),
-		completeHandler:    NewCompleteHandler(completeAppService),
+		systemHandler:                    NewSystemHandler(config, healthService),
+		authHandler:                      NewAuthHandler(authAppService),
+		preRegisterHandler:               NewPreRegisterHandler(preRegisterAppService),
+		registerHandler:                  NewRegisterHandler(registerAppService),
+		verifyHandler:                    NewVerifyHandler(verifyAppService),
+		completeHandler:                  NewCompleteHandler(completeAppService),
+		initiateGoogleOAuthHandler:       NewInitiateGoogleOAuthHandler(initiateGoogleOAuthAppService),
+		handleGoogleOAuthCallbackHandler: NewHandleGoogleOAuthCallbackHandler(handleGoogleOAuthCallbackAppService),
 	}
 }
 
@@ -71,4 +78,14 @@ func (h *ServerHandler) VerifyToken(c *gin.Context) {
 // CompleteRegistration 本登録完了 (POST /auth/complete)
 func (h *ServerHandler) CompleteRegistration(c *gin.Context) {
 	h.completeHandler.CompleteRegistration(c)
+}
+
+// InitiateGoogleOAuth Google OAuth開始 (GET /oauth/google)
+func (h *ServerHandler) InitiateGoogleOAuth(c *gin.Context) {
+	h.initiateGoogleOAuthHandler.InitiateGoogleOAuth(c)
+}
+
+// HandleGoogleOAuthCallback Google OAuthコールバック処理 (GET /oauth/google/callback)
+func (h *ServerHandler) HandleGoogleOAuthCallback(c *gin.Context, params generated.HandleGoogleOAuthCallbackParams) {
+	h.handleGoogleOAuthCallbackHandler.HandleGoogleOAuthCallback(c, params)
 }

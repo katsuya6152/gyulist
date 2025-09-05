@@ -19,6 +19,7 @@ import (
 	"gyulist-api-go/internal/infrastructure/services"
 	"gyulist-api-go/internal/interfaces/http/handlers"
 	"gyulist-api-go/internal/interfaces/http/handlers/generated"
+	"time"
 )
 
 // Injectors from wire.go:
@@ -54,7 +55,14 @@ func InitializeApp() (*gin.Engine, error) {
 	passwordHasher := providePasswordHasher(passwordService)
 	completeRegistrationUseCase := usecases.NewCompleteRegistrationUseCase(authRepository, passwordHasher)
 	completeRegistrationApplicationService := services3.NewCompleteRegistrationApplicationService(completeRegistrationUseCase)
-	serverHandler := handlers.NewServerHandler(config, healthInfrastructureService, authApplicationService, preRegisterApplicationService, registerUserApplicationService, verifyTokenApplicationService, completeRegistrationApplicationService)
+	googleOAuthConfig := provideGoogleOAuthConfig(config)
+	googleOAuthService := provideGoogleOAuthService(googleOAuthConfig)
+	initiateGoogleOAuthUseCase := usecases.NewInitiateGoogleOAuthUseCase(googleOAuthService)
+	initiateGoogleOAuthApplicationService := services3.NewInitiateGoogleOAuthApplicationService(initiateGoogleOAuthUseCase)
+	v := provideClock()
+	handleGoogleOAuthCallbackUseCase := usecases.NewHandleGoogleOAuthCallbackUseCase(authRepository, googleOAuthService, tokenGenerator, v)
+	handleGoogleOAuthCallbackApplicationService := services3.NewHandleGoogleOAuthCallbackApplicationService(handleGoogleOAuthCallbackUseCase)
+	serverHandler := handlers.NewServerHandler(config, healthInfrastructureService, authApplicationService, preRegisterApplicationService, registerUserApplicationService, verifyTokenApplicationService, completeRegistrationApplicationService, initiateGoogleOAuthApplicationService, handleGoogleOAuthCallbackApplicationService)
 	engine := NewRouter(config, serverHandler)
 	return engine, nil
 }
@@ -88,6 +96,21 @@ func provideEmailService(emailSvc *services.ResendEmailService) services2.EmailS
 	return emailSvc
 }
 
+// provideGoogleOAuthConfig はGoogle OAuth設定を提供します
+func provideGoogleOAuthConfig(cfg *configs.Config) *services2.GoogleOAuthConfig {
+	return &services2.GoogleOAuthConfig{
+		ClientID:     cfg.GoogleOAuth.ClientID,
+		ClientSecret: cfg.GoogleOAuth.ClientSecret,
+		RedirectURI:  cfg.GoogleOAuth.RedirectURI,
+		WebURL:       cfg.Email.WebURL,
+	}
+}
+
+// provideGoogleOAuthService はGoogleOAuthServiceを提供します
+func provideGoogleOAuthService(config *services2.GoogleOAuthConfig) services2.GoogleOAuthService {
+	return services.NewGoogleOAuthService(config)
+}
+
 // providePasswordHasher はPasswordHasherを提供します
 func providePasswordHasher(passwordSvc *services.PasswordService) services2.PasswordHasher {
 	return passwordSvc
@@ -101,6 +124,13 @@ func providePasswordVerifier(passwordSvc *services.PasswordService) services2.Pa
 // provideTokenGenerator はTokenGeneratorを提供します
 func provideTokenGenerator(jwtSvc *services.JWTService) services2.TokenGenerator {
 	return jwtSvc
+}
+
+// provideClock は現在時刻を提供します
+func provideClock() func() time.Time {
+	return func() time.Time {
+		return time.Now()
+	}
 }
 
 // NewRouter はGinルーターを作成します

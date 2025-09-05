@@ -1,0 +1,18 @@
+get:
+  summary: Google OAuth開始
+  description: |
+    Google OAuth認証フローを開始します。
+    ユーザーをGoogleの認証ページにリダイレクトします。
+  operationId: initiateGoogleOAuth
+  tags:
+    - OAuth
+  responses:
+    '302':
+      description: Google認証ページへのリダイレクト
+      headers:
+        Location:
+          schema:
+            type: string
+          description: Google OAuth認証URL
+    '500':
+      $ref: ../components/responses/common/InternalServerError.yaml

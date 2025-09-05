@@ -4,6 +4,8 @@
 package main
 
 import (
+	"time"
+
 	"gyulist-api-go/configs"
 	appServices "gyulist-api-go/internal/application/services"
 	"gyulist-api-go/internal/application/usecases"
@@ -35,6 +37,9 @@ func InitializeApp() (*gin.Engine, error) {
 		// メール設定
 		provideEmailConfig,
 
+		// Google OAuth設定
+		provideGoogleOAuthConfig,
+
 		// リポジトリ
 		repositories.NewHealthRepository,
 		repositories.NewAuthRepository,
@@ -45,12 +50,14 @@ func InitializeApp() (*gin.Engine, error) {
 		infraServices.NewJWTService,
 		infraServices.NewHealthInfrastructureService,
 		infraServices.NewResendEmailService,
+		provideGoogleOAuthService,
 
 		// Domainインターフェースの実装
 		providePasswordVerifier,
 		provideTokenGenerator,
 		provideEmailService,
 		providePasswordHasher,
+		provideClock,
 
 		// ドメインサービス
 		domainServices.NewUserDomainService,
@@ -61,6 +68,8 @@ func InitializeApp() (*gin.Engine, error) {
 		usecases.NewRegisterUserUseCase,
 		usecases.NewVerifyTokenUseCase,
 		usecases.NewCompleteRegistrationUseCase,
+		usecases.NewInitiateGoogleOAuthUseCase,
+		usecases.NewHandleGoogleOAuthCallbackUseCase,
 
 		// アプリケーションサービス
 		appServices.NewAuthApplicationService,
@@ -68,6 +77,8 @@ func InitializeApp() (*gin.Engine, error) {
 		appServices.NewRegisterUserApplicationService,
 		appServices.NewVerifyTokenApplicationService,
 		appServices.NewCompleteRegistrationApplicationService,
+		appServices.NewInitiateGoogleOAuthApplicationService,
+		appServices.NewHandleGoogleOAuthCallbackApplicationService,
 
 		// ハンドラー
 		handlers.NewServerHandler,
@@ -105,6 +116,21 @@ func provideEmailService(emailSvc *infraServices.ResendEmailService) domainServi
 	return emailSvc
 }
 
+// provideGoogleOAuthConfig はGoogle OAuth設定を提供します
+func provideGoogleOAuthConfig(cfg *configs.Config) *domainServices.GoogleOAuthConfig {
+	return &domainServices.GoogleOAuthConfig{
+		ClientID:     cfg.GoogleOAuth.ClientID,
+		ClientSecret: cfg.GoogleOAuth.ClientSecret,
+		RedirectURI:  cfg.GoogleOAuth.RedirectURI,
+		WebURL:       cfg.Email.WebURL,
+	}
+}
+
+// provideGoogleOAuthService はGoogleOAuthServiceを提供します
+func provideGoogleOAuthService(config *domainServices.GoogleOAuthConfig) domainServices.GoogleOAuthService {
+	return infraServices.NewGoogleOAuthService(config)
+}
+
 // providePasswordHasher はPasswordHasherを提供します
 func providePasswordHasher(passwordSvc *infraServices.PasswordService) domainServices.PasswordHasher {
 	return passwordSvc
@@ -118,6 +144,13 @@ func providePasswordVerifier(passwordSvc *infraServices.PasswordService) domainS
 // provideTokenGenerator はTokenGeneratorを提供します
 func provideTokenGenerator(jwtSvc *infraServices.JWTService) domainServices.TokenGenerator {
 	return jwtSvc
+}
+
+// provideClock は現在時刻を提供します
+func provideClock() func() time.Time {
+	return func() time.Time {
+		return time.Now()
+	}
 }
 
 // NewRouter はGinルーターを作成します
